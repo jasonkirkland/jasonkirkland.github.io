@@ -58,7 +58,7 @@
             <!--=================================-->
             <v-col cols="12" md="2">
 
-              <v-card class="mx-auto blue-grey" dark max-width="400">
+              <v-card class="mx-auto indigo" dark max-width="400">
                 <v-list-item two-line>
                   <v-list-item-content>
                     <v-list-item-title class="headline">
@@ -89,7 +89,7 @@
             <!--=================================-->
             <v-col cols="12" md="2">
 
-              <v-card class="mx-auto blue-grey" dark max-width="400">
+              <v-card class="mx-auto indigo" dark max-width="400">
                 <v-list-item two-line>
                   <v-list-item-content>
                     <v-list-item-title class="headline">
@@ -121,7 +121,7 @@
             <!--=================================-->
             <v-col cols="12" md="2">
 
-              <v-card class="mx-auto blue-grey" dark max-width="400">
+              <v-card class="mx-auto indigo" dark max-width="400">
                 <v-list-item two-line>
                   <v-list-item-content>
                     <v-list-item-title class="headline">
@@ -153,7 +153,7 @@
             <!--=================================-->
             <v-col cols="12" md="2">
 
-              <v-card class="mx-auto blue-grey" dark max-width="400">
+              <v-card class="mx-auto indigo" dark max-width="400">
                 <v-list-item two-line>
                   <v-list-item-content>
                     <v-list-item-title class="headline">
@@ -181,11 +181,43 @@
             </v-col>
 
             <!--=================================-->
+            <!--Active Denton County Cases-->
+            <!--=================================-->
+            <v-col cols="12" md="2">
+
+              <v-card class="mx-auto indigo" dark max-width="400">
+                <v-list-item two-line>
+                  <v-list-item-content>
+                    <v-list-item-title class="headline">
+                      Active
+                    </v-list-item-title>
+                    <v-list-item-subtitle> (DENTON COUNTY CASES)</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+
+                <v-card-text style="padding-top:0;">
+                  <v-row align="center">
+                    <v-col class="display-3" cols="12">
+                      {{latest.active}}
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col class="" cols="12">
+                      
+                      <br> <small><i>{{latest.report_date}}</i></small>
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+
+            </v-col>
+
+            <!--=================================-->
             <!--GA-32 Metric-->
             <!--=================================-->
             <v-col cols="12" md="2">
 
-              <v-card class="mx-auto blue-grey" dark max-width="400">
+              <v-card class="mx-auto indigo" dark max-width="400">
                 <v-list-item two-line>
                   <v-list-item-content>
                     <v-list-item-title class="headline">
@@ -224,7 +256,7 @@
           <!--=================================-->
           <!--Table of historical data-->
           <!--=================================-->
-          <v-row>
+          <v-row class="mt-6">
             <v-col cols="12" md="12" sm="12">
 
               <!--Loading indicator-->
@@ -256,7 +288,7 @@
 
                 <template v-slot:item.icu_beds_occupancy_rate="{ item }">
                   <v-progress-linear
-                        color="blue-grey"
+                        color="indigo"
                         height="25"
                         :value="parseFloat(item.icu_beds_occupancy_rate.replace('%',''))"
                         dark
@@ -267,7 +299,7 @@
 
                 <template v-slot:item.icu_covid_rate="{ item }">
                   <v-progress-linear
-                        color="blue-grey"
+                        color="indigo"
                         height="25"
                         :value="parseFloat(item.icu_covid_rate.replace('%',''))"
                         dark
@@ -278,7 +310,7 @@
 
                 <template v-slot:item.ventilator_usage_rate="{ item }">
                   <v-progress-linear
-                        color="blue-grey"
+                        color="indigo"
                         height="25"
                         :value="parseFloat(item.ventilator_usage_rate.replace('%',''))"
                         dark
@@ -334,6 +366,7 @@
           daily_covid_capacity: 0,
           Seven_day_COVID_Capacity: 0,
           tsa: 0,
+          active: 0,
         }],
         tsaStats: [{
           covidPercent: "",
@@ -344,6 +377,11 @@
         dentonCountyNewCases: [{
           report_date: "",
           caseCount: -1,
+        }],
+        countyWideStats: [{
+          date: "",
+          unixDate: 0,
+          active: 0,
         }],
         dialog: true,
         headers: [
@@ -359,6 +397,7 @@
           { text: "Vents (Avail)", value: "ventilators_available" },
           { text: "Vents (% In Use)", value: "ventilator_usage_rate" },
           { text: "Denton County (GA-32)", value: "daily_covid_capacity" },
+          { text: "Active Cases", value: "active"},
           { text: "TSA E (GA-32)", value: "tsa" },
         ]
       }),
@@ -368,11 +407,14 @@
         _this.getHospitalizationStats()
         _this.getTraumaServiceAreaStats()
         _this.getDentonCountyNewCases()
+        _this.getCountyWideStats()
 
         setInterval(function () {
           _this.getHospitalizationStats()
           _this.getTraumaServiceAreaStats()
-        }, (30 * 1000))
+          _this.getDentonCountyNewCases()
+          _this.getCountyWideStats()
+        }, (65 * 1000))
 
       },
       methods: {
@@ -406,6 +448,26 @@
                   return {
                     report_date: _this.unixDatetimeToDate(f.DateOfObservationDateTime, "-"),
                     caseCount: f.CaseCount,
+                  }
+                })
+            })
+            .catch(error =>
+              console.error(error)
+            )
+        },
+        getCountyWideStats: function () {
+          const _this = this
+          const _url = "https://services.arcgis.com/oTsZYNubyv7xK5yP/ArcGIS/rest/services/COVIDDailyObservations_Hub/FeatureServer/1/query?f=pjson&where=1=1&outfields=*&outSR=4326"
+
+          _this.fetch(_url)
+            .then(data => {
+              _this.countyWideStats = data.features
+                .map(f => f.attributes)
+                .map(f => {
+                  return {
+                    date: _this.unixDatetimeToDate(f.DateTimeOfObservation, "-"),
+                    unixDate: f.DateTimeOfObservation,
+                    active: f.Active,
                   }
                 })
             })
@@ -504,6 +566,12 @@
               return a == b
             })
 
+            const _countyWideStats = _this.countyWideStats.filter(t => {
+              const a = _this.unixDatetimeToDate(s.report_date)
+              const b = _this.unixDatetimeToDate(t.unixDate)
+              return a == b
+            })
+
             return {
               objectid: s.objectid,
               globalid: s.globalid,
@@ -529,89 +597,13 @@
               daily_covid_capacity: (s.Daily_COVID_Capacity * 100).toFixed(1) + '%',
               Seven_day_COVID_Capacity: s.Seven_day_COVID_Capacity,
               tsa: (_tsa.length > 0 ? (_tsa[0].covidPercent * 100).toFixed(1) + '%' : 'No Data'),
+              active: (_countyWideStats.length > 0 ? _countyWideStats[0].active.toLocaleString() : 0),
             }
           }).sort((a, b) => {
             return b.report_date1 - a.report_date1
           })
         },
-        filtered2: function () {
-          const _this = this
-
-          return _this.makeArrayOfDates()
-            .sort((a, b) => { return b.report_date1 - a.report_date1 })
-            .map(_datetime => {
-
-              const _county = _this.stats.filter(s => {
-                const a = _this.jsDatetimeToDate(_datetime, "")
-                const b = _this.unixDatetimeToDate(s.date, "")
-                return a == b
-              })
-
-              const _tsa = _this.tsaStats.filter(t => {
-                const a = _this.jsDatetimeToDate(_datetime, "")
-                const b = _this.unixDatetimeToDate(t.date, "")
-                return a == b
-              })
-
-              if (_county.length > 0) {
-                return {
-                  report_date1: _this.jsDatetimeToDate(_datetime, ""),
-                  report_date: _this.jsDatetimeToDate(_datetime, "-") + ' (' + _datetime.toDateString().substr(0, 3) + ')',
-                  objectid: _county[0].objectid,
-                  globalid: _county[0].globalid,
-                  total_patients_in_hospitals: _county[0].total_patients_in_hospitals,
-                  total_available_beds: _county[0].total_available_beds,
-                  total_occupancy_rate: _county[0].total_occupancy_rate,
-                  icu_total: parseInt(_county[0].icu_beds_occupied) + parseInt(_county[0].icu_beds_available),
-                  icu_beds_occupied: _county[0].icu_beds_occupied,
-                  icu_beds_available: _county[0].icu_beds_available,
-                  icu_beds_occupancy_rate: _county[0].icu_beds_occupancy_rate.toFixed(1) + '%',
-                  ventilators_in_use: _county[0].ventilators_in_use,
-                  ventilators_available: _county[0].ventilators_available,
-                  ventilator_usage_rate: _county[0].ventilator_usage_rate.toFixed(1) + '%',
-                  total_confirmed_covid_19_census: _county[0].total_confirmed_covid_19_census,
-                  non_covid_hospitalizations: _county[0].non_covid_hospitalizations,
-                  icu_covid_19_census: _county[0].icu_covid_19_census,
-                  icu_non_covid_19_census: _county[0].icu_non_covid_19_census,
-                  icu_covid_rate: (_county[0].icu_covid_19_census / (_county[0].icu_covid_19_census + _county[0].icu_non_covid_19_census) * 100).toFixed(1) + '%',
-                  covid_hospital_rate: (_county[0].covid_hospital_rate * 100).toFixed(1) + '%',
-                  covid_hospital_rate_7day: _county[0].covid_hospital_rate_7day,
-                  daily_covid_capacity: (_county[0].Daily_COVID_Capacity * 100).toFixed(1) + '%',
-                  Seven_day_COVID_Capacity: _county[0].Seven_day_COVID_Capacity,
-                  tsa: (_tsa.length > 0 ? (_tsa[0].covidPercent * 100).toFixed(1) + '%' : 'No Data'),
-                }
-              } else {
-                return {
-                  report_date1: _this.jsDatetimeToDate(_datetime, ""),
-                  report_date: _this.jsDatetimeToDate(_datetime, "-") + ' (' + _datetime.toDateString().substr(0, 3) + ')',
-                  objectid: 0,
-                  globalid: 0,
-                  total_patients_in_hospitals: 0,
-                  total_available_beds: 0,
-                  total_occupancy_rate: 0,
-                  icu_total: 0,
-                  icu_beds_occupied: 0,
-                  icu_beds_available: 0,
-                  icu_beds_occupancy_rate: 0 + '%',
-                  ventilators_in_use: 0,
-                  ventilators_available: 0,
-                  ventilator_usage_rate: 0 + '%',
-                  total_confirmed_covid_19_census: 0,
-                  non_covid_hospitalizations: 0,
-                  icu_covid_19_census: 0,
-                  icu_non_covid_19_census: 0,
-                  icu_covid_rate: 0 + '%',
-                  covid_hospital_rate: 0 + '%',
-                  covid_hospital_rate_7day: 0,
-                  daily_covid_capacity: 0 + '%',
-                  Seven_day_COVID_Capacity: 0,
-                  tsa: (_tsa.length > 0 ? (_tsa[0].covidPercent * 100).toFixed(1) + '%' : 'No Data'),
-                }
-              }
-            }).sort((a, b) => {
-              return b.report_date1 - a.report_date1
-            })
-        },
+       
         latest: function () {
           const _this = this
           return _this.filtered[0]
