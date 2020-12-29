@@ -203,7 +203,7 @@
                   </v-row>
                   <v-row>
                     <v-col class="" cols="12">
-                      
+                      Percent Infected: {{ ((parseInt(latest.active.replace(",","")) / 915673) * 100).toFixed(1) + "%"}} of 915,673
                       <br> <small><i>{{latest.report_date}}</i></small>
                     </v-col>
                   </v-row>
