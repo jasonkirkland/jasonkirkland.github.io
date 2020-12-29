@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>CNN</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+    <link rel="icon" type="image/png" href="http://lite.cnn.com/favicon.ico">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Product+Sans:400,400i,700,700i" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Product+Sans:400,400i,700,700i" rel="stylesheet" type="text/css">
+        
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vuetify/2.3.13/vuetify.min.css" >
+    
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vuetify/2.3.13/vuetify.js"></script>
+    
+  </head>
+  
+  <body>
+  
+    <div id="app">
+    <v-app>
+    
+      <v-app-bar class="red darken-2 white--text" app>
+        <v-toolbar-title style="width: 300px" class="ml-0 pl-4"> CNN</v-toolbar-title>
+      </v-app-bar>
+      
+      <v-main class="grey lighten-3 pl-4 pr-4">
+        <v-container class="pl-0 pr-0">
+		
+			<!--Loading indicator-->
+			<v-dialog v-model="dialog" hide-overlay persistent width="300">
+				<v-card color="primary" dark>
+					<v-card-text class="pt-3">
+						Getting data from CNN Lite...
+						<v-progress-linear indeterminate color="white" class="ma-3"></v-progress-linear>
+					</v-card-text>
+				</v-card>
+			</v-dialog>
+
+			<!--Stories-->
+			<v-list>
+				<v-list-item v-for="story in stories" dense>
+					<v-list-item-content>
+						<v-list-item-title>
+							<a class="text-lg-h6 text-sm-body-1" style="text-decoration: none; white-space: pre-wrap; ":href="story.url" target="blank">{{story.title}}</a>
+							<br>
+							<small> ({{story.date}})</small>
+						</v-list-item-title>
+					</v-list-item-content>
+				</v-list-item>
+			</v-list>
+
+        </v-container>
+      </v-main>
+
+      <v-footer        
+        class="font-weight-medium"
+      >
+        <v-col
+          class="text-center"
+          cols="12">
+          <a href="https:/lite.cnn.com/en" target="_blank">CNN</a>
+        </v-col>
+      </v-footer>
+      
+      <!--Extra spacing to allow overflow scrolling on mobile-->
+      <br>
+      <br>
+      
+    </v-app>
+    </div>
+    
+    <script>
+      new Vue({
+        el: '#app',
+        vuetify: new Vuetify(),
+        data: () => ({
+          stories: [],
+		  dialog: true,
+        }),
+        mounted: function(){
+          const _this = this
+          _this.getStories()
+        },
+        methods: {
+			get: function (url = '') {
+				return fetch(url, {
+					method: "GET",
+				}).then(response => response.json())
+			},
+			getStories(){
+				const _this = this
+            
+				_this.get("https://script.google.com/macros/s/AKfycbykHZZHpmww6d48S7m3e3RkjolFU-bJ446QqV-pYT-XWGNOW6yHa4ZU/exec")
+				.then(_results => {
+					_results.forEach(r => {
+						if (r != null && typeof r != 'undefined'){
+							_this.stories.push({
+								date: r.date,
+								title: r.title.replaceAll("&#x27;","'").replaceAll("</a",""),
+								url: r.url,
+							})
+						}
+					})
+					_this.dialog = false
+				})
+          },
+        },
+        computed: {
+        }
+      })
+    </script>
+  </body>
+</html>
+
+
