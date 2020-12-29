@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+	<title>Radar</title>
+	
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+	
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Product+Sans:400,400i,700,700i" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Product+Sans:400,400i,700,700i" rel="stylesheet" type="text/css">
+        
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vuetify/2.3.13/vuetify.min.css" >
+    
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vuetify/2.3.13/vuetify.js"></script>
+    
+  </head>
+  
+  <body>
+  
+    <div id="app">
+    <v-app>
+    
+      <v-app-bar class="blue darken-2 white--text" app>
+        <v-toolbar-title style="width: 300px" class="ml-0 pl-4"> Radar</v-toolbar-title>
+      </v-app-bar>
+      
+      <v-main class="grey lighten-3 pl-4 pr-4">
+        <v-container fluid>
+		  <v-row>
+            <v-col cols="12" md="6">
+              <v-card>
+                <v-img
+                  :src="radar.northtexas"
+                  class="grey darken-4"
+                ></v-img>
+                <v-card-title class="title">
+                  North Texas  
+                </v-card-title>                
+              </v-card>
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-card>
+                <v-img
+                  :src="radar.metroplex"
+                  class="grey darken-4"
+                ></v-img>
+                <v-card-title class="title">
+                  Metroplex
+                </v-card-title>
+              </v-card>
+            </v-col>
+          </v-row>
+          
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-card>
+                <v-img
+                  :src="radar.usa"
+                  class="grey darken-4"
+                ></v-img>
+                <v-card-title class="title">
+                  USA
+                </v-card-title>
+              </v-card>
+            </v-col>
+            
+            <v-col cols="12" md="6">
+              <v-row>
+              
+                <v-col cols="12" md="12" lg="6">
+                
+                  <!--Now-->
+                  <v-card
+                    class="mx-auto"
+                    max-width="400"
+                  >
+                    <v-list-item two-line>
+                      <v-list-item-content>
+                        <v-list-item-title class="headline">Dallas</v-list-item-title>
+                        <v-list-item-subtitle>Current - {{weather.summary}}</v-list-item-subtitle>
+                      </v-list-item-content>
+                    </v-list-item>
+              
+                    <v-card-text>
+                      <v-row align="center">
+                        <v-col class="display-3" cols="6">{{Math.round(weather.temperature)}}&deg;F</v-col>
+                        <v-col cols="6">
+                          <v-img :src="'https://wfaa.com' + weather.icon.replace('.png','_64x64.png')" alt="Weather image" width="92"></v-img>
+                        </v-col>
+                      </v-row>
+                    </v-card-text>
+                
+                    <v-list-item>
+                      <v-list-item-title>Cloud Cover</v-list-item-title>
+                      <v-list-item-subtitle>{{Math.round(weather.cloudCover * 100)}}%</v-list-item-subtitle>
+                    </v-list-item>  
+                
+                    <v-list-item>
+                      <v-list-item-title>Dew Point</v-list-item-title>
+                      <v-list-item-subtitle>{{Math.round(weather.dewPoint)}}&deg;F</v-list-item-subtitle>
+                    </v-list-item> 
+                
+                    <v-list-item>
+                      <v-list-item-title>Humidity</v-list-item-title>
+                      <v-list-item-subtitle>{{Math.round(weather.humidity * 100)}}%</v-list-item-subtitle>
+                    </v-list-item>
+                
+                    <v-list-item>
+                      <v-list-item-title>Chance of Rain</v-list-item-title>
+                      <v-list-item-subtitle>{{Math.round(weather.precipProbability * 100)}}%</v-list-item-subtitle>
+                    </v-list-item>
+                
+                    <v-list-item>
+                      <v-list-item-title>Visibility</v-list-item-title>
+                      <v-list-item-subtitle>{{Math.round(weather.visibility)}} Miles</v-list-item-subtitle>
+                    </v-list-item>
+                
+                    <v-list-item>
+                      <v-list-item-title>Wind Speed</v-list-item-title>
+                      <v-list-item-subtitle>{{Math.round(weather.windSpeed)}} mph</v-list-item-subtitle>
+                    </v-list-item>
+                
+                    <v-list-item>
+                      <v-list-item-title>Wind Gust</v-list-item-title>
+                      <v-list-item-subtitle>{{Math.round(weather.windGust)}} mph</v-list-item-subtitle>
+                    </v-list-item>
+                
+                  </v-card>
+                </v-col>
+              
+                <!--Forecast-->
+                <v-col cols="12" md="12" lg="6">
+                  <v-card
+                    class="mx-auto"
+                    max-width="400"
+                  >
+                    <v-list-item two-line>
+                      <v-list-item-content>
+                        <v-list-item-title class="headline">Dallas</v-list-item-title>
+                        <v-list-item-subtitle>Forecast</v-list-item-subtitle>
+                      </v-list-item-content>
+                    </v-list-item>
+                    
+                    <v-expansion-panels>
+                  
+                      <v-expansion-panel v-for="(item,i) in 6":key="i">
+                      
+                        <v-expansion-panel-header>
+                      
+                          <v-col cols="3">
+                          {{(i==0 ? "TODAY" : (forecast.dayOfWeek[i] ? forecast.dayOfWeek[i].toUpperCase().substr(0,3) : "?") )  }}
+                          </v-col>
+                          
+                          <v-col cols="2">
+                            <v-img :src="forecastIcon(forecast.daypart[0].wxPhraseLong[i])" alt="Image" width="64"></v-img>
+                          </v-col>
+                          
+                          <v-col cols="4">
+                          {{forecast.daypart[0].wxPhraseLong[i]}}
+                          </v-col>
+                        
+                          <v-col cols="3">
+                          {{temperature[i].hi + "°" + " | " + temperature[i].lo + "°"}}
+                          </v-col>
+                        
+                        </v-expansion-panel-header>
+                        
+                        <v-expansion-panel-content>
+                          Coming soon
+                        </v-expansion-panel-content>
+                      
+                      </v-expansion-panel>
+                    </v-expansion-panels>
+                  </v-card>
+                  
+                </v-col>
+              
+            </v-row>
+            
+            </v-col>
+          </v-row>
+          
+        </v-container>
+      </v-main>
+      
+      <v-footer        
+        class="font-weight-medium"
+      >
+        <v-col
+          class="text-center"
+          cols="12">
+          <a href="https://script.google.com/d/1x7OUuXUBHDO_QW3-D4butibhPRRCObdTHp-2HXLG9BiYaaVvBLh9abkK/edit?usp=drive_web&folder=0ADujwpNco4G-Uk9PVA" target="_blank">Google Apps Script</a>
+          &nbsp | &nbsp 
+          <a href="https://wfaa.com/weather" target="_blank">WFAA</a>
+        </v-col>
+      </v-footer>
+      
+      <!--Extra spacing to allow overflow scrolling on mobile-->
+      <br>
+      <br>
+      
+    </v-app>
+    </div>
+    
+    <script>
+      new Vue({
+        el: '#app',
+        vuetify: new Vuetify(),
+        data: () => ({
+          radar: {
+            northtexas: "https://cdn.tegna-media.com/wfaa/weather/animated-loops/comp/temp_880x495/new_dma.gif?123",
+            metroplex: "https://cdn.tegna-media.com/wfaa/weather/animated-loops/comp/temp_880x495/new_metro.gif?123",
+            usa: "https://cdn.tegna-media.com/wfaa/weather/animated-loops/comp/temp_880x495/usa_anim.gif?123",
+          },
+          weather: {
+            temperature:0,
+            summary: "", 
+            icon: ""
+          },
+          forecastIcons: {
+            clear: "wx-71.png",
+            sunny: "wx-71.png",
+            partly_clear: "wx-71.png",
+            partly_sunny: "wx-71.png",
+            partly_cloudy: "wx-69.png",  
+            showers: "wx-76.png",
+            drizzle: "wx-76.png",
+            rain: "wx-76.png",
+            scattered_thunderstorms: "wx-84.png",
+          },
+          forecast: 		{
+			dayOfWeek: [],
+			expirationTimeUtc: [],
+			moonPhase: [],
+			moonPhaseCode: [],
+			moonPhaseDay: [],
+			moonriseTimeLocal: [],
+			moonriseTimeUtc: [],
+			moonsetTimeLocal: [],
+			moonsetTimeUtc: [],
+			narrative: [],
+			qpf: [],
+			qpfSnow: [],
+			sunriseTimeLocal: [],
+			sunriseTimeUtc: [],
+			sunsetTimeLocal: [],
+			sunsetTimeUtc: [],
+			temperatureMax: [],
+			temperatureMin: [],
+			validTimeLocal: [],
+			validTimeUtc: [],
+			daypart: [{
+				cloudCover: [],
+				dayOrNight: [],
+				daypartName: [],
+				iconCode: [],
+				iconCodeExtend: [],
+				narrative: [],
+				precipChance: [],
+				precipType: [],
+				qpf: [],
+				qpfSnow: [],
+				qualifierCode: [],
+				qualifierPhrase: [],
+				relativeHumidity: [],
+				snowRange: [],
+				temperature: [101, 1, 102, 2, 103, 3, 104, 4, 105, 5, 106, 6, 107, 7, 108, 8, 109, 9, 110, 10, 111, 11],
+				temperatureHeatIndex: [],
+				temperatureWindChill: [],
+				thunderCategory: [],
+				thunderIndex: [],
+				uvDescription: [],
+				uvIndex: [],
+				windDirection: [],
+				windDirectionCardinal: [],
+				windPhrase: [],
+				windSpeed: [],
+				wxPhraseLong: [],
+				wxPhraseShort: []
+			}]
+		  },
+        }),
+        mounted: function(){
+          const _this = this
+          
+          _this.getWeatherData()
+          
+          //Refesh data
+          setInterval(function(){
+            _this.getWeatherData()
+          },(61*1000))
+          
+          //Refresh radar images
+          setInterval(function(){
+            Object.keys(_this.radar).forEach(k => {
+              _this.radar[k] = _this.radar[k].split("?")[0] + "?" + new Date().toISOString().replaceAll("-","").replaceAll(":","").replaceAll(".","")
+            })
+          },(32*1000))
+        },
+        methods: {
+		  get: function (url = '') {
+			return fetch(url, {
+				method: "GET",
+			}).then(response => response.json())
+		  },
+          getWeatherData: function(){
+            const _this = this
+            const _url = "https://script.google.com/macros/s/AKfycbx6QzlNMEVwKdFBkynlx8T5Q9HFxwRzMS53hAhLtxpWoRQSzu5mox6hXQ/exec"
+			
+			_this.get(_url)
+			.then(_results => {
+				_this.weather = _results.current
+				_this.forecast = _results.forecast
+			})		
+          },
+          forecastIcon: function(_phrase){
+            const _this = this
+             if (_phrase){
+             _phrase = _phrase.toLowerCase().replace(" ","_")            
+             _phrase = _phrase.replace("mostly","partly")
+             _phrase = _phrase.includes("showers") ? "showers" : _phrase
+            }
+            const _icon = _this.forecastIcons[_phrase]
+            
+            if (_icon){
+              return "https://www.wfaa.com/assets/shared-images/weather-icons/" + _icon.replace('.png','_64x64.png')
+            }else{
+              return ""
+            }
+          },
+        },
+        computed: {
+          temperature: function(){
+            const _this = this
+            const _t = _this.forecast.daypart[0].temperature
+            return [
+              {hi: _t[0], lo: _t[1]},
+              {hi: _t[2], lo: _t[3]},
+              {hi: _t[4], lo: _t[5]},
+              {hi: _t[6], lo: _t[7]},
+              {hi: _t[8], lo: _t[9]},
+              {hi: _t[10], lo: _t[11]},
+            ]
+          }
+        }
+      })
+    </script>
+  </body>
+</html>
+
+
