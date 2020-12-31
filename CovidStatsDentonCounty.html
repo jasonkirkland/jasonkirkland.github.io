@@ -198,12 +198,12 @@
                 <v-card-text style="padding-top:0;">
                   <v-row align="center">
                     <v-col class="display-3" cols="12">
-                      {{latest.active}}
+                      {{latestDentonCountyActiveCases}}
                     </v-col>
                   </v-row>
                   <v-row>
                     <v-col class="" cols="12">
-                      Percent Infected: {{ latest.active ? ((parseInt(latest.active.replace(",","")) / 915673) * 100).toFixed(1) + "%" : 0}} of 915,673
+                      Percent Infected: {{ latestDentonCountyActiveCases ? ((parseInt(latestDentonCountyActiveCases.replace(",","")) / 915673) * 100).toFixed(1) + "%" : '-'}} of 915,673
                       <br> <small><i>{{latest.report_date}}</i></small>
                     </v-col>
                   </v-row>
@@ -618,6 +618,18 @@
           const _records = _this.dentonCountyNewCases.length
           return _this.dentonCountyNewCases[_records - 2]
         },
+        latestDentonCountyActiveCases: function(){
+          const _this = this
+          let _val = ''
+          if (_this.countyWideStats.length > 1){
+            const _records = _this.countyWideStats.filter(t => parseInt(t.active) > 0)
+            const _latest = _records[_records.length - 1]
+            _val =  parseInt(_latest.active)
+          }else{
+            _val = 0
+          }
+          return _val.toLocaleString()
+        }
       },
       watch: {
         stats: function (val) {
