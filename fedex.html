@@ -16,26 +16,26 @@
   </head>
   
   <body>
-    <h3>Scan Events</h3>
-	<pre id="scanEvents"></pre>
 	
-	<h3>All</h3>
-	<pre id="all"></pre>
 	
     <script>	  
 		fetch("https://www.fedex.com/trackingCal/track?action=trackpackages&data=%7B%22TrackPackagesRequest%22:%7B%22appDeviceType%22:%22DESKTOP%22,%22appType%22:%22WTRK%22,%22processingParameters%22:%7B%7D,%22uniqueKey%22:%22%22,%22supportCurrentLocation%22:true,%22supportHTML%22:true,%22trackingInfoList%22:%5B%7B%22trackNumberInfo%22:%7B%22trackingNumber%22:%22787429458512%22,%22trackingQualifier%22:%222459356000~787429458512~FX%22,%22trackingCarrier%22:null%7D%7D%5D%7D%7D&format=json&locale=en_US&version=1")
 		.then(response => response.json())
 		.then(_results => {
 			const _all = _results
-			const _scanEventList = _all.TrackPackagesResponse.packageList[0].scanEventList			
+			const _packageList = _all.TrackPackagesResponse.packageList[0]
+			const _trackingNumber = _packageList.trackingNbr
+			const _scanEventList = _packageList.scanEventList			
 			
-			appendElement("scanEvents", JSON.stringify(_scanEventList, undefined, 4) )
-			appendElement("all", JSON.stringify(_all, undefined, 4) )
+			appendElement("Tracking Number", _trackingNumber)
+			appendElement("Scan Events", _scanEventList)
+			appendElement("All", _all )
 		})   
 
-		function appendElement(_element,_text){
-			document.getElementById(_element).innerHTML = _text
-			//document.body.appendChild(document.createElement('pre')).innerHTML = _text
+		function appendElement(_title,_text){
+			//document.getElementById(_element).innerHTML = _text
+			document.body.appendChild(document.createElement('h3')).innerHTML = _title
+			document.body.appendChild(document.createElement('pre')).innerHTML = JSON.stringify(_text, undefined, 4) )
 		}
     </script>
   </body>
