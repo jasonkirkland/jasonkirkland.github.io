@@ -24,11 +24,10 @@
 		.then(_results => {
 			const _all = _results
 			const _packageList = _all.TrackPackagesResponse.packageList[0]
-			const _trackingNumber = _packageList.trackingNbr
-			const _scanEventList = _packageList.scanEventList			
 			
-			appendElement("Tracking Number", _trackingNumber)
-			appendElement("Scan Events", _scanEventList)
+			appendElement("Tracking Number",  _packageList.trackingNbr)
+			appendElement("Status with Details", _packageList.statusWithDetails)
+			appendElement("Scan Events", _packageList.scanEventList)
 			appendElement("All", _all )
 		})   
 
