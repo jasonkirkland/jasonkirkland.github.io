@@ -18,7 +18,42 @@
   <body>
 	<a href="https://www.fedex.com/fedextrack/?trknbr=787429457836&trkqual=2459356000~787429457836~FX">Link to FedEx</a>
 	
-    <script>	  
+    <script>
+		const _statusCodes = [
+			{code:'AA',definition: 'At Airport'},
+			{code:'AD',definition: 'At Delivery'},
+			{code:'AF',definition: 'At FedEx Facility'},
+			{code:'AP',definition: 'At Pick Up'},
+			{code:'CA',definition: 'Shipment cancelled'},
+			{code:'CH',definition: 'Location changed'},
+			{code:'DE',definition: 'Delivery Exception'},
+			{code:'DL',definition: 'Delivered'},
+			{code:'DP',definition: 'Departed FedEx location'},
+			{code:'DR',definition: 'Vehicle Furnished, Not Used'},
+			{code:'DS',definition: 'Vehicle Dispatched'},
+			{code:'DY',definition: 'Delay'},
+			{code:'EA',definition: 'Enroute to Airport Delay'},
+			{code:'ED',definition: 'Enroute to Delivery'},
+			{code:'EO',definition: 'Enroute to Origin Airport'},
+			{code:'EP',definition: 'Enroute to Pickup'},
+			{code:'EO',definition: 'Enroute to Origin Airport'},
+			{code:'EP',definition: 'Enroute to Pickup'},
+			{code:'FD',definition: 'At FedEx Destination'},
+			{code:'HL',definition: 'Hold At Location'},
+			{code:'IT',definition: 'In Transit'},
+			{code:'LO',definition: 'Left Origin'},
+			{code:'OC',definition: 'Order created'},
+			{code:'OD',definition: 'Out for Delivery'},
+			{code:'PF',definition: 'Plane in Flight'},
+			{code:'PL',definition: 'Plane Landed'},
+			{code:'PU',definition: 'Picked Up'},
+			{code:'RS',definition: 'Return to Shipper'},
+			{code:'SE',definition: 'Shipment Exception'},
+			{code:'SF',definition: 'At Sort Facility'},
+			{code:'SP',definition: 'Split Status - Multiple Statuses'},
+			{code:'TR',definition: 'Transfer'},
+		]
+		
 		fetch("https://www.fedex.com/trackingCal/track?action=trackpackages&data=%7B%22TrackPackagesRequest%22:%7B%22appDeviceType%22:%22DESKTOP%22,%22appType%22:%22WTRK%22,%22processingParameters%22:%7B%7D,%22uniqueKey%22:%22%22,%22supportCurrentLocation%22:true,%22supportHTML%22:true,%22trackingInfoList%22:%5B%7B%22trackNumberInfo%22:%7B%22trackingNumber%22:%22787429457836%22,%22trackingQualifier%22:%222459356000~787429457836~FX%22,%22trackingCarrier%22:null%7D%7D%5D%7D%7D&format=json&locale=en_US&version=1")
 		.then(response => response.json())
 		.then(_results => {
@@ -27,6 +62,7 @@
 			
 			appendElement("Tracking Number",  _packageList.trackingNbr)
 			appendElement("Status with Details", _packageList.statusWithDetails)
+			appendElement("Latest Scan Event Status", _statusCodes.filter(s => s.code == _packageList.scanEventList[0].statusCD))
 			appendElement("Scan Events", _packageList.scanEventList)
 			appendElement("All", _all )
 		})   
