@@ -54,23 +54,33 @@
 			{code:'TR',definition: 'Transfer'},
 		]
 		
-		fetch("https://www.fedex.com/trackingCal/track?action=trackpackages&data=%7B%22TrackPackagesRequest%22:%7B%22appDeviceType%22:%22DESKTOP%22,%22appType%22:%22WTRK%22,%22processingParameters%22:%7B%7D,%22uniqueKey%22:%22%22,%22supportCurrentLocation%22:true,%22supportHTML%22:true,%22trackingInfoList%22:%5B%7B%22trackNumberInfo%22:%7B%22trackingNumber%22:%22787429457836%22,%22trackingQualifier%22:%222459356000~787429457836~FX%22,%22trackingCarrier%22:null%7D%7D%5D%7D%7D&format=json&locale=en_US&version=1")
-		.then(response => response.json())
-		.then(_results => {
-			const _all = _results
-			const _packageList = _all.TrackPackagesResponse.packageList[0]
-			
-			appendElement("Tracking Number",  _packageList.trackingNbr)
-			appendElement("Status with Details", _packageList.statusWithDetails)
-			appendElement("Latest Scan Event Status", _statusCodes.filter(s => s.code == _packageList.scanEventList[0].statusCD))
-			appendElement("Scan Events", _packageList.scanEventList)
-			appendElement("All", _all )
-		})   
+		function getData(){
+			fetch("https://www.fedex.com/trackingCal/track?action=trackpackages&data=%7B%22TrackPackagesRequest%22:%7B%22appDeviceType%22:%22DESKTOP%22,%22appType%22:%22WTRK%22,%22processingParameters%22:%7B%7D,%22uniqueKey%22:%22%22,%22supportCurrentLocation%22:true,%22supportHTML%22:true,%22trackingInfoList%22:%5B%7B%22trackNumberInfo%22:%7B%22trackingNumber%22:%22787429457836%22,%22trackingQualifier%22:%222459356000~787429457836~FX%22,%22trackingCarrier%22:null%7D%7D%5D%7D%7D&format=json&locale=en_US&version=1")
+			.then(response => response.json())
+			.then(_results => {
+				const _all = _results
+				const _packageList = _all.TrackPackagesResponse.packageList[0]
+				
+				document.body.innerHTML = ''
+				
+				appendElement("Tracking Number",  _packageList.trackingNbr)
+				appendElement("Status with Details", _packageList.statusWithDetails)
+				appendElement("Latest Scan Event Status", _statusCodes.filter(s => s.code == _packageList.scanEventList[0].statusCD))
+				appendElement("Scan Events", _packageList.scanEventList)
+				appendElement("All", _all )
+			})  
+		}
 
 		function appendElement(_title,_text){
 			document.body.appendChild(document.createElement('h3')).innerHTML = _title
 			document.body.appendChild(document.createElement('pre')).innerHTML = JSON.stringify(_text, undefined, 4)
 		}
+		
+		//Init
+		getData()
+		setInterval(()=>{
+			getData()
+		},(1000*33))
     </script>
   </body>
 </html>
