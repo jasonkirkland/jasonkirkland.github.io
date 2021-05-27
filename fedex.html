@@ -61,7 +61,7 @@
 				const _all = _results
 				const _packageList = _all.TrackPackagesResponse.packageList[0]
 				
-				document.body.innerHTML = ''
+				document.body.innerHTML = '<a href="https://www.fedex.com/fedextrack/?trknbr=787429457836&trkqual=2459356000~787429457836~FX">Link to FedEx</a>'
 				
 				appendElement("Tracking Number",  _packageList.trackingNbr)
 				appendElement("Status with Details", _packageList.statusWithDetails)
