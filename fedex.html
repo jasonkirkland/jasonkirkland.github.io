@@ -65,6 +65,7 @@
 				
 				appendElement("Tracking Number",  _packageList.trackingNbr)
 				appendElement("Status with Details", _packageList.statusWithDetails)
+				appendElement("Est Delivery Time", _packageList.displayEstDeliveryDateTime)
 				appendElement("Latest Scan Event Status", _statusCodes.filter(s => s.code == _packageList.scanEventList[0].statusCD))
 				appendElement("Scan Events", _packageList.scanEventList)
 				appendElement("All", _all )
