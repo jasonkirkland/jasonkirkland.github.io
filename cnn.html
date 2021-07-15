@@ -94,14 +94,14 @@
 			getStories(){
 				const _this = this
             
-				_this.get("https://script.google.com/macros/s/AKfycbykHZZHpmww6d48S7m3e3RkjolFU-bJ446QqV-pYT-XWGNOW6yHa4ZU/exec")
+				_this.get("https://feedly.com/v3/streams/contents?streamId=feed%2Fhttp%3A%2F%2Frss.cnn.com%2Frss%2Fcnn_topstories&count=40&ranked=newest&similar=true&findUrlDuplicates=true&ck=1626386095402&ct=feedly.desktop&cv=31.0.1318")
 				.then(_results => {
-					_results.forEach(r => {
+					_results.items.forEach(r => {
 						if (r != null && typeof r != 'undefined'){
 							_this.stories.push({
-								date: r.date,
-								title: r.title.replaceAll("&#x27;","'").replaceAll("</a",""),
-								url: r.url,
+								date: new Date(r.published),
+								title: r.title,
+								url: r.ampUrl,
 							})
 						}
 					})
