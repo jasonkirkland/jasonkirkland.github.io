@@ -86,27 +86,27 @@
           _this.getStories()
         },
         methods: {
-			get: function (url = '') {
-				return fetch(url, {
-					method: "GET",
-				}).then(response => response.json())
-			},
-			getStories(){
-				const _this = this
-            
-				_this.get("https://feedly.com/v3/streams/contents?streamId=feed%2Fhttp%3A%2F%2Frss.cnn.com%2Frss%2Fcnn_topstories&count=40&ranked=newest&similar=true&findUrlDuplicates=true&ck=1626386095402&ct=feedly.desktop&cv=31.0.1318")
-				.then(_results => {
-					_results.items.forEach(r => {
-						if (r != null && typeof r != 'undefined'){
-							_this.stories.push({
-								date: new Date(r.published),
-								title: r.title,
-								url: r.ampUrl,
-							})
-						}
+	get: function (url = '') {
+		return fetch(url, {
+			method: "GET",
+		}).then(response => response.json())
+	},
+	getStories(){
+		const _this = this
+
+		_this.get("https://feedly.com/v3/streams/contents?streamId=feed%2Fhttp%3A%2F%2Frss.cnn.com%2Frss%2Fcnn_topstories&count=40&ranked=newest&similar=true&findUrlDuplicates=true")
+		.then(_results => {
+			_results.items.forEach(r => {
+				if (r != null && typeof r != 'undefined'){
+					_this.stories.push({
+						date: new Date(r.published),
+						title: r.title,
+						url: r.ampUrl,
 					})
-					_this.dialog = false
-				})
+				}
+			})
+			_this.dialog = false
+		})
           },
         },
         computed: {
