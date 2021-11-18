@@ -286,11 +286,11 @@
                   </v-chip>
                 </template>
 
-                <template v-slot:item.icu_beds_occupancy_rate="{ item }">
+                <template v-slot:item.daily_covid_capacity="{ item }">
                   <v-progress-linear
                         color="indigo"
                         height="25"
-                        :value="parseFloat(item.icu_beds_occupancy_rate.replace('%',''))"
+                        :value="parseFloat(item.daily_covid_capacity.replace('%',''))"
                         dark
                       >
                       <span>{{item.icu_beds_occupancy_rate}}</span>
