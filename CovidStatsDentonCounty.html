@@ -54,7 +54,7 @@
           <v-row>
 
             <!--=================================-->
-            <!--ICU Percent Occupied Total-->
+            <!--Denton County Hospital Beds - Covid-->
             <!--=================================-->
             <v-col cols="12" md="2">
 
@@ -62,7 +62,7 @@
                 <v-list-item two-line>
                   <v-list-item-content>
                     <v-list-item-title class="headline">
-                      ICU Beds
+                      Denton County Beds
                     </v-list-item-title>
                     <v-list-item-subtitle> (TOTAL % OCCUPIED)</v-list-item-subtitle>
                   </v-list-item-content>
@@ -71,12 +71,12 @@
                 <v-card-text style="padding-top:0;">
                   <v-row align="center">
                     <v-col class="display-3" cols="12">
-                      {{latest.icu_beds_occupancy_rate}}
+                      {{latest.daily_covid_capacity}}
                     </v-col>
                   </v-row>
                   <v-row>
                     <v-col class="" cols="12">
-                      Total Beds: {{latest.icu_beds_occupied}} of {{latest.icu_total}} Occupied
+                     
                       <br> <small><i>{{latest.report_date}}</i></small>
                     </v-col>
                   </v-row>
@@ -271,8 +271,14 @@
 
 
               <!--Table-->
-              <v-data-table v-if="stats.length > 0" class="elevation-1" :headers="headers" :items="filtered"
-                :item-class="row_classes">
+              <v-data-table 
+                v-if="stats.length > 0" 
+                class="elevation-1" 
+                :headers="headers" 
+                :items="filtered"
+                :item-class="row_classes"
+                :items-per-page="100"
+              >
 
                 <template v-slot:top>
                   <v-toolbar flat>
@@ -293,7 +299,7 @@
                         :value="parseFloat(item.daily_covid_capacity.replace('%',''))"
                         dark
                       >
-                      <span>{{item.icu_beds_occupancy_rate}}</span>
+                      <span>{{item.daily_covid_capacity}}</span>
                     </v-progress-linear>
                 </template>
 
@@ -386,17 +392,16 @@
         dialog: true,
         headers: [
           { text: "Date", value: "report_date" },
-          { text: "ICU Beds (% Occupied)", value: "icu_beds_occupancy_rate" },
+          { text: "Denton County (GA-32)", value: "daily_covid_capacity" },          
           { text: "ICU Beds (% Covid)", value: "icu_covid_rate" },
           { text: "ICU Total", value: "icu_total" },
           { text: "ICU (Occupied)", value: "icu_beds_occupied" },
           { text: "ICU (Available)", value: "icu_beds_available" },
           { text: "ICU (Covid)", value: "icu_covid_19_census" },
           { text: "ICU (Non-Covid)", value: "icu_non_covid_19_census" },
-          { text: "Vents (In Use)", value: "ventilators_in_use" },
-          { text: "Vents (Avail)", value: "ventilators_available" },
-          { text: "Vents (% In Use)", value: "ventilator_usage_rate" },
-          { text: "Denton County (GA-32)", value: "daily_covid_capacity" },
+          //{ text: "Vents (In Use)", value: "ventilators_in_use" },
+          //{ text: "Vents (Avail)", value: "ventilators_available" },
+          //{ text: "Vents (% In Use)", value: "ventilator_usage_rate" },          
           { text: "Active Cases", value: "active"},
           { text: "TSA E (GA-32)", value: "tsa" },
         ]
