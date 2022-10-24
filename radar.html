@@ -59,163 +59,23 @@
         <v-main class="grey lighten-3 pl-4 pr-4">
           <v-container fluid>
             <v-row>
-              <v-col cols="12" md="6">
+              <v-col cols="12" md="4">
                 <v-card>
                   <v-img :src="radar.northtexas" class="grey darken-4"></v-img>
                   <v-card-title class="title"> North Texas </v-card-title>
                 </v-card>
               </v-col>
-              <v-col cols="12" md="6">
+              <v-col cols="12" md="4">
                 <v-card>
                   <v-img :src="radar.metroplex" class="grey darken-4"></v-img>
                   <v-card-title class="title"> Metroplex </v-card-title>
                 </v-card>
               </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col cols="12" md="6">
+              <v-col cols="12" md="4">
                 <v-card>
                   <v-img :src="radar.usa" class="grey darken-4"></v-img>
                   <v-card-title class="title"> USA </v-card-title>
                 </v-card>
-              </v-col>
-
-              <v-col cols="12" md="6">
-                <v-row>
-                  <v-col cols="12" md="12" lg="6">
-                    <!--Now-->
-                    <v-card class="mx-auto" max-width="400">
-                      <v-list-item two-line>
-                        <v-list-item-content>
-                          <v-list-item-title class="headline"
-                            >Dallas</v-list-item-title
-                          >
-                          <v-list-item-subtitle
-                            >Current - {{weather.summary}}</v-list-item-subtitle
-                          >
-                        </v-list-item-content>
-                      </v-list-item>
-
-                      <v-card-text>
-                        <v-row align="center">
-                          <v-col class="display-3" cols="6"
-                            >{{Math.round(weather.temperature)}}&deg;F</v-col
-                          >
-                          <v-col cols="6">
-                            <v-img
-                              :src="'https://wfaa.com' + weather.icon.replace('.png','_64x64.png')"
-                              alt="Weather image"
-                              width="92"
-                            ></v-img>
-                          </v-col>
-                        </v-row>
-                      </v-card-text>
-
-                      <v-list-item>
-                        <v-list-item-title>Cloud Cover</v-list-item-title>
-                        <v-list-item-subtitle
-                          >{{Math.round(weather.cloudCover *
-                          100)}}%</v-list-item-subtitle
-                        >
-                      </v-list-item>
-
-                      <v-list-item>
-                        <v-list-item-title>Dew Point</v-list-item-title>
-                        <v-list-item-subtitle
-                          >{{Math.round(weather.dewPoint)}}&deg;F</v-list-item-subtitle
-                        >
-                      </v-list-item>
-
-                      <v-list-item>
-                        <v-list-item-title>Humidity</v-list-item-title>
-                        <v-list-item-subtitle
-                          >{{Math.round(weather.humidity *
-                          100)}}%</v-list-item-subtitle
-                        >
-                      </v-list-item>
-
-                      <v-list-item>
-                        <v-list-item-title>Chance of Rain</v-list-item-title>
-                        <v-list-item-subtitle
-                          >{{Math.round(weather.precipProbability *
-                          100)}}%</v-list-item-subtitle
-                        >
-                      </v-list-item>
-
-                      <v-list-item>
-                        <v-list-item-title>Visibility</v-list-item-title>
-                        <v-list-item-subtitle
-                          >{{Math.round(weather.visibility)}}
-                          Miles</v-list-item-subtitle
-                        >
-                      </v-list-item>
-
-                      <v-list-item>
-                        <v-list-item-title>Wind Speed</v-list-item-title>
-                        <v-list-item-subtitle
-                          >{{Math.round(weather.windSpeed)}}
-                          mph</v-list-item-subtitle
-                        >
-                      </v-list-item>
-
-                      <v-list-item>
-                        <v-list-item-title>Wind Gust</v-list-item-title>
-                        <v-list-item-subtitle
-                          >{{Math.round(weather.windGust)}}
-                          mph</v-list-item-subtitle
-                        >
-                      </v-list-item>
-                    </v-card>
-                  </v-col>
-
-                  <!--Forecast-->
-                  <v-col cols="12" md="12" lg="6">
-                    <v-card class="mx-auto" max-width="400">
-                      <v-list-item two-line>
-                        <v-list-item-content>
-                          <v-list-item-title class="headline"
-                            >Dallas</v-list-item-title
-                          >
-                          <v-list-item-subtitle>Forecast</v-list-item-subtitle>
-                        </v-list-item-content>
-                      </v-list-item>
-
-                      <v-expansion-panels>
-                        <v-expansion-panel v-for="(item,i) in 6" :key="i">
-                          <v-expansion-panel-header>
-                            <v-col cols="3">
-                              {{(i==0 ? "TODAY" : (forecast.dayOfWeek[i] ?
-                              forecast.dayOfWeek[i].toUpperCase().substr(0,3) :
-                              "?") ) }}
-                            </v-col>
-
-                            <v-col cols="2">
-                              <v-img
-                                :src="forecastIcon(forecast.daypart[0].wxPhraseLong[i])"
-                                alt="Image"
-                                width="64"
-                              ></v-img>
-                            </v-col>
-
-                            <v-col cols="4">
-                              {{forecast.daypart[0].wxPhraseLong[i]}}
-                            </v-col>
-
-                            <v-col cols="3">
-                              {{temperature[i].hi + "°" + " | " +
-                              temperature[i].lo + "°"}}
-                            </v-col>
-                          </v-expansion-panel-header>
-
-                          <v-expansion-panel-content>
-                            Coming soon
-                          </v-expansion-panel-content>
-                        </v-expansion-panel>
-                      </v-expansion-panels>
-                    </v-card>
-                  </v-col>
-                </v-row>
               </v-col>
             </v-row>
           </v-container>
@@ -326,13 +186,6 @@
         }),
         mounted: function () {
           const _this = this;
-
-          _this.getWeatherData();
-
-          //Refesh data
-          setInterval(function () {
-            _this.getWeatherData();
-          }, 61 * 1000);
 
           //Refresh radar images
           setInterval(function () {
