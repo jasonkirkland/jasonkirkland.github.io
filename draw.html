@@ -151,7 +151,7 @@
         ctx = document.getElementById("canvas").getContext("2d");
         ctx.strokeStyle = color;
         ctx.lineWidth = 5;
-        ctx.fillStyle = "white";
+        ctx.fillStyle = "yellow";
 
         // setup to trigger drawing on mouse or touch
         drawTouch();
@@ -190,27 +190,6 @@
         document.getElementById("canvas").addEventListener("touchmove", move, false);
       };
 
-      // prototype to	start drawing on pointer(microsoft ie) using canvas moveTo and lineTo
-      var drawPointer = function () {
-        var start = function (e) {
-          e = e.originalEvent;
-          ctx.beginPath();
-          x = e.pageX;
-          y = e.pageY - 44;
-          ctx.moveTo(x, y);
-        };
-        var move = function (e) {
-          e.preventDefault();
-          e = e.originalEvent;
-          x = e.pageX;
-          y = e.pageY - 44;
-          ctx.lineTo(x, y);
-          ctx.stroke();
-        };
-        document.getElementById("canvas").addEventListener("MSPointerDown", start, false);
-        document.getElementById("canvas").addEventListener("MSPointerMove", move, false);
-      };
-
       // prototype to	start drawing on mouse using canvas moveTo and lineTo
       var drawMouse = function () {
         var clicked = 0;
@@ -238,7 +217,6 @@
       };
 
       async function shareAsImage() {
-        console.log("Share");
         const canvasElement = document.getElementById("canvas");
         const dataUrl = canvasElement.toDataURL();
         const blob = await (await fetch(dataUrl)).blob();
