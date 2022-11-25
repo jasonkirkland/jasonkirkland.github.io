@@ -58,7 +58,7 @@
       }
       .navbtn {
         cursor: pointer;
-        float: left;
+       
         padding: 6px 10px;
         font-weight: bold;
         line-height: 18px;
@@ -258,9 +258,9 @@
   <body>
     <div id="page">
       <div class="header">
-        <a id="new" class="navbtn" onclick="newCanvas()">New</a>
+        <div><a id="new" class="navbtn" onclick="newCanvas()">New</a></div>
         <div class="title">Sketch Pad</div>
-        <a id="share" class="navbtn right" onclick="shareAsImage()">Share</a>
+        <div><a id="share" class="navbtn onclick="shareAsImage()">Share</a></div>
       </div>
       <div id="content"><p style="text-align: center">Loading Canvas...</p></div>
       <div class="footer">
