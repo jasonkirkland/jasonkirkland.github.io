@@ -77,6 +77,9 @@
         background-color: #aaa;
         box-shadow: 0 0 1px 1px #444, inset 0 1px 0 0 #ccc;
       }
+      .right {
+        float: right;
+      }
 
       #content {
         position: absolute;
@@ -257,7 +260,7 @@
       <div class="header">
         <a id="new" class="navbtn" onclick="newCanvas()">New</a>
         <div class="title">Sketch Pad</div>
-        <a id="share" class="navbtn" style="float: right" onclick="shareAsImage()">Share</a>
+        <a id="share" class="navbtn right" onclick="shareAsImage()">Share</a>
       </div>
       <div id="content"><p style="text-align: center">Loading Canvas...</p></div>
       <div class="footer">
