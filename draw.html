@@ -236,23 +236,22 @@
         document.addEventListener("mouseup", stop, false);
       };
 
-      function shareAsImage() {
-        async function shareCanvas() {
-          const canvasElement = document.getElementById("canvas");
-          const dataUrl = canvasElement.toDataURL();
-          const blob = await (await fetch(dataUrl)).blob();
-          const filesArray = [
-            new File([blob], "drawing.png", {
-              type: blob.type,
-              lastModified: new Date().getTime(),
-            }),
-          ];
-          const shareData = {
-            files: filesArray,
-          };
-          console.log("Share");
-          navigator.share(shareData);
-        }
+      async function shareAsImage() {
+        console.log("Share");
+        const canvasElement = document.getElementById("canvas");
+        const dataUrl = canvasElement.toDataURL();
+        const blob = await (await fetch(dataUrl)).blob();
+        const filesArray = [
+          new File([blob], "drawing.png", {
+            type: blob.type,
+            lastModified: new Date().getTime(),
+          }),
+        ];
+        const shareData = {
+          files: filesArray,
+        };
+
+        navigator.share(shareData);
       }
     </script>
   </head>
