@@ -232,6 +232,24 @@
         document.getElementById("canvas").addEventListener("mousemove", move, false);
         document.addEventListener("mouseup", stop, false);
       };
+
+      function shareAsImage() {
+        async function shareCanvas() {
+          const canvasElement = document.getElementById("canvas");
+          const dataUrl = canvasElement.toDataURL();
+          const blob = await (await fetch(dataUrl)).blob();
+          const filesArray = [
+            new File([blob], "drawing.png", {
+              type: blob.type,
+              lastModified: new Date().getTime(),
+            }),
+          ];
+          const shareData = {
+            files: filesArray,
+          };
+          navigator.share(shareData);
+        }
+      }
     </script>
   </head>
   <body>
@@ -239,6 +257,7 @@
       <div class="header">
         <a id="new" class="navbtn" onclick="newCanvas()">New</a>
         <div class="title">Sketch Pad</div>
+        <a id="share" class="navbtn" style="float: right" onclick="shareAsImage()">New</a>
       </div>
       <div id="content"><p style="text-align: center">Loading Canvas...</p></div>
       <div class="footer">
