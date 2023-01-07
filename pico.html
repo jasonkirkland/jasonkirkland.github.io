@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Pico</title>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Product+Sans:400,400i,700,700i" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Product+Sans:400,400i,700,700i" rel="stylesheet" type="text/css" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vuetify/2.3.13/vuetify.min.css" />
+    <script src="vuejs.js"></script>
+    <script src="vuetify.js"></script>
+    <style type="text/css">
+      [v-cloak] {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app" v-cloak>
+      <v-app>
+        <v-app-bar class="blue darken-2 white--text" app>
+          <v-toolbar-title style="width: 300px" class="ml-0 pl-4"> Pico</v-toolbar-title>
+        </v-app-bar>
+        <v-main class="grey lighten-3 pl-4 pr-4">
+          <v-container fluid>
+            <v-btn color="success" class="mr-4" @click="setLedState('on')"> Light ON </v-btn>
+            <br />
+            <v-btn color="error" class="mr-4" @click="setLedState('off')"> Light OFF </v-btn>
+
+            <p>Temperature is {temperature}</p>
+          </v-container>
+        </v-main>
+      </v-app>
+      <script>
+        new Vue({
+          el: "#app",
+          vuetify: new Vuetify(),
+          data: () => ({}),
+          methods: {
+            get: function (url = "") {
+              return fetch(url, {
+                method: "GET",
+              }).then((response) => response.json());
+            },
+            setLedState(_state) {
+              const _this = this;
+              const _url = "http://192.168.86.36?led=" + _state;
+
+              _this.get(_url);
+            },
+          },
+        });
+      </script>
+    </div>
+  </body>
+</html>
