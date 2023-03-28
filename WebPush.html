@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FCM Push Notification Example</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js"></script>
+  </head>
+  <body>
+    <h1>FCM Push Notification Example</h1>
+    <div>Make sure to first add the page to your home screen</div>
+    <button id="subscribe">Subscribe to Notifications</button>
+    <script>
+      // Your Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyAuJF-bP4rTAzJCKd5tn3324qMiPgTj26k",
+        authDomain: "webpush-dcbef.firebaseapp.com",
+        projectId: "webpush-dcbef",
+        storageBucket: "webpush-dcbef.appspot.com",
+        messagingSenderId: "87134517391",
+        appId: "1:87134517391:web:b1a55ad2e11fa5873798fa",
+        measurementId: "G-ZHR6BKFNGN",
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+
+      const messaging = firebase.messaging();
+
+      // Request user permission for notifications
+      document.getElementById("subscribe").addEventListener("click", async () => {
+        try {
+          await messaging.requestPermission();
+          const token = await messaging.getToken();
+          console.log("FCM token:", token);
+          // Send the token to your server for further processing
+        } catch (error) {
+          console.error("Error getting permission or token:", error);
+        }
+      });
+
+      // Handle incoming messages
+      messaging.onMessage((payload) => {
+        console.log("Message received:", payload);
+        // Customize notification here
+        const notificationTitle = payload.notification.title;
+        const notificationOptions = {
+          body: payload.notification.body,
+          icon: payload.notification.icon,
+        };
+
+        if (!("Notification" in window)) {
+          console.log("This browser does not support notifications.");
+        } else if (Notification.permission === "granted") {
+          new Notification(notificationTitle, notificationOptions);
+        }
+      });
+    </script>
+  </body>
+</html>
