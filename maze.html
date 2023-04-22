@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Device Orientation Ball Movement</title>
     <style>
       body {
@@ -17,7 +17,7 @@
     </style>
   </head>
   <body>
-    <button onclick="requestDeviceOrientation()">Start</button>
+    <button onclick="requestDeviceOrientation()">Enable Device Orientation</button>
     <canvas id="myCanvas"></canvas>
 
     <script>
@@ -30,21 +30,60 @@
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
 
+      const walls = [
+        { x: 50, y: 100, w: canvas.width - 100, h: 20 },
+        { x: 50, y: 300, w: canvas.width - 100, h: 20 },
+        { x: 50, y: 500, w: canvas.width - 100, h: 20 },
+      ];
+
       function handleOrientation(event) {
         let x = map(event.gamma, -90, 90, -10, 10);
         let y = map(event.beta, -180, 180, -10, 10);
-        ballX += x;
-        ballY += y;
+
+        const nextX = ballX + x;
+        const nextY = ballY + y;
+
+        if (nextX > ballRadius && nextX < canvas.width - ballRadius) {
+          ballX = nextX;
+        }
+
+        if (nextY > ballRadius && nextY < canvas.height - ballRadius) {
+          ballY = nextY;
+        }
+
+        checkCollisionWithWalls();
+        draw();
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawBall();
+        drawWalls();
       }
 
       function drawBall() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.beginPath();
         ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
         ctx.fillStyle = "red";
         ctx.fill();
         ctx.closePath();
+      }
+
+      function drawWalls() {
+        ctx.fillStyle = "black";
+        walls.forEach((wall) => {
+          ctx.fillRect(wall.x, wall.y, wall.w, wall.h);
+        });
+      }
+
+      function checkCollisionWithWalls() {
+        walls.forEach((wall) => {
+          if (ballX + ballRadius > wall.x && ballX - ballRadius < wall.x + wall.w && ballY + ballRadius > wall.y && ballY - ballRadius < wall.y + wall.h) {
+            if (ballY - ballRadius < wall.y || ballY + ballRadius > wall.y + wall.h) {
+              ballY = ballY < wall.y ? wall.y - ballRadius : wall.y + wall.h + ballRadius;
+            }
+          }
+        });
       }
 
       function requestDeviceOrientation() {
@@ -57,17 +96,17 @@
             })
             .catch(console.error);
         } else {
+          //
           // handle regular non iOS 13+ devices
           console.log("not iOS");
           window.addEventListener("deviceorientation", handleOrientation);
         }
       }
-
       function map(value, start1, stop1, start2, stop2) {
         return start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1));
       }
 
-      drawBall();
+      draw();
     </script>
   </body>
 </html>
