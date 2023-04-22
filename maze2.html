@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Ball Maze</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <canvas id="canvas" width="600" height="400"></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.51.1/phaser.min.js"></script>
+    <script>
+      var game = new Phaser.Game(600, 400, Phaser.AUTO, "canvas");
+
+      // Create the maze
+      var maze = game.add.tilemap("maze");
+
+      // Create the ball
+      var ball = game.add.sprite(200, 200, "ball");
+
+      // Set the ball's physics body
+      ball.body.type = Phaser.Physics.ARCADE;
+      ball.body.gravity.y = 300;
+
+      // Add a listener for the device orientation event
+      game.device.orientation.on("change", function (event) {
+        // Get the device's tilt angle
+        var angle = event.alpha;
+
+        // Apply a force to the ball in the direction of the tilt
+        ball.body.applyForce(angle * 100, 0);
+      });
+
+      // Start the game loop
+      game.start();
+    </script>
+  </body>
+</html>
