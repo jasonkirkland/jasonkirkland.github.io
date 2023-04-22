@@ -9,29 +9,32 @@
     <canvas id="canvas" width="600" height="400"></canvas>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0/phaser.min.js"></script>
     <script>
-      var game = new Phaser.Game(600, 400, Phaser.AUTO, "canvas");
-
-      // Create the maze
       setTimeout(function () {
+        var game = new Phaser.Game(600, 400, Phaser.AUTO, "canvas");
+
+        // Create the maze
+
         // This code will run after the Phaser library has loaded.
         var maze = game.add.tilemap("maze");
-      }, 2000);
-      // Create the ball
-      var ball = game.add.sprite(200, 200, "ball");
 
-      // Set the ball's physics body
-      ball.body.type = Phaser.Physics.ARCADE;
-      ball.body.gravity.y = 300;
+        // Create the ball
+        var ball = game.add.sprite(200, 200, "ball");
 
-      // Add a listener for the device orientation event
-      game.device.orientation.on("change", function (event) {
-        // Get the device's tilt angle
-        var angle = event.alpha;
+        // Set the ball's physics body
+        ball.body.type = Phaser.Physics.ARCADE;
+        ball.body.gravity.y = 300;
 
-        // Apply a force to the ball in the direction of the tilt
-        ball.body.applyForce(angle * 100, 0);
-      });
+        // Add a listener for the device orientation event
+        game.device.orientation.on("change", function (event) {
+          // Get the device's tilt angle
+          var angle = event.alpha;
 
+          // Apply a force to the ball in the direction of the tilt
+          ball.body.applyForce(angle * 100, 0);
+        });
+        // Start the game loop
+        game.start();
+      }, 10000);
       // Add a button to request device orientation permission
       var button = game.add.button(100, 100, "Request Permission");
       button.on("click", function () {
@@ -63,9 +66,6 @@
         // Apply a force to the ball in the direction of the tilt
         ball.body.applyForce(angle * 100, 0);
       }
-
-      // Start the game loop
-      game.start();
     </script>
   </body>
 </html>
