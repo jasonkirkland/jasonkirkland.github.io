@@ -12,8 +12,10 @@
       var game = new Phaser.Game(600, 400, Phaser.AUTO, "canvas");
 
       // Create the maze
-      var maze = game.add.tilemap("maze");
-
+      setTimeout(function () {
+        // This code will run after the Phaser library has loaded.
+        var maze = game.add.tilemap("maze");
+      }, 2000);
       // Create the ball
       var ball = game.add.sprite(200, 200, "ball");
 
