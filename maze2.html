@@ -6,9 +6,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
   <body>
+    <button onclick="requestDeviceOrientation()">Enable Device Orientation</button>
     <canvas id="canvas" width="600" height="400"></canvas>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0/phaser.min.js"></script>
     <script>
+      function requestDeviceOrientation() {
+        if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
+          DeviceOrientationEvent.requestPermission()
+
+            .then((permissionState) => {
+              if (permissionState === "granted") {
+                window.addEventListener("deviceorientation", handleOrientation);
+              }
+            })
+            .catch(console.error);
+        } else {
+          // handle regular non iOS 13+ devices
+          console.log("not iOS");
+          window.addEventListener("deviceorientation", handleOrientation);
+        }
+      }
       var game = new Phaser.Game(600, 400, Phaser.AUTO, "canvas");
 
       // Create the maze
