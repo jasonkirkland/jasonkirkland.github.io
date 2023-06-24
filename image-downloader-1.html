@@ -44,7 +44,7 @@
                     <v-textarea
                       label="Enter the data from FB"
                       color="white"
-                      v-model="inputText"
+                      v-model="listOfSiteUrls"
                       :rules="[v => !!v || 'At least one URL is required']"
                       required
                       outlined
@@ -126,7 +126,8 @@
         vuetify: new Vuetify(),
         data() {
           return {
-            inputText: "",
+            listOfSiteUrls: `https://mittengirl.com/easy-lavender-lemon-drop-martini/
+https://xoxobella.com/rumchata-limon-boozy-whipped-lemonade/`,
             folderName: "",
             progress: 0,
             imageDownloadComplete: false,
@@ -146,7 +147,7 @@
         methods: {
           async submitForm() {
             if (this.$refs.downloadForm.validate()) {
-              const urlArray = this.extractUrls(this.inputText);
+              const urlArray = this.extractUrls(this.listOfSiteUrls);
               this.statuses = urlArray.map((url, index) => ({
                 url,
                 status: { text: "Pending", icon: "mdi-cancel", iconColor: "red" },
