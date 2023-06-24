@@ -197,16 +197,16 @@
               });
 
               var requestOptions = {
+                redirect: "follow",
                 method: "POST",
                 headers: {
                   "Content-Type": "text/plain;charset=utf-8",
                 },
                 body: JSON.stringify({ urls: [{ index: index, url: _url }] }),
-                //redirect: "follow",
               };
 
               const response = await fetch(
-                "https://script.google.com/macros/s/AKfycbxRhj351eiBevR0rlCCt94J3WB5hvOJlKbn49-dxnLmx3JVYjWtM8bnbneUF8eBoUQm/exec",
+                "https://script.google.com/macros/s/AKfycbygeGN8SsUv8t09WSqxByUJdgUNMs3MBkxkZEitOLJV_iYaD9v5IC0juLc25Ih0NX5-/exec",
                 requestOptions
               );
               const result = await response.json();
