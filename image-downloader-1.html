@@ -1,98 +1,79 @@
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Magic Tool</title>
-    <!-- Vue.js 2 -->
-    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
-    <!-- Vuetify 2 -->
-    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.6.3/dist/vuetify.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.6.3"></script>
-    <!-- Material Design Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.4/css/materialdesignicons.min.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css?family=Material+Icons" rel="stylesheet" />
-    <style>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>New Title 1687617461</title>
+<!-- Vue.js 2 -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+<!-- Vuetify 2 -->
+<link href="https://cdn.jsdelivr.net/npm/vuetify@2.6.3/dist/vuetify.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/vuetify@2.6.3"></script>
+<!-- Material Design Icons -->
+<link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.4/css/materialdesignicons.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css?family=Material+Icons" rel="stylesheet"/>
+<style>
       .status-icon {
         margin-right: 10px;
       }
     </style>
-  </head>
-  <body>
-    <div id="app">
-      <v-app>
-        <v-app-bar class="orange darken-2 white--text" app>
-          <v-toolbar-title class="ml-0 pl-4"> Magic Tool</v-toolbar-title>
-        </v-app-bar>
-        <v-main class="grey lighten-3 pl-4 pr-4">
-          <v-container>
-            <v-expansion-panels>
-              <!--Image download parameters-->
-              <v-expansion-panel>
-                <v-expansion-panel-header> 1. Download Images</v-expansion-panel-header>
-                <v-expansion-panel-content>
-                  <v-form ref="downloadForm" class="mb-6">
-                    <v-text-field
-                      label="WP Image Url-Path"
-                      color="white"
-                      v-model="imagePath"
-                      :rules="[v => !!v || 'Image path is required']"
-                      required
-                      outlined
-                    ></v-text-field>
-
-                    <v-textarea
-                      label="Enter the data from FB"
-                      color="white"
-                      v-model="listOfSiteUrls"
-                      :rules="[v => !!v || 'At least one URL is required']"
-                      required
-                      outlined
-                    ></v-textarea>
-
-                    <v-btn color="primary" @click="submitForm">Download Images</v-btn>
-                    <v-chip class="ma-2" color="grey" text-color="white">
-                      <v-avatar left class="grey darken-4"> {{statuses.length}} </v-avatar>
+</head>
+<body>
+<div id="app">
+<v-app>
+<v-app-bar app="" class="orange darken-2 white--text">
+<v-toolbar-title class="ml-0 pl-4"> Magic Tool</v-toolbar-title>
+</v-app-bar>
+<v-main class="grey lighten-3 pl-4 pr-4">
+<v-container>
+<v-expansion-panels>
+<!--Image download parameters-->
+<v-expansion-panel>
+<v-expansion-panel-header> 1. Download Images</v-expansion-panel-header>
+<v-expansion-panel-content>
+<v-form class="mb-6" ref="downloadForm">
+<v-text-field :rules="[v =&gt; !!v || 'Image path is required']" color="white" label="WP Image Url-Path" outlined="" required="" v-model="imagePath"></v-text-field>
+<v-textarea :rules="[v =&gt; !!v || 'At least one URL is required']" color="white" label="Enter the data from FB" outlined="" required="" v-model="listOfSiteUrls"></v-textarea>
+<v-btn @click="submitForm" color="primary">Download Images</v-btn>
+<v-chip class="ma-2" color="grey" text-color="white">
+<v-avatar class="grey darken-4" left=""> {{statuses.length}} </v-avatar>
                       Total
                     </v-chip>
-                    <v-chip class="ma-2" color="green light-1" text-color="white">
-                      <v-avatar left class="green darken-4"> {{details.length}} </v-avatar>
+<v-chip class="ma-2" color="green light-1" text-color="white">
+<v-avatar class="green darken-4" left=""> {{details.length}} </v-avatar>
                       Success
                     </v-chip>
-                  </v-form>
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-
-              <!--Titles (from image urls)-->
-              <v-expansion-panel :disabled="imageDownloadComplete == false">
-                <v-expansion-panel-header> 2. Ask AI to describe each title</v-expansion-panel-header>
-                <v-expansion-panel-content>
-                  <p style="font-family: monospace">
+</v-form>
+</v-expansion-panel-content>
+</v-expansion-panel>
+<!--Titles (from image urls)-->
+<v-expansion-panel :disabled="imageDownloadComplete == false">
+<v-expansion-panel-header> 2. Ask AI to describe each title</v-expansion-panel-header>
+<v-expansion-panel-content>
+<p style="font-family: monospace">
                     Generate a 1 sentence description of each of the following items. our output format will be: {original line number} - {item name} -
                     {description}
                   </p>
-                  <ul style="font-family: monospace">
-                    <li v-for="item in detailsSorted">{{(item.index).toString() + ". " + item.title}}</li>
-                  </ul>
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-
-              <!--AI Response-->
-              <v-expansion-panel :disabled="imageDownloadComplete == false">
-                <v-expansion-panel-header> 3. Paste response from AI</v-expansion-panel-header>
-                <v-expansion-panel-content>
-                  <v-textarea v-model="itemDescriptionsFromAi"> </v-textarea>
-                  <v-btn color="primary" @click="generateHtml">Generate Final Html</v-btn>
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-
-              <!--Final Html for Blog-->
-              <v-expansion-panel :disabled="imageDownloadComplete == false">
-                <v-expansion-panel-header> 4. Final Html for Blog</v-expansion-panel-header>
-                <v-expansion-panel-content>
-                  <v-textarea v-model="html"></v-textarea>
-                  <!--Preview Html-->
-                  <!--
+<ul style="font-family: monospace">
+<li v-for="item in detailsSorted">{{(item.index).toString() + ". " + item.title}}</li>
+</ul>
+</v-expansion-panel-content>
+</v-expansion-panel>
+<!--AI Response-->
+<v-expansion-panel :disabled="imageDownloadComplete == false">
+<v-expansion-panel-header> 3. Paste response from AI</v-expansion-panel-header>
+<v-expansion-panel-content>
+<v-textarea v-model="itemDescriptionsFromAi"> </v-textarea>
+<v-btn @click="generateHtml" color="primary">Generate Final Html</v-btn>
+</v-expansion-panel-content>
+</v-expansion-panel>
+<!--Final Html for Blog-->
+<v-expansion-panel :disabled="imageDownloadComplete == false">
+<v-expansion-panel-header> 4. Final Html for Blog</v-expansion-panel-header>
+<v-expansion-panel-content>
+<v-textarea v-model="html"></v-textarea>
+<!--Preview Html-->
+<!--
                   <br /><br />
                   <ol>
                     <li v-for="d in detailsSorted">
@@ -111,16 +92,15 @@
                     </li>
                   </ol>
                 -->
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-
-              <!--end of panels-->
-            </v-expansion-panels>
-          </v-container>
-        </v-main>
-      </v-app>
-    </div>
-    <script>
+</v-expansion-panel-content>
+</v-expansion-panel>
+<!--end of panels-->
+</v-expansion-panels>
+</v-container>
+</v-main>
+</v-app>
+</div>
+<script>
       new Vue({
         el: "#app",
         vuetify: new Vuetify(),
@@ -269,5 +249,5 @@ https://xoxobella.com/rumchata-limon-boozy-whipped-lemonade/`,
         },
       });
     </script>
-  </body>
+</body>
 </html>
