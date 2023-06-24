@@ -201,12 +201,12 @@
                 headers: {
                   "Content-Type": "text/plain;charset=utf-8",
                 },
-                body: JSON.stringify({ index: index, url: _url }),
-                redirect: "follow",
+                body: JSON.stringify({ urls: [{ index: index, url: _url }] }),
+                //redirect: "follow",
               };
 
               const response = await fetch(
-                "https://script.google.com/macros/s/AKfycbxfD0Piq0W06JfJSKwGC7bUwvqNX9Bueq3kXdKEH1YTqpHqw3_5TaEqoqxff4Cw2wcd/exec",
+                "https://script.google.com/macros/s/AKfycbxRhj351eiBevR0rlCCt94J3WB5hvOJlKbn49-dxnLmx3JVYjWtM8bnbneUF8eBoUQm/exec",
                 requestOptions
               );
               const result = await response.json();
