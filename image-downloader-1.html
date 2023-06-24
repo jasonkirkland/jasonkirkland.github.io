@@ -197,17 +197,17 @@
               });
 
               var requestOptions = {
-                method: "get",
+                method: "POST",
                 headers: {
-                  "Content-Type": "application/json",
+                  "Content-Type": "text/plain;charset=utf-8",
                 },
-                //body: _url,
+                body: JSON.stringify({ index: index, url: _url }),
                 redirect: "follow",
               };
 
               const response = await fetch(
-                "https://script.google.com/macros/s/AKfycbws3ulQbCe1VeVBHIbp6t6J56TwN1whRes4GtDsNImmuN1fChcxtUQAvhBfqwTc_1c/exec?urls=" +
-                  JSON.stringify({ index: index, url: url })
+                "https://script.google.com/macros/s/AKfycbxfD0Piq0W06JfJSKwGC7bUwvqNX9Bueq3kXdKEH1YTqpHqw3_5TaEqoqxff4Cw2wcd/exec",
+                requestOptions
               );
               const result = await response.json();
               const icon = "mdi-checkbox-marked-circle";
