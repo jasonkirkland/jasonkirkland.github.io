@@ -2,7 +2,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Magic v5 1688830647</title>
+<title>Magic v5 1688833369</title>
 <!-- Vue.js 2 -->
 <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
 <!-- Vuetify 2 -->
@@ -108,7 +108,7 @@
           return {
             listOfSiteUrls: `https://mittengirl.com/easy-lavender-lemon-drop-martini/
 https://xoxobella.com/rumchata-limon-boozy-whipped-lemonade/`,
-            folderName: "",
+            folderName: "some_folder_name_here",
             progress: 0,
             imageDownloadComplete: false,
             headers: [
@@ -194,12 +194,12 @@ https://xoxobella.com/rumchata-limon-boozy-whipped-lemonade/`,
               const icon = "mdi-checkbox-marked-circle";
               const iconColor = "green";
               this.details.push({
-                url: result.url,
-                imageUrl: result.imageUrl,
-                title: result.title,
-                index: result.index + 1,
-                folderName: result.folderName,
-                imageTitle: result.imageTitle,
+                url: result.siteUrl || "No siteUrl property returned",
+                imageUrl: result.imageUrl || "No imageUrl property returned",
+                title: result.title || "No title property returned",
+                index: index + 1 || -1,
+                folderName: this.folderName || " No folderName provided",
+                imageTitle: result.imageTitle || "No imageTitle property returned",
               });
               this.$set(this.statuses[index], "status", { text: result.imageUrl, icon, iconColor });
             } catch (error) {
