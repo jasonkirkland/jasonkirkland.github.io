@@ -2,7 +2,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Magic v5 1688836496</title>
+<title>Magic v5 1688837179</title>
 <!-- Vue.js 2 -->
 <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
 <!-- Vuetify 2 -->
@@ -257,6 +257,10 @@ https://xoxobella.com/rumchata-limon-boozy-whipped-lemonade/`,
             _details.forEach(function (_detail, index) {
               // Convert base64 string to Blob
               var base64Img = _detail.base64Img;
+              var base64ImgWithPrefix = "data:image/jpeg;base64," + base64Img;
+
+              // Convert base64 string to Blob
+              var imgData = base64ImgWithPrefix.split(",")[1];
               var imgData = base64Img.split(",")[1];
               var contentType = base64Img.split(",")[0].split(":")[1].split(";")[0];
               var byteCharacters = atob(imgData);
