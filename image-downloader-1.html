@@ -2,7 +2,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Magic v5 1688833699</title>
+<title>Magic v5 1688836496</title>
 <!-- Vue.js 2 -->
 <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
 <!-- Vuetify 2 -->
@@ -12,6 +12,9 @@
 <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.4/css/materialdesignicons.min.css" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css?family=Material+Icons" rel="stylesheet"/>
+<!--Zip libraries-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.2/FileSaver.min.js"></script>
 <style>
       .status-icon {
         margin-right: 10px;
@@ -138,6 +141,8 @@ https://xoxobella.com/rumchata-limon-boozy-whipped-lemonade/`,
               await Promise.all(downloadPromises);
               this.imageDownloadComplete = true;
 
+              this.zipImages(this.details);
+
               this.progress = 0;
               //this.downloadZip();
             }
@@ -174,7 +179,6 @@ https://xoxobella.com/rumchata-limon-boozy-whipped-lemonade/`,
           async downloadImage(url, index) {
             try {
               var requestOptions = {
-                //redirect: "follow",
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
@@ -184,8 +188,9 @@ https://xoxobella.com/rumchata-limon-boozy-whipped-lemonade/`,
 
               const response = await fetch("https://us-central1-nodejs-c9fa1.cloudfunctions.net/getMetaTags", requestOptions);
               const result = await response.json();
-              console.log(result[0]);
+
               /*
+              console.log(result[0]);
               imageAsBase64: "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAUFBQUFBQUGBgUIC",
               imageUrl: "https://xoxobella.com/wp-content/uploads/2022/07/rumchata_limon_boozy_whipped_lemonade-88999.jpg",
               siteUrl: "https://xoxobella.com/rumchata-limon-boozy-whipped-lemonade/",
@@ -200,6 +205,7 @@ https://xoxobella.com/rumchata-limon-boozy-whipped-lemonade/`,
                 index: index + 1 || -1,
                 folderName: this.folderName || " No folderName provided",
                 imageTitle: result[0].imageTitle || "No imageTitle property returned",
+                base64Img: result[0].imageAsBase64 || "No imageAsBase64 property returned",
               });
               this.$set(this.statuses[index], "status", { text: result[0].imageUrl, icon, iconColor });
             } catch (error) {
@@ -239,6 +245,43 @@ https://xoxobella.com/rumchata-limon-boozy-whipped-lemonade/`,
 
             const final = item == null ? "" : item[0];
             return final.replace(itemId.toString() + " - ", "").replace(title + " - ", "");
+          },
+          zipImages(_details) {
+            // Assuming `base64Images` is your array of base64 strings.
+            //var base64Images = ["...", "...", "..."]; // replace with your base64 strings
+
+            // Create a new instance of JSZip
+            var zip = new JSZip();
+
+            // Loop through the array of base64 strings
+            _details.forEach(function (_detail, index) {
+              // Convert base64 string to Blob
+              var base64Img = _detail.base64Img;
+              var imgData = base64Img.split(",")[1];
+              var contentType = base64Img.split(",")[0].split(":")[1].split(";")[0];
+              var byteCharacters = atob(imgData);
+              var byteArrays = [];
+
+              for (var offset = 0; offset < byteCharacters.length; offset += 512) {
+                var slice = byteCharacters.slice(offset, offset + 512);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                  byteNumbers[i] = slice.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+              }
+
+              var blob = new Blob(byteArrays, { type: contentType });
+
+              // Add the Blob to the zip file
+              zip.file("image" + index + ".jpeg", blob, { base64: true });
+            });
+
+            // Generate the zip file and initiate download
+            zip.generateAsync({ type: "blob" }).then(function (content) {
+              saveAs(content, "images.zip");
+            });
           },
         },
         computed: {
