@@ -2,7 +2,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Magic v5 1688833369</title>
+<title>Magic v5 1688833489</title>
 <!-- Vue.js 2 -->
 <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
 <!-- Vuetify 2 -->
@@ -194,14 +194,14 @@ https://xoxobella.com/rumchata-limon-boozy-whipped-lemonade/`,
               const icon = "mdi-checkbox-marked-circle";
               const iconColor = "green";
               this.details.push({
-                url: result.siteUrl || "No siteUrl property returned",
-                imageUrl: result.imageUrl || "No imageUrl property returned",
-                title: result.title || "No title property returned",
+                url: result[0].siteUrl || "No siteUrl property returned",
+                imageUrl: result[0].imageUrl || "No imageUrl property returned",
+                title: result[0].title || "No title property returned",
                 index: index + 1 || -1,
                 folderName: this.folderName || " No folderName provided",
-                imageTitle: result.imageTitle || "No imageTitle property returned",
+                imageTitle: result[0].imageTitle || "No imageTitle property returned",
               });
-              this.$set(this.statuses[index], "status", { text: result.imageUrl, icon, iconColor });
+              this.$set(this.statuses[index], "status", { text: result[0].imageUrl, icon, iconColor });
             } catch (error) {
               const icon = "mdi-cancel";
               const iconColor = "red";
