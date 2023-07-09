@@ -2,7 +2,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Magic v5 1688910464</title>
+<title>Magic v5 1688944262</title>
 <!-- Vue.js 2 -->
 <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
 <!-- Vuetify 2 -->
@@ -205,7 +205,7 @@ https://xoxobella.com/rumchata-limon-boozy-whipped-lemonade/`,
                 title: result[0].title || "No title property returned",
                 index: index + 1 || -1,
                 folderName: this.folderName || " No folderName provided",
-                imageTitle: result[0].imageName.replaceAll(".jpg.jpg", ".jpg") || "No imageName property returned",
+                imageTitle: result[0].imageName.replaceAll(".jpg", ".jpg") || "No imageName property returned",
                 base64Img: result[0].imageAsBase64 || "No imageAsBase64 property returned",
               });
               this.$set(this.statuses[index], "status", { text: result[0].imageUrl, icon, iconColor });
