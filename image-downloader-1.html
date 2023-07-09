@@ -2,7 +2,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Magic v5 1688944262</title>
+<title>Magic v5 1688944335</title>
 <!-- Vue.js 2 -->
 <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
 <!-- Vuetify 2 -->
@@ -276,7 +276,7 @@ https://xoxobella.com/rumchata-limon-boozy-whipped-lemonade/`,
               var blob = new Blob(byteArrays, { type: contentType });
 
               // Add the Blob to the zip file
-              zip.file("image" + index + ".jpeg", blob, { base64: true });
+              zip.file(_detai.imageTitle + ".jpeg", blob, { base64: true });
             });
 
             // Generate the zip file and initiate download
