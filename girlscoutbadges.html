@@ -41,13 +41,13 @@
 
                     <v-spacer></v-spacer>
 
-                    <v-btn icon @click="show = !show">
-                      <v-icon>{{ show ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+                    <v-btn icon @click="badge_selected=badge.itemid">
+                      <v-icon>{{ badge_selected==badge.itemid ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
                     </v-btn>
                   </v-card-actions>
 
                   <v-expand-transition>
-                    <div v-show="show">
+                    <div v-show="badge_selected==badge.itemid">
                       <v-divider></v-divider>
 
                       <v-card-text v-html="badge.storedescription"></v-card-text>
@@ -67,6 +67,7 @@
         vuetify: new Vuetify(),
         data: () => ({
           badges: [],
+          badge_selected: {},
           show: false,
         }),
         mounted: function () {
@@ -114,6 +115,7 @@
             }
           },
         },
+        computed: {},
       });
 
       // This is the function that the server's response will call.
