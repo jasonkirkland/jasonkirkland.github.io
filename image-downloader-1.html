@@ -1,0 +1,303 @@
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Magic v5 1688946565</title>
+<!-- Vue.js 2 -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+<!-- Vuetify 2 -->
+<link href="https://cdn.jsdelivr.net/npm/vuetify@2.6.3/dist/vuetify.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/vuetify@2.6.3"></script>
+<!-- Material Design Icons -->
+<link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.4/css/materialdesignicons.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css?family=Material+Icons" rel="stylesheet"/>
+<!--Zip libraries-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.2/FileSaver.min.js"></script>
+<style>
+      .status-icon {
+        margin-right: 10px;
+      }
+    </style>
+</head>
+<body>
+<div id="app">
+<v-app>
+<v-app-bar app="" class="orange darken-2 white--text">
+<v-toolbar-title class="ml-0 pl-4"> Magic Tool</v-toolbar-title>
+</v-app-bar>
+<v-main class="grey lighten-3 pl-4 pr-4">
+<v-container>
+<v-expansion-panels>
+<!--Image download parameters-->
+<v-expansion-panel>
+<v-expansion-panel-header> 1. Download Images</v-expansion-panel-header>
+<v-expansion-panel-content>
+<v-form class="mb-6" ref="downloadForm">
+<v-text-field :rules="[v =&gt; !!v || 'Image path is required']" color="white" label="WP Image Url-Path" outlined="" required="" v-model="imagePath"></v-text-field>
+<v-textarea :rules="[v =&gt; !!v || 'At least one URL is required']" color="white" label="Enter the data from FB" outlined="" required="" v-model="listOfSiteUrls"></v-textarea>
+<v-btn @click="submitForm" color="primary">Download Images</v-btn>
+<v-chip class="ma-2" color="grey" text-color="white">
+<v-avatar class="grey darken-4" left=""> {{statuses.length}} </v-avatar>
+                      Total
+                    </v-chip>
+<v-chip class="ma-2" color="green light-1" text-color="white">
+<v-avatar class="green darken-4" left=""> {{details.length}} </v-avatar>
+                      Success
+                    </v-chip>
+</v-form>
+</v-expansion-panel-content>
+</v-expansion-panel>
+<!--Titles (from image urls)-->
+<v-expansion-panel :disabled="imageDownloadComplete == false">
+<v-expansion-panel-header> 2. Ask AI to describe each title</v-expansion-panel-header>
+<v-expansion-panel-content>
+<p style="font-family: monospace">
+                    Generate a 1 sentence description of each of the following items. our output format will be: {original line number} - {item name} -
+                    {description}
+                  </p>
+<ul style="font-family: monospace">
+<li v-for="item in detailsSorted">{{(item.index).toString() + ". " + item.title}}</li>
+</ul>
+</v-expansion-panel-content>
+</v-expansion-panel>
+<!--AI Response-->
+<v-expansion-panel :disabled="imageDownloadComplete == false">
+<v-expansion-panel-header> 3. Paste response from AI</v-expansion-panel-header>
+<v-expansion-panel-content>
+<v-textarea v-model="itemDescriptionsFromAi"> </v-textarea>
+<v-btn @click="generateHtml" color="primary">Generate Final Html</v-btn>
+</v-expansion-panel-content>
+</v-expansion-panel>
+<!--Final Html for Blog-->
+<v-expansion-panel :disabled="imageDownloadComplete == false">
+<v-expansion-panel-header> 4. Final Html for Blog</v-expansion-panel-header>
+<v-expansion-panel-content>
+<v-textarea v-model="html"></v-textarea>
+<!--Preview Html-->
+<!--
+                  <br /><br />
+                  <ol>
+                    <li v-for="d in detailsSorted">
+                      <p>
+                        <strong>
+                          <a :href="d.url">{{d.title}}</a>
+                        </strong>
+                      </p>
+                      &nbsp;
+                      <p>{{itemDescriptionFromAi(d.index, d.title)}}</p>
+                      <figure class="wp-block-image aligncenter">
+                        <a :href="d.url">
+                          <img :src="d.imagePath + d.imageTitle + '.jpg'" :alt="d.title" />
+                        </a>
+                      </figure>
+                    </li>
+                  </ol>
+                -->
+</v-expansion-panel-content>
+</v-expansion-panel>
+<!--end of panels-->
+</v-expansion-panels>
+</v-container>
+</v-main>
+</v-app>
+</div>
+<script>
+      new Vue({
+        el: "#app",
+        vuetify: new Vuetify(),
+        data() {
+          return {
+            listOfSiteUrls: `https://mittengirl.com/easy-lavender-lemon-drop-martini/
+https://xoxobella.com/rumchata-limon-boozy-whipped-lemonade/`,
+            folderName: "some_folder_name_here",
+            progress: 0,
+            imageDownloadComplete: false,
+            headers: [
+              { text: "URL", value: "url" },
+              { text: "Status", value: "status" },
+            ],
+            statuses: [],
+            details: [],
+            imagePath: "https://www.farmwifedrinks.com/wp-content/uploads/2023/05/",
+            html: "",
+            titles: "",
+            itemDescriptionsFromAi: "",
+          };
+        },
+        created() {},
+        methods: {
+          async submitForm() {
+            if (this.$refs.downloadForm.validate()) {
+              const urlArray = this.extractUrls(this.listOfSiteUrls);
+              this.statuses = urlArray.map((url, index) => ({
+                url,
+                status: { text: "Pending", icon: "mdi-cancel", iconColor: "red" },
+              }));
+              const downloadPromises = urlArray.map(async (url, index) => {
+                await this.downloadImage(url, index);
+              });
+              await Promise.all(downloadPromises);
+              this.imageDownloadComplete = true;
+
+              this.zipImages(this.details);
+
+              this.progress = 0;
+              //this.downloadZip();
+            }
+          },
+          async downloadZip() {
+            const _imageInfo = this.imageInfo;
+
+            const response = await fetch("/downloadZip", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ imageInfo: _imageInfo }),
+            });
+
+            if (!response.ok) {
+              //throw new Error(`HTTP error! status: ${response.status}`);
+              console.log(response.status);
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "images.zip";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          },
+          extractUrls(text) {
+            const regex = /https?:\/\/[^\s]+/g;
+            return text.match(regex);
+          },
+          async downloadImage(url, index) {
+            try {
+              var requestOptions = {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ urls: [{ index: index, url: url }] }),
+              };
+
+              const response = await fetch("https://us-central1-nodejs-c9fa1.cloudfunctions.net/getMetaTags", requestOptions);
+              const result = await response.json();
+
+              /*
+              console.log(result[0]);
+              imageAsBase64: "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAUFBQUFBQUGBgUIC",
+              imageUrl: "https://xoxobella.com/wp-content/uploads/2022/07/rumchata_limon_boozy_whipped_lemonade-88999.jpg",
+              siteUrl: "https://xoxobella.com/rumchata-limon-boozy-whipped-lemonade/",
+              title: "Rumchata Limón Boozy Whipped Lemonade",
+              imageName: "some_image_name"
+              */
+              const icon = "mdi-checkbox-marked-circle";
+              const iconColor = "green";
+              this.details.push({
+                url: result[0].siteUrl || "No siteUrl property returned",
+                imageUrl: result[0].imageUrl || "No imageUrl property returned",
+                title: result[0].title || "No title property returned",
+                index: index + 1 || -1,
+                folderName: this.folderName || " No folderName provided",
+                imageTitle: result[0].imageName || "No imageName property returned",
+                base64Img: result[0].imageAsBase64 || "No imageAsBase64 property returned",
+              });
+              this.$set(this.statuses[index], "status", { text: result[0].imageUrl, icon, iconColor });
+            } catch (error) {
+              const icon = "mdi-cancel";
+              const iconColor = "red";
+              this.$set(this.statuses[index], "status", { text: `Error downloading image for URL ${index + 1}: ${url}`, icon, iconColor });
+            }
+          },
+          generateHtml() {
+            const _this = this;
+            let h =
+              '<li><p><strong><a href="{URL}">{TITLE}</a></strong></p> <p>{AI_DESCRIPTION}</p><figure class="wp-block-image aligncenter"><a href="{URL}"><img src="{IMAGE_PATH}{IMAGETITLE}.jpg" alt="{ALT_TITLE}"/></a></figure></li>';
+            let _html = "";
+            this.details
+              .sort((a, b) => {
+                return a.index - b.index;
+              })
+              .forEach((f) => {
+                const aiDescription = this.itemDescriptionFromAi(f.index, f.title);
+                let z = h
+                  .replaceAll("{URL}", f.url)
+                  .replaceAll("{TITLE}", f.title)
+                  .replaceAll("{ALT_TITLE}", f.title)
+                  .replaceAll("{IMAGE_PATH}", _this.imagePath)
+                  .replaceAll("{IMAGETITLE}", f.imageTitle)
+                  .replaceAll("{AI_DESCRIPTION}", aiDescription);
+                _html += z;
+              });
+
+            this.html = "<ol>" + _html + "</ol>";
+          },
+          itemDescriptionFromAi(itemId, title) {
+            const inputString = this.itemDescriptionsFromAi;
+            const regexPattern = `^${itemId}.*$`;
+            const regex = new RegExp(regexPattern, "m");
+            const item = inputString.match(regex);
+
+            const final = item == null ? "" : item[0];
+            return final.replace(itemId.toString() + " - ", "").replace(title + " - ", "");
+          },
+          zipImages(_details) {
+            // Create a new instance of JSZip
+            var zip = new JSZip();
+
+            // Loop through the array of base64 strings
+            _details.forEach(function (_detail, index) {
+              // Add prefix to base64 string
+              var base64ImgWithPrefix = "data:image/jpeg;base64," + _detail.base64Img;
+
+              // Convert base64 string to Blob
+              var imgData = base64ImgWithPrefix.split(",")[1];
+              var contentType = base64ImgWithPrefix.split(",")[0].split(":")[1].split(";")[0];
+
+              var byteCharacters = atob(imgData);
+              var byteArrays = [];
+
+              for (var offset = 0; offset < byteCharacters.length; offset += 512) {
+                var slice = byteCharacters.slice(offset, offset + 512);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                  byteNumbers[i] = slice.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+              }
+
+              var blob = new Blob(byteArrays, { type: contentType });
+
+              // Add the Blob to the zip file
+              zip.file(_detai.imageTitle + ".jpeg", blob, { base64: true });
+            });
+
+            // Generate the zip file and initiate download
+            zip.generateAsync({ type: "blob" }).then(function (content) {
+              saveAs(content, "images.zip");
+            });
+          },
+        },
+        computed: {
+          detailsSorted() {
+            return this.details.sort((a, b) => {
+              return a.index - b.index;
+            });
+          },
+          imageInfo() {
+            const urls = [];
+            this.details.forEach((d) => urls.push({ imageUrl: d.imageUrl, imageTitle: d.imageTitle }));
+            return urls;
+          },
+        },
+      });
+    </script>
+</body>
+</html>
