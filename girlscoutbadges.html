@@ -4,6 +4,131 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Badge</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Product+Sans:400,400i,700,700i" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Product+Sans:400,400i,700,700i" rel="stylesheet" type="text/css" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vuetify/2.3.13/vuetify.min.css" />
+
+    <script src="./scripts/vue.js"></script>
+    <script src="./scripts/vuetify.js"></script>
+
+    <style type="text/css">
+      [v-cloak] {
+        display: none;
+      }
+    </style>
   </head>
-  <body></body>
+  <body>
+    <div id="app" v-cloak>
+      <v-app>
+        <v-app-bar hide-on-scroll class="green darken-2 white--text" app>
+          <v-toolbar-title> Badges</v-toolbar-title>
+        </v-app-bar>
+
+        <v-main class="grey lighten-3 pl-4 pr-4">
+          <v-container fluid>
+            <v-row v-for="badge in badges" v-if="badges.length > 0">
+              <v-col>
+                <v-card class="mx-auto" max-width="344">
+                  <v-img :src="getBadgeImageUrl(badge)" height="200px"></v-img>
+
+                  <v-card-title> {{badge.storedisplayname2}} </v-card-title>
+
+                  <v-card-subtitle> 1,000 miles of wonder </v-card-subtitle>
+
+                  <v-card-actions>
+                    <v-btn color="orange lighten-2" text> Explore </v-btn>
+
+                    <v-spacer></v-spacer>
+
+                    <v-btn icon @click="show = !show">
+                      <v-icon>{{ show ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+                    </v-btn>
+                  </v-card-actions>
+
+                  <v-expand-transition>
+                    <div v-show="show">
+                      <v-divider></v-divider>
+
+                      <v-card-text>
+                        I'm a thing. But, like most politicians, he promised more than he could deliver. You won't have time for sleeping, soldier, not with all
+                        the bed making you'll be doing. Then we'll go with that data file! Hey, you add a one and two zeros to that or we walk! You're going to
+                        do his laundry? I've got to find a way to escape.
+                      </v-card-text>
+                    </div>
+                  </v-expand-transition>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-main>
+      </v-app>
+    </div>
+
+    <script>
+      new Vue({
+        el: "#app",
+        vuetify: new Vuetify(),
+        data: () => ({
+          badges: [],
+          show: false,
+        }),
+        mounted: function () {
+          this.getBadges();
+        },
+        methods: {
+          get(url = "") {
+            return fetch(url, {
+              method: "GET",
+            }).then((response) => response.json());
+          },
+          fetchJSONP(url, callbackName) {
+            // 1. Create the callback function
+            window[callbackName] = (data) => {
+              // Handle the response data here
+              console.log(data);
+              this.badges = data.items;
+
+              // Cleanup
+              document.body.removeChild(script);
+              delete window[callbackName];
+            };
+
+            // 2. Construct the URL with the callback parameter
+            url += (url.indexOf("?") === -1 ? "?" : "&") + "callback=" + callbackName;
+
+            // 3. Create a script tag and insert it into the document
+            const script = document.createElement("script");
+            script.src = url;
+            document.body.appendChild(script);
+          },
+          getBadges() {
+            this.fetchJSONP(
+              "https://www.girlscoutshop.com/api/items?c=317771&country=US&currency=USD&fieldset=details&include=&language=en&n=7&pricelevel=7&use_pcv=F&commercecategoryurl=%2Fbadges-program%2Fall-badges-pins",
+              "processResults"
+            );
+          },
+          getBadgeImageUrl(badge) {
+            if (badge.itemimages_detail?.main?.["01.default"]) {
+              const imageUrl = badge.itemimages_detail.main["01.default"].url;
+
+              return imageUrl;
+            } else {
+              return "";
+            }
+          },
+        },
+      });
+
+      // This is the function that the server's response will call.
+      // It needs to be globally accessible, so it's outside of the Vue instance.
+      function processResults(data) {
+        console.log(data);
+        // Here we directly update the Vue instance's data.
+        app.badges = data.items;
+      }
+    </script>
+  </body>
 </html>
