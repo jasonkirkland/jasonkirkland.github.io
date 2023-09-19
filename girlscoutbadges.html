@@ -4,10 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Badge</title>
-    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css?family=Product+Sans:400,400i,700,700i" rel="stylesheet" type="text/css" />
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css?family=Product+Sans:400,400i,700,700i" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet" />
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vuetify/2.3.13/vuetify.min.css" />
 
@@ -34,16 +32,16 @@
                 <v-card class="mx-auto" max-width="344">
                   <v-img :src="getBadgeImageUrl(badge)" height="200px"></v-img>
 
-                  <v-card-title> {{badge.storedisplayname2}} </v-card-title>
+                  <v-card-title> {{badge.storedisplayname2}} {{badge.itemid}} </v-card-title>
 
                   <v-card-actions>
-                    <v-btn color="orange lighten-2" text> Explore </v-btn>
+                    <v-btn color="orange lighten-2" text @click="badge_selected = badge; badge.showrequirements = !badge.showrequirements"> Explore </v-btn>
 
                     <v-spacer></v-spacer>
 
                     <v-btn text icon color="red lighten-2" @click="badge_selected = badge; badge.showrequirements = !badge.showrequirements">
-                      <v-icon v-if="badge_selected.itemid == badge.itemid">mdi-chevron-up</v-icon>
-                      <v-icon v-else>mdi-cancel</v-icon>
+                      <v-icon v-if="!badge.showrequirements">mdi-chevron-down</v-icon>
+                      <v-icon v-else>mdi-chevron-up</v-icon>
                     </v-btn>
                   </v-card-actions>
 
