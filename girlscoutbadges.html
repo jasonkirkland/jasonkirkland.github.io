@@ -24,7 +24,7 @@
     <div id="app" v-cloak>
       <v-app>
         <v-app-bar hide-on-scroll class="green darken-2 white--text" app>
-          <v-toolbar-title> Badges</v-toolbar-title>
+          <v-toolbar-title> Badges &nbsp; ({{badges.length}})</v-toolbar-title>
         </v-app-bar>
 
         <v-main class="grey lighten-3 pl-4 pr-4">
@@ -41,16 +41,17 @@
 
                     <v-spacer></v-spacer>
 
-                    <v-btn icon @click="badge_selected=badge.itemid">
-                      <v-icon>{{ badge_selected==badge.itemid ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+                    <v-btn text icon color="red lighten-2" @click="badge_selected = badge; badge.showrequirements = !badge.showrequirements">
+                      <v-icon v-if="badge_selected.itemid == badge.itemid">mdi-chevron-up</v-icon>
+                      <v-icon v-else>mdi-cancel</v-icon>
                     </v-btn>
                   </v-card-actions>
 
                   <v-expand-transition>
-                    <div v-show="badge_selected==badge.itemid">
+                    <div v-show="badge.showrequirements">
                       <v-divider></v-divider>
 
-                      <v-card-text v-html="badge.storedescription"></v-card-text>
+                      <v-card-text v-html="badge_requirements"></v-card-text>
                     </div>
                   </v-expand-transition>
                 </v-card>
@@ -68,6 +69,7 @@
         data: () => ({
           badges: [],
           badge_selected: {},
+          badge_requirements: "test",
           show: false,
         }),
         mounted: function () {
@@ -80,11 +82,12 @@
             }).then((response) => response.json());
           },
           fetchJSONP(url, callbackName) {
+            const _this = this;
             // 1. Create the callback function
+
             window[callbackName] = (data) => {
               // Handle the response data here
-              console.log(data);
-              this.badges = data.items;
+              _this[callbackName](data);
 
               // Cleanup
               document.body.removeChild(script);
@@ -99,10 +102,21 @@
             script.src = url;
             document.body.appendChild(script);
           },
+          jsonpCallback_SetBadges(data) {
+            this.badges = data.items.map((d) => {
+              return {
+                ...d,
+                showrequirements: false,
+              };
+            });
+          },
+          jsonpCallback_SetBadgeRequirements(data) {
+            this.badge_requirements = data.items[0].storedescription2;
+          },
           getBadges() {
             this.fetchJSONP(
               "https://www.girlscoutshop.com/api/items?c=317771&country=US&currency=USD&fieldset=details&include=&language=en&n=7&pricelevel=7&use_pcv=F&commercecategoryurl=%2Fbadges-program%2Fall-badges-pins",
-              "processResults"
+              "jsonpCallback_SetBadges"
             );
           },
           getBadgeImageUrl(badge) {
@@ -114,17 +128,23 @@
               return "";
             }
           },
+          getBadgeRequirments(badge) {
+            const urlcomponent = badge.urlcomponent;
+            this.fetchJSONP(
+              "https://www.girlscoutshop.com/api/items?c=317771&country=US&currency=USD&fieldset=details&include=&language=en&n=7&pricelevel=7&url=" +
+                urlcomponent +
+                "&use_pcv=F",
+              "jsonpCallback_SetBadgeRequirements"
+            );
+          },
         },
         computed: {},
+        watch: {
+          badge_selected(val) {
+            this.getBadgeRequirments(val);
+          },
+        },
       });
-
-      // This is the function that the server's response will call.
-      // It needs to be globally accessible, so it's outside of the Vue instance.
-      function processResults(data) {
-        console.log(data);
-        // Here we directly update the Vue instance's data.
-        app.badges = data.items;
-      }
     </script>
   </body>
 </html>
