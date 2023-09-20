@@ -89,7 +89,7 @@
 
               // Cleanup
               document.body.removeChild(script);
-              delete window[callbackName];
+              //delete window[callbackName];
             };
 
             // 2. Construct the URL with the callback parameter
@@ -101,21 +101,34 @@
             document.body.appendChild(script);
           },
           jsonpCallback_SetBadges(data) {
-            this.badges = data.items.map((d) => {
+            const _this = this;
+            const fetchResults = data.items.map((d) => {
               return {
                 ...d,
                 showrequirements: false,
               };
             });
+            this.badges.push(...fetchResults);
+
+            // Check for the 'next' link in the links array
+            const nextLink = data.links && data.links.find((link) => link.rel === "next");
+            if (nextLink && nextLink.href) {
+              // Fetch the next set of data
+              return _this.getBadges(nextLink.href);
+            } else {
+              // Return when there's no more data to fetch
+              return _this.badges;
+            }
           },
           jsonpCallback_SetBadgeRequirements(data) {
             this.badge_requirements = data.items[0].storedescription2;
           },
-          getBadges() {
-            this.fetchJSONP(
-              "https://www.girlscoutshop.com/api/items?c=317771&country=US&currency=USD&fieldset=details&include=&language=en&n=7&pricelevel=7&use_pcv=F&commercecategoryurl=%2Fbadges-program%2Fall-badges-pins",
-              "jsonpCallback_SetBadges"
-            );
+          getBadges(url) {
+            const beginningUrl =
+              "https://www.girlscoutshop.com/api/items?c=317771&country=US&currency=USD&fieldset=details&include=&language=en&n=7&pricelevel=7&use_pcv=F&commercecategoryurl=%2Fbadges-program%2Fall-badges-pins&limit=100";
+            const badgesUrl = url || beginningUrl;
+            console.log("getBadges", url);
+            this.fetchJSONP(badgesUrl, "jsonpCallback_SetBadges");
           },
           getBadgeImageUrl(badge) {
             if (badge.itemimages_detail?.main?.["01.default"]) {
