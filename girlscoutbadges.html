@@ -22,12 +22,17 @@
     <div id="app" v-cloak>
       <v-app>
         <v-app-bar hide-on-scroll class="green darken-2 white--text" app>
-          <v-toolbar-title> Badges &nbsp; ({{badges.length}})</v-toolbar-title>
+          <v-icon color="green">mdi-clover</v-icon>
+          <v-toolbar-title>&nbsp; Badges &nbsp; ({{badges.length}})</v-toolbar-title>
         </v-app-bar>
 
         <v-main class="grey lighten-3 pl-4 pr-4">
           <v-container fluid>
-            <v-row v-for="badge in badges" v-if="badges.length > 0">
+            <!--Search-->
+            <v-text-field label="Search" outlined v-model="search"></v-text-field> x{{badgesFiltered.length}}
+
+            <!--Badges List-->
+            <v-row v-for="badge in badgesFiltered" v-if="badges.length > 0">
               <v-col>
                 <v-card class="mx-auto" max-width="344">
                   <v-img :src="getBadgeImageUrl(badge)" height="200px"></v-img>
@@ -69,6 +74,7 @@
           badge_selected: {},
           badge_requirements: "test",
           show: false,
+          search: "",
         }),
         mounted: function () {
           this.getBadges();
@@ -149,7 +155,20 @@
             );
           },
         },
-        computed: {},
+        computed: {
+          badgesFiltered() {
+            const _this = this;
+            if (this.search.length > 0) {
+              return this.badges.filter(
+                (b) =>
+                  b.storedescription.toLowerCase().includes(_this.search.toLowerCase()) ||
+                  b.storedisplayname2.toLowerCase().includes(_this.search.toLowerCase())
+              );
+            } else {
+              return this.badges;
+            }
+          },
+        },
         watch: {
           badge_selected(val) {
             this.getBadgeRequirments(val);
