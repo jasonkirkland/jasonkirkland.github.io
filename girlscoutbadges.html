@@ -55,6 +55,10 @@
                       <v-divider></v-divider>
 
                       <v-card-text v-html="badge_requirements"></v-card-text>
+                      <v-btn icon @click="speakText">
+                        <v-icon>mdi-volume-high</v-icon>
+                      </v-btn>
+                      <v-btn @click="toggleSpeech">{{ speechButtonText }}</v-btn>
                     </div>
                   </v-expand-transition>
                 </v-card>
@@ -72,9 +76,11 @@
         data: () => ({
           badges: [],
           badge_selected: {},
-          badge_requirements: "test",
+          badge_requirements: "No data found",
           show: false,
           search: "",
+          isSpeaking: false,
+          isPaused: false,
         }),
         mounted: function () {
           this.getBadges();
@@ -154,6 +160,29 @@
               "jsonpCallback_SetBadgeRequirements"
             );
           },
+          speakText() {
+            const textContent = this.stripHtml(this.badge_requirements);
+            const utterance = new SpeechSynthesisUtterance(textContent);
+            window.speechSynthesis.speak(utterance);
+            // Set isSpeaking to true when starting
+            this.isSpeaking = true;
+          },
+
+          stripHtml(html) {
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = html;
+            return tempDiv.textContent || tempDiv.innerText || "";
+          },
+
+          toggleSpeech() {
+            if (window.speechSynthesis.paused) {
+              window.speechSynthesis.resume();
+              this.isPaused = false;
+            } else if (window.speechSynthesis.speaking) {
+              window.speechSynthesis.pause();
+              this.isPaused = true;
+            }
+          },
         },
         computed: {
           badgesFiltered() {
@@ -167,6 +196,11 @@
             } else {
               return this.badges;
             }
+          },
+          speechButtonText() {
+            if (this.isPaused) return "Resume";
+            if (this.isSpeaking) return "Pause";
+            return "Start"; // Default state, or you can return an empty string if you prefer
           },
         },
         watch: {
