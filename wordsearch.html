@@ -6,24 +6,30 @@
     <title>Word Search Game</title>
     <style type="text/css">
       #grid {
-        width: 300px;
-        height: 300px;
+        width: calc(100vw - 30px); /* Subtract 20px for the 10px margin on each side */
+        height: calc(100vw - 30px); /* Ensure the grid remains square */
         display: grid;
-        grid-template-columns: repeat(10, 1fr);
-        grid-template-rows: repeat(10, 1fr);
+        grid-template-columns: repeat(10, 10%);
+        grid-template-rows: repeat(10, 10%);
         border: none;
+        margin: 0 10px; /* 10px margin on the left and right */
+        overflow: hidden;
       }
 
       .cell {
         border: 1px solid gray;
         text-align: center;
-        line-height: 30px;
+        line-height: 1;
         font-size: 1.2em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
       #words {
         margin-top: 20px;
       }
+
       .cell.selected {
         background-color: yellow;
       }
@@ -164,10 +170,13 @@
 
         // Check if the selected word is in the words list
         if (words.includes(selectedWord)) {
-          alert(`${selectedWord} found!`);
+          //alert(`${selectedWord} found!`);
           // Remove the found word from the list
           const wordElement = Array.from(wordsDiv.children).find((div) => div.innerText.toLowerCase() === selectedWord);
           wordElement.style.textDecoration = "line-through";
+
+          // Clear only the array to keep the word highlighted
+          selectedCells = [];
         } else {
           resetSelection(); // Reset if the word is not in the list
         }
