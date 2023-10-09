@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Word Search Game</title>
+    <style type="text/css">
+      #grid {
+        width: 300px;
+        height: 300px;
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        grid-template-rows: repeat(10, 1fr);
+        border: none;
+      }
+
+      .cell {
+        border: 1px solid gray;
+        text-align: center;
+        line-height: 30px;
+        font-size: 1.2em;
+      }
+
+      #words {
+        margin-top: 20px;
+      }
+      .cell.selected {
+        background-color: yellow;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="grid"></div>
+    <div id="words"></div>
+    <script>
+      const grid = document.getElementById("grid");
+      const wordsDiv = document.getElementById("words");
+      const SIZE = 10;
+
+      // Sample words
+      const words = ["apple", "banana", "cherry"];
+      let gridData = [];
+
+      function canPlaceWord(grid, word, startX, startY, dir) {
+        for (let i = 0; i < word.length; i++) {
+          const x = startX + (dir === 0 ? i : 0);
+          const y = startY + (dir === 1 ? i : 0);
+
+          if (x < 0 || x >= SIZE || y < 0 || y >= SIZE) return false;
+          if (grid[y][x] !== "." && grid[y][x] !== word[i]) return false;
+        }
+        return true;
+      }
+
+      function placeWord(grid, word, startX, startY, dir) {
+        for (let i = 0; i < word.length; i++) {
+          const x = startX + (dir === 0 ? i : 0);
+          const y = startY + (dir === 1 ? i : 0);
+
+          grid[y][x] = word[i].toUpperCase();
+        }
+      }
+
+      // Initialize the grid with placeholders
+      for (let i = 0; i < SIZE; i++) {
+        let row = [];
+        for (let j = 0; j < SIZE; j++) {
+          row.push(".");
+        }
+        gridData.push(row);
+      }
+
+      let wordsCopy = [...words];
+
+      while (wordsCopy.length > 0) {
+        const wordIndex = Math.floor(Math.random() * wordsCopy.length);
+        const word = wordsCopy[wordIndex];
+
+        let placed = false;
+        for (let attempts = 0; attempts < 50 && !placed; attempts++) {
+          const dir = Math.floor(Math.random() * 2);
+          const startX = Math.floor(Math.random() * SIZE);
+          const startY = Math.floor(Math.random() * SIZE);
+
+          if (canPlaceWord(gridData, word, startX, startY, dir)) {
+            placeWord(gridData, word, startX, startY, dir);
+            wordsCopy.splice(wordIndex, 1);
+            placed = true;
+          }
+        }
+
+        // Remove the word if not placed after many attempts
+        if (!placed) {
+          wordsCopy.splice(wordIndex, 1);
+        }
+      }
+
+      // Fill in any placeholders with random letters
+      for (let i = 0; i < SIZE; i++) {
+        for (let j = 0; j < SIZE; j++) {
+          if (gridData[i][j] === ".") {
+            gridData[i][j] = String.fromCharCode(Math.floor(Math.random() * 26) + 65);
+          }
+        }
+      }
+
+      // Render grid
+      gridData.forEach((row) => {
+        row.forEach((cell) => {
+          const div = document.createElement("div");
+          div.classList.add("cell");
+          div.innerText = cell;
+          grid.appendChild(div);
+        });
+      });
+
+      // Render words list
+      words.forEach((word) => {
+        const div = document.createElement("div");
+        div.innerText = word.toUpperCase();
+        wordsDiv.appendChild(div);
+      });
+
+      // ... Your touch handling logic remains unchanged ...
+
+      //Touch-handling functions
+      let isSelecting = false;
+      let selectedCells = [];
+
+      // Function to reset highlighting
+      function resetSelection() {
+        selectedCells.forEach((cell) => cell.classList.remove("selected"));
+        selectedCells = [];
+      }
+
+      grid.addEventListener("touchstart", function (event) {
+        isSelecting = true;
+        const cell = document.elementFromPoint(event.touches[0].clientX, event.touches[0].clientY);
+        if (cell && cell.classList.contains("cell")) {
+          cell.classList.add("selected");
+          selectedCells.push(cell);
+        }
+      });
+
+      grid.addEventListener("touchmove", function (event) {
+        event.preventDefault(); // Prevents scrolling while selecting
+        if (isSelecting) {
+          const cell = document.elementFromPoint(event.touches[0].clientX, event.touches[0].clientY);
+          if (cell && cell.classList.contains("cell") && !selectedCells.includes(cell)) {
+            cell.classList.add("selected");
+            selectedCells.push(cell);
+          }
+        }
+      });
+
+      grid.addEventListener("touchend", function () {
+        isSelecting = false;
+
+        // Convert selected cells to a string
+        const selectedWord = selectedCells
+          .map((cell) => cell.innerText)
+          .join("")
+          .toLowerCase();
+
+        // Check if the selected word is in the words list
+        if (words.includes(selectedWord)) {
+          alert(`${selectedWord} found!`);
+          // Remove the found word from the list
+          const wordElement = Array.from(wordsDiv.children).find((div) => div.innerText.toLowerCase() === selectedWord);
+          wordElement.style.textDecoration = "line-through";
+        } else {
+          resetSelection(); // Reset if the word is not in the list
+        }
+      });
+    </script>
+  </body>
+</html>
