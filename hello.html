@@ -1,0 +1,25 @@
+<html>
+  <div id="results"></div>
+  <script>
+let dataToSend = {
+    rawdata: "Your data here"  // replace with actual data
+};
+
+fetch('https://markieme.com/wp-json/custom/v1/downloaddropbox/', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(dataToSend)
+})
+.then(response => response.json())
+.then(data => {
+    console.log(data);  // Handle the response data here
+  document.getElementById("results").inneHTML = data
+})
+.catch(error => {
+    console.error('Error:', error);
+});
+
+  </script>
+</html>
