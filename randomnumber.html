@@ -1,1 +1,29 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Number Generator</title>
+</head>
+<body>
+
+<h2>Your random 3-digit number:</h2>
+<p id="randomNumber">---</p>
+<button onclick="generateRandomNumber()">Refresh</button>
+
+<script>
+    function generateRandomNumber() {
+        // Generate a random number between 100 and 999 inclusive
+        const randomNumber = Math.floor(Math.random() * 900) + 100;
+        
+        // Display the number
+        document.getElementById('randomNumber').innerText = randomNumber;
+    }
+
+    // Generate a number on initial load
+    generateRandomNumber();
+</script>
+
+</body>
+</html>
