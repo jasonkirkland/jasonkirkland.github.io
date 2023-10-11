@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Math App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet" />
+    <style>
+      @keyframes feedbackAnimation {
+        0% {
+          transform: scale(0.9);
+          opacity: 0.5;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      body {
+        font-family: "Patrick Hand", cursive;
+        background-color: #fff3e0;
+        background-image: url("https://www.transparenttextures.com/patterns/asfalt-dark.png");
+      }
+
+      .problem-container {
+        display: inline-block;
+        text-align: right;
+        padding-right: 10px;
+        font-size: 4em; /* Updated font size */
+        color: #ff7043;
+      }
+
+      .number {
+        width: 100%;
+        display: block;
+      }
+
+      #num2 {
+        border-bottom: 2px solid #ff7043;
+      }
+
+      #feedback {
+        font-size: 1.5em;
+        animation: feedbackAnimation 1.5s; /* Animation added */
+      }
+
+      button {
+        background-color: #ffb74d;
+        border: none;
+        border-radius: 10px;
+        box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+        transition: all 0.2s ease-in-out;
+      }
+
+      button:hover {
+        background-color: #ffa726;
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        transform: scale(1.05);
+      }
+    </style>
+  </head>
+  <body>
+    <div style="font-size: 24px; text-align: center; padding: 40px">
+      <div class="problem-container">
+        <span class="number" id="num1"></span>
+        <span class="number" id="num2"></span>
+      </div>
+      <input type="number" id="answer" placeholder="Your answer" style="font-size: 18px; padding: 5px 10px; margin: 20px" />
+      <div id="feedback" style="margin-top: 20px"></div>
+      <button onclick="checkAnswer()" style="font-size: 20px; padding: 10px 20px; margin-top: 20px">Submit</button>
+      <br /><br />
+      <button onclick="generateProblem()" style="font-size: 20px; padding: 10px 20px; margin-top: 20px">New Problem</button>
+    </div>
+
+    <script>
+      let currentAnswer = 0;
+
+      function generateProblem() {
+        let num1 = Math.floor(Math.random() * 1000);
+        let num2 = Math.floor(Math.random() * 1000);
+        let operator = Math.random() < 0.5 ? "+" : "-";
+
+        if (num1 < num2) {
+          [num1, num2] = [num2, num1];
+        }
+
+        if (operator === "+") {
+          currentAnswer = num1 + num2;
+        } else {
+          currentAnswer = num1 - num2;
+        }
+
+        document.getElementById("num1").textContent = num1;
+        document.getElementById("num2").textContent = operator + " " + num2;
+        document.getElementById("feedback").textContent = "";
+        document.getElementById("answer").value = "";
+      }
+
+      function checkAnswer() {
+        let userAnswer = parseInt(document.getElementById("answer").value);
+
+        // Reset animation
+        let feedbackElem = document.getElementById("feedback");
+        feedbackElem.style.animation = "none";
+        void feedbackElem.offsetWidth; // Trigger a reflow (forces the browser to repaint the layout)
+        feedbackElem.style.animation = "";
+
+        if (userAnswer === currentAnswer) {
+          feedbackElem.textContent = "🎉 Correct! 🎉";
+          feedbackElem.style.color = "green";
+        } else {
+          feedbackElem.textContent = "😞 Try again!";
+          feedbackElem.style.color = "red";
+        }
+      }
+
+      window.onload = generateProblem;
+    </script>
+  </body>
+</html>
