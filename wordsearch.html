@@ -113,6 +113,11 @@
         const newGameButton = document.getElementById('newGameButton');
         const gameCounterElement = document.getElementById('gameCounter');
 
+        let isSelecting = false;
+        let selectedCells = [];
+        let startCell = null;
+        let endCell = null;
+
         function initializeGrid() {
             grid = [];
             for (let i = 0; i < SIZE; i++) {
@@ -183,6 +188,15 @@
                     gridElement.appendChild(cell);
                 });
             });
+
+            // Add event listeners for selection
+            gridElement.addEventListener('touchstart', startSelection, { passive: false });
+            gridElement.addEventListener('touchmove', continueSelection, { passive: false });
+            gridElement.addEventListener('touchend', endSelection, { passive: false });
+            gridElement.addEventListener('mousedown', startSelection);
+            gridElement.addEventListener('mousemove', continueSelection);
+            gridElement.addEventListener('mouseup', endSelection);
+            gridElement.addEventListener('selectstart', (e) => e.preventDefault());
         }
 
         function createWordList() {
@@ -192,6 +206,141 @@
                 li.textContent = word;
                 wordListElement.appendChild(li);
             });
+        }
+
+        function startSelection(e) {
+            e.preventDefault();
+            isSelecting = true;
+            selectedCells = [];
+            startCell = getCellFromEvent(e);
+            if (startCell) {
+                highlightCell(startCell);
+            }
+        }
+
+        function continueSelection(e) {
+            if (!isSelecting) return;
+            e.preventDefault();
+            endCell = getCellFromEvent(e);
+            if (endCell && endCell !== startCell) {
+                updateSelection();
+            }
+        }
+
+        function endSelection(e) {
+            if (!isSelecting) return;
+            e.preventDefault();
+            isSelecting = false;
+            const selectedWord = getSelectedWord();
+            checkWord(selectedWord);
+            clearHighlight();
+            startCell = null;
+            endCell = null;
+        }
+
+        function getCellFromEvent(e) {
+            const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+            return document.elementFromPoint(clientX, clientY);
+        }
+
+        function updateSelection() {
+            clearHighlight();
+            const startRow = parseInt(startCell.dataset.row);
+            const startCol = parseInt(startCell.dataset.col);
+            const endRow = parseInt(endCell.dataset.row);
+            const endCol = parseInt(endCell.dataset.col);
+
+            const rowDiff = endRow - startRow;
+            const colDiff = endCol - startCol;
+            const steps = Math.max(Math.abs(rowDiff), Math.abs(colDiff));
+
+            const rowStep = rowDiff / steps;
+            const colStep = colDiff / steps;
+
+            for (let i = 0; i <= steps; i++) {
+                const row = Math.round(startRow + i * rowStep);
+                const col = Math.round(startCol + i * colStep);
+                const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+                if (cell) highlightCell(cell);
+            }
+        }
+
+        function highlightCell(cell) {
+            if (!selectedCells.includes(cell)) {
+                cell.classList.add('highlighted');
+                selectedCells.push(cell);
+            }
+        }
+
+        function clearHighlight() {
+            selectedCells.forEach(cell => cell.classList.remove('highlighted'));
+            selectedCells = [];
+        }
+
+        function getSelectedWord() {
+            return selectedCells.map(cell => cell.textContent).join('');
+        }
+
+        function checkWord(word) {
+            const forwardWord = word;
+            const backwardWord = word.split('').reverse().join('');
+            const wordElement = Array.from(wordListElement.children).find(li => 
+                li.textContent === forwardWord || li.textContent === backwardWord
+            );
+
+            if (wordElement && !wordElement.classList.contains('found')) {
+                wordElement.classList.add('found');
+                crossOutWordInGrid(word);
+                foundWords++;
+                checkGameCompletion();
+            }
+        }
+
+        function crossOutWordInGrid(word) {
+            const isBackward = selectedCells[0].textContent === word[word.length - 1];
+            const cellsToMark = isBackward ? selectedCells.slice().reverse() : selectedCells;
+
+            cellsToMark.forEach(cell => cell.classList.add('found'));
+
+            const startCell = cellsToMark[0];
+            const endCell = cellsToMark[cellsToMark.length - 1];
+            
+            const startRect = startCell.getBoundingClientRect();
+            const endRect = endCell.getBoundingClientRect();
+            const gridRect = gridElement.getBoundingClientRect();
+
+            const startX = startRect.left - gridRect.left + startRect.width / 2;
+            const startY = startRect.top - gridRect.top + startRect.height / 2;
+            const endX = endRect.left - gridRect.left + endRect.width / 2;
+            const endY = endRect.top - gridRect.top + endRect.height / 2;
+
+            const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+            const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
+
+            const strikeThrough = document.createElement('div');
+            strikeThrough.className = 'strike-through';
+            strikeThrough.style.width = '0px';
+            strikeThrough.style.left = `${startX}px`;
+            strikeThrough.style.top = `${startY}px`;
+            strikeThrough.style.transform = `rotate(${angle}deg)`;
+
+            gridElement.appendChild(strikeThrough);
+
+            // Trigger reflow
+            strikeThrough.offsetWidth;
+
+            strikeThrough.style.width = `${length}px`;
+        }
+
+        function checkGameCompletion() {
+            if (foundWords === words.length) {
+                if (gameCount < MAX_GAMES) {
+                    newGameButton.style.display = 'block';
+                } else {
+                    alert("Congratulations! You've completed all 10 games!");
+                }
+            }
         }
 
         function startNewGame() {
