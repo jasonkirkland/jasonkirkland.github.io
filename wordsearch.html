@@ -1,280 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Word Search Game</title>
-    <style type="text/css">
-      #grid {
-        width: calc(100vw - 30px); /* Subtract 20px for the 10px margin on each side */
-        height: calc(100vw - 30px); /* Ensure the grid remains square */
-        display: grid;
-        grid-template-columns: repeat(10, 10%);
-        grid-template-rows: repeat(10, 10%);
-        border: none;
-        margin: 0 10px; /* 10px margin on the left and right */
-        overflow: hidden;
-      }
-
-      .cell {
-        border: 1px solid gray;
-        text-align: center;
-        line-height: 1;
-        font-size: 1.2em;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      #words {
-        margin-top: 20px;
-      }
-
-      .cell.selected {
-        background-color: yellow;
-      }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Word Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            touch-action: none;
+        }
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(10, 30px);
+            gap: 1px;
+            margin-bottom: 20px;
+        }
+        .cell {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            user-select: none;
+        }
+        .highlighted {
+            background-color: yellow;
+        }
+        #wordList {
+            list-style-type: none;
+            padding: 0;
+        }
+        .found {
+            text-decoration: line-through;
+            color: #888;
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
+    <h1>Word Search</h1>
     <div id="grid"></div>
-    <div id="words"></div>
+    <ul id="wordList"></ul>
+
     <script>
-      const grid = document.getElementById("grid");
-      const wordsDiv = document.getElementById("words");
-      const SIZE = 10;
-      let currentSetIndex = 0; // To track which set we're on
-      let foundWords = []; // To track the words the user has found
+        const grid = [
+            ['H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D'],
+            ['A', 'P', 'P', 'L', 'E', 'B', 'A', 'N', 'A', 'N'],
+            ['C', 'H', 'E', 'R', 'R', 'Y', 'G', 'R', 'A', 'P'],
+            ['O', 'R', 'A', 'N', 'G', 'E', 'L', 'E', 'M', 'O'],
+            ['C', 'O', 'C', 'O', 'N', 'U', 'T', 'P', 'E', 'A'],
+            ['K', 'I', 'W', 'I', 'M', 'A', 'N', 'G', 'O', 'R'],
+            ['B', 'E', 'R', 'R', 'Y', 'P', 'L', 'U', 'M', 'S'],
+            ['P', 'E', 'A', 'C', 'H', 'M', 'E', 'L', 'O', 'N'],
+            ['P', 'A', 'P', 'A', 'Y', 'A', 'L', 'I', 'M', 'E'],
+            ['F', 'I', 'G', 'D', 'A', 'T', 'E', 'P', 'E', 'A']
+        ];
 
-      const wordSets = [
-        ["apple", "cherry", "grapes", "orange", "banana"],
-        ["tiger", "lion", "zebra", "cheetah", "panther"],
-        ["ocean", "river", "stream", "pond", "delta"],
-        ["comet", "planet", "orbit", "space", "meteor"],
-        ["python", "ruby", "java", "kotlin", "swift"],
-        ["guitar", "drums", "piano", "violin", "trumpet"],
-        ["soccer", "tennis", "hockey", "golf", "rugby"],
-        ["cinema", "drama", "action", "comedy", "horror"],
-        ["winter", "spring", "summer", "autumn", "season"],
-        ["poetry", "novel", "essay", "story", "journal"],
-      ];
+        const words = ['HELLO', 'WORLD', 'APPLE', 'BANANA', 'CHERRY', 'ORANGE', 'COCONUT', 'KIWI', 'MANGO', 'BERRY', 'PLUM', 'PEACH', 'MELON', 'PAPAYA', 'LIME', 'FIG', 'DATE', 'GRAPE', 'LEMON', 'PEA'];
 
-      // Sample words
-      const words = wordSets[0];
-      let gridData = [];
+        const gridElement = document.getElementById('grid');
+        const wordListElement = document.getElementById('wordList');
 
-      function canPlaceWord(grid, word, startX, startY, dir) {
-        for (let i = 0; i < word.length; i++) {
-          const x = startX + (dir === 0 ? i : 0);
-          const y = startY + (dir === 1 ? i : 0);
+        let isSelecting = false;
+        let selectedCells = [];
 
-          if (x < 0 || x >= SIZE || y < 0 || y >= SIZE) return false;
-          if (grid[y][x] !== "." && grid[y][x] !== word[i]) return false;
-        }
-        return true;
-      }
-
-      function placeWord(grid, word, startX, startY, dir) {
-        for (let i = 0; i < word.length; i++) {
-          const x = startX + (dir === 0 ? i : 0);
-          const y = startY + (dir === 1 ? i : 0);
-
-          grid[y][x] = word[i].toUpperCase();
-        }
-      }
-
-      // Initialize the grid with placeholders
-      for (let i = 0; i < SIZE; i++) {
-        let row = [];
-        for (let j = 0; j < SIZE; j++) {
-          row.push(".");
-        }
-        gridData.push(row);
-      }
-
-      let wordsCopy = [...words];
-
-      while (wordsCopy.length > 0) {
-        const wordIndex = Math.floor(Math.random() * wordsCopy.length);
-        const word = wordsCopy[wordIndex];
-
-        let placed = false;
-        for (let attempts = 0; attempts < 50 && !placed; attempts++) {
-          const dir = Math.floor(Math.random() * 2);
-          const startX = Math.floor(Math.random() * SIZE);
-          const startY = Math.floor(Math.random() * SIZE);
-
-          if (canPlaceWord(gridData, word, startX, startY, dir)) {
-            placeWord(gridData, word, startX, startY, dir);
-            wordsCopy.splice(wordIndex, 1);
-            placed = true;
-          }
-        }
-
-        // Remove the word if not placed after many attempts
-        if (!placed) {
-          wordsCopy.splice(wordIndex, 1);
-        }
-      }
-
-      // Fill in any placeholders with random letters
-      for (let i = 0; i < SIZE; i++) {
-        for (let j = 0; j < SIZE; j++) {
-          if (gridData[i][j] === ".") {
-            gridData[i][j] = String.fromCharCode(Math.floor(Math.random() * 26) + 65);
-          }
-        }
-      }
-
-      // Render grid
-      gridData.forEach((row) => {
-        row.forEach((cell) => {
-          const div = document.createElement("div");
-          div.classList.add("cell");
-          div.innerText = cell;
-          grid.appendChild(div);
+        // Create grid
+        grid.forEach((row, rowIndex) => {
+            row.forEach((letter, colIndex) => {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.textContent = letter;
+                cell.dataset.row = rowIndex;
+                cell.dataset.col = colIndex;
+                gridElement.appendChild(cell);
+            });
         });
-      });
 
-      // Render words list
-      words.forEach((word) => {
-        const div = document.createElement("div");
-        div.innerText = word.toUpperCase();
-        wordsDiv.appendChild(div);
-      });
+        // Create word list
+        words.forEach(word => {
+            const li = document.createElement('li');
+            li.textContent = word;
+            wordListElement.appendChild(li);
+        });
 
-      // ... Your touch handling logic remains unchanged ...
+        // Touch event handlers
+        gridElement.addEventListener('touchstart', startSelection, { passive: false });
+        gridElement.addEventListener('touchmove', continueSelection, { passive: false });
+        gridElement.addEventListener('touchend', endSelection, { passive: false });
 
-      //Touch-handling functions
-      let isSelecting = false;
-      let selectedCells = [];
-
-      // Function to reset highlighting
-      function resetSelection() {
-        selectedCells.forEach((cell) => cell.classList.remove("selected"));
-        selectedCells = [];
-      }
-
-      grid.addEventListener("touchstart", function (event) {
-        isSelecting = true;
-        const cell = document.elementFromPoint(event.touches[0].clientX, event.touches[0].clientY);
-        if (cell && cell.classList.contains("cell")) {
-          cell.classList.add("selected");
-          selectedCells.push(cell);
-        }
-      });
-
-      grid.addEventListener("touchmove", function (event) {
-        event.preventDefault(); // Prevents scrolling while selecting
-        if (isSelecting) {
-          const cell = document.elementFromPoint(event.touches[0].clientX, event.touches[0].clientY);
-          if (cell && cell.classList.contains("cell") && !selectedCells.includes(cell)) {
-            cell.classList.add("selected");
-            selectedCells.push(cell);
-          }
-        }
-      });
-
-      grid.addEventListener("touchend", function () {
-        isSelecting = false;
-
-        // Convert selected cells to a string
-        const selectedWord = selectedCells
-          .map((cell) => cell.innerText)
-          .join("")
-          .toLowerCase();
-
-        if (words.includes(selectedWord)) {
-          // Remove the found word from the list
-          const wordElement = Array.from(wordsDiv.children).find((div) => div.innerText.toLowerCase() === selectedWord);
-          wordElement.style.textDecoration = "line-through";
-
-          foundWords.push(selectedWord);
-
-          // Check if all words in the current set are found
-          if (foundWords.length === words.length) {
-            currentSetIndex++;
-
-            // Reset if we're past the last set
-            if (currentSetIndex >= wordSets.length) {
-              currentSetIndex = 0;
+        function startSelection(e) {
+            e.preventDefault();
+            isSelecting = true;
+            selectedCells = [];
+            const touch = e.touches[0];
+            const cell = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (cell && cell.classList.contains('cell')) {
+                highlightCell(cell);
             }
-
-            // Load new word set and reset game state
-            foundWords = [];
-            clearGridAndWords();
-            loadWordSet(wordSets[currentSetIndex]);
-          }
-        } else {
-          resetSelection(); // Reset if the word is not in the list
-        }
-      });
-
-      function clearGridAndWords() {
-        // Clear grid
-        while (grid.firstChild) {
-          grid.removeChild(grid.firstChild);
         }
 
-        // Clear word list
-        while (wordsDiv.firstChild) {
-          wordsDiv.removeChild(wordsDiv.firstChild);
-        }
-      }
-
-      function loadWordSet(wordSet) {
-        words = wordSet;
-        gridData = [];
-
-        // Initialize the grid with placeholders
-        for (let i = 0; i < SIZE; i++) {
-          let row = [];
-          for (let j = 0; j < SIZE; j++) {
-            row.push(".");
-          }
-          gridData.push(row);
-        }
-
-        // Place words from the new set in the grid
-        words.forEach((word) => {
-          let placed = false;
-          while (!placed) {
-            const dir = Math.floor(Math.random() * 2);
-            const startX = Math.floor(Math.random() * SIZE);
-            const startY = Math.floor(Math.random() * SIZE);
-
-            if (canPlaceWord(gridData, word, startX, startY, dir)) {
-              placeWord(gridData, word, startX, startY, dir);
-              placed = true;
+        function continueSelection(e) {
+            e.preventDefault();
+            if (!isSelecting) return;
+            const touch = e.touches[0];
+            const cell = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (cell && cell.classList.contains('cell')) {
+                highlightCell(cell);
             }
-          }
-        });
-
-        // Fill in any placeholders with random letters
-        for (let i = 0; i < SIZE; i++) {
-          for (let j = 0; j < SIZE; j++) {
-            if (gridData[i][j] === ".") {
-              gridData[i][j] = String.fromCharCode(Math.floor(Math.random() * 26) + 65);
-            }
-          }
         }
 
-        // Render new grid
-        gridData.forEach((row) => {
-          row.forEach((cell) => {
-            const div = document.createElement("div");
-            div.classList.add("cell");
-            div.innerText = cell;
-            grid.appendChild(div);
-          });
-        });
+        function endSelection(e) {
+            e.preventDefault();
+            isSelecting = false;
+            const selectedWord = getSelectedWord();
+            checkWord(selectedWord);
+            clearHighlight();
+        }
 
-        // Render new word list
-        words.forEach((word) => {
-          const div = document.createElement("div");
-          div.innerText = word.toUpperCase();
-          wordsDiv.appendChild(div);
-        });
-      }
+        function highlightCell(cell) {
+            if (!selectedCells.includes(cell)) {
+                cell.classList.add('highlighted');
+                selectedCells.push(cell);
+            }
+        }
+
+        function clearHighlight() {
+            selectedCells.forEach(cell => cell.classList.remove('highlighted'));
+            selectedCells = [];
+        }
+
+        function getSelectedWord() {
+            return selectedCells.map(cell => cell.textContent).join('');
+        }
+
+        function checkWord(word) {
+            const forwardWord = word;
+            const backwardWord = word.split('').reverse().join('');
+            const wordElement = Array.from(wordListElement.children).find(li => 
+                li.textContent === forwardWord || li.textContent === backwardWord
+            );
+
+            if (wordElement && !wordElement.classList.contains('found')) {
+                wordElement.classList.add('found');
+            }
+        }
     </script>
-  </body>
+</body>
 </html>
