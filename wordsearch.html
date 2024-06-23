@@ -11,12 +11,14 @@
             flex-direction: column;
             align-items: center;
             touch-action: none;
+            padding: 10px;
         }
         #grid {
             display: grid;
             grid-template-columns: repeat(10, 30px);
-            gap: 1px;
+            gap: 0; /* Removed gap */
             margin-bottom: 20px;
+            position: relative;
         }
         .cell {
             width: 30px;
@@ -27,7 +29,8 @@
             align-items: center;
             font-weight: bold;
             user-select: none;
-            position: relative;
+            cursor: pointer;
+            box-sizing: border-box; /* Ensure border is included in width/height */
         }
         .highlighted {
             background-color: yellow;
@@ -35,23 +38,24 @@
         .found {
             color: #888;
         }
-        .found::after {
-            content: '';
+        .strike-through {
             position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 0;
             height: 2px;
             background-color: red;
-            transform-origin: left center;
+            transform-origin: 0 50%;
             transition: width 0.3s ease;
-        }
-        .found.strike::after {
-            width: 100%;
         }
         #wordList {
             list-style-type: none;
             padding: 0;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 300px;
+        }
+        #wordList li {
+            font-size: 14px;
         }
         #wordList .found {
             text-decoration: line-through;
@@ -109,28 +113,38 @@
         gridElement.addEventListener('touchmove', continueSelection, { passive: false });
         gridElement.addEventListener('touchend', endSelection, { passive: false });
 
+        // Mouse event handlers
+        gridElement.addEventListener('mousedown', startSelection);
+        gridElement.addEventListener('mousemove', continueSelection);
+        gridElement.addEventListener('mouseup', endSelection);
+        // Prevent text selection
+        gridElement.addEventListener('selectstart', (e) => e.preventDefault());
+
         function startSelection(e) {
             e.preventDefault();
             isSelecting = true;
             selectedCells = [];
-            const touch = e.touches[0];
-            const cell = document.elementFromPoint(touch.clientX, touch.clientY);
+            const cell = e.type.startsWith('touch') 
+                ? document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY)
+                : e.target;
             if (cell && cell.classList.contains('cell')) {
                 highlightCell(cell);
             }
         }
 
         function continueSelection(e) {
-            e.preventDefault();
             if (!isSelecting) return;
-            const touch = e.touches[0];
-            const cell = document.elementFromPoint(touch.clientX, touch.clientY);
+            e.preventDefault();
+            const cell = e.type.startsWith('touch')
+                ? document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY)
+                : e.target;
             if (cell && cell.classList.contains('cell')) {
                 highlightCell(cell);
             }
         }
 
         function endSelection(e) {
+            if (!isSelecting) return;
             e.preventDefault();
             isSelecting = false;
             const selectedWord = getSelectedWord();
@@ -171,23 +185,36 @@
             const isBackward = selectedCells[0].textContent === word[word.length - 1];
             const cellsToMark = isBackward ? selectedCells.slice().reverse() : selectedCells;
 
-            const angle = calculateAngle(cellsToMark[0], cellsToMark[cellsToMark.length - 1]);
+            cellsToMark.forEach(cell => cell.classList.add('found'));
 
-            cellsToMark.forEach((cell, index) => {
-                cell.classList.add('found');
-                cell.style.setProperty('--angle', `${angle}deg`);
-            });
+            const startCell = cellsToMark[0];
+            const endCell = cellsToMark[cellsToMark.length - 1];
+            
+            const startRect = startCell.getBoundingClientRect();
+            const endRect = endCell.getBoundingClientRect();
+            const gridRect = gridElement.getBoundingClientRect();
 
-            // Delay adding the 'strike' class to trigger the transition
-            setTimeout(() => {
-                cellsToMark.forEach(cell => cell.classList.add('strike'));
-            }, 50);
-        }
+            const startX = startRect.left - gridRect.left + startRect.width / 2;
+            const startY = startRect.top - gridRect.top + startRect.height / 2;
+            const endX = endRect.left - gridRect.left + endRect.width / 2;
+            const endY = endRect.top - gridRect.top + endRect.height / 2;
 
-        function calculateAngle(startCell, endCell) {
-            const dx = endCell.dataset.col - startCell.dataset.col;
-            const dy = endCell.dataset.row - startCell.dataset.row;
-            return Math.atan2(dy, dx) * 180 / Math.PI;
+            const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+            const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
+
+            const strikeThrough = document.createElement('div');
+            strikeThrough.className = 'strike-through';
+            strikeThrough.style.width = '0px';
+            strikeThrough.style.left = `${startX}px`;
+            strikeThrough.style.top = `${startY}px`;
+            strikeThrough.style.transform = `rotate(${angle}deg)`;
+
+            gridElement.appendChild(strikeThrough);
+
+            // Trigger reflow
+            strikeThrough.offsetWidth;
+
+            strikeThrough.style.width = `${length}px`;
         }
     </script>
 </body>
