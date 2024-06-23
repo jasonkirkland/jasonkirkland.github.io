@@ -16,7 +16,7 @@
         #grid {
             display: grid;
             grid-template-columns: repeat(10, 30px);
-            gap: 0; /* Removed gap */
+            gap: 0;
             margin-bottom: 20px;
             position: relative;
         }
@@ -30,7 +30,7 @@
             font-weight: bold;
             user-select: none;
             cursor: pointer;
-            box-sizing: border-box; /* Ensure border is included in width/height */
+            box-sizing: border-box;
         }
         .highlighted {
             background-color: yellow;
@@ -60,53 +60,131 @@
         #wordList .found {
             text-decoration: line-through;
         }
+        #newGameButton {
+            display: none;
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #gameCounter {
+            margin-top: 10px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
     <h1>Word Search</h1>
+    <div id="gameCounter">Game 1 of 10</div>
     <div id="grid"></div>
     <ul id="wordList"></ul>
+    <button id="newGameButton">New Game</button>
 
     <script>
-        const grid = [
-            ['H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D'],
-            ['A', 'P', 'P', 'L', 'E', 'B', 'A', 'N', 'A', 'N'],
-            ['C', 'H', 'E', 'R', 'R', 'Y', 'G', 'R', 'A', 'P'],
-            ['O', 'R', 'A', 'N', 'G', 'E', 'L', 'E', 'M', 'O'],
-            ['C', 'O', 'C', 'O', 'N', 'U', 'T', 'P', 'E', 'A'],
-            ['K', 'I', 'W', 'I', 'M', 'A', 'N', 'G', 'O', 'R'],
-            ['B', 'E', 'R', 'R', 'Y', 'P', 'L', 'U', 'M', 'S'],
-            ['P', 'E', 'A', 'C', 'H', 'M', 'E', 'L', 'O', 'N'],
-            ['P', 'A', 'P', 'A', 'Y', 'A', 'L', 'I', 'M', 'E'],
-            ['F', 'I', 'G', 'D', 'A', 'T', 'E', 'P', 'E', 'A']
-        ];
+        const SIZE = 10;
+        const MAX_GAMES = 10;
+        let allWords = ['HELLO', 'WORLD', 'APPLE', 'BANANA', 'CHERRY', 'ORANGE', 'COCONUT', 'KIWI', 'MANGO', 'BERRY', 'PLUM', 'PEACH', 'MELON', 'PAPAYA', 'LIME', 'FIG', 'DATE', 'GRAPE', 'LEMON', 'PEA',
+                        'PEAR', 'APRICOT', 'GUAVA', 'JACKFRUIT', 'STARFRUIT', 'DURIAN', 'RAMBUTAN', 'LYCHEE', 'POMELO', 'DRAGONFRUIT'];
+        let words = [];
+        let grid = [];
+        let gameCount = 1;
+        let foundWords = 0;
 
-        const words = ['HELLO', 'WORLD', 'APPLE', 'BANANA', 'CHERRY', 'ORANGE', 'COCONUT', 'KIWI', 'MANGO', 'BERRY', 'PLUM', 'PEACH', 'MELON', 'PAPAYA', 'LIME', 'FIG', 'DATE', 'GRAPE', 'LEMON', 'PEA'];
+        const directions = [
+            [0, 1], [1, 0], [1, 1], [-1, 1], [0, -1], [-1, 0], [-1, -1], [1, -1]
+        ];
 
         const gridElement = document.getElementById('grid');
         const wordListElement = document.getElementById('wordList');
+        const newGameButton = document.getElementById('newGameButton');
+        const gameCounterElement = document.getElementById('gameCounter');
+
+        function initializeGrid() {
+            grid = [];
+            for (let i = 0; i < SIZE; i++) {
+                grid.push(new Array(SIZE).fill('.'));
+            }
+        }
+
+        function canPlaceWord(word, startX, startY, dir) {
+            const [dx, dy] = directions[dir];
+            for (let i = 0; i < word.length; i++) {
+                const x = startX + dx * i;
+                const y = startY + dy * i;
+                if (x < 0 || x >= SIZE || y < 0 || y >= SIZE) return false;
+                if (grid[y][x] !== '.' && grid[y][x] !== word[i]) return false;
+            }
+            return true;
+        }
+
+        function placeWord(word, startX, startY, dir) {
+            const [dx, dy] = directions[dir];
+            for (let i = 0; i < word.length; i++) {
+                const x = startX + dx * i;
+                const y = startY + dy * i;
+                grid[y][x] = word[i].toUpperCase();
+            }
+        }
+
+        function generateGrid() {
+            initializeGrid();
+            words = [];
+            const shuffledWords = allWords.sort(() => 0.5 - Math.random());
+            for (const word of shuffledWords) {
+                if (words.length >= 15) break; // Limit to 15 words per game
+                let placed = false;
+                for (let attempts = 0; attempts < 100 && !placed; attempts++) {
+                    const startX = Math.floor(Math.random() * SIZE);
+                    const startY = Math.floor(Math.random() * SIZE);
+                    const dir = Math.floor(Math.random() * directions.length);
+                    if (canPlaceWord(word, startX, startY, dir)) {
+                        placeWord(word, startX, startY, dir);
+                        placed = true;
+                        words.push(word);
+                    }
+                }
+            }
+            fillEmptyCells();
+        }
+
+        function fillEmptyCells() {
+            const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            for (let y = 0; y < SIZE; y++) {
+                for (let x = 0; x < SIZE; x++) {
+                    if (grid[y][x] === '.') {
+                        grid[y][x] = alphabet[Math.floor(Math.random() * alphabet.length)];
+                    }
+                }
+            }
+        }
+
+        function createGrid() {
+            gridElement.innerHTML = '';
+            grid.forEach((row, rowIndex) => {
+                row.forEach((letter, colIndex) => {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.textContent = letter;
+                    cell.dataset.row = rowIndex;
+                    cell.dataset.col = colIndex;
+                    gridElement.appendChild(cell);
+                });
+            });
+        }
+
+        function createWordList() {
+            wordListElement.innerHTML = '';
+            words.forEach(word => {
+                const li = document.createElement('li');
+                li.textContent = word;
+                wordListElement.appendChild(li);
+            });
+        }
 
         let isSelecting = false;
         let selectedCells = [];
-
-        // Create grid
-        grid.forEach((row, rowIndex) => {
-            row.forEach((letter, colIndex) => {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                cell.textContent = letter;
-                cell.dataset.row = rowIndex;
-                cell.dataset.col = colIndex;
-                gridElement.appendChild(cell);
-            });
-        });
-
-        // Create word list
-        words.forEach(word => {
-            const li = document.createElement('li');
-            li.textContent = word;
-            wordListElement.appendChild(li);
-        });
+        let startCell = null;
+        let endCell = null;
 
         // Touch event handlers
         gridElement.addEventListener('touchstart', startSelection, { passive: false });
@@ -124,22 +202,18 @@
             e.preventDefault();
             isSelecting = true;
             selectedCells = [];
-            const cell = e.type.startsWith('touch') 
-                ? document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY)
-                : e.target;
-            if (cell && cell.classList.contains('cell')) {
-                highlightCell(cell);
+            startCell = getCellFromEvent(e);
+            if (startCell) {
+                highlightCell(startCell);
             }
         }
 
         function continueSelection(e) {
             if (!isSelecting) return;
             e.preventDefault();
-            const cell = e.type.startsWith('touch')
-                ? document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY)
-                : e.target;
-            if (cell && cell.classList.contains('cell')) {
-                highlightCell(cell);
+            endCell = getCellFromEvent(e);
+            if (endCell && endCell !== startCell) {
+                updateSelection();
             }
         }
 
@@ -150,6 +224,36 @@
             const selectedWord = getSelectedWord();
             checkWord(selectedWord);
             clearHighlight();
+            startCell = null;
+            endCell = null;
+        }
+
+        function getCellFromEvent(e) {
+            const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+            return document.elementFromPoint(clientX, clientY);
+        }
+
+        function updateSelection() {
+            clearHighlight();
+            const startRow = parseInt(startCell.dataset.row);
+            const startCol = parseInt(startCell.dataset.col);
+            const endRow = parseInt(endCell.dataset.row);
+            const endCol = parseInt(endCell.dataset.col);
+
+            const rowDiff = endRow - startRow;
+            const colDiff = endCol - startCol;
+            const steps = Math.max(Math.abs(rowDiff), Math.abs(colDiff));
+
+            const rowStep = rowDiff / steps;
+            const colStep = colDiff / steps;
+
+            for (let i = 0; i <= steps; i++) {
+                const row = Math.round(startRow + i * rowStep);
+                const col = Math.round(startCol + i * colStep);
+                const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+                if (cell) highlightCell(cell);
+            }
         }
 
         function highlightCell(cell) {
@@ -178,6 +282,8 @@
             if (wordElement && !wordElement.classList.contains('found')) {
                 wordElement.classList.add('found');
                 crossOutWordInGrid(word);
+                foundWords++;
+                checkGameCompletion();
             }
         }
 
@@ -216,6 +322,35 @@
 
             strikeThrough.style.width = `${length}px`;
         }
+
+        function checkGameCompletion() {
+            if (foundWords === words.length) {
+                if (gameCount < MAX_GAMES) {
+                    newGameButton.style.display = 'block';
+                } else {
+                    alert("Congratulations! You've completed all 10 games!");
+                }
+            }
+        }
+
+        function startNewGame() {
+            if (gameCount < MAX_GAMES) {
+                gameCount++;
+                foundWords = 0;
+                newGameButton.style.display = 'none';
+                gameCounterElement.textContent = `Game ${gameCount} of ${MAX_GAMES}`;
+                generateGrid();
+                createGrid();
+                createWordList();
+            }
+        }
+
+        newGameButton.addEventListener('click', startNewGame);
+
+        // Initialize the first game
+        generateGrid();
+        createGrid();
+        createWordList();
     </script>
 </body>
 </html>
