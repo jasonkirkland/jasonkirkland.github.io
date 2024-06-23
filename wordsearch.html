@@ -12,17 +12,19 @@
             align-items: center;
             touch-action: none;
             padding: 10px;
+            margin: 0;
         }
         #grid {
             display: grid;
-            grid-template-columns: repeat(10, 30px);
-            gap: 0;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 1px;
             margin-bottom: 20px;
             position: relative;
+            width: 95vw;
+            max-width: 400px;
+            aspect-ratio: 1 / 1;
         }
         .cell {
-            width: 30px;
-            height: 30px;
             border: 1px solid #ccc;
             display: flex;
             justify-content: center;
@@ -31,6 +33,7 @@
             user-select: none;
             cursor: pointer;
             box-sizing: border-box;
+            font-size: 5vw; /* Responsive font size */
         }
         .highlighted {
             background-color: yellow;
@@ -51,11 +54,12 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
-            width: 100%;
-            max-width: 300px;
+            width: 95vw;
+            max-width: 400px;
+            font-size: 16px;
         }
         #wordList li {
-            font-size: 14px;
+            text-align: center;
         }
         #wordList .found {
             text-decoration: line-through;
@@ -69,7 +73,12 @@
         }
         #gameCounter {
             margin-top: 10px;
-            font-size: 14px;
+            font-size: 16px;
+        }
+        @media (min-width: 600px) {
+            .cell {
+                font-size: 24px; /* Larger font size for larger screens */
+            }
         }
     </style>
 </head>
