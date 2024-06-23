@@ -27,17 +27,30 @@
             align-items: center;
             font-weight: bold;
             user-select: none;
+            position: relative;
         }
         .highlighted {
             background-color: yellow;
+        }
+        .found {
+            color: #888;
+        }
+        .found::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 2px;
+            background-color: red;
+            transform-origin: center;
         }
         #wordList {
             list-style-type: none;
             padding: 0;
         }
-        .found {
+        #wordList .found {
             text-decoration: line-through;
-            color: #888;
         }
     </style>
 </head>
@@ -146,7 +159,25 @@
 
             if (wordElement && !wordElement.classList.contains('found')) {
                 wordElement.classList.add('found');
+                crossOutWordInGrid(word);
             }
+        }
+
+        function crossOutWordInGrid(word) {
+            const isBackward = selectedCells[0].textContent === word[word.length - 1];
+            const cellsToMark = isBackward ? selectedCells.slice().reverse() : selectedCells;
+
+            cellsToMark.forEach((cell, index) => {
+                cell.classList.add('found');
+                const angle = calculateAngle(cellsToMark[0], cellsToMark[cellsToMark.length - 1]);
+                cell.style.setProperty('--angle', `${angle}deg`);
+            });
+        }
+
+        function calculateAngle(startCell, endCell) {
+            const dx = endCell.dataset.col - startCell.dataset.col;
+            const dy = endCell.dataset.row - startCell.dataset.row;
+            return Math.atan2(dy, dx) * 180 / Math.PI;
         }
     </script>
 </body>
