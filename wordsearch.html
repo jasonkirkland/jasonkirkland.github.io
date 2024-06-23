@@ -38,12 +38,16 @@
         .found::after {
             content: '';
             position: absolute;
-            left: 0;
+            left: 50%;
             top: 50%;
-            width: 100%;
+            width: 0;
             height: 2px;
             background-color: red;
-            transform-origin: center;
+            transform-origin: left center;
+            transition: width 0.3s ease;
+        }
+        .found.strike::after {
+            width: 100%;
         }
         #wordList {
             list-style-type: none;
@@ -167,11 +171,17 @@
             const isBackward = selectedCells[0].textContent === word[word.length - 1];
             const cellsToMark = isBackward ? selectedCells.slice().reverse() : selectedCells;
 
+            const angle = calculateAngle(cellsToMark[0], cellsToMark[cellsToMark.length - 1]);
+
             cellsToMark.forEach((cell, index) => {
                 cell.classList.add('found');
-                const angle = calculateAngle(cellsToMark[0], cellsToMark[cellsToMark.length - 1]);
                 cell.style.setProperty('--angle', `${angle}deg`);
             });
+
+            // Delay adding the 'strike' class to trigger the transition
+            setTimeout(() => {
+                cellsToMark.forEach(cell => cell.classList.add('strike'));
+            }, 50);
         }
 
         function calculateAngle(startCell, endCell) {
