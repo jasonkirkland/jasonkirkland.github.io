@@ -17,8 +17,9 @@
         h1 {
             margin: 5px 0;
             font-size: 24px;
+            color: red;
         }
-        #gameCounter {
+        #gameCounter, #gameTheme {
             margin: 5px 0;
             font-size: 16px;
         }
@@ -41,14 +42,10 @@
             user-select: none;
             cursor: pointer;
             box-sizing: border-box;
-            font-size: 5vw; /* Responsive font size */
+            font-size: 5vw;
         }
-        .highlighted {
-            background-color: yellow;
-        }
-        .found {
-            color: #888;
-        }
+        .highlighted { background-color: yellow; }
+        .found { color: #888; }
         .strike-through {
             position: absolute;
             height: 2px;
@@ -71,9 +68,7 @@
             text-align: center;
             margin: 2px 0;
         }
-        #wordList .found {
-            text-decoration: line-through;
-        }
+        #wordList .found { text-decoration: line-through; }
         #newGameButton {
             display: none;
             margin-top: 10px;
@@ -82,15 +77,14 @@
             cursor: pointer;
         }
         @media (min-width: 600px) {
-            .cell {
-                font-size: 24px; /* Larger font size for larger screens */
-            }
+            .cell { font-size: 24px; }
         }
     </style>
 </head>
 <body>
     <h1>Word Search</h1>
     <div id="gameCounter">Game 1 of 10</div>
+    <div id="gameTheme">Theme: Animals</div>
     <div id="grid"></div>
     <ul id="wordList"></ul>
     <button id="newGameButton">New Game</button>
@@ -98,7 +92,22 @@
     <script>
         const SIZE = 10;
         const MAX_GAMES = 10;
-        let allWords = ['HELLOW', 'WORLD', 'APPLE', 'BANANA', 'CHERRY', 'ORANGE', 'COCONUT', 'KIWI', 'MANGO', 'BERRY', 'PLUM', 'PEACH', 'MELON', 'PAPAYA', 'LIME', 'FIG', 'DATE', 'GRAPE', 'LEMON', 'PEA'];
+        const WORDS_PER_GAME = 15;
+
+        const themes = [
+            { name: "Animals", words: ["DOG", "CAT", "ELEPHANT", "GIRAFFE", "LION", "TIGER", "ZEBRA", "MONKEY", "BEAR", "WOLF", "FOX", "DEER", "RABBIT", "SNAKE", "BIRD", "FISH", "FROG", "TURTLE", "PENGUIN", "KOALA"] },
+            { name: "Fruits", words: ["APPLE", "BANANA", "ORANGE", "GRAPE", "MANGO", "KIWI", "PEAR", "PEACH", "PLUM", "CHERRY", "LEMON", "LIME", "MELON", "BERRY", "FIG"] },
+            { name: "Countries", words: ["FRANCE", "SPAIN", "ITALY", "GERMANY", "JAPAN", "CHINA", "BRAZIL", "CANADA", "MEXICO", "INDIA", "RUSSIA", "EGYPT", "AUSTRALIA", "PERU", "KOREA"] },
+            { name: "Sports", words: ["SOCCER", "TENNIS", "GOLF", "SWIMMING", "CYCLING", "BOXING", "RUGBY", "CRICKET", "HOCKEY", "SKIING", "JUDO", "SURFING", "YOGA", "HIKING", "RUNNING"] },
+            { name: "Professions", words: ["DOCTOR", "TEACHER", "ENGINEER", "CHEF", "ARTIST", "PILOT", "LAWYER", "NURSE", "ACTOR", "WRITER", "FARMER", "POLICE", "BANKER", "JUDGE", "SINGER"] },
+            { name: "Colors", words: ["RED", "BLUE", "GREEN", "YELLOW", "PURPLE", "ORANGE", "PINK", "BROWN", "GRAY", "BLACK", "WHITE", "GOLD", "SILVER", "TEAL", "BEIGE"] },
+            { name: "Vehicles", words: ["CAR", "BIKE", "TRUCK", "BOAT", "PLANE", "TRAIN", "BUS", "SHIP", "TAXI", "TRAM", "METRO", "SCOOTER", "KAYAK", "JET", "YACHT"] },
+            { name: "Music", words: ["PIANO", "GUITAR", "DRUMS", "VIOLIN", "FLUTE", "TRUMPET", "BASS", "HARP", "CELLO", "CLARINET", "SAXO", "BANJO", "OBOE", "SYNTH", "UKULELE"] },
+            { name: "Food", words: ["PIZZA", "PASTA", "SALAD", "BREAD", "CHEESE", "SOUP", "STEAK", "SUSHI", "BURGER", "TACO", "CURRY", "NOODLE", "RICE", "CAKE", "PIE"] },
+            { name: "Weather", words: ["RAIN", "SNOW", "WIND", "STORM", "CLOUD", "SUN", "HAIL", "FOG", "FROST", "HEAT", "COLD", "HUMID", "DRY", "BREEZE", "TORNADO"] }
+        ];
+
+        let currentTheme;
         let words = [];
         let grid = [];
         let gameCount = 1;
@@ -112,6 +121,7 @@
         const wordListElement = document.getElementById('wordList');
         const newGameButton = document.getElementById('newGameButton');
         const gameCounterElement = document.getElementById('gameCounter');
+        const gameThemeElement = document.getElementById('gameTheme');
 
         let isSelecting = false;
         let selectedCells = [];
@@ -128,8 +138,9 @@
         function generateGrid() {
             initializeGrid();
             words = [];
-            const shuffledWords = allWords.sort(() => 0.5 - Math.random());
-            for (const word of shuffledWords.slice(0, 15)) {
+            currentTheme = themes[gameCount - 1];
+            const shuffledWords = currentTheme.words.sort(() => 0.5 - Math.random());
+            for (const word of shuffledWords.slice(0, WORDS_PER_GAME)) {
                 let placed = false;
                 for (let attempts = 0; attempts < 100 && !placed; attempts++) {
                     const startX = Math.floor(Math.random() * SIZE);
@@ -189,7 +200,6 @@
                 });
             });
 
-            // Add event listeners for selection
             gridElement.addEventListener('touchstart', startSelection, { passive: false });
             gridElement.addEventListener('touchmove', continueSelection, { passive: false });
             gridElement.addEventListener('touchend', endSelection, { passive: false });
@@ -293,6 +303,7 @@
                 wordElement.classList.add('found');
                 crossOutWordInGrid(word);
                 foundWords++;
+                saveProgress();
                 checkGameCompletion();
             }
         }
@@ -339,6 +350,7 @@
                     newGameButton.style.display = 'block';
                 } else {
                     alert("Congratulations! You've completed all 10 games!");
+                    localStorage.removeItem('wordSearchProgress');
                 }
             }
         }
@@ -349,18 +361,56 @@
                 foundWords = 0;
                 newGameButton.style.display = 'none';
                 gameCounterElement.textContent = `Game ${gameCount} of ${MAX_GAMES}`;
+                gameThemeElement.textContent = `Theme: ${themes[gameCount - 1].name}`;
                 generateGrid();
                 createGrid();
                 createWordList();
+                saveProgress();
+            }
+        }
+
+        function saveProgress() {
+            const progress = {
+                gameCount: gameCount,
+                foundWords: foundWords,
+                words: words,
+                grid: grid,
+                theme: currentTheme.name
+            };
+            localStorage.setItem('wordSearchProgress', JSON.stringify(progress));
+        }
+
+        function loadProgress() {
+            const savedProgress = localStorage.getItem('wordSearchProgress');
+            if (savedProgress) {
+                const progress = JSON.parse(savedProgress);
+                gameCount = progress.gameCount;
+                foundWords = progress.foundWords;
+                words = progress.words;
+                grid = progress.grid;
+                currentTheme = themes.find(theme => theme.name === progress.theme);
+                
+                gameCounterElement.textContent = `Game ${gameCount} of ${MAX_GAMES}`;
+                gameThemeElement.textContent = `Theme: ${currentTheme.name}`;
+                createGrid();
+                createWordList();
+                
+                // Mark found words
+                words.forEach((word, index) => {
+                    if (index < foundWords) {
+                        const wordElement = wordListElement.children[index];
+                        wordElement.classList.add('found');
+                    }
+                });
+            } else {
+                startNewGame();
             }
         }
 
         newGameButton.addEventListener('click', startNewGame);
 
-        // Initialize the first game
-        generateGrid();
-        createGrid();
-        createWordList();
+        // Initialize the game
+        loadProgress();
     </script>
 </body>
 </html>
