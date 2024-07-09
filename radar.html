@@ -34,6 +34,7 @@
       .radar-image {
         height: 0;
         padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        cursor: pointer;
       }
       .placeholder {
         position: absolute;
@@ -62,10 +63,11 @@
               <v-col v-for="(image, key) in radar" :key="key" cols="12" md="4">
                 <v-card class="radar-card">
                   <v-img
-                    :src="image"
+                    :src="image.url"
                     :lazy-src="'/api/placeholder/880/495'"
                     aspect-ratio="16/9"
                     class="radar-image grey darken-4"
+                    @click="openImageInNewTab(image.url)"
                   >
                     <template v-slot:placeholder>
                       <div class="placeholder">
@@ -73,7 +75,7 @@
                       </div>
                     </template>
                   </v-img>
-                  <v-card-title class="title">{{ key.charAt(0).toUpperCase() + key.slice(1) }}</v-card-title>
+                  <v-card-title class="title">{{ image.name }}</v-card-title>
                 </v-card>
               </v-col>
             </v-row>
@@ -104,9 +106,18 @@
         vuetify: new Vuetify(),
         data: () => ({
           radar: {
-            "North Texas": "https://cdn.tegna-media.com/wfaa/weather/animated-loops/comp/temp_880x495/new_dma.gif?123",
-            "Metroplex": "https://cdn.tegna-media.com/wfaa/weather/animated-loops/comp/temp_880x495/new_metro.gif?123",
-            "USA": "https://cdn.tegna-media.com/wfaa/weather/animated-loops/comp/temp_880x495/usa_anim.gif?123",
+            northtexas: {
+              name: "North Texas",
+              url: "https://cdn.tegna-media.com/wfaa/weather/animated-loops/comp/temp_880x495/new_dma.gif?123"
+            },
+            metroplex: {
+              name: "Metroplex",
+              url: "https://cdn.tegna-media.com/wfaa/weather/animated-loops/comp/temp_880x495/new_metro.gif?123"
+            },
+            usa: {
+              name: "USA",
+              url: "https://cdn.tegna-media.com/wfaa/weather/animated-loops/comp/temp_880x495/usa_anim.gif?123"
+            }
           },
         }),
         mounted: function () {
@@ -117,9 +128,12 @@
           refreshRadarImages: function () {
             const timestamp = new Date().toISOString().replaceAll("-", "").replaceAll(":", "").replaceAll(".", "");
             Object.keys(this.radar).forEach((key) => {
-              this.radar[key] = this.radar[key].split("?")[0] + "?" + timestamp;
+              this.radar[key].url = this.radar[key].url.split("?")[0] + "?" + timestamp;
             });
           },
+          openImageInNewTab: function (imageUrl) {
+            window.open(imageUrl, '_blank');
+          }
         },
       });
     </script>
