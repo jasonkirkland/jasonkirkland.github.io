@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <title>iPad Mini Clock</title>
+    <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAB5JREFUaN7twQENAAAAwqD3T20PBxQAAAAAAAAAAHwYCcAAAVjE9woAAAAASUVORK5CYII=">
+    <link rel="manifest" href='data:application/manifest+json,{"name":"iPad Mini Clock","display":"standalone","background_color":"#000000","theme_color":"#000000"}'>
     <style>
         body {
             background-color: black;
@@ -43,6 +47,26 @@
 
         setInterval(updateClock, 1000);
         updateClock(); // Initial call to display time immediately
+
+        // Prevent default touch behavior
+        document.addEventListener('touchmove', function(event) {
+            event.preventDefault();
+        }, { passive: false });
+
+        // Prevent display sleep
+        function keepAwake() {
+            if (navigator.wakeLock) {
+                navigator.wakeLock.request('screen').catch((err) => {
+                    console.error(`${err.name}, ${err.message}`);
+                });
+            }
+        }
+        keepAwake();
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                keepAwake();
+            }
+        });
     </script>
 </body>
 </html>
