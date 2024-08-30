@@ -22,7 +22,7 @@
             overflow: hidden;
         }
         #clock {
-            font-size: 15vw;
+            font-size: 20vw;
             font-weight: bold;
         }
         #date {
@@ -38,7 +38,7 @@
     <script>
         function updateClock() {
             const now = new Date();
-            const timeString = now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
+            const timeString = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
             const dateString = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             
             document.getElementById('clock').textContent = timeString;
