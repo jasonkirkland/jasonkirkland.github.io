@@ -11,7 +11,7 @@
     <style>
         body {
             background-color: black;
-            color: white;
+            color: gainsboro;
             font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
