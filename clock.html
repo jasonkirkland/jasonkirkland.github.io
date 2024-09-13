@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>iPad Mini Clock</title>
+    <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAB5JREFUaN7twQENAAAAwqD3T20PBxQAAAAAAAAAAHwYCcAAAVjE9woAAAAASUVORK5CYII=">
+    <link rel="manifest" href='data:application/manifest+json,{"name":"iPad Mini Clock","display":"standalone","background_color":"#000000","theme_color":"#000000"}'>
+    <style>
+        body {
+            background-color: black;
+            color: gainsboro;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        #clock {
+            font-size: 32vw;
+            font-weight: bold;
+            line-height: 1;
+        }
+        #date {
+            font-size: 4vw;
+            margin-top: 2vh;
+        }
+    </style>
+</head>
+<body>
+    <div id="clock"></div>
+    <div id="date"></div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            
+            // Convert 24-hour time to 12-hour time
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            
+            const timeString = `${hours}:${minutes}`;
+            const dateString = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            
+            document.getElementById('clock').textContent = timeString;
+            document.getElementById('date').textContent = dateString;
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock(); // Initial call to display time immediately
+
+        // Prevent default touch behavior
+        document.addEventListener('touchmove', function(event) {
+            event.preventDefault();
+        }, { passive: false });
+
+        // Prevent display sleep
+        function keepAwake() {
+            if (navigator.wakeLock) {
+                navigator.wakeLock.request('screen').catch((err) => {
+                    console.error(`${err.name}, ${err.message}`);
+                });
+            }
+        }
+        keepAwake();
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                keepAwake();
+            }
+        });
+    </script>
+</body>
+</html>
