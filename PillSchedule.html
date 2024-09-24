@@ -26,7 +26,7 @@
     </style>
 </head>
 <body>
-    <h1 style="color:red">Medication Reminder</h1>
+    <h1 style="color:blue">Medication Reminder</h1>
     <div id="upcoming"></div>
 
     <script>
@@ -40,6 +40,12 @@
                 const response = await fetch(API_URL);
                 medications = await response.json();
                 console.log("medications",medications)
+                if (data.statusCode === 200) {
+                    medications = data.body;
+                    displayUpcoming();
+                } else {
+                    console.error('Error fetching medications:', data);
+                }
                 displayUpcoming();
             } catch (error) {
                 console.error('Error fetching medications:', error);
@@ -51,7 +57,7 @@
             upcomingDiv.innerHTML = '<h2>Upcoming Medications</h2>';
 
             const now = new Date();
-            const upcoming = medications.body.filter(med => {
+            const upcoming = medications.filter(med => {
                 const [hours, minutes] = med.time.split(':');
                 const medTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
                 return medTime > now;
