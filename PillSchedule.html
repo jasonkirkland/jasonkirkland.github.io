@@ -61,7 +61,7 @@
     <script>
       const API_URL =
         "https://script.google.com/macros/s/AKfycbyNRXXUpXpPDXmjyPbEt08fwF5-RL57JOTBWA8CiH4LnjvDAW8DG9VYk7oBiKglRT4qpw/exec";
-
+        
       const app = Vue.createApp({
         data() {
           return {
@@ -201,7 +201,7 @@
         },
       });
 
-      const vuetify = Vuetify.createVuetify();
+      const vuetify = createVuetify({ theme: { defaultTheme: "dark", themes: { dark: { dark: true } } } });
       app.use(vuetify);
       app.mount("#app");
     </script>
