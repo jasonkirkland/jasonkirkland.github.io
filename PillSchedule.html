@@ -26,28 +26,24 @@
     </style>
 </head>
 <body>
-    <h1 style="color:blue">Medication Reminder</h1>
+    <h1 style="color:red">Medication Reminder</h1>
     <div id="upcoming"></div>
 
     <script>
-        // Replace with your Google Apps Script web app URL
-        const API_URL = 'https://script.google.com/macros/s/AKfycbySwrNXduMHAnxQXD8idQtMa8dxdHU6_9otuuiB-aDhHj38806d43NzQkxr2uCtGe825g/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzEPf0ibKUJKmat5_ieS0y3amNHaS1oir6q41SkYaspD51xXKvIUEGHR99IM9KbV70CPA/exec';
 
         let medications = [];
 
         async function fetchMedications() {
             try {
                 const response = await fetch(API_URL);
-                data = await response.json();
-                console.log("data",data)
-                if (data.statusCode === 200) {
-                    medications = data.body;
-                    console.log("medications",medications)
+                medications = await response.json();
+                console.log("medications", medications);
+                if (medications.statusCode === 200) {
                     displayUpcoming();
                 } else {
-                    console.error('Error fetching medications:', data);
+                    console.error('Error fetching medications:', medications);
                 }
-                displayUpcoming();
             } catch (error) {
                 console.error('Error fetching medications:', error);
             }
@@ -58,28 +54,28 @@
             upcomingDiv.innerHTML = '<h2>Upcoming Medications</h2>';
 
             const now = new Date();
-            const upcoming = medications.filter(med => {
-                const [hours, minutes] = med.time.split(':');
-                const medTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
+            const upcoming = medications.body.filter(med => {
+                const medTime = new Date(med.time);
                 return medTime > now;
             }).sort((a, b) => {
-                return new Date('1970/01/01 ' + a.time) - new Date('1970/01/01 ' + b.time);
+                return new Date(a.time) - new Date(b.time);
             });
 
             upcoming.forEach(med => {
                 const medDiv = document.createElement('div');
                 medDiv.className = 'med-item';
-                medDiv.textContent = `${med.med} - ${med.time}`;
+                const medTime = new Date(med.time);
+                medDiv.textContent = `${med.med} - ${medTime.toLocaleTimeString()}`;
                 upcomingDiv.appendChild(medDiv);
             });
         }
 
         function checkMedications() {
             const now = new Date();
-            const currentTime = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
 
-            medications.forEach(med => {
-                if (med.time === currentTime) {
+            medications.body.forEach(med => {
+                const medTime = new Date(med.time);
+                if (medTime.getHours() === now.getHours() && medTime.getMinutes() === now.getMinutes()) {
                     alert(`Time to take ${med.med}!`);
                     const audio = new Audio('https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg');
                     audio.play();
