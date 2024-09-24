@@ -37,13 +37,13 @@
               <v-btn color="primary" @click="startReminder" v-if="!started"
                 >Start Medication Reminder</v-btn
               >
-
               <v-card
                 v-for="med in upcomingMeds"
                 :key="med.med + med.time"
                 class="my-2"
               >
                 <v-card-title>{{ med.med }} - {{ med.time }}</v-card-title>
+                <v-card-subtitle>{{med.directions}}</v-card-subtitle>
               </v-card>
 
               <v-alert v-if="timeUntilNext > 0" type="info" class="my-2">
@@ -194,15 +194,12 @@
             }
           },
           timeUntilNextDoseMessage() {
-            return `Time until next dose: ${Math.floor(
-              timeUntilNext / 60
-            )} hours
-                and ${timeUntilNext % 60} minutes`;
+            return `Time until next dose: ${Math.floor(timeUntilNext / 60 )} hours
+            and ${timeUntilNext % 60} minutes`;
           },
         },
       });
-
-      //const vuetify = Vuetify.createVuetify();
+      
       const vuetify = Vuetify.createVuetify({ theme: { defaultTheme: "dark", themes: { dark: { dark: true } } } });
       app.use(vuetify);
       app.mount("#app");
