@@ -51,7 +51,7 @@
             upcomingDiv.innerHTML = '<h2>Upcoming Medications</h2>';
 
             const now = new Date();
-            const upcoming = medications.filter(med => {
+            const upcoming = medications.body.filter(med => {
                 const [hours, minutes] = med.time.split(':');
                 const medTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
                 return medTime > now;
