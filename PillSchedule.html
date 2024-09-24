@@ -12,7 +12,7 @@
             padding: 20px;
         }
         h1 {
-            color: #333;
+            color: blue;
         }
         #upcoming {
             margin-top: 20px;
@@ -26,7 +26,7 @@
     </style>
 </head>
 <body>
-    <h1 style="color:blue">Medication Reminder</h1>
+    <h1 style="color:red">Medication Reminder</h1>
     <div id="upcoming"></div>
 
     <script>
@@ -55,27 +55,29 @@
 
             const now = new Date();
             const upcoming = medications.body.filter(med => {
-                const medTime = new Date(med.time);
+                const [hours, minutes] = med.time.split(':').map(Number);
+                const medTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
                 return medTime > now;
             }).sort((a, b) => {
-                return new Date(a.time) - new Date(b.time);
+                const timeA = a.time.split(':').map(Number);
+                const timeB = b.time.split(':').map(Number);
+                return timeA[0] * 60 + timeA[1] - (timeB[0] * 60 + timeB[1]);
             });
 
             upcoming.forEach(med => {
                 const medDiv = document.createElement('div');
                 medDiv.className = 'med-item';
-                const medTime = new Date(med.time);
-                medDiv.textContent = `${med.med} - ${medTime.toLocaleTimeString()}`;
+                medDiv.textContent = `${med.med} - ${med.time}`;
                 upcomingDiv.appendChild(medDiv);
             });
         }
 
         function checkMedications() {
             const now = new Date();
+            const currentTime = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
 
             medications.body.forEach(med => {
-                const medTime = new Date(med.time);
-                if (medTime.getHours() === now.getHours() && medTime.getMinutes() === now.getMinutes()) {
+                if (med.time === currentTime) {
                     alert(`Time to take ${med.med}!`);
                     const audio = new Audio('https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg');
                     audio.play();
