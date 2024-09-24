@@ -1,116 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Medication Reminder</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        h1 {
-            color: red;
-        }
-        #upcoming {
-            margin-top: 20px;
-        }
-        .med-item {
-            background-color: #f0f0f0;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-        }
-    </style>
-</head>
-<body>
-    <h1>Medication Reminder</h1>
-    <div id="upcoming"></div>
+    <!--Material Design Icons-->
+    <link
+      href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css"
+      rel="stylesheet"
+    />
 
-    <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyNRXXUpXpPDXmjyPbEt08fwF5-RL57JOTBWA8CiH4LnjvDAW8DG9VYk7oBiKglRT4qpw/exec';
-    
-        let medications = [];
-    
-        async function fetchMedications() {
-            try {
-                const response = await fetch(API_URL);
-                const data = await response.json();
-                console.log("medications", data);
-                if (data.statusCode === 200) {
-                    medications = data.body;
-                    displayUpcoming();
+    <!--Vuetify 3-->
+    <link
+      href="https://cdn.jsdelivr.net/npm/vuetify@3.6.13/dist/vuetify.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <v-app>
+        <v-container>
+          <v-row>
+            <v-col>
+              <h1>Medication Reminder</h1>
+              <v-btn color="primary" @click="startReminder" v-if="!started"
+                >Start Medication Reminder</v-btn
+              >
+
+              <v-card
+                v-for="med in upcomingMeds"
+                :key="med.med + med.time"
+                class="my-2"
+              >
+                <v-card-title>{{ med.med }} - {{ med.time }}</v-card-title>
+              </v-card>
+
+              <v-alert v-if="timeUntilNext > 0" type="info" class="my-2">
+                Time until next dose: {{ Math.floor(timeUntilNext / 60) }} hours
+                and {{ timeUntilNext % 60 }} minutes
+              </v-alert>
+              <v-alert v-if="timeUntilNext === 0" type="success" class="my-2">
+                It's time for your next medication!
+              </v-alert>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-app>
+    </div>
+
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/vue@3.4.27/dist/vue.global.js"
+    ></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/vuetify@3.6.13/dist/vuetify.min.js"
+    ></script>
+    <script type="module">
+      const API_URL =
+        "https://script.google.com/macros/s/AKfycbyNRXXUpXpPDXmjyPbEt08fwF5-RL57JOTBWA8CiH4LnjvDAW8DG9VYk7oBiKglRT4qpw/exec";
+      const {
+        createApp,
+        ref,
+        computed,
+        onMounted,
+        onBeforeUnmount,
+        markRaw,
+        watch,
+      } = Vue;
+      const { createVuetify } = Vuetify;
+      const vuetify = createVuetify({
+        theme: { defaultTheme: "dark", themes: { dark: { dark: true } } },
+      });
+      const app = createApp({
+        data() {
+          return {
+            medications: [],
+            started: false,
+            notificationGranted: false,
+            upcomingMeds: [],
+            audio: null,
+            timeUntilNext: -1,
+          };
+        },
+        methods: {
+          async startReminder() {
+            this.started = true;
+            this.audio = new Audio(
+              "https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"
+            );
+            this.checkNotificationPermission();
+            this.fetchMedications();
+            setInterval(this.fetchMedications, 15 * 60 * 1000); // Refresh data every 15 minutes
+            setInterval(this.checkMedications, 10 * 1000); // Check for due medications every 10 seconds
+          },
+          checkNotificationPermission() {
+            if (Notification.permission === "granted") {
+              this.notificationGranted = true;
+            } else if (Notification.permission !== "denied") {
+              Notification.requestPermission().then((permission) => {
+                if (permission === "granted") {
+                  this.notificationGranted = true;
                 } else {
-                    console.error('Error fetching medications:', data);
+                  console.log("Notifications are blocked.");
                 }
-            } catch (error) {
-                console.error('Error fetching medications:', error);
+              });
+            } else {
+              console.log("Notifications are denied, will not prompt again.");
             }
-        }
-    
-        function displayUpcoming() {
-            const upcomingDiv = document.getElementById('upcoming');
-            upcomingDiv.innerHTML = '<h2>Upcoming Medications</h2>';
-    
+          },
+          async fetchMedications() {
+            try {
+              const response = await fetch(API_URL);
+              const data = await response.json();
+              if (data.statusCode === 200) {
+                this.medications = data.body;
+                this.displayUpcoming();
+              } else {
+                console.error("Error fetching medications:", data);
+              }
+            } catch (error) {
+              console.error("Error fetching medications:", error);
+            }
+          },
+          displayUpcoming() {
             const now = new Date();
             const currentTime = now.getHours() * 60 + now.getMinutes();
-    
-            const upcoming = medications.filter(med => {
-                const [time, period] = med.time.split(' ');
-                let [hours, minutes] = time.split(':').map(Number);
-                if (period === 'PM' && hours !== 12) hours += 12;
-                if (period === 'AM' && hours === 12) hours = 0;
-                const medTime = hours * 60 + minutes;
+
+            this.upcomingMeds = this.medications
+              .filter((med) => {
+                const medTime = this.convertToMinutes(med.time);
                 return medTime > currentTime;
-            }).sort((a, b) => {
-                const getMinutes = (time) => {
-                    const [t, period] = time.split(' ');
-                    let [h, m] = t.split(':').map(Number);
-                    if (period === 'PM' && h !== 12) h += 12;
-                    if (period === 'AM' && h === 12) h = 0;
-                    return h * 60 + m;
-                };
-                return getMinutes(a.time) - getMinutes(b.time);
-            });
-    
-            upcoming.forEach(med => {
-                const medDiv = document.createElement('div');
-                medDiv.className = 'med-item';
-                medDiv.textContent = `${med.med} - ${med.time}`;
-                upcomingDiv.appendChild(medDiv);
-            });
-        }
-    
-        function checkMedications() {
+              })
+              .sort(
+                (a, b) =>
+                  this.convertToMinutes(a.time) - this.convertToMinutes(b.time)
+              );
+
+            if (this.upcomingMeds.length > 0) {
+              const nextMed = this.upcomingMeds[0];
+              this.timeUntilNext =
+                this.convertToMinutes(nextMed.time) - currentTime;
+            } else {
+              this.timeUntilNext = -1;
+            }
+          },
+          checkMedications() {
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-            medications.forEach(med => {
-                const [time, period] = med.time.split(' ');
-                let [hours, minutes] = time.split(':').map(Number);
-                if (period.toUpperCase() === 'PM' && hours !== 12) hours += 12;
-                if (period.toUpperCase() === 'AM' && hours === 12) hours = 0;
-                const medMinutes = hours * 60 + minutes;
-
-                // Check if current time is within 1 minute of medication time
-                if (Math.abs(currentMinutes - medMinutes) <= 1) {
-                    alert(`Time to take ${med.med}!`);
-                    const audio = new Audio('https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg');
-                    audio.play();
-                }
+            this.medications.forEach((med) => {
+              const medMinutes = this.convertToMinutes(med.time);
+              if (Math.abs(currentMinutes - medMinutes) <= 2) {
+                this.notifyUser(med.med);
+              }
             });
-        }
-    
-        // Initial fetch and display
-        fetchMedications();
-    
-        // Refresh data every 5 minutes
-        setInterval(fetchMedications, 5 * 60 * 1000);
-    
-        // Check for due medications every minute
-        setInterval(checkMedications, 5 * 1000);
+          },
+          convertToMinutes(timeStr) {
+            const [time, period] = timeStr.split(" ");
+            let [hours, minutes] = time.split(":").map(Number);
+            if (period === "PM" && hours !== 12) hours += 12;
+            if (period === "AM" && hours === 12) hours = 0;
+            return hours * 60 + minutes;
+          },
+          notifyUser(medication) {
+            if (this.audio) {
+              this.audio.play();
+            }
+            if (this.notificationGranted) {
+              new Notification(`Time to take ${medication}!`);
+            }
+          },
+        },
+      });
+
+      app.use(vuetify).mount("#app");
     </script>
-</body>
+  </body>
 </html>
