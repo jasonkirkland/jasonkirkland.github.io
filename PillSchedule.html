@@ -201,7 +201,8 @@
         },
       });
 
-      const vuetify = createVuetify({ theme: { defaultTheme: "dark", themes: { dark: { dark: true } } } });
+      //const vuetify = Vuetify.createVuetify();
+      const vuetify = Vuetify.createVuetify({ theme: { defaultTheme: "dark", themes: { dark: { dark: true } } } });
       app.use(vuetify);
       app.mount("#app");
     </script>
