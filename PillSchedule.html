@@ -4,26 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Medication Reminder</title>
-    <!-- Vue 3 CDN -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <!-- Vuetify 3 CDN -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/vuetify@3.0.0-beta.0/dist/vuetify.min.css"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/vuetify@3.0.0-beta.0/dist/vuetify.min.js"></script>
-    <link
-      href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css"
-      rel="stylesheet"
-    />
-
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@3.7.2/dist/vuetify.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet" />
     <style>
       body {
         font-family: Arial, sans-serif;
         max-width: 800px;
         margin: 0 auto;
         padding: 20px;
-        background-color: black;
+        background-color: #121212;
       }
     </style>
   </head>
@@ -34,173 +23,216 @@
           <v-row>
             <v-col>
               <h1>Medication Reminder</h1>
-              <v-btn color="primary" @click="startReminder" v-if="!started"
-                >Start Medication Reminder</v-btn
-              >
-              <v-card
-                v-for="med in upcomingMeds"
-                :key="med.med + med.time"
-                class="my-2"
-              >
-                <v-card-title>{{ med.med }} - {{ med.time }}</v-card-title>
-                <v-card-subtitle>{{med.directions}}</v-card-subtitle>
+              <v-btn color="primary" @click="startReminder" v-if="!started">Allow Audio Alerts</v-btn>
+
+              <v-card v-if="medications.length === 0 && started">
+                <v-card-title>Loading...</v-card-title>
+                <v-card-text>Please wait while we load your medications.</v-card-text>
               </v-card>
 
+              <v-row v-for="time in times" v-if="times.length > 0 && medications.length > 0" dense>
+                <v-col cols="2" style="border: solid 1px gray"> {{time.hour}} </v-col>
+                <v-col cols="10" style="border: solid 1px gray" v-html="medsAtThisTime(time)"></v-col>
+              </v-row>
+
               <v-alert v-if="timeUntilNext > 0" type="info" class="my-2">
-                Time until next dose: {{ Math.floor(timeUntilNext / 60) }} hours
-                and {{ timeUntilNext % 60 }} minutes
+                Time until next dose: {{ Math.floor(timeUntilNext / 60) }} hours and {{ timeUntilNext % 60 }} minutes
               </v-alert>
-              <v-alert v-if="timeUntilNext === 0" type="success" class="my-2">
-                {{timeUntilNextMessage}}
-              </v-alert>
+              <v-alert v-if="timeUntilNext === 0" type="success" class="my-2"> {{timeUntilNextMessage}} </v-alert>
             </v-col>
           </v-row>
         </v-container>
       </v-app>
     </div>
 
-    <script>
-      const API_URL =
-        "https://script.google.com/macros/s/AKfycbwVEI056eWAjDbZKM39kdAsfJziOYuxTe2ozo1BOup04n2tRD2VM2UZwWKA4PltxY88pg/exec";
-        
-      const app = Vue.createApp({
-        data() {
-          return {
-            medications: [],
-            started: false,
-            notificationGranted: false,
-            upcomingMeds: [],
-            audio: null,
-            timeUntilNext: -1,
-            timeUntilNextMessage: "",
-            notifiedMeds: new Set(), // Store medications that have already been notified
-          };
-        },
-        methods: {
-          async startReminder() {
-            this.started = true;
-            this.audio = new Audio(
-              "https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"
-            );
-            this.checkNotificationPermission();
-            this.fetchMedications();
-            setInterval(this.fetchMedications, 15 * 60 * 1000); // Refresh data every 15 minutes
-            setInterval(this.checkMedications, 10 * 1000); // Check for due medications every 10 seconds
-            setInterval(this.timeUntilNextDoseMessage, 60 * 1000);
-          },
-          checkNotificationPermission() {
+    <script defer src="https://cdn.jsdelivr.net/npm/vue@3.4.27/dist/vue.global.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/vuetify@3.7.2/dist/vuetify.min.js"></script>
+    <script type="module">
+      const { createApp, ref, computed, onMounted } = Vue;
+
+      const API_URL = "https://script.google.com/macros/s/AKfycbwVEI056eWAjDbZKM39kdAsfJziOYuxTe2ozo1BOup04n2tRD2VM2UZwWKA4PltxY88pg/exec";
+
+      const app = createApp({
+        setup() {
+          const medications = ref([]);
+          const started = ref(false);
+          const audio = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
+          const notifiedMeds = ref(new Set());
+          const notificationGranted = ref(false);
+          const times = ref([
+            { hour: "7:00 AM" },
+            { hour: "8:00 AM" },
+            { hour: "9:00 AM" },
+            { hour: "10:00 AM" },
+            { hour: "11:00 AM" },
+            { hour: "12:00 PM" },
+            { hour: "1:00 PM" },
+            { hour: "2:00 PM" },
+            { hour: "3:00 PM" },
+            { hour: "4:00 PM" },
+            { hour: "5:00 PM" },
+            { hour: "6:00 PM" },
+            { hour: "7:00 PM" },
+            { hour: "8:00 PM" },
+            { hour: "9:00 PM" },
+            { hour: "10:00 PM" },
+            { hour: "11:00 PM" },
+          ]);
+
+          function checkNotificationPermission() {
             if (Notification.permission === "granted") {
-              this.notificationGranted = true;
+              notificationGranted.value = true;
             } else if (Notification.permission !== "denied") {
               Notification.requestPermission().then((permission) => {
-                if (permission === "granted") {
-                  this.notificationGranted = true;
-                } else {
+                notificationGranted.value = permission === "granted";
+                if (!notificationGranted.value) {
                   console.log("Notifications are blocked.");
                 }
               });
             } else {
               console.log("Notifications are denied, will not prompt again.");
             }
-          },
-          async fetchMedications() {
+          }
+
+          function notifyUser(medication) {
+            if (audio) {
+              audio.play();
+            }
+            if (notificationGranted.value) {
+              const svgIcon = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 91.87 122.88">
+                    <style type="text/css">
+                    .st0{fill-rule:evenodd;clip-rule:evenodd;fill:#262626;}
+                    .st1{fill-rule:evenodd;clip-rule:evenodd;fill:#86D4ED;}
+                    .st2{fill-rule:evenodd;clip-rule:evenodd;fill:#EB665F;}
+                    .st3{fill-rule:evenodd;clip-rule:evenodd;fill:#DE5149;}
+                    .st4{fill-rule:evenodd;clip-rule:evenodd;fill:#66BCD9;}
+                    </style>
+                    <g>
+                    <path class="st0" d="M45.48,12.42c6.84-11.85,22.13-15.94,33.98-9.1l0,0c11.85,6.84,15.94,22.13,9.1,33.98c-14.14,24.49-28.24,48.74-42.38,73.22l0,0c-3.41,5.9-8.91,9.87-15.04,11.51c-6.13,1.64-12.88,0.96-18.78-2.45l0,0c-5.9-3.41-9.87-8.91-11.51-15.04C-0.79,98.41-0.1,91.66,3.3,85.76l0,0C17.44,61.24,31.32,36.94,45.48,12.42L45.48,12.42L45.48,12.42z"/>
+                    <path class="st1" d="M62.77,74.02L26.75,53.23L7.21,87.07l0,0c-2.86,4.95-3.43,10.62-2.04,15.77c1.38,5.16,4.71,9.78,9.65,12.64l0,0c4.95,2.86,10.62,3.43,15.77,2.04c5.14-1.38,9.78-4.71,12.64-9.66l0,0L62.77,74.02L62.77,74.02L62.77,74.02z"/>
+                    <path class="st2" d="M65.22,69.74l-36.01-20.8l19.54-33.82l0,0c2.86-4.95,7.48-8.28,12.64-9.66c5.16-1.38,10.82-0.81,15.77,2.04l0,0c4.95,2.86,8.28,7.48,9.66,12.64c1.37,5.15,0.81,10.82-2.05,15.77l0,0L65.22,69.74L65.22,69.74z"/>
+                    <path class="st3" d="M38.1,54.09l-8.89-5.14l19.54-33.82l0,0c2.86-4.95,7.48-8.28,12.64-9.66c1.69-0.45,3.44-0.7,5.2-0.72L38.1,54.09L38.1,54.09z"/>
+                    <path class="st4" d="M35.67,58.33l-8.9-5.13L7.26,87.03l0,0C4.4,91.98,3.83,97.65,5.21,102.8c0.45,1.69,1.12,3.33,1.98,4.86L35.67,58.33L35.67,58.33z"/>
+                    </g>
+                  </svg>`)}`;
+              new Notification(`Time to take ${medication}!`, {
+                icon: svgIcon,
+                body: `It's time to take your ${medication}`,
+              });
+            }
+          }
+
+          async function fetchMedications() {
             try {
               const response = await fetch(API_URL);
               const data = await response.json();
               if (data.statusCode === 200) {
-                // Add 'notified' property to track alerts
-                this.medications = data.body.map((med) => ({
+                medications.value = data.body.map((med) => ({
                   ...med,
                   notified: false,
                 }));
-                this.displayUpcoming();
               } else {
                 console.error("Error fetching medications:", data);
               }
             } catch (error) {
               console.error("Error fetching medications:", error);
             }
-          },
-          displayUpcoming() {
-            const now = new Date();
-            const currentTime = now.getHours() * 60 + now.getMinutes();
+          }
 
-            this.upcomingMeds = this.medications
-              .filter((med) => {
-                const medTime = this.convertToMinutes(med.time);
-                return medTime > currentTime;
-              })
-              .sort(
-                (a, b) =>
-                  this.convertToMinutes(a.time) - this.convertToMinutes(b.time)
-              );
-
-            if (this.upcomingMeds.length > 0) {
-              const nextMed = this.upcomingMeds[0];
-              this.timeUntilNext =
-                this.convertToMinutes(nextMed.time) - currentTime;
-            } else {
-              this.timeUntilNext = -1;
-            }
-          },
-          checkMedications() {
-            const now = new Date();
-            const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-            this.medications.forEach((med) => {
-              const medMinutes = this.convertToMinutes(med.time);
-              if (Math.abs(currentMinutes - medMinutes) <= 2) {
-                // Only notify if not already notified
-                if (!this.notifiedMeds.has(med.med)) {
-                  this.notifyUser(med.med);
-                  this.notifiedMeds.add(med.med); // Mark as notified
-                }
-              }
-            });
-          },
-          convertToMinutes(timeStr) {
+          function convertToMinutes(timeStr) {
             const [time, period] = timeStr.split(" ");
             let [hours, minutes] = time.split(":").map(Number);
             if (period === "PM" && hours !== 12) hours += 12;
             if (period === "AM" && hours === 12) hours = 0;
             return hours * 60 + minutes;
-          },
-          notifyUser(medication) {
-            if (this.audio) {
-              this.audio.play();
+          }
+
+          const upcomingMeds = computed(() => {
+            const now = new Date();
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+            return medications.value
+              .filter((med) => {
+                const medTime = convertToMinutes(med.time);
+                return medTime > currentMinutes;
+              })
+              .sort((a, b) => convertToMinutes(a.time) - convertToMinutes(b.time));
+          });
+
+          const timeUntilNext = computed(() => {
+            if (upcomingMeds.value.length > 0) {
+              const now = new Date();
+              const currentMinutes = now.getHours() * 60 + now.getMinutes();
+              const nextMed = upcomingMeds.value[0];
+              const medMinutes = convertToMinutes(nextMed.time);
+              return medMinutes - currentMinutes;
+            } else {
+              return -1;
             }
-            if (this.notificationGranted) {
-              const svgIcon = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 91.87 122.88">
-                        <style type="text/css">
-                        .st0{fill-rule:evenodd;clip-rule:evenodd;fill:#262626;}
-                        .st1{fill-rule:evenodd;clip-rule:evenodd;fill:#86D4ED;}
-                        .st2{fill-rule:evenodd;clip-rule:evenodd;fill:#EB665F;}
-                        .st3{fill-rule:evenodd;clip-rule:evenodd;fill:#DE5149;}
-                        .st4{fill-rule:evenodd;clip-rule:evenodd;fill:#66BCD9;}
-                        </style>
-                        <g>
-                        <path class="st0" d="M45.48,12.42c6.84-11.85,22.13-15.94,33.98-9.1l0,0c11.85,6.84,15.94,22.13,9.1,33.98c-14.14,24.49-28.24,48.74-42.38,73.22l0,0c-3.41,5.9-8.91,9.87-15.04,11.51c-6.13,1.64-12.88,0.96-18.78-2.45l0,0c-5.9-3.41-9.87-8.91-11.51-15.04C-0.79,98.41-0.1,91.66,3.3,85.76l0,0C17.44,61.24,31.32,36.94,45.48,12.42L45.48,12.42L45.48,12.42z"/>
-                        <path class="st1" d="M62.77,74.02L26.75,53.23L7.21,87.07l0,0c-2.86,4.95-3.43,10.62-2.04,15.77c1.38,5.16,4.71,9.78,9.65,12.64l0,0c4.95,2.86,10.62,3.43,15.77,2.04c5.14-1.38,9.78-4.71,12.64-9.66l0,0L62.77,74.02L62.77,74.02L62.77,74.02z"/>
-                        <path class="st2" d="M65.22,69.74l-36.01-20.8l19.54-33.82l0,0c2.86-4.95,7.48-8.28,12.64-9.66c5.16-1.38,10.82-0.81,15.77,2.04l0,0c4.95,2.86,8.28,7.48,9.66,12.64c1.37,5.15,0.81,10.82-2.05,15.77l0,0L65.22,69.74L65.22,69.74z"/>
-                        <path class="st3" d="M38.1,54.09l-8.89-5.14l19.54-33.82l0,0c2.86-4.95,7.48-8.28,12.64-9.66c1.69-0.45,3.44-0.7,5.2-0.72L38.1,54.09L38.1,54.09z"/>
-                        <path class="st4" d="M35.67,58.33l-8.9-5.13L7.26,87.03l0,0C4.4,91.98,3.83,97.65,5.21,102.8c0.45,1.69,1.12,3.33,1.98,4.86L35.67,58.33L35.67,58.33z"/>
-                        </g>
-                    </svg>`)}`;
-              new Notification(`Time to take ${medication}!`, {
-                icon: svgIcon,
-                body: `It's time to take your ${medication}`,
-              });
+          });
+
+          const timeUntilNextDoseMessage = computed(() => {
+            if (timeUntilNext.value <= 0) {
+              return "No upcoming doses.";
             }
-          },
-          timeUntilNextDoseMessage() {
-            return `Time until next dose: ${Math.floor(timeUntilNext / 60 )} hours
-            and ${timeUntilNext % 60} minutes`;
-          },
+            const hours = Math.floor(timeUntilNext.value / 60);
+            const minutes = timeUntilNext.value % 60;
+            return `Time until next dose: ${hours} hours and ${minutes} minutes`;
+          });
+
+          function checkMedications() {
+            const now = new Date();
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+            medications.value.forEach((med) => {
+              const medMinutes = convertToMinutes(med.time);
+              if (Math.abs(currentMinutes - medMinutes) <= 2) {
+                if (!notifiedMeds.value.has(med.med)) {
+                  notifyUser(med.med);
+                  notifiedMeds.value.add(med.med);
+                }
+              }
+            });
+          }
+
+          function startReminder() {
+            started.value = true;
+            checkNotificationPermission();
+            fetchMedications();
+          }
+
+          function medsAtThisTime(time) {
+            if (medications.value.length === 0) return "";
+            return medications.value
+              .filter((med) => med.time === time.hour)
+              .map((med) => `<b>${med.med}</b> - ${med.directions}`)
+              .join("<br>");
+          }
+
+          onMounted(() => {
+            setInterval(fetchMedications, 15 * 60 * 1000); // Refresh data every 15 minutes
+            setInterval(checkMedications, 10 * 1000); // Check for due medications every 10 seconds
+          });
+
+          return {
+            medications,
+            times,
+            started,
+            startReminder,
+            upcomingMeds,
+            timeUntilNext,
+            timeUntilNextMessage: timeUntilNextDoseMessage,
+            medsAtThisTime,
+          };
         },
       });
-      
-      const vuetify = Vuetify.createVuetify({ theme: { defaultTheme: "dark", themes: { dark: { dark: true } } } });
+
+      // Initialize Vuetify
+      const vuetify = Vuetify.createVuetify({
+        theme: { defaultTheme: "dark" },
+      });
+
       app.use(vuetify);
       app.mount("#app");
     </script>
