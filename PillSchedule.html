@@ -4,17 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Medication Reminder</title>
-    <!--Material Design Icons-->
+    <!-- Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Vuetify 3 CDN -->
     <link
-      href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css"
+      href="https://cdn.jsdelivr.net/npm/vuetify@3.0.0-beta.0/dist/vuetify.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@3.0.0-beta.0/dist/vuetify.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css"
       rel="stylesheet"
     />
 
-    <!--Vuetify 3-->
-    <link
-      href="https://cdn.jsdelivr.net/npm/vuetify@3.6.13/dist/vuetify.min.css"
-      rel="stylesheet"
-    />
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -56,31 +58,11 @@
       </v-app>
     </div>
 
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/vue@3.4.27/dist/vue.global.js"
-    ></script>
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/vuetify@3.6.13/dist/vuetify.min.js"
-    ></script>
-    <script type="module">
+    <script>
       const API_URL =
         "https://script.google.com/macros/s/AKfycbyNRXXUpXpPDXmjyPbEt08fwF5-RL57JOTBWA8CiH4LnjvDAW8DG9VYk7oBiKglRT4qpw/exec";
-      const {
-        createApp,
-        ref,
-        computed,
-        onMounted,
-        onBeforeUnmount,
-        markRaw,
-        watch,
-      } = Vue;
-      const { createVuetify } = Vuetify;
-      const vuetify = createVuetify({
-        theme: { defaultTheme: "dark", themes: { dark: { dark: true } } },
-      });
-      const app = createApp({
+
+      const app = Vue.createApp({
         data() {
           return {
             medications: [],
@@ -89,6 +71,7 @@
             upcomingMeds: [],
             audio: null,
             timeUntilNext: -1,
+            notifiedMeds: new Set(), // Store medications that have already been notified
           };
         },
         methods: {
@@ -122,7 +105,11 @@
               const response = await fetch(API_URL);
               const data = await response.json();
               if (data.statusCode === 200) {
-                this.medications = data.body;
+                // Add 'notified' property to track alerts
+                this.medications = data.body.map((med) => ({
+                  ...med,
+                  notified: false,
+                }));
                 this.displayUpcoming();
               } else {
                 console.error("Error fetching medications:", data);
@@ -160,7 +147,11 @@
             this.medications.forEach((med) => {
               const medMinutes = this.convertToMinutes(med.time);
               if (Math.abs(currentMinutes - medMinutes) <= 2) {
-                this.notifyUser(med.med);
+                // Only notify if not already notified
+                if (!this.notifiedMeds.has(med.med)) {
+                  this.notifyUser(med.med);
+                  this.notifiedMeds.add(med.med); // Mark as notified
+                }
               }
             });
           },
@@ -182,7 +173,9 @@
         },
       });
 
-      app.use(vuetify).mount("#app");
+      const vuetify = Vuetify.createVuetify();
+      app.use(vuetify);
+      app.mount("#app");
     </script>
   </body>
 </html>
