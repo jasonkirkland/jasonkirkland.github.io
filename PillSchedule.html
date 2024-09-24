@@ -51,7 +51,7 @@
                 and {{ timeUntilNext % 60 }} minutes
               </v-alert>
               <v-alert v-if="timeUntilNext === 0" type="success" class="my-2">
-    {{timeUntilNextMessage}}
+                {{timeUntilNextMessage}}
               </v-alert>
             </v-col>
           </v-row>
@@ -61,7 +61,7 @@
 
     <script>
       const API_URL =
-        "https://script.google.com/macros/s/AKfycbyNRXXUpXpPDXmjyPbEt08fwF5-RL57JOTBWA8CiH4LnjvDAW8DG9VYk7oBiKglRT4qpw/exec";
+        "https://script.google.com/macros/s/AKfycbwVEI056eWAjDbZKM39kdAsfJziOYuxTe2ozo1BOup04n2tRD2VM2UZwWKA4PltxY88pg/exec";
         
       const app = Vue.createApp({
         data() {
