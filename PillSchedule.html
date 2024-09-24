@@ -3,149 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pill Reminder App (Firebase)</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <title>Medication Reminder</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
             padding: 20px;
         }
         h1 {
             color: #333;
         }
-        ul {
-            list-style-type: none;
-            padding: 0;
+        #upcoming {
+            margin-top: 20px;
         }
-        li {
-            margin-bottom: 10px;
-            padding: 10px;
+        .med-item {
             background-color: #f0f0f0;
-            border-radius: 5px;
-        }
-        button {
-            background-color: #4CAF50;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
+            padding: 10px;
+            margin-bottom: 10px;
             border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <h1>Pill Reminder</h1>
-    <div id="auth-container">
-        <button id="signin-button" onclick="signIn()">Sign In</button>
-        <button id="signout-button" onclick="signOut()" style="display:none;">Sign Out</button>
-    </div>
-    <div id="upcoming-pills"></div>
+    <h1>Medication Reminder</h1>
+    <div id="upcoming"></div>
 
     <script>
-        // Replace with your Firebase configuration
-        const firebaseConfig = {
-    apiKey: "AIzaSyBTieUuG3B99LXzYYuwRpk8CVPqfxkCSUA",
-    authDomain: "pill-reminder-app-b38e3.firebaseapp.com",
-    databaseURL: "https://pill-reminder-app-b38e3-default-rtdb.firebaseio.com",
-    projectId: "pill-reminder-app-b38e3",
-    storageBucket: "pill-reminder-app-b38e3.appspot.com",
-    messagingSenderId: "880136051977",
-    appId: "1:880136051977:web:3e8a05725b27e41ee007d8"
-  };
+        // Replace with your Google Apps Script web app URL
+        const API_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL';
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+        let medications = [];
 
-        // Firebase Auth and Database references
-        const auth = firebase.auth();
-        const database = firebase.database();
-
-        // Auth state observer
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                document.getElementById('signin-button').style.display = 'none';
-                document.getElementById('signout-button').style.display = 'inline-block';
-                fetchMedications();
-            } else {
-                document.getElementById('signin-button').style.display = 'inline-block';
-                document.getElementById('signout-button').style.display = 'none';
-                document.getElementById('upcoming-pills').innerHTML = '';
+        async function fetchMedications() {
+            try {
+                const response = await fetch(API_URL);
+                medications = await response.json();
+                displayUpcoming();
+            } catch (error) {
+                console.error('Error fetching medications:', error);
             }
-        });
-
-        function signIn() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider);
         }
 
-        function signOut() {
-            auth.signOut();
+        function displayUpcoming() {
+            const upcomingDiv = document.getElementById('upcoming');
+            upcomingDiv.innerHTML = '<h2>Upcoming Medications</h2>';
+
+            const now = new Date();
+            const upcoming = medications.filter(med => {
+                const [hours, minutes] = med.time.split(':');
+                const medTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
+                return medTime > now;
+            }).sort((a, b) => {
+                return new Date('1970/01/01 ' + a.time) - new Date('1970/01/01 ' + b.time);
+            });
+
+            upcoming.forEach(med => {
+                const medDiv = document.createElement('div');
+                medDiv.className = 'med-item';
+                medDiv.textContent = `${med.med} - ${med.time}`;
+                upcomingDiv.appendChild(medDiv);
+            });
         }
 
-        function fetchMedications() {
-            const userId = auth.currentUser.uid;
-            const medicationsRef = database.ref('medications/' + userId);
-            
-            medicationsRef.on('value', (snapshot) => {
-                const medications = snapshot.val();
-                if (medications) {
-                    const now = moment();
-                    const upcomingMeds = Object.entries(medications)
-                        .filter(([_, med]) => {
-                            const scheduledTime = moment(med.scheduledTime, 'HH:mm');
-                            return scheduledTime.isAfter(now);
-                        })
-                        .sort((a, b) => moment(a[1].scheduledTime, 'HH:mm').diff(moment(b[1].scheduledTime, 'HH:mm')));
-                    displayMedications(upcomingMeds);
-                } else {
-                    document.getElementById('upcoming-pills').innerHTML = '<p>No medications found.</p>';
+        function checkMedications() {
+            const now = new Date();
+            const currentTime = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+
+            medications.forEach(med => {
+                if (med.time === currentTime) {
+                    alert(`Time to take ${med.med}!`);
+                    const audio = new Audio('https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg');
+                    audio.play();
                 }
             });
         }
 
-        function displayMedications(medications) {
-            const container = document.getElementById('upcoming-pills');
-            container.innerHTML = '<h2>Upcoming Medications:</h2>';
-            const list = document.createElement('ul');
+        // Initial fetch and display
+        fetchMedications();
 
-            medications.forEach(([id, med]) => {
-                const listItem = document.createElement('li');
-                listItem.innerHTML = `
-                    <strong>${med.name}</strong> - ${med.dosage}
-                    <br>Time: ${med.scheduledTime}
-                    <br><button onclick="markAsTaken('${id}', '${med.name}', '${med.scheduledTime}')">Mark as Taken</button>
-                `;
-                list.appendChild(listItem);
-            });
+        // Refresh data every 5 minutes
+        setInterval(fetchMedications, 5 * 60 * 1000);
 
-            container.appendChild(list);
-        }
-
-        function markAsTaken(medId, medName, scheduledTime) {
-            const userId = auth.currentUser.uid;
-            const now = moment().format('YYYY-MM-DD HH:mm:ss');
-            
-            database.ref('medicationLogs/' + userId).push({
-                medicationId: medId,
-                name: medName,
-                scheduledTime: scheduledTime,
-                takenAt: now
-            }).then(() => {
-                alert(`${medName} marked as taken!`);
-            }).catch((error) => {
-                console.error('Error logging data:', error);
-            });
-        }
+        // Check for due medications every minute
+        setInterval(checkMedications, 60 * 1000);
     </script>
 </body>
 </html>
