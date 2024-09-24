@@ -12,7 +12,7 @@
             padding: 20px;
         }
         h1 {
-            color: aqua;
+            color: red;
         }
         #upcoming {
             margin-top: 20px;
@@ -31,9 +31,9 @@
 
     <script>
         const API_URL = 'https://script.google.com/macros/s/AKfycbyNRXXUpXpPDXmjyPbEt08fwF5-RL57JOTBWA8CiH4LnjvDAW8DG9VYk7oBiKglRT4qpw/exec';
-
+    
         let medications = [];
-
+    
         async function fetchMedications() {
             try {
                 const response = await fetch(API_URL);
@@ -49,50 +49,59 @@
                 console.error('Error fetching medications:', error);
             }
         }
-
+    
         function displayUpcoming() {
             const upcomingDiv = document.getElementById('upcoming');
             upcomingDiv.innerHTML = '<h2>Upcoming Medications</h2>';
-
+    
             const now = new Date();
+            const currentTime = now.getHours() * 60 + now.getMinutes();
+    
             const upcoming = medications.filter(med => {
-                const [_, hours, minutes] = med.time.match(/T(\d{2}):(\d{2}):/) || [];
-                if (!hours || !minutes) return false;
-                const medTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(hours), parseInt(minutes));
-                return medTime > now;
+                const [time, period] = med.time.split(' ');
+                let [hours, minutes] = time.split(':').map(Number);
+                if (period === 'PM' && hours !== 12) hours += 12;
+                if (period === 'AM' && hours === 12) hours = 0;
+                const medTime = hours * 60 + minutes;
+                return medTime > currentTime;
             }).sort((a, b) => {
-                return new Date(a.time) - new Date(b.time);
+                const getMinutes = (time) => {
+                    const [t, period] = time.split(' ');
+                    let [h, m] = t.split(':').map(Number);
+                    if (period === 'PM' && h !== 12) h += 12;
+                    if (period === 'AM' && h === 12) h = 0;
+                    return h * 60 + m;
+                };
+                return getMinutes(a.time) - getMinutes(b.time);
             });
-
+    
             upcoming.forEach(med => {
                 const medDiv = document.createElement('div');
                 medDiv.className = 'med-item';
-                const timeString = new Date(med.time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-                medDiv.textContent = `${med.med} - ${timeString}`;
+                medDiv.textContent = `${med.med} - ${med.time}`;
                 upcomingDiv.appendChild(medDiv);
             });
         }
-
+    
         function checkMedications() {
             const now = new Date();
-            const currentTime = now.toISOString().slice(11, 16); // Get current time in HH:MM format
-
+            const currentTime = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    
             medications.forEach(med => {
-                const medTime = med.time.slice(11, 16); // Get medication time in HH:MM format
-                if (medTime === currentTime) {
+                if (med.time === currentTime) {
                     alert(`Time to take ${med.med}!`);
                     const audio = new Audio('https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg');
                     audio.play();
                 }
             });
         }
-
+    
         // Initial fetch and display
         fetchMedications();
-
+    
         // Refresh data every 5 minutes
         setInterval(fetchMedications, 5 * 60 * 1000);
-
+    
         // Check for due medications every minute
         setInterval(checkMedications, 60 * 1000);
     </script>
