@@ -26,7 +26,7 @@
     </style>
 </head>
 <body>
-    <h1 style="color:black">Medication Reminder</h1>
+    <h1 style="color:blue">Medication Reminder</h1>
     <div id="upcoming"></div>
 
     <script>
@@ -38,7 +38,7 @@
         async function fetchMedications() {
             try {
                 const response = await fetch(API_URL);
-                medications = await response.json().body;
+                medications = await response.json();
                 console.log("medications",medications)
                 displayUpcoming();
             } catch (error) {
