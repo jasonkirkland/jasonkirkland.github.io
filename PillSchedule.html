@@ -44,6 +44,9 @@
               <v-alert v-if="timeUntilNext > 0" type="info" class="my-2">
                 Time until next dose: {{ Math.floor(timeUntilNext / 60) }} hours and {{ timeUntilNext % 60 }} minutes
               </v-alert>
+              <v-alert v-if="timeUntilNext === -1" type="info" class="my-2"></v-alert>
+                No more meds for today :)
+              </v-alert>
               <v-alert v-if="timeUntilNext === 0" type="success" class="my-2"> {{timeUntilNextMessage}} </v-alert>
             </v-col>
           </v-row>
