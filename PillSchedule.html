@@ -9,45 +9,48 @@
     <style>
       body {
         font-family: Arial, sans-serif;
-        max-width: 800px;
         margin: 0 auto;
         padding: 20px;
-        background-color: #121212;
+      }
+      [v-cloak] {
+        display: none;
       }
     </style>
   </head>
   <body>
-    <div id="app">
+    <div id="app" v-cloak>
       <v-app>
-        <v-container>
-          <v-row>
-            <v-col cols="8">
-              <h1>Medication Schedule</h1>
-              <hr>
-              <v-btn color="primary" @click="startReminder" v-if="!started">Allow Audio Alerts</v-btn>
+        <v-app-bar color="primary">
+          <v-app-bar-title>Medication Schedule</v-app-bar-title>
+        </v-app-bar>
+        <v-main>
+          <v-container fluid>
+            <v-row>
+              <v-col cols="8">
+                <v-btn color="primary" @click="startReminder" v-if="!started">Allow Audio Alerts</v-btn>
 
-              <v-card v-if="medications.length === 0 && started">
-                <v-card-title>Loading...</v-card-title>
-                <v-card-text>Please wait while we load your medications.</v-card-text>
-              </v-card>
+                <v-card v-if="medications.length === 0 && started">
+                  <v-card-title>Loading...</v-card-title>
+                  <v-card-text>Please wait while we load your medications.</v-card-text>
+                </v-card>
 
-              <v-row v-for="time in times" v-if="times.length > 0 && medications.length > 0" dense>
-                <v-col cols="2" style="border: solid 1px gray"> {{time.hour}} </v-col>
-                <v-col cols="10" style="border: solid 1px gray" v-html="medsAtThisTime(time)"></v-col>
-              </v-row>
-              
-            </v-col>
-            <v-col cols="4" v-if="started">
-              <v-alert v-if="timeUntilNext > 0" type="info" class="my-2">
-                Time until next dose: {{ Math.floor(timeUntilNext / 60) }} hours and {{ timeUntilNext % 60 }} minutes
-              </v-alert>
-              <v-alert v-if="timeUntilNext === -1" type="info" class="my-2">No more meds for today :)</v-alert>
-                
-              </v-alert>
-              <v-alert v-if="timeUntilNext === 0" type="success" class="my-2"> {{timeUntilNextMessage}} </v-alert>
-            </v-col>
-          </v-row>
-        </v-container>
+                <v-row v-for="time in times" v-if="times.length > 0 && medications.length > 0" dense>
+                  <v-col cols="2" style="border: solid 1px gray"> {{time.hour}} </v-col>
+                  <v-col cols="10" style="border: solid 1px gray" v-html="medsAtThisTime(time)"></v-col>
+                </v-row>
+              </v-col>
+              <v-col cols="4" v-if="started">
+                <v-alert v-if="timeUntilNext > 0" type="info" class="my-2">
+                  Time until next dose: {{ Math.floor(timeUntilNext / 60) }} hours and {{ timeUntilNext % 60 }} minutes
+                </v-alert>
+
+                <v-alert v-if="timeUntilNext === -1" type="info" class="my-2">No more meds for today</v-alert>
+
+                <v-alert v-if="timeUntilNext === 0" type="success" class="my-2"> {{timeUntilNextMessage}} </v-alert>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-main>
       </v-app>
     </div>
 
@@ -236,7 +239,7 @@
 
       // Initialize Vuetify
       const vuetify = Vuetify.createVuetify({
-        theme: { defaultTheme: "dark" },
+        theme: { defaultTheme: "light" },
       });
 
       app.use(vuetify);
