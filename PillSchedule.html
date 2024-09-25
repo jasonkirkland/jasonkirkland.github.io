@@ -21,7 +21,7 @@
       <v-app>
         <v-container>
           <v-row>
-            <v-col>
+            <v-col cols="8">
               <h1>Medication Schedule</h1>
               <hr>
               <v-btn color="primary" @click="startReminder" v-if="!started">Allow Audio Alerts</v-btn>
@@ -35,6 +35,9 @@
                 <v-col cols="2" style="border: solid 1px gray"> {{time.hour}} </v-col>
                 <v-col cols="10" style="border: solid 1px gray" v-html="medsAtThisTime(time)"></v-col>
               </v-row>
+              
+            </v-col>
+            <v-col cols="4">
               <v-card>
                 timeUntilNext: {{timeUntilNext}}
               </v-card>
