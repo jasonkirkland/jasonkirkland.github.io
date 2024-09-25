@@ -23,6 +23,7 @@
           <v-row>
             <v-col>
               <h1>Medication Schedule</h1>
+              <hr>
               <v-btn color="primary" @click="startReminder" v-if="!started">Allow Audio Alerts</v-btn>
 
               <v-card v-if="medications.length === 0 && started">
@@ -34,7 +35,9 @@
                 <v-col cols="2" style="border: solid 1px gray"> {{time.hour}} </v-col>
                 <v-col cols="10" style="border: solid 1px gray" v-html="medsAtThisTime(time)"></v-col>
               </v-row>
-
+              <v-card>
+                timeUntilNext: {{timeUntilNext}}
+              </v-card>
               <v-alert v-if="timeUntilNext > 0" type="info" class="my-2">
                 Time until next dose: {{ Math.floor(timeUntilNext / 60) }} hours and {{ timeUntilNext % 60 }} minutes
               </v-alert>
