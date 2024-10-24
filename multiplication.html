@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>Multiplication Practice</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       display: flex;
@@ -14,8 +15,8 @@
     }
 
     .card {
-      width: 300px;
-      height: 400px;
+      width: 90vw;  /* Changed from fixed 300px to 90% of viewport width */
+      height: 80vh; /* Changed from fixed 400px to 80% of viewport height */
       perspective: 1000px;
       cursor: pointer;
     }
@@ -43,7 +44,7 @@
       justify-content: center;
       align-items: center;
       background: white;
-      border-radius: 15px;
+      border-radius: 25px; /* Increased border radius */
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
 
@@ -53,34 +54,38 @@
     }
 
     .problem {
-      font-size: 48px;
-      margin-bottom: 20px;
+      font-size: 15vw; /* Changed from fixed 48px to responsive size */
+      margin-bottom: 5vh;
     }
 
     .answer {
-      font-size: 64px;
+      font-size: 18vw; /* Changed from fixed 64px to responsive size */
       color: #2196f3;
     }
 
     input {
-      padding: 10px;
-      font-size: 24px;
-      width: 100px;
+      padding: 15px;
+      font-size: 8vw; /* Changed from fixed 24px to responsive size */
+      width: 50%;
       text-align: center;
       margin: 20px 0;
-      border: 2px solid #ddd;
-      border-radius: 5px;
+      border: 3px solid #ddd;
+      border-radius: 15px;
+      -webkit-appearance: none; /* Removes default iOS styling */
     }
 
     button {
-      padding: 10px 20px;
-      font-size: 16px;
+      padding: 20px 40px;
+      font-size: 6vw; /* Changed from fixed 16px to responsive size */
       background: #2196f3;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 15px;
       cursor: pointer;
       transition: background 0.3s;
+      margin: 10px;
+      width: 80%; /* Made buttons wider */
+      touch-action: manipulation; /* Improves touch response */
     }
 
     button:hover {
@@ -104,7 +109,7 @@
         <div class="problem">
           <span id="num1">3</span> × <span id="num2">4</span> = 
         </div>
-        <input type="number" id="answer-input" placeholder="?" autofocus>
+        <input type="number" id="answer-input" placeholder="?" inputmode="numeric" pattern="[0-9]*">
         <button onclick="checkAnswer()">Check Answer</button>
       </div>
       <div class="card-back">
