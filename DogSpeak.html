@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Dog Translator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px auto;
+      max-width: 500px;
+      text-align: center;
+    }
+    #listenBtn {
+      font-size: 1.2em;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+    #translation {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h1>Dog Translator</h1>
+  <p>Click the button to "listen" to the dog and see what they're saying in English!</p>
+  
+  <button id="listenBtn" onclick="translateBark()">Listen to the Dog</button>
+  <p id="translation"></p>
+
+  <script>
+    const possibleTranslations = [
+      "Can I have a treat?",
+      "I want a belly rub!",
+      "Let's go for a walk!",
+      "Throw the ball, please!",
+      "I love you!",
+      "I'm hungry, feed me!",
+      "I need a nap now.",
+      "Play with me!",
+      "I'm so happy to see you!"
+    ];
+
+    function translateBark() {
+      // Pretend we "listened" to the dog
+      const randomIndex = Math.floor(Math.random() * possibleTranslations.length);
+      const translationText = possibleTranslations[randomIndex];
+      
+      // Display the "translated" text
+      document.getElementById("translation").innerText = translationText;
+    }
+  </script>
+</body>
+</html>
