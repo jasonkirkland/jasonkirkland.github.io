@@ -1,33 +1,125 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <!-- Ensures mobile-friendly scaling -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dog Translator</title>
   <style>
+    /* Basic reset and styling */
+    * {
+      box-sizing: border-box;
+      margin: 0; 
+      padding: 0;
+    }
     body {
-      font-family: Arial, sans-serif;
-      margin: 40px auto;
-      max-width: 500px;
+      font-family: 'Trebuchet MS', sans-serif;
+      background: #fdf2e9; /* Light warm background color */
+      color: #333;
       text-align: center;
+      padding: 20px;
     }
+    
+    /* Container for content */
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    /* Heading with dog emoji for fun */
+    h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+      color: #d35400; /* A playful orange color */
+    }
+    
+    /* Paw prints or dog icon can be added here with background images or emojis */
+
+    /* The “Listen” button */
     #listenBtn {
+      background: #d35400;
+      color: #fff;
       font-size: 1.2em;
-      padding: 10px 20px;
+      padding: 15px 25px;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
-    }
-    #translation {
       margin-top: 20px;
+      transition: background 0.3s;
+    }
+    #listenBtn:hover {
+      background: #e67e22; /* Slightly lighter shade on hover */
+    }
+    
+    /* Translation text style */
+    #translation {
+      margin-top: 30px;
       font-weight: bold;
+      font-size: 1.3em;
+      min-height: 50px;
+    }
+    
+    /* "Listening" loader (optional) */
+    #listeningStatus {
+      margin: 20px auto;
       font-size: 1.2em;
+      color: #d35400;
+      display: none; /* Initially hidden */
+    }
+    
+    /* You can show a loading animation with CSS. Here’s a simple spinning paw: */
+    .paw-spinner {
+      display: inline-block;
+      margin-left: 10px;
+      height: 20px;
+      width: 20px;
+      border: 3px solid #d35400;
+      border-radius: 50%;
+      border-top: 3px solid transparent;
+      animation: spin 1s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin {
+      0%   { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive adjustments for smaller screens */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.8em;
+      }
+      #listenBtn {
+        font-size: 1em;
+        width: 80%;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Dog Translator</h1>
-  <p>Click the button to "listen" to the dog and see what they're saying in English!</p>
-  
-  <button id="listenBtn" onclick="translateBark()">Listen to the Dog</button>
-  <p id="translation"></p>
+  <div class="container">
+    <h1>🐶 Dog Translator</h1>
+    <p>Tap the button to pretend-listen to your dog’s bark. Then watch the magic translation!</p>
+
+    <button id="listenBtn" onclick="translateBark()">Listen to the Dog</button>
+    
+    <!-- Optional "listening" status and spinner -->
+    <div id="listeningStatus">
+      Listening...
+      <div class="paw-spinner"></div>
+    </div>
+
+    <p id="translation"></p>
+  </div>
+
+  <!-- Optional audio element (you can host your own bark sound). 
+       Make sure you have user interaction before playing audio (iOS requirement). 
+       For demonstration, it won't actually work unless you link a valid MP3 file. -->
+  <!--
+  <audio id="barkSound" src="YOUR_DOG_BARK_FILE.mp3"></audio>
+  -->
 
   <script>
     const possibleTranslations = [
@@ -36,19 +128,35 @@
       "Let's go for a walk!",
       "Throw the ball, please!",
       "I love you!",
-      "I'm hungry, feed me!",
-      "I need a nap now.",
+      "I'm hungry—feed me!",
+      "I'm tired. Time for a nap!",
       "Play with me!",
       "I'm so happy to see you!"
     ];
 
     function translateBark() {
-      // Pretend we "listened" to the dog
-      const randomIndex = Math.floor(Math.random() * possibleTranslations.length);
-      const translationText = possibleTranslations[randomIndex];
-      
-      // Display the "translated" text
-      document.getElementById("translation").innerText = translationText;
+      // 1. Show the "Listening..." status.
+      const listeningStatus = document.getElementById("listeningStatus");
+      listeningStatus.style.display = "inline-block";
+      document.getElementById("translation").innerText = "";
+
+      // 2. (Optional) Play a bark sound
+      // const barkSound = document.getElementById("barkSound");
+      // barkSound.play().catch(error => {
+      //   console.log("Audio play failed:", error);
+      // });
+
+      // 3. Simulate a short delay to “process” the bark
+      setTimeout(() => {
+        listeningStatus.style.display = "none";
+        
+        // Choose a random translation
+        const randomIndex = Math.floor(Math.random() * possibleTranslations.length);
+        const translationText = possibleTranslations[randomIndex];
+        
+        // Display the "translated" text
+        document.getElementById("translation").innerText = translationText;
+      }, 2000); // 2 second delay
     }
   </script>
 </body>
