@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bodyweight Exercise Timer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .exercise {
+            background: #fff;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button.stop {
+            background-color: #dc3545;
+        }
+        .timer {
+            font-size: 1.5em;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Exercise Timer</h1>
+
+    <div id="exercise-list"></div>
+
+    <script>
+        const exercises = [
+            { name: "Push-Ups", time: 30 },
+            { name: "Sit-Ups", time: 30 },
+            { name: "Plank", time: 30 },
+            { name: "Glute Bridge", time: 30 },
+            { name: "Superman Hold", time: 30 },
+            { name: "Wall Sit", time: 30 },
+            { name: "Bird-Dog", time: 30 }
+        ];
+
+        function loadExercises() {
+            const list = document.getElementById("exercise-list");
+            exercises.forEach((exercise, index) => {
+                const div = document.createElement("div");
+                div.classList.add("exercise");
+                div.innerHTML = `
+                    <h3>${exercise.name}</h3>
+                    <div id="timer-${index}" class="timer">Time: ${exercise.time} seconds</div>
+                    <button onclick="startTimer(${index})">Start</button>
+                    <button class="stop" onclick="stopTimer(${index})">Stop</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        const timers = {};
+
+        function startTimer(index) {
+            const exercise = exercises[index];
+            let timeLeft = exercise.time;
+            const timerDisplay = document.getElementById(`timer-${index}`);
+            const startTime = new Date();
+
+            if (timers[index]) clearInterval(timers[index]);
+
+            timers[index] = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timers[index]);
+                    saveExerciseRecord(exercise.name, exercise.time, startTime);
+                    timerDisplay.innerText = `Time: Done!`;
+                } else {
+                    timerDisplay.innerText = `Time Left: ${timeLeft--} seconds`;
+                }
+            }, 1000);
+        }
+
+        function stopTimer(index) {
+            if (timers[index]) {
+                clearInterval(timers[index]);
+                const exercise = exercises[index];
+                const timerDisplay = document.getElementById(`timer-${index}`);
+                const currentTime = parseInt(timerDisplay.innerText.replace(/\\D/g, ''), 10);
+                const timeCompleted = exercise.time - currentTime;
+                saveExerciseRecord(exercise.name, timeCompleted, new Date());
+                timerDisplay.innerText = `Stopped at: ${timeCompleted} seconds`;
+            }
+        }
+
+        function saveExerciseRecord(exerciseName, duration, date) {
+            const record = {
+                exercise: exerciseName,
+                duration: duration,
+                date: date.toLocaleString()
+            };
+            let history = JSON.parse(localStorage.getItem("exerciseHistory")) || [];
+            history.push(record);
+            localStorage.setItem("exerciseHistory", JSON.stringify(history));
+        }
+
+        window.onload = loadExercises;
+    </script>
+</body>
+</html>
