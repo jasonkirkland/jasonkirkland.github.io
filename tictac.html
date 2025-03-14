@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Touch-Friendly Tic Tac Toe</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f7f7f7;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .game-info {
+            margin-bottom: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-gap: 8px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border-radius: 8px;
+            font-size: 40px;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            aspect-ratio: 1/1;
+            transition: transform 0.2s, background-color 0.2s;
+            min-height: 80px;
+            touch-action: none;
+        }
+
+        .cell:active {
+            transform: scale(0.95);
+            background-color: #f0f0f0;
+        }
+
+        .cell.x {
+            color: #e74c3c;
+        }
+
+        .cell.o {
+            color: #3498db;
+        }
+
+        .restart-button {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            min-width: 140px;
+            min-height: 50px;
+        }
+
+        .restart-button:active {
+            background-color: #27ae60;
+            transform: scale(0.95);
+        }
+
+        .win-line {
+            position: absolute;
+            background-color: rgba(46, 204, 113, 0.5);
+            pointer-events: none;
+            z-index: 10;
+            border-radius: 4px;
+            transition: opacity 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tic Tac Toe</h1>
+    <div class="game-info" id="status">Your turn (X)</div>
+    <div class="board" id="board"></div>
+    <button class="restart-button" id="restart">Restart Game</button>
+
+    <script>
+        // Simple logging fallback for older browsers
+        if (typeof console === 'undefined') {
+            window.console = { log: function() {} };
+        }
+        
+        // Wait for page to load completely
+        window.onload = function() {
+            // DOM elements
+            const board = document.getElementById('board');
+            const status = document.getElementById('status');
+            const restartBtn = document.getElementById('restart');
+            
+            // Game state variables
+            let currentPlayer = 'X';
+            let gameState = ['', '', '', '', '', '', '', '', ''];
+            let gameActive = true;
+            let isComputerTurn = false;
+            
+            // Winning combinations
+            const winCombinations = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+                [0, 4, 8], [2, 4, 6]             // Diagonals
+            ];
+            
+            // Create board cells
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.setAttribute('data-index', i);
+                board.appendChild(cell);
+            }
+            
+            // Get all cells
+            const cells = document.querySelectorAll('.cell');
+            
+            // Handle cell click/tap
+            function handleCellClick(event) {
+                const cell = event.target;
+                const index = parseInt(cell.getAttribute('data-index'));
+                
+                // Check if the cell is already filled or game is over
+                if (gameState[index] !== '' || !gameActive || isComputerTurn) {
+                    return;
+                }
+                
+                // Player's move
+                makeMove(index);
+                
+                // Check if game is over
+                const result = checkWin();
+                if (result) {
+                    handleGameEnd(result);
+                    return;
+                }
+                
+                // Computer's turn
+                isComputerTurn = true;
+                status.textContent = "Computer is thinking...";
+                
+                // Small delay to make it feel more natural
+                setTimeout(function() {
+                    if (gameActive) {
+                        makeComputerMove();
+                        const result = checkWin();
+                        if (result) {
+                            handleGameEnd(result);
+                        } else {
+                            isComputerTurn = false;
+                            currentPlayer = 'X'; // Switch back to player
+                            status.textContent = "Your turn (X)";
+                        }
+                    }
+                }, 500);
+            }
+            
+            // Make a move
+            function makeMove(index) {
+                gameState[index] = currentPlayer;
+                cells[index].textContent = currentPlayer;
+                cells[index].classList.add(currentPlayer.toLowerCase());
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X'; // Switch player
+            }
+            
+            // Computer makes a move
+            function makeComputerMove() {
+                // Find all empty cells
+                const emptyCells = [];
+                for (let i = 0; i < gameState.length; i++) {
+                    if (gameState[i] === '') {
+                        emptyCells.push(i);
+                    }
+                }
+                
+                if (emptyCells.length === 0) return; // No moves available
+                
+                // Check if computer can win
+                for (const index of emptyCells) {
+                    // Create a copy of the game state for testing
+                    const testState = gameState.slice();
+                    testState[index] = 'O';
+                    
+                    // Check if this would be a winning move
+                    if (checkWinningMove(testState, 'O')) {
+                        // Computer can win, make this move
+                        gameState[index] = 'O';
+                        cells[index].textContent = 'O';
+                        cells[index].classList.add('o');
+                        return;
+                    }
+                }
+                
+                // Check if player can win and block
+                for (const index of emptyCells) {
+                    // Create a copy of the game state for testing
+                    const testState = gameState.slice();
+                    testState[index] = 'X';
+                    
+                    // Check if player would win with this move
+                    if (checkWinningMove(testState, 'X')) {
+                        // Player could win, block this move
+                        gameState[index] = 'O';
+                        cells[index].textContent = 'O';
+                        cells[index].classList.add('o');
+                        return;
+                    }
+                }
+                
+                // Try to take center
+                if (gameState[4] === '') {
+                    gameState[4] = 'O';
+                    cells[4].textContent = 'O';
+                    cells[4].classList.add('o');
+                    return;
+                }
+                
+                // Take a random move
+                if (emptyCells.length > 0) {
+                    const randomIndex = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                    gameState[randomIndex] = 'O';
+                    cells[randomIndex].textContent = 'O';
+                    cells[randomIndex].classList.add('o');
+                }
+            }
+            
+            // Helper function to check if a player would win with a given board state
+            function checkWinningMove(boardState, player) {
+                for (const combo of winCombinations) {
+                    const [a, b, c] = combo;
+                    if (boardState[a] === player && 
+                        boardState[a] === boardState[b] && 
+                        boardState[a] === boardState[c]) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            
+            // Check if the current player has won
+            function checkWin() {
+                let winner = null;
+                
+                // Check all winning combinations
+                for (const combo of winCombinations) {
+                    const [a, b, c] = combo;
+                    // Make sure all three positions have the same value and aren't empty
+                    if (gameState[a] && 
+                        gameState[a] === gameState[b] && 
+                        gameState[a] === gameState[c]) {
+                        winner = gameState[a];
+                        if (gameActive) { // Only draw the line if the game is still active
+                            drawWinLine(combo);
+                        }
+                        gameActive = false;
+                        return winner;
+                    }
+                }
+                
+                // Check for draw
+                if (!gameState.includes('') && !winner) {
+                    gameActive = false;
+                    return 'draw';
+                }
+                
+                return null;
+            }
+            
+            // Handle game end
+            function handleGameEnd(result) {
+                if (result === 'draw') {
+                    status.textContent = 'Game ended in a draw!';
+                } else {
+                    status.textContent = result === 'X' ? 'You win!' : 'Computer wins!';
+                }
+            }
+            
+            // Draw a line through winning cells
+            function drawWinLine(combo) {
+                const [a, b, c] = combo;
+                const cellWidth = cells[0].offsetWidth;
+                const cellHeight = cells[0].offsetHeight;
+                
+                const rect1 = cells[a].getBoundingClientRect();
+                const rect3 = cells[c].getBoundingClientRect();
+                
+                const line = document.createElement('div');
+                line.classList.add('win-line');
+                document.body.appendChild(line);
+                
+                const angle = Math.atan2(
+                    rect3.top + rect3.height/2 - (rect1.top + rect1.height/2), 
+                    rect3.left + rect3.width/2 - (rect1.left + rect1.width/2)
+                );
+                const length = Math.sqrt(
+                    Math.pow(rect3.left - rect1.left, 2) + 
+                    Math.pow(rect3.top - rect1.top, 2)
+                ) + cellWidth / 2;
+                
+                line.style.width = length + 'px';
+                line.style.height = '10px';
+                line.style.left = (rect1.left + cellWidth / 2) + 'px';
+                line.style.top = (rect1.top + cellHeight / 2) + 'px';
+                line.style.transformOrigin = '0 50%';
+                line.style.transform = 'rotate(' + angle + 'rad) translateX(-5px)';
+                
+                // Animate the line
+                line.style.opacity = '0';
+                setTimeout(function() {
+                    line.style.opacity = '1';
+                }, 50);
+            }
+            
+            // Reset the game
+            function restartGame() {
+                currentPlayer = 'X';
+                gameState = ['', '', '', '', '', '', '', '', ''];
+                gameActive = true;
+                isComputerTurn = false;
+                status.textContent = 'Your turn (X)';
+                
+                // Clear all cells
+                for (let i = 0; i < cells.length; i++) {
+                    cells[i].textContent = '';
+                    cells[i].classList.remove('x', 'o');
+                }
+                
+                // Remove any win lines
+                const winLines = document.querySelectorAll('.win-line');
+                for (let i = 0; i < winLines.length; i++) {
+                    winLines[i].remove();
+                }
+            }
+            
+            // Event listeners for cells
+            for (let i = 0; i < cells.length; i++) {
+                cells[i].addEventListener('click', handleCellClick);
+                cells[i].addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    handleCellClick(e);
+                });
+            }
+            
+            // Event listeners for restart button
+            restartBtn.addEventListener('click', restartGame);
+            restartBtn.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                restartGame();
+                // Add visual feedback
+                this.style.backgroundColor = "#27ae60";
+                const btn = this;
+                setTimeout(function() {
+                    btn.style.backgroundColor = "#2ecc71";
+                }, 200);
+            });
+            
+            // Prevent zooming on double tap
+            document.addEventListener('touchstart', function(e) {
+                if (e.target.classList.contains('cell') || e.target.id === 'restart') {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+        };
+    </script>
+</body>
+</html>
