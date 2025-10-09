@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Pencil‑Only Notepad</title>
+  <style>
+    :root { --bg: #0b0b0c; --ink: #f5f7fb; --panel: #16171a; --muted:#8c95a1; }
+    html, body { height: 100%; margin: 0; background: var(--bg); color: var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Apple Color Emoji, Segoe UI Emoji; }
+    .app { position: fixed; inset: 0; display: grid; grid-template-rows: auto 1fr; }
+    .toolbar { display: flex; gap: .5rem; align-items: center; padding: .5rem env(safe-area-inset-right) .5rem env(safe-area-inset-left); background: var(--panel); border-bottom: 1px solid #22252a; }
+    .toolbar h1 { font-size: 1rem; font-weight: 600; margin: 0 .5rem 0 0; letter-spacing: .3px; color: var(--muted); }
+    .toolbar button, .toolbar select, .toolbar input[type="range"] {
+      -webkit-appearance: none; appearance: none; border: 1px solid #2a2e35; background: #1a1c20; color: var(--ink); border-radius: .6rem; padding: .5rem .7rem; font-size: .95rem; }
+    .toolbar button:active { transform: translateY(1px); }
+    .toolbar .spacer { flex: 1; }
+
+    /* Canvas takes the remaining space */
+    #stage { width: 100%; height: 100%; touch-action: none; display: block; background: #111214; }
+
+    .hint { position: fixed; bottom: 8px; left: 50%; transform: translateX(-50%); color: var(--muted); font-size: .9rem; padding: .25rem .6rem; background: rgba(0,0,0,.35); border: 1px solid #23262b; border-radius: .6rem; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="toolbar">
+      <h1>Pencil‑Only Notepad</h1>
+      <label>Size <input id="size" type="range" min="1" max="12" value="4" step="1" style="vertical-align: middle; width: 120px;" /></label>
+      <select id="tool">
+        <option value="pen" selected>Pen</option>
+        <option value="eraser">Eraser</option>
+      </select>
+      <button id="clear">Clear</button>
+      <div class="spacer"></div>
+      <button id="save">Save PNG</button>
+    </div>
+    <canvas id="stage"></canvas>
+  </div>
+  <div class="hint">Only stylus input is accepted. Finger/palm won’t draw.</div>
+
+  <script>
+  (function() {
+    const canvas = document.getElementById('stage');
+    const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
+
+    const sizeEl = document.getElementById('size');
+    const toolEl = document.getElementById('tool');
+    const clearBtn = document.getElementById('clear');
+    const saveBtn = document.getElementById('save');
+
+    let drawing = false;
+    let lastX = 0, lastY = 0;
+
+    // Match canvas to CSS size at devicePixelRatio for crisp strokes
+    function resizeCanvas() {
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      const { width, height } = canvas.getBoundingClientRect();
+      const w = Math.max(1, Math.floor(width * dpr));
+      const h = Math.max(1, Math.floor(height * dpr));
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w; canvas.height = h;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // map CSS pixels → canvas
+        // fill background
+        ctx.fillStyle = '#111214';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+      }
+    }
+
+    function layout() {
+      // Make canvas fill remaining viewport area below the toolbar
+      const app = document.querySelector('.app');
+      const rect = app.getBoundingClientRect();
+      canvas.style.width = rect.width + 'px';
+      canvas.style.height = (rect.height - app.querySelector('.toolbar').offsetHeight) + 'px';
+      resizeCanvas();
+    }
+
+    window.addEventListener('resize', layout);
+    window.addEventListener('orientationchange', () => setTimeout(layout, 50));
+    layout();
+
+    function isPencil(e) {
+      return e.pointerType === 'pen';
+    }
+
+    function pressureWidth(e) {
+      const base = parseFloat(sizeEl.value) || 4;
+      // e.pressure is 0..1 on supporting devices (Apple Pencil reports it)
+      const p = typeof e.pressure === 'number' && e.pressure > 0 ? e.pressure : 0.5;
+      return base * (0.6 + p * 0.8); // subtle pressure variation
+    }
+
+    function setToolStyle(e) {
+      if (toolEl.value === 'eraser') {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.strokeStyle = 'rgba(0,0,0,1)';
+      } else {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = '#f5f7fb';
+      }
+      ctx.lineWidth = pressureWidth(e);
+    }
+
+    canvas.addEventListener('pointerdown', (e) => {
+      if (!isPencil(e)) return; // ignore finger/palm/mouse
+      drawing = true;
+      setToolStyle(e);
+      const rect = canvas.getBoundingClientRect();
+      lastX = e.clientX - rect.left;
+      lastY = e.clientY - rect.top;
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      canvas.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    });
+
+    canvas.addEventListener('pointermove', (e) => {
+      if (!drawing || !isPencil(e)) return;
+      setToolStyle(e);
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      // Simple smoothing
+      const mx = (lastX + x) / 2;
+      const my = (lastY + y) / 2;
+      ctx.quadraticCurveTo(lastX, lastY, mx, my);
+      ctx.stroke();
+      lastX = x; lastY = y;
+      e.preventDefault();
+    });
+
+    function endStroke(e) {
+      if (!drawing) return;
+      drawing = false;
+      try { canvas.releasePointerCapture(e.pointerId); } catch {}
+      e.preventDefault();
+    }
+
+    ['pointerup','pointercancel','pointerout','pointerleave'].forEach(t => {
+      canvas.addEventListener(t, (e) => {
+        if (!isPencil(e)) return; // only end when the pen ends
+        endStroke(e);
+      });
+    });
+
+    // Prevent touch gestures from interfering (panning/zooming), just in case
+    ['touchstart','touchmove','touchend','touchcancel'].forEach(t => {
+      canvas.addEventListener(t, ev => ev.preventDefault(), { passive: false });
+    });
+
+    // Toolbar actions
+    clearBtn.addEventListener('click', () => {
+      ctx.save();
+      ctx.setTransform(1,0,0,1,0,0);
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.restore();
+      // redraw background after clear
+      ctx.fillStyle = '#111214';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    });
+
+    saveBtn.addEventListener('click', () => {
+      // Export at current resolution
+      canvas.toBlob((blob) => {
+        const a = document.createElement('a');
+        a.download = 'note.png';
+        a.href = URL.createObjectURL(blob);
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+      }, 'image/png');
+    });
+
+    // Optional: two-finger pinch to zoom is already disabled via touch-action:none
+  })();
+  </script>
+</body>
+</html>
