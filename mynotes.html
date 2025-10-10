@@ -44,6 +44,27 @@
     const canvas = document.getElementById('stage');
     const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
 
+    let currentDpr = Math.max(1, window.devicePixelRatio || 1);
+
+    function drawBackground() {
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.globalCompositeOperation = 'destination-over';
+      ctx.fillStyle = '#111214';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const lineSpacing = Math.max(28, Math.round(44 * currentDpr));
+      const lineWidth = Math.max(1, Math.round(currentDpr));
+      ctx.strokeStyle = 'rgba(245, 247, 251, 0.08)';
+      ctx.lineWidth = lineWidth;
+      for (let y = 0; y <= canvas.height; y += lineSpacing) {
+        ctx.beginPath();
+        ctx.moveTo(0, y + lineWidth / 2);
+        ctx.lineTo(canvas.width, y + lineWidth / 2);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
     const sizeEl = document.getElementById('size');
     const toolEl = document.getElementById('tool');
     const clearBtn = document.getElementById('clear');
@@ -55,18 +76,18 @@
     // Match canvas to CSS size at devicePixelRatio for crisp strokes
     function resizeCanvas() {
       const dpr = Math.max(1, window.devicePixelRatio || 1);
+      currentDpr = dpr;
       const { width, height } = canvas.getBoundingClientRect();
       const w = Math.max(1, Math.floor(width * dpr));
       const h = Math.max(1, Math.floor(height * dpr));
       if (canvas.width !== w || canvas.height !== h) {
         canvas.width = w; canvas.height = h;
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // map CSS pixels → canvas
-        // fill background
-        ctx.fillStyle = '#111214';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
       }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // map CSS pixels → canvas
+      // fill background
+      drawBackground();
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
     }
 
     function layout() {
@@ -129,6 +150,9 @@
       ctx.quadraticCurveTo(lastX, lastY, mx, my);
       ctx.stroke();
       lastX = x; lastY = y;
+      if (toolEl.value === 'eraser') {
+        drawBackground();
+      }
       e.preventDefault();
     });
 
@@ -136,6 +160,9 @@
       if (!drawing) return;
       drawing = false;
       try { canvas.releasePointerCapture(e.pointerId); } catch {}
+      if (toolEl.value === 'eraser') {
+        drawBackground();
+      }
       e.preventDefault();
     }
 
@@ -158,8 +185,7 @@
       ctx.clearRect(0,0,canvas.width,canvas.height);
       ctx.restore();
       // redraw background after clear
-      ctx.fillStyle = '#111214';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      drawBackground();
     });
 
     saveBtn.addEventListener('click', () => {
