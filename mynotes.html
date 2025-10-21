@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>Pencil‑Only Notepad</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     :root { --bg: #0b0b0c; --ink: #f5f7fb; --panel: #16171a; --muted:#8c95a1; }
     html, body { height: 100%; margin: 0; background: var(--bg); color: var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Apple Color Emoji, Segoe UI Emoji; }
@@ -34,6 +35,14 @@
       <button id="clear">Clear</button>
       <div class="spacer"></div>
       <button id="save">Save PNG</button>
+      <select id="accountMode" title="Pick Google account">
+        <option value="ask">Choose account when saving…</option>
+        <option value="sticky">Stick to last used account</option>
+      </select>
+      <label style="display:flex;gap:.4rem;align-items:center">
+        <input id="autosave" type="checkbox" /> Auto-save
+      </label>
+      <button id="signin">Sign in / Switch account</button>
     </div>
     <canvas id="stage"></canvas>
   </div>
@@ -202,5 +211,204 @@
     // Optional: two-finger pinch to zoom is already disabled via touch-action:none
   })();
   </script>
+
+  
+  <script>
+/** ---------- Google Drive wiring ---------- **/
+const G_CLIENT_ID_PERSONAL = "1077396047895-gsq920fgfls71k8fmb6siqm8sc79dk3f.apps.googleusercontent.com";   // you can use one client for both accounts
+const G_CLIENT_ID_WORK     = "YOUR_WORK_CLIENT_ID_IF_NEEDED"; // optional
+
+// create (or reuse) a "Pencil Notes" folder and upload PNGs there.
+const DRIVE_SCOPES = "https://www.googleapis.com/auth/drive.file";
+let tokenClient, accessToken = null, activeClientId = G_CLIENT_ID_PERSONAL, activeAccountSub = null;
+
+const ui = {
+  autosave: document.getElementById('autosave'),
+  accountMode: document.getElementById('accountMode'),
+  signin: document.getElementById('signin'),
+  saveBtn: document.getElementById('save'),
+};
+
+function initTokenClient(clientId = activeClientId) {
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: clientId,
+    scope: DRIVE_SCOPES,
+    prompt: "", // empty = try silent if possible
+    callback: (resp) => {
+      if (resp && resp.access_token) {
+        accessToken = resp.access_token;
+        // Best-effort to identify the account; grab an ID token to read 'sub'
+        google.accounts.oauth2.revoke(accessToken); // revoke previous cache if switching
+      }
+    }
+  });
+}
+
+// Force the Google chooser (use when user taps “Sign in / Switch account”)
+async function chooseAccount({ clientId = activeClientId } = {}) {
+  return new Promise((resolve, reject) => {
+    google.accounts.oauth2.initTokenClient({
+      client_id: clientId,
+      scope: DRIVE_SCOPES,
+      prompt: "select_account", // <- shows the multi-account picker
+      callback: (resp) => {
+        if (resp && resp.access_token) {
+          accessToken = resp.access_token;
+          // We don’t get email directly; we can call OIDC userinfo to get a stable subject ("sub")
+          fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+            headers: { Authorization: "Bearer " + accessToken }
+          })
+          .then(r => r.json())
+          .then(info => { activeAccountSub = info.sub; resolve(info); })
+          .catch(() => resolve(null));
+        } else reject(new Error("No token"));
+      }
+    }).requestAccessToken();
+  });
+}
+
+// Get (or create) a folder by name, cache per-account
+async function getOrCreateFolder(folderName = "Pencil Notes") {
+  const cacheKey = `driveFolder_${folderName}_${activeAccountSub || "unknown"}`;
+  const cached = localStorage.getItem(cacheKey);
+  if (cached) return cached;
+
+  const search = new URL("https://www.googleapis.com/drive/v3/files");
+  search.searchParams.set("q", `mimeType='application/vnd.google-apps.folder' and name='${folderName.replaceAll("'", "\\'")}' and trashed=false`);
+  search.searchParams.set("fields", "files(id,name)");
+
+  let r = await fetch(search, { headers: { Authorization: "Bearer " + accessToken }});
+  let j = await r.json();
+  if (j.files && j.files.length) {
+    localStorage.setItem(cacheKey, j.files[0].id);
+    return j.files[0].id;
+  }
+
+  // Create folder
+  r = await fetch("https://www.googleapis.com/drive/v3/files", {
+    method: "POST",
+    headers: { Authorization: "Bearer " + accessToken, "Content-Type": "application/json" },
+    body: JSON.stringify({ name: folderName, mimeType: "application/vnd.google-apps.folder" })
+  });
+  j = await r.json();
+  localStorage.setItem(cacheKey, j.id);
+  return j.id;
+}
+
+// Upload PNG as a new file (timestamped)
+// Uploads or overwrites a PNG file with the same name
+async function uploadPNGtoDrive(blob, { folderId, filename }) {
+  // Look for an existing file with the same name in the folder
+  const search = new URL("https://www.googleapis.com/drive/v3/files");
+  let q = `name='${filename.replaceAll("'", "\\'")}' and trashed=false`;
+  if (folderId) q += ` and '${folderId}' in parents`;
+  search.searchParams.set("q", q);
+  search.searchParams.set("fields", "files(id,name)");
+
+  const found = await fetch(search, { headers: { Authorization: "Bearer " + accessToken } })
+    .then(r => r.json())
+    .then(j => j.files?.[0]);
+
+  const fileId = found?.id;
+  const uploadUrl = fileId
+    ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart&fields=id,name,webViewLink`
+    : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink`;
+
+  const meta = { name: filename, parents: folderId ? [folderId] : undefined };
+  const boundary = "-------314159265358979323846";
+  const delimiter = "\r\n--" + boundary + "\r\n";
+  const closeDelim = "\r\n--" + boundary + "--";
+
+  const reader = await blob.arrayBuffer();
+  const body =
+    delimiter + "Content-Type: application/json; charset=UTF-8\r\n\r\n" +
+    JSON.stringify(meta) +
+    delimiter + "Content-Type: image/png\r\n" +
+    "Content-Transfer-Encoding: base64\r\n\r\n" +
+    btoa(String.fromCharCode(...new Uint8Array(reader))) +
+    closeDelim;
+
+  const resp = await fetch(uploadUrl, {
+    method: fileId ? "PATCH" : "POST",
+    headers: {
+      Authorization: "Bearer " + accessToken,
+      "Content-Type": "multipart/related; boundary=" + boundary
+    },
+    body
+  });
+
+  if (!resp.ok) throw new Error("Upload failed");
+  return resp.json();
+}
+
+
+/** ---------- Hook into your existing canvas ---------- **/
+const canvas = document.getElementById('stage');
+// debounce helper
+let saveTimer = null;
+function scheduleAutoSave() {
+  if (!ui.autosave.checked) return;
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    try {
+      await ensureToken();
+      const folderId = await getOrCreateFolder();
+      const filename = "current_note.png";
+
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        await uploadPNGtoDrive(blob, { folderId, filename });
+        // optional: toast
+        console.log("Auto-saved to Drive:", filename);
+      }, "image/png");
+    } catch (e) { console.warn(e); }
+  }, 1200); // save ~1.2s after you stop drawing
+}
+
+async function ensureToken() {
+  if (!accessToken) {
+    // If user wants explicit choice each time, force chooser
+    if (ui.accountMode.value === "ask") await chooseAccount({});
+    else {
+      initTokenClient(activeClientId);
+      tokenClient.requestAccessToken(); // silent if possible
+      await new Promise(r => setTimeout(r, 300)); // tiny delay to let callback set accessToken
+    }
+  }
+}
+
+// wire account switcher
+ui.signin.addEventListener('click', async () => {
+  // If you want to switch client IDs (e.g., to your work OAuth project), you can toggle here:
+  // activeClientId = (activeClientId === G_CLIENT_ID_PERSONAL) ? G_CLIENT_ID_WORK : G_CLIENT_ID_PERSONAL;
+  await chooseAccount({});
+  alert("Signed in. Auto-save will use the selected account.");
+});
+
+// replace your existing "Save PNG" click to also offer Drive save
+ui.saveBtn.addEventListener('click', async (e) => {
+  // keep your current download behavior
+  // then also offer Drive upload
+  try {
+    await ensureToken();
+    const folderId = await getOrCreateFolder();
+    const filename = "current_note.png";
+
+    canvas.toBlob(async (blob) => {
+      if (!blob) return;
+      const res = await uploadPNGtoDrive(blob, { folderId, filename });
+      alert("Saved to Google Drive:\n" + (res.webViewLink || res.name));
+    }, "image/png");
+  } catch (err) {
+    alert("Drive save failed: " + err.message);
+  }
+});
+
+// tie into your pen-up handler by appending:
+['pointerup','pointercancel','pointerout','pointerleave'].forEach(t => {
+  canvas.addEventListener(t, () => scheduleAutoSave(), { passive: true });
+});
+</script>
+
 </body>
 </html>
