@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Simple 3D Avatar</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        #avatar-container { width: 100%; height: 100vh; }
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="avatar-container"></div>
+    <div class="controls">
+        <button id="talk-btn">Make Avatar Talk</button>
+        <button id="stop-btn">Stop Talking</button>
+    </div>
+
+    <script>
+        class SimpleAvatar extends HTMLElement {
+            constructor() {
+                super();
+                this.talking = false;
+                this.mouthOpenAmount = 0;
+                this.talkingSpeed = 150; // ms
+                this.talkInterval = null;
+                
+                // Eye movement properties
+                this.eyeTargetX = 0;
+                this.eyeTargetY = 0;
+                this.eyeCurrentX = 0;
+                this.eyeCurrentY = 0;
+                this.eyeMovementSpeed = 0.02;
+                this.nextEyeMovementTime = Date.now() + 2000;
+                
+                // Create a shadow DOM
+                this.attachShadow({ mode: 'open' });
+                
+                // Create container
+                this.container = document.createElement('div');
+                this.container.style.width = '100%';
+                this.container.style.height = '100%';
+                this.shadowRoot.appendChild(this.container);
+                
+                // Initialize Three.js components
+                this.scene = new THREE.Scene();
+                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                this.renderer = new THREE.WebGLRenderer({ antialias: true });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.container.appendChild(this.renderer.domElement);
+                
+                // Setup lighting
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+                this.scene.add(ambientLight);
+                
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                directionalLight.position.set(0, 10, 10);
+                this.scene.add(directionalLight);
+                
+                // Create avatar parts
+                this.createAvatar();
+                
+                // Set camera position
+                this.camera.position.z = 5;
+                
+                // Start animation loop
+                this.animate();
+                
+                // Handle window resize
+                window.addEventListener('resize', () => this.onWindowResize());
+            }
+            
+            connectedCallback() {
+                // Add event listeners when component is added to the DOM
+                document.getElementById('talk-btn').addEventListener('click', () => this.startTalking());
+                document.getElementById('stop-btn').addEventListener('click', () => this.stopTalking());
+            }
+            
+            disconnectedCallback() {
+                // Clean up event listeners when component is removed
+                document.getElementById('talk-btn').removeEventListener('click', () => this.startTalking());
+                document.getElementById('stop-btn').removeEventListener('click', () => this.stopTalking());
+            }
+            
+            createAvatar() {
+                // Create group to hold all avatar parts
+                this.avatarGroup = new THREE.Group();
+                this.scene.add(this.avatarGroup);
+                
+                // Head
+                const headGeometry = new THREE.SphereGeometry(1, 32, 32);
+                const headMaterial = new THREE.MeshPhongMaterial({ color: 0xFFCC99 });
+                this.head = new THREE.Mesh(headGeometry, headMaterial);
+                this.avatarGroup.add(this.head);
+                
+                // Eyes
+                const eyeGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+                const eyeMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
+                
+                this.leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+                this.leftEye.position.set(-0.35, 0.25, 0.8);
+                this.head.add(this.leftEye);
+                
+                this.rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+                this.rightEye.position.set(0.35, 0.25, 0.8);
+                this.head.add(this.rightEye);
+                
+                // Eye highlights (white spots)
+                const highlightGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+                const highlightMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
+                
+                this.leftEyeHighlight = new THREE.Mesh(highlightGeometry, highlightMaterial);
+                this.leftEyeHighlight.position.set(0.05, 0.05, 0.12);
+                this.leftEye.add(this.leftEyeHighlight);
+                
+                this.rightEyeHighlight = new THREE.Mesh(highlightGeometry, highlightMaterial);
+                this.rightEyeHighlight.position.set(0.05, 0.05, 0.12);
+                this.rightEye.add(this.rightEyeHighlight);
+                
+                // Mouth (starts closed)
+                const mouthGeometry = new THREE.BoxGeometry(0.5, 0.1, 0.1);
+                const mouthMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 });
+                this.mouth = new THREE.Mesh(mouthGeometry, mouthMaterial);
+                this.mouth.position.set(0, -0.3, 0.85);
+                this.head.add(this.mouth);
+                
+                // Body
+                const bodyGeometry = new THREE.CylinderGeometry(0.7, 0.5, 1.5, 16);
+                const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x3366CC });
+                this.body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+                this.body.position.y = -1.75;
+                this.avatarGroup.add(this.body);
+                
+                // Arms
+                const armGeometry = new THREE.CylinderGeometry(0.15, 0.15, 1.2, 16);
+                const armMaterial = new THREE.MeshPhongMaterial({ color: 0x3366CC });
+                
+                this.leftArm = new THREE.Mesh(armGeometry, armMaterial);
+                this.leftArm.position.set(-0.85, -1.5, 0);
+                this.leftArm.rotation.z = Math.PI / 6;
+                this.avatarGroup.add(this.leftArm);
+                
+                this.rightArm = new THREE.Mesh(armGeometry, armMaterial);
+                this.rightArm.position.set(0.85, -1.5, 0);
+                this.rightArm.rotation.z = -Math.PI / 6;
+                this.avatarGroup.add(this.rightArm);
+            }
+            
+            updateEyeMovement() {
+                const currentTime = Date.now();
+                
+                // Check if it's time to pick a new eye target
+                if (currentTime > this.nextEyeMovementTime) {
+                    // Pick a new random target position for the eyes
+                    this.eyeTargetX = (Math.random() - 0.5) * 0.3; // Range: -0.15 to 0.15
+                    this.eyeTargetY = (Math.random() - 0.5) * 0.2; // Range: -0.1 to 0.1
+                    
+                    // Schedule next eye movement (between 1-4 seconds)
+                    this.nextEyeMovementTime = currentTime + 1000 + Math.random() * 3000;
+                }
+                
+                // Smoothly interpolate current eye position toward target
+                this.eyeCurrentX += (this.eyeTargetX - this.eyeCurrentX) * this.eyeMovementSpeed;
+                this.eyeCurrentY += (this.eyeTargetY - this.eyeCurrentY) * this.eyeMovementSpeed;
+                
+                // Update eye positions
+                this.leftEye.position.x = -0.35 + this.eyeCurrentX;
+                this.leftEye.position.y = 0.25 + this.eyeCurrentY;
+                
+                this.rightEye.position.x = 0.35 + this.eyeCurrentX;
+                this.rightEye.position.y = 0.25 + this.eyeCurrentY;
+            }
+            
+            startTalking() {
+                if (this.talkInterval) {
+                    clearInterval(this.talkInterval);
+                }
+                
+                this.talking = true;
+                this.talkInterval = setInterval(() => this.animateMouth(), this.talkingSpeed);
+            }
+            
+            stopTalking() {
+                this.talking = false;
+                if (this.talkInterval) {
+                    clearInterval(this.talkInterval);
+                    this.talkInterval = null;
+                }
+                
+                // Reset mouth to closed position
+                this.mouthOpenAmount = 0;
+                this.updateMouth();
+            }
+            
+            animateMouth() {
+                if (this.talking) {
+                    // Randomly vary mouth open amount for natural talking appearance
+                    this.mouthOpenAmount = Math.random() * 0.3;
+                    this.updateMouth();
+                }
+            }
+            
+            updateMouth() {
+                // Update mouth geometry based on open amount
+                this.mouth.geometry.dispose();
+                this.mouth.geometry = new THREE.BoxGeometry(0.5, 0.1 + this.mouthOpenAmount, 0.1);
+                this.mouth.position.y = -0.3 - this.mouthOpenAmount / 2;
+            }
+            
+            onWindowResize() {
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+            
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                
+                // Simple idle animation
+                this.avatarGroup.rotation.y = Math.sin(Date.now() * 0.001) * 0.1;
+                
+                // Update eye movement
+                this.updateEyeMovement();
+                
+                this.renderer.render(this.scene, this.camera);
+            }
+            
+            // Public API
+            talk() {
+                this.startTalking();
+            }
+            
+            stopTalk() {
+                this.stopTalking();
+            }
+        }
+        
+        // Register the custom element
+        customElements.define('simple-avatar', SimpleAvatar);
+        
+        // Create an instance
+        document.addEventListener('DOMContentLoaded', () => {
+            const avatarContainer = document.getElementById('avatar-container');
+            const avatar = document.createElement('simple-avatar');
+            avatar.style.width = '100%';
+            avatar.style.height = '100%';
+            avatarContainer.appendChild(avatar);
+            
+            // Make avatar available globally for external control
+            window.avatar = avatar;
+            
+            // Start talking automatically after a short delay
+            setTimeout(() => {
+                avatar.startTalking();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
