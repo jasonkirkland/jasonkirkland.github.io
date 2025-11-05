@@ -30,13 +30,56 @@
             font-size: 4vw;
             margin-top: 2vh;
         }
+        #weather {
+            font-size: 3.5vw;
+            margin-top: 3vh;
+            text-align: center;
+        }
+        #current-temp {
+            font-size: 8vw;
+            font-weight: bold;
+            margin: 1vh 0;
+        }
+        #conditions {
+            font-size: 3vw;
+            margin-bottom: 2vh;
+        }
+        #forecast {
+            display: flex;
+            gap: 3vw;
+            margin-top: 2vh;
+        }
+        .forecast-day {
+            text-align: center;
+        }
+        .forecast-day-name {
+            font-size: 2.5vw;
+            margin-bottom: 1vh;
+        }
+        .forecast-temps {
+            font-size: 3vw;
+        }
+        .high {
+            color: #ff6b6b;
+        }
+        .low {
+            color: #4dabf7;
+        }
     </style>
 </head>
 <body>
     <div id="clock"></div>
     <div id="date"></div>
+    <div id="weather">
+        <div id="current-temp">--°</div>
+        <div id="conditions">Loading weather...</div>
+        <div id="forecast"></div>
+    </div>
 
     <script>
+        const DENTON_LAT = 33.2148;
+        const DENTON_LON = -97.1331;
+        
         function updateClock() {
             const now = new Date();
             let hours = now.getHours();
@@ -53,8 +96,70 @@
             document.getElementById('date').textContent = dateString;
         }
 
+        async function getWeather() {
+            try {
+                // First, get the grid point data for Denton
+                const pointResponse = await fetch(`https://api.weather.gov/points/${DENTON_LAT},${DENTON_LON}`);
+                const pointData = await pointResponse.json();
+                
+                // Get current conditions
+                const stationsResponse = await fetch(pointData.properties.observationStations);
+                const stationsData = await stationsResponse.json();
+                const stationUrl = stationsData.features[0].id;
+                
+                const observationResponse = await fetch(`${stationUrl}/observations/latest`);
+                const observationData = await observationResponse.json();
+                
+                // Get forecast
+                const forecastResponse = await fetch(pointData.properties.forecast);
+                const forecastData = await forecastResponse.json();
+                
+                updateWeatherDisplay(observationData, forecastData);
+            } catch (error) {
+                console.error('Error fetching weather:', error);
+                document.getElementById('conditions').textContent = 'Weather unavailable';
+            }
+        }
+
+        function updateWeatherDisplay(observation, forecast) {
+            // Current temperature
+            const tempC = observation.properties.temperature.value;
+            const tempF = tempC ? Math.round(tempC * 9/5 + 32) : '--';
+            document.getElementById('current-temp').textContent = `${tempF}°`;
+            
+            // Current conditions
+            const conditions = observation.properties.textDescription || 'N/A';
+            document.getElementById('conditions').textContent = conditions;
+            
+            // Forecast for next few days (showing today and next 2 days)
+            const forecastHtml = forecast.properties.periods.slice(0, 6).filter((period, index) => {
+                // Get only daytime periods for highs/lows
+                return period.isDaytime;
+            }).slice(0, 3).map(period => {
+                const nextPeriod = forecast.properties.periods.find(p => 
+                    p.name.includes('Night') && p.startTime > period.startTime
+                );
+                
+                return `
+                    <div class="forecast-day">
+                        <div class="forecast-day-name">${period.name}</div>
+                        <div class="forecast-temps">
+                            <span class="high">${period.temperature}°</span> / 
+                            <span class="low">${nextPeriod ? nextPeriod.temperature : '--'}°</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('forecast').innerHTML = forecastHtml;
+        }
+
         setInterval(updateClock, 1000);
         updateClock(); // Initial call to display time immediately
+
+        // Update weather every 10 minutes
+        getWeather();
+        setInterval(getWeather, 10 * 60 * 1000);
 
         // Prevent default touch behavior
         document.addEventListener('touchmove', function(event) {
