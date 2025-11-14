@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EM Pinball Clock</title>
+    
+    <!-- Google Fonts: Anton for that blocky Score Reel look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        :root {
+            --reel-bg: #222;
+            --reel-text: #eee8aa; /* Pale Goldenrod - looks like aged white paint */
+            --reel-width: 12vw;
+            --reel-height: 16vw;
+            --font-size: 12vw;
+            
+            /* Desktop overrides */
+            --reel-width-lg: 100px;
+            --reel-height-lg: 140px;
+            --font-size-lg: 110px;
+        }
+
+        body {
+            background-color: #1a1a1a;
+            background-image: 
+                radial-gradient(#333 15%, transparent 16%),
+                radial-gradient(#333 15%, transparent 16%);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            overflow: hidden;
+            font-family: 'Anton', sans-serif;
+        }
+
+        /* The Wood/Metal Backboard */
+        .backboard {
+            background: #2b2b2b;
+            border: 8px solid #4a3b2a;
+            border-radius: 20px;
+            box-shadow: 
+                inset 0 0 50px rgba(0,0,0,0.8),
+                0 10px 20px rgba(0,0,0,0.5);
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Screw heads for decoration */
+        .screw {
+            width: 12px;
+            height: 12px;
+            background: linear-gradient(135deg, #ccc, #555);
+            border-radius: 50%;
+            position: absolute;
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        .screw::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80%;
+            height: 2px;
+            background: #333;
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+
+        /* The Reel Window Container */
+        .reel-window {
+            background-color: #000;
+            border: 4px solid #111;
+            border-radius: 8px;
+            display: flex;
+            gap: 4px;
+            padding: 8px;
+            box-shadow: inset 0 0 20px #000;
+        }
+
+        /* Individual Reel Wrapper */
+        .reel {
+            width: var(--reel-width);
+            height: var(--reel-height);
+            background-color: var(--reel-bg);
+            color: var(--reel-text);
+            position: relative;
+            overflow: hidden;
+            border-radius: 4px;
+            /* 3D perspective for the numbers */
+            perspective: 500px;
+        }
+
+        /* Desktop Media Query */
+        @media (min-width: 768px) {
+            .reel {
+                width: var(--reel-width-lg);
+                height: var(--reel-height-lg);
+            }
+        }
+
+        /* The strip that moves inside the reel */
+        .strip {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            will-change: transform;
+        }
+
+        /* Animation Logic */
+        .strip.rolling {
+            transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); 
+            /* Snappy mechanical movement */
+        }
+
+        /* Individual Numbers */
+        .number {
+            height: var(--reel-height);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size);
+            line-height: 1;
+            /* Text Shadow for slight glow/dirt */
+            text-shadow: 0 0 2px rgba(238, 232, 170, 0.3);
+        }
+        @media (min-width: 768px) {
+            .number {
+                height: var(--reel-height-lg);
+                font-size: var(--font-size-lg);
+            }
+        }
+
+        /* Overlays to simulate curvature and plastic window reflection */
+        .reel::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(0,0,0,0.8) 0%,
+                rgba(0,0,0,0.1) 30%,
+                rgba(255,255,255,0.05) 50%,
+                rgba(0,0,0,0.1) 70%,
+                rgba(0,0,0,0.8) 100%
+            );
+            pointer-events: none;
+            z-index: 10;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 4px;
+        }
+        
+        /* Slight horizontal scanline/texture on the reel tape */
+        .reel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(
+                to bottom,
+                transparent 0px,
+                transparent 2px,
+                rgba(0,0,0,0.1) 3px
+            );
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        /* Label styling */
+        .label {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #aaa;
+            font-size: 0.7rem;
+            text-align: center;
+            margin-top: 5px;
+            letter-spacing: 2px;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.8);
+        }
+
+        .separator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #444;
+            font-size: 4vw;
+            font-weight: bold;
+            margin: 0 2px;
+            margin-bottom: 10px; /* align with numbers roughly */
+        }
+        @media (min-width: 768px) {
+            .separator { font-size: 40px; }
+        }
+
+    </style>
+</head>
+<body class="h-screen w-full flex flex-col items-center justify-center">
+
+    <div class="backboard flex flex-col items-center">
+        <!-- Decorative Screws -->
+        <div class="screw top-2 left-2"></div>
+        <div class="screw top-2 right-2"></div>
+        <div class="screw bottom-2 left-2"></div>
+        <div class="screw bottom-2 right-2"></div>
+
+        <div class="text-[#d4af37] font-bold text-xl mb-4 tracking-widest uppercase" style="text-shadow: 0 2px 4px rgba(0,0,0,0.8); font-family: 'Anton';">
+            High Score
+        </div>
+
+        <!-- Main Display -->
+        <div class="flex items-end gap-2 sm:gap-6">
+            
+            <!-- Hours -->
+            <div class="group flex flex-col">
+                <div class="reel-window">
+                    <div id="h1" class="reel"></div>
+                    <div id="h2" class="reel"></div>
+                </div>
+                <div class="label">Hours</div>
+            </div>
+
+            <!-- Separator -->
+            <div class="separator h-[16vw] md:h-[140px] flex items-center">:</div>
+
+            <!-- Minutes -->
+            <div class="group flex flex-col">
+                <div class="reel-window">
+                    <div id="m1" class="reel"></div>
+                    <div id="m2" class="reel"></div>
+                </div>
+                <div class="label">Mins</div>
+            </div>
+
+            <!-- Separator -->
+            <div class="separator h-[16vw] md:h-[140px] flex items-center">:</div>
+
+            <!-- Seconds -->
+            <div class="group flex flex-col">
+                <div class="reel-window">
+                    <div id="s1" class="reel"></div>
+                    <div id="s2" class="reel"></div>
+                </div>
+                <div class="label">Secs</div>
+            </div>
+
+        </div>
+        
+        <div class="mt-6 text-neutral-500 text-xs font-mono">
+            ELECTRO-MECHANICAL TIMEKEEPER <br> MODEL 1978
+        </div>
+    </div>
+
+<script>
+    /**
+     * Reel Class
+     * Handles the DOM creation and animation for a single digit reel.
+     */
+    class Reel {
+        constructor(elementId) {
+            this.container = document.getElementById(elementId);
+            this.currentValue = 0;
+            
+            // Create the moving strip
+            this.strip = document.createElement('div');
+            this.strip.classList.add('strip');
+            this.container.appendChild(this.strip);
+
+            // We use a stack of 2 numbers: [Top (Current), Bottom (Next)]
+            // Initially, both are 0
+            this.renderStack(0, 0);
+        }
+
+        /**
+         * Renders the two stacked numbers in the strip.
+         */
+        renderStack(topNum, bottomNum) {
+            this.strip.innerHTML = `
+                <div class="number">${topNum}</div>
+                <div class="number">${bottomNum}</div>
+            `;
+        }
+
+        /**
+         * Updates the reel to show a new number.
+         * If the number is different, it triggers the roll animation.
+         */
+        update(newValue) {
+            // Ensure input is integer
+            newValue = parseInt(newValue);
+
+            if (newValue === this.currentValue) return;
+
+            const nextValue = newValue;
+            const prevValue = this.currentValue;
+
+            // Prepare the DOM for the animation
+            // 1. Set the strip so top is current, bottom is next
+            this.renderStack(prevValue, nextValue);
+            
+            // 2. Force a browser reflow so it accepts the starting position (translateY: 0)
+            this.strip.style.transform = 'translateY(0)';
+            this.strip.classList.remove('rolling');
+            void this.strip.offsetWidth; // Trigger reflow
+
+            // 3. Add transition class and move to -50% (showing the bottom number)
+            this.strip.classList.add('rolling');
+            this.strip.style.transform = 'translateY(-50%)'; // -50% moves to the second item in the stack
+
+            // 4. Update state
+            this.currentValue = nextValue;
+
+            // 5. Cleanup is handled automatically by the fact that next time we update,
+            //    we rebuild the DOM stack starting at 0 translation. 
+            //    However, to ensure it looks correct if we resize or pause, 
+            //    we can listen for transition end.
+            
+            const onEnd = () => {
+                this.strip.classList.remove('rolling');
+                this.strip.style.transform = 'translateY(0)';
+                // Once animation ends, we make the "Top" number the current number
+                // and the bottom number remains the same (or whatever) until next update.
+                // To be clean:
+                this.renderStack(nextValue, nextValue); 
+                this.strip.removeEventListener('transitionend', onEnd);
+            };
+
+            this.strip.addEventListener('transitionend', onEnd);
+        }
+    }
+
+    // Initialize Reels
+    const reels = {
+        h1: new Reel('h1'),
+        h2: new Reel('h2'),
+        m1: new Reel('m1'),
+        m2: new Reel('m2'),
+        s1: new Reel('s1'),
+        s2: new Reel('s2'),
+    };
+
+    function updateClock() {
+        const now = new Date();
+        
+        let h = now.getHours();
+        const m = now.getMinutes();
+        const s = now.getSeconds();
+
+        // 12 Hour format logic (Optional: Remove this block for 24h)
+        h = h % 12;
+        h = h ? h : 12; // the hour '0' should be '12'
+
+        // Pad numbers to strings to easily split digits
+        const hStr = h.toString().padStart(2, '0');
+        const mStr = m.toString().padStart(2, '0');
+        const sStr = s.toString().padStart(2, '0');
+
+        // Update individual reels
+        reels.h1.update(hStr[0]);
+        reels.h2.update(hStr[1]);
+        
+        reels.m1.update(mStr[0]);
+        reels.m2.update(mStr[1]);
+        
+        reels.s1.update(sStr[0]);
+        reels.s2.update(sStr[1]);
+    }
+
+    // Initial call to set numbers immediately without waiting 1 second
+    updateClock();
+
+    // Run every 100ms to ensure we catch the second change immediately
+    // (setInterval at 1000ms can drift)
+    setInterval(updateClock, 100);
+
+</script>
+</body>
+</html>
