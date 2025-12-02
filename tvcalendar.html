@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom spinner animation */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center py-10 px-4">
+
+        <!-- Content Area -->
+        <div class="p-6 min-h-[400px] flex flex-col items-center justify-center bg-white relative">
+            
+            <!-- Loading State -->
+            <div id="loader" class="hidden flex flex-col items-center">
+                <div class="loader mb-4"></div>
+                <p class="text-gray-500 animate-pulse">Fetching latest image from Drive...</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="hidden text-center max-w-md">
+                <div class="bg-red-100 text-red-700 p-4 rounded-lg">
+                    <p class="font-bold">Error loading image</p>
+                    <p id="errorMessage" class="text-sm mt-1">Please check your URL and try again.</p>
+                </div>
+            </div>
+
+            <!-- Success State (Image) -->
+            <div id="imageContainer" class="hidden w-full flex flex-col items-center">
+                <img id="chartImage" src="" alt="Latest Chart" class="max-w-full h-auto rounded-lg shadow-sm border border-gray-100">
+                <div class="mt-4 text-xs text-gray-400 flex gap-4">
+                    <span id="imageDate"></span>
+                    <span id="imageName"></span>
+                </div>
+            </div>
+
+            <!-- Empty State (Initial) -->
+            <div id="emptyState" class="text-center text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-2 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p>Nothing happened</p>
+            </div>
+
+        </div>
+
+    <script>
+        // DOM Elements
+        const urlInput = document.getElementById('scriptUrl');
+        const loader = document.getElementById('loader');
+        const errorState = document.getElementById('errorState');
+        const errorMessage = document.getElementById('errorMessage');
+        const imageContainer = document.getElementById('imageContainer');
+        const chartImage = document.getElementById('chartImage');
+        const emptyState = document.getElementById('emptyState');
+        const imageDate = document.getElementById('imageDate');
+        const imageName = document.getElementById('imageName');
+        const url = "https://script.google.com/macros/s/AKfycbxwgtHErdlxP1bJriY8Zv50WsJLD_XQmBj6_U5SLE63QYVzaL03_XyDw_e72gda8RTH/exec"
+      
+        // On Load: Check for saved URL
+        window.addEventListener('DOMContentLoaded', () => {            
+          fetchImage(); 
+        });
+
+        async function fetchImage() {
+            // Reset UI States
+            emptyState.classList.add('hidden');
+            errorState.classList.add('hidden');
+            imageContainer.classList.add('hidden');
+            loader.classList.remove('hidden');
+
+            try {
+                // Fetch from the GAS API
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    // Success: Build the Data URI
+                    const imageSrc = `data:${data.mime_type};base64,${data.image_base64}`;
+                    
+                    // Update Image Tag
+                    chartImage.src = imageSrc;
+                    
+                    // Update Metadata
+                    const dateObj = new Date(data.last_updated);
+                    imageDate.textContent = `Updated: ${dateObj.toLocaleString()}`;
+                    imageName.textContent = `File: ${data.filename}`;
+
+                    // Show Image
+                    loader.classList.add('hidden');
+                    imageContainer.classList.remove('hidden');
+                } else {
+                    // API returned an error (e.g., file not found)
+                    throw new Error(data.message || "Unknown error from script.");
+                }
+
+            } catch (error) {
+                console.error(error);
+                loader.classList.add('hidden');
+                errorMessage.textContent = error.message;
+                errorState.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
