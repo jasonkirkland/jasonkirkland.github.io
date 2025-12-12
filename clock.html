@@ -98,11 +98,14 @@
 
         async function getWeather() {
             const MAX_RETRIES = 3;
+            const TOTAL_ATTEMPTS = MAX_RETRIES + 1;
             const RETRY_DELAY_MS = 10000; // 10 seconds
             
-            for (let attempt = 1; attempt <= MAX_RETRIES + 1; attempt++) {
+            const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+            
+            for (let attempt = 1; attempt <= TOTAL_ATTEMPTS; attempt++) {
                 try {
-                    console.log(`Weather API attempt ${attempt}/${MAX_RETRIES + 1}`);
+                    console.log(`Weather API attempt ${attempt}/${TOTAL_ATTEMPTS}`);
                     
                     // First, get the grid point data for Denton
                     const pointResponse = await fetch(`https://api.weather.gov/points/${DENTON_LAT},${DENTON_LON}`);
@@ -126,23 +129,17 @@
                     if (isValid) {
                         console.log(`Weather API attempt ${attempt} succeeded - valid temperature received`);
                         return; // Success, exit the function
-                    } else {
-                        console.log(`Weather API attempt ${attempt} failed - temperature is blank`);
-                        
-                        // If this isn't the last attempt, wait before retrying
-                        if (attempt <= MAX_RETRIES) {
-                            console.log(`Retrying in ${RETRY_DELAY_MS / 1000} seconds...`);
-                            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
-                        }
                     }
+                    
+                    console.log(`Weather API attempt ${attempt} failed - temperature is blank`);
                 } catch (error) {
                     console.error(`Weather API attempt ${attempt} failed with error:`, error);
-                    
-                    // If this isn't the last attempt, wait before retrying
-                    if (attempt <= MAX_RETRIES) {
-                        console.log(`Retrying in ${RETRY_DELAY_MS / 1000} seconds...`);
-                        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
-                    }
+                }
+                
+                // If this isn't the last attempt, wait before retrying
+                if (attempt < TOTAL_ATTEMPTS) {
+                    console.log(`Retrying in ${RETRY_DELAY_MS / 1000} seconds...`);
+                    await delay(RETRY_DELAY_MS);
                 }
             }
             
