@@ -97,34 +97,63 @@
         }
 
         async function getWeather() {
-            try {
-                // First, get the grid point data for Denton
-                const pointResponse = await fetch(`https://api.weather.gov/points/${DENTON_LAT},${DENTON_LON}`);
-                const pointData = await pointResponse.json();
+            const MAX_RETRIES = 3;
+            const TOTAL_ATTEMPTS = MAX_RETRIES + 1;
+            const RETRY_DELAY_MS = 10000; // 10 seconds
+            
+            const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+            
+            for (let attempt = 1; attempt <= TOTAL_ATTEMPTS; attempt++) {
+                try {
+                    console.log(`Weather API attempt ${attempt}/${TOTAL_ATTEMPTS}`);
+                    
+                    // First, get the grid point data for Denton
+                    const pointResponse = await fetch(`https://api.weather.gov/points/${DENTON_LAT},${DENTON_LON}`);
+                    const pointData = await pointResponse.json();
+                    
+                    // Get current conditions
+                    const stationsResponse = await fetch(pointData.properties.observationStations);
+                    const stationsData = await stationsResponse.json();
+                    const stationUrl = stationsData.features[0].id;
+                    
+                    const observationResponse = await fetch(`${stationUrl}/observations/latest`);
+                    const observationData = await observationResponse.json();
+                    
+                    // Get forecast
+                    const forecastResponse = await fetch(pointData.properties.forecast);
+                    const forecastData = await forecastResponse.json();
+                    
+                    // Try to update the display and check if temperature is valid
+                    const isValid = updateWeatherDisplay(observationData, forecastData);
+                    
+                    if (isValid) {
+                        console.log(`Weather API attempt ${attempt} succeeded - valid temperature received`);
+                        return; // Success, exit the function
+                    }
+                    
+                    console.log(`Weather API attempt ${attempt} failed - temperature is blank`);
+                } catch (error) {
+                    console.error(`Weather API attempt ${attempt} failed with error:`, error);
+                }
                 
-                // Get current conditions
-                const stationsResponse = await fetch(pointData.properties.observationStations);
-                const stationsData = await stationsResponse.json();
-                const stationUrl = stationsData.features[0].id;
-                
-                const observationResponse = await fetch(`${stationUrl}/observations/latest`);
-                const observationData = await observationResponse.json();
-                
-                // Get forecast
-                const forecastResponse = await fetch(pointData.properties.forecast);
-                const forecastData = await forecastResponse.json();
-                
-                updateWeatherDisplay(observationData, forecastData);
-            } catch (error) {
-                console.error('Error fetching weather:', error);
-                document.getElementById('conditions').textContent = 'Weather unavailable';
+                // If this isn't the last attempt, wait before retrying
+                if (attempt < TOTAL_ATTEMPTS) {
+                    console.log(`Retrying in ${RETRY_DELAY_MS / 1000} seconds...`);
+                    await delay(RETRY_DELAY_MS);
+                }
             }
+            
+            // All attempts failed
+            console.error('All weather API attempts failed');
+            document.getElementById('conditions').textContent = 'Weather unavailable';
         }
 
         function updateWeatherDisplay(observation, forecast) {
             // Current temperature
             const tempC = observation.properties.temperature.value;
             const tempF = tempC ? Math.round(tempC * 9/5 + 32) : '--';
+            const isTempValid = tempF !== '--';
+            
             document.getElementById('current-temp').textContent = `${tempF}°`;
             
             // Current conditions
@@ -157,6 +186,9 @@
             }).join('');
             
             document.getElementById('forecast').innerHTML = forecastHtml;
+            
+            // Return true if temperature is valid, false if blank
+            return isTempValid;
         }
 
         setInterval(updateClock, 1000);
