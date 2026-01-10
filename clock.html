@@ -129,7 +129,12 @@
             
             // Current conditions
             const conditions = observation.properties.textDescription || 'N/A';
-            document.getElementById('conditions').textContent = conditions;
+            const windSpeedMps = observation.properties.windSpeed.value;
+            const windSpeedMph = windSpeedMps !== null && windSpeedMps !== undefined
+                ? Math.round(windSpeedMps * 2.23694)
+                : null;
+            const windSpeedText = windSpeedMph !== null ? `${windSpeedMph} mph` : '-- mph';
+            document.getElementById('conditions').textContent = `${conditions} (${windSpeedText})`;
             
             // Forecast for next few days (showing today and next 2 days)
             const forecastHtml = forecast.properties.periods.slice(0, 6).filter((period, index) => {
