@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Anthropic / Claude News (via The Verge)</title>
+    <link>https://www.theverge.com</link>
+    <description>Filtered Verge articles about Anthropic and Claude</description>
+    <language>en-us</language>
+    <atom:link href="https://jasonkirkland.github.io/anthropic-claude-feed.xml" rel="self" type="application/rss+xml"/>
+    <lastBuildDate>Wed, 01 Jan 2025 00:00:00 +0000</lastBuildDate>
+  </channel>
+</rss>
