@@ -110,8 +110,9 @@
         let currentTheme;
         let words = [];
         let grid = [];
+        let wordPlacements = {};
         let gameCount = 1;
-        let foundWords = 0;
+        let foundWordSet = new Set();
 
         const directions = [
             [0, 1], [1, 0], [1, 1], [-1, 1], [0, -1], [-1, 0], [-1, -1], [1, -1]
@@ -138,6 +139,7 @@
         function generateGrid() {
             initializeGrid();
             words = [];
+            wordPlacements = {};
             currentTheme = themes[gameCount - 1];
             const shuffledWords = currentTheme.words.sort(() => 0.5 - Math.random());
             for (const word of shuffledWords.slice(0, WORDS_PER_GAME)) {
@@ -174,6 +176,20 @@
                 const y = startY + dy * i;
                 grid[y][x] = word[i];
             }
+            wordPlacements[word] = { startX, startY, dir };
+        }
+
+        function getCellsForWord(word) {
+            const { startX, startY, dir } = wordPlacements[word];
+            const [dx, dy] = directions[dir];
+            const cells = [];
+            for (let i = 0; i < word.length; i++) {
+                const col = startX + dx * i;
+                const row = startY + dy * i;
+                const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+                if (cell) cells.push(cell);
+            }
+            return cells;
         }
 
         function fillEmptyCells() {
@@ -199,7 +215,9 @@
                     gridElement.appendChild(cell);
                 });
             });
+        }
 
+        function attachGridListeners() {
             gridElement.addEventListener('touchstart', startSelection, { passive: false });
             gridElement.addEventListener('touchmove', continueSelection, { passive: false });
             gridElement.addEventListener('touchend', endSelection, { passive: false });
@@ -249,8 +267,9 @@
         }
 
         function getCellFromEvent(e) {
-            const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
-            const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+            const touch = e.changedTouches ? e.changedTouches[0] : null;
+            const clientX = touch ? touch.clientX : e.clientX;
+            const clientY = touch ? touch.clientY : e.clientY;
             return document.elementFromPoint(clientX, clientY);
         }
 
@@ -292,33 +311,31 @@
             return selectedCells.map(cell => cell.textContent).join('');
         }
 
-        function checkWord(word) {
-            const forwardWord = word;
-            const backwardWord = word.split('').reverse().join('');
-            const wordElement = Array.from(wordListElement.children).find(li => 
-                li.textContent === forwardWord || li.textContent === backwardWord
-            );
+        function checkWord(selectedText) {
+            const reversedText = selectedText.split('').reverse().join('');
+            const matchedWord = words.find(w => w === selectedText || w === reversedText);
+            if (!matchedWord) return;
 
-            if (wordElement && !wordElement.classList.contains('found')) {
-                wordElement.classList.add('found');
-                crossOutWordInGrid(word);
-                foundWords++;
-                saveProgress();
-                checkGameCompletion();
-            }
+            const wordElement = Array.from(wordListElement.children).find(li => li.textContent === matchedWord);
+            if (!wordElement || wordElement.classList.contains('found')) return;
+
+            wordElement.classList.add('found');
+            const isBackward = matchedWord === reversedText;
+            const cells = isBackward ? selectedCells.slice().reverse() : selectedCells;
+            crossOutWordInGrid(cells);
+            foundWordSet.add(matchedWord);
+            saveProgress();
+            checkGameCompletion();
         }
 
-        function crossOutWordInGrid(word) {
-            const isBackward = selectedCells[0].textContent === word[word.length - 1];
-            const cellsToMark = isBackward ? selectedCells.slice().reverse() : selectedCells;
+        function crossOutWordInGrid(cells) {
+            cells.forEach(cell => cell.classList.add('found'));
 
-            cellsToMark.forEach(cell => cell.classList.add('found'));
+            const firstCell = cells[0];
+            const lastCell = cells[cells.length - 1];
 
-            const startCell = cellsToMark[0];
-            const endCell = cellsToMark[cellsToMark.length - 1];
-            
-            const startRect = startCell.getBoundingClientRect();
-            const endRect = endCell.getBoundingClientRect();
+            const startRect = firstCell.getBoundingClientRect();
+            const endRect = lastCell.getBoundingClientRect();
             const gridRect = gridElement.getBoundingClientRect();
 
             const startX = startRect.left - gridRect.left + startRect.width / 2;
@@ -345,7 +362,7 @@
         }
 
         function checkGameCompletion() {
-            if (foundWords === words.length) {
+            if (foundWordSet.size === words.length) {
                 if (gameCount < MAX_GAMES) {
                     newGameButton.style.display = 'block';
                 } else {
@@ -355,26 +372,31 @@
             }
         }
 
+        function initGame() {
+            foundWordSet = new Set();
+            newGameButton.style.display = 'none';
+            gameCounterElement.textContent = `Game ${gameCount} of ${MAX_GAMES}`;
+            gameThemeElement.textContent = `Theme: ${themes[gameCount - 1].name}`;
+            generateGrid();
+            createGrid();
+            createWordList();
+            saveProgress();
+        }
+
         function startNewGame() {
             if (gameCount < MAX_GAMES) {
                 gameCount++;
-                foundWords = 0;
-                newGameButton.style.display = 'none';
-                gameCounterElement.textContent = `Game ${gameCount} of ${MAX_GAMES}`;
-                gameThemeElement.textContent = `Theme: ${themes[gameCount - 1].name}`;
-                generateGrid();
-                createGrid();
-                createWordList();
-                saveProgress();
+                initGame();
             }
         }
 
         function saveProgress() {
             const progress = {
                 gameCount: gameCount,
-                foundWords: foundWords,
+                foundWordNames: Array.from(foundWordSet),
                 words: words,
                 grid: grid,
+                wordPlacements: wordPlacements,
                 theme: currentTheme.name
             };
             localStorage.setItem('wordSearchProgress', JSON.stringify(progress));
@@ -385,29 +407,37 @@
             if (savedProgress) {
                 const progress = JSON.parse(savedProgress);
                 gameCount = progress.gameCount;
-                foundWords = progress.foundWords;
+                foundWordSet = new Set(progress.foundWordNames || []);
                 words = progress.words;
                 grid = progress.grid;
+                wordPlacements = progress.wordPlacements || {};
                 currentTheme = themes.find(theme => theme.name === progress.theme);
-                
+
                 gameCounterElement.textContent = `Game ${gameCount} of ${MAX_GAMES}`;
                 gameThemeElement.textContent = `Theme: ${currentTheme.name}`;
                 createGrid();
                 createWordList();
-                
-                // Mark found words
-                words.forEach((word, index) => {
-                    if (index < foundWords) {
-                        const wordElement = wordListElement.children[index];
-                        wordElement.classList.add('found');
+
+                // Restore found words: mark list items and redraw strike-through lines
+                foundWordSet.forEach(word => {
+                    const wordElement = Array.from(wordListElement.children).find(li => li.textContent === word);
+                    if (wordElement) wordElement.classList.add('found');
+                    if (wordPlacements[word]) {
+                        const cells = getCellsForWord(word);
+                        crossOutWordInGrid(cells);
                     }
                 });
+
+                if (foundWordSet.size === words.length) {
+                    newGameButton.style.display = 'block';
+                }
             } else {
-                startNewGame();
+                initGame();
             }
         }
 
         newGameButton.addEventListener('click', startNewGame);
+        attachGridListeners();
 
         // Initialize the game
         loadProgress();
