@@ -5,6 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Word Search</title>
     <style>
+        :root {
+            --bg: #ffffff;
+            --text: #000000;
+            --title: blue;
+            --cell-bg: #ffffff;
+            --cell-border: #cccccc;
+            --highlight: #ffff00;
+            --found: #888888;
+            --btn-bg: #eeeeee;
+            --btn-text: #000000;
+            --btn-border: #999999;
+        }
+        body.dark {
+            --bg: #1a1a2e;
+            --text: #e0e0e0;
+            --title: #6699ff;
+            --cell-bg: #2d2d44;
+            --cell-border: #4a4a6a;
+            --highlight: #ff9800;
+            --found: #6a6a8a;
+            --btn-bg: #3a3a5c;
+            --btn-text: #e0e0e0;
+            --btn-border: #6677aa;
+        }
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -13,11 +37,14 @@
             touch-action: none;
             padding: 5px;
             margin: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            transition: background-color 0.2s, color 0.2s;
         }
         h1 {
             margin: 5px 0;
             font-size: 24px;
-            color: blue;
+            color: var(--title);
         }
         #gameCounter, #gameTheme {
             margin: 5px 0;
@@ -34,7 +61,8 @@
             aspect-ratio: 1 / 1;
         }
         .cell {
-            border: 1px solid #ccc;
+            border: 1px solid var(--cell-border);
+            background-color: var(--cell-bg);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -44,8 +72,8 @@
             box-sizing: border-box;
             font-size: 5vw;
         }
-        .highlighted { background-color: yellow; }
-        .found { color: #888; }
+        .highlighted { background-color: var(--highlight); }
+        .found { color: var(--found); }
         .strike-through {
             position: absolute;
             height: 2px;
@@ -75,6 +103,25 @@
             padding: 8px 16px;
             font-size: 16px;
             cursor: pointer;
+            background-color: var(--btn-bg);
+            color: var(--btn-text);
+            border: 1px solid var(--btn-border);
+            border-radius: 4px;
+        }
+        #darkModeToggle {
+            position: fixed;
+            top: 8px;
+            right: 8px;
+            background-color: var(--btn-bg);
+            color: var(--btn-text);
+            border: 1px solid var(--btn-border);
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 14px;
+            cursor: pointer;
+            z-index: 100;
+            touch-action: manipulation;
+            transition: background-color 0.2s, color 0.2s;
         }
         @media (min-width: 600px) {
             .cell { font-size: 24px; }
@@ -82,6 +129,7 @@
     </style>
 </head>
 <body>
+    <button id="darkModeToggle">Dark</button>
     <h1>Word Search</h1>
     <div id="gameCounter">Game 1 of 10</div>
     <div id="gameTheme">Theme: Animals</div>
@@ -438,6 +486,32 @@
 
         newGameButton.addEventListener('click', startNewGame);
         attachGridListeners();
+
+        // Dark mode
+        const darkModeToggle = document.getElementById('darkModeToggle');
+
+        function applyDarkMode(dark) {
+            if (dark) {
+                document.body.classList.add('dark');
+                darkModeToggle.textContent = 'Light';
+            } else {
+                document.body.classList.remove('dark');
+                darkModeToggle.textContent = 'Dark';
+            }
+            localStorage.setItem('darkMode', dark ? '1' : '0');
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            applyDarkMode(!document.body.classList.contains('dark'));
+        });
+
+        // Restore saved preference or follow system preference
+        const savedDark = localStorage.getItem('darkMode');
+        if (savedDark === '1') {
+            applyDarkMode(true);
+        } else if (savedDark === null && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            applyDarkMode(true);
+        }
 
         // Initialize the game
         loadProgress();
