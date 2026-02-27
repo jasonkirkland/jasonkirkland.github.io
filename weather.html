@@ -181,6 +181,36 @@
             vertical-align: middle;
             cursor: default;
         }
+        #temp-summary {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .temp-chip {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+        .temp-chip-source {
+            font-size: 0.72rem;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .temp-chip-temp {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #79c0ff;
+        }
+        .temp-chip-time {
+            font-size: 0.78rem;
+            color: #6e7681;
+        }
         .header-row {
             display: flex;
             justify-content: space-between;
@@ -207,6 +237,7 @@
         </div>
         <div id="countdown">Refreshes in <span id="countdown-val">2:00</span></div>
     </div>
+    <div id="temp-summary"></div>
     <div id="status">Loading…</div>
     <button id="refresh">Refresh</button>
     <div id="content"></div>
@@ -466,6 +497,24 @@
                     field('Update Interval', omInterval) +
                     field('Elevation', omElevFt != null ? `${omElevFt.toLocaleString()} ft (${omData.elevation} m)` : null) +
                     field('Timezone', omData.timezone ? `${omData.timezone} (${omData.timezone_abbreviation})` : null);
+
+                const nwsTimeShort = obs.timestamp
+                    ? new Date(obs.timestamp).toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'})
+                    : '—';
+                const omTimeShort = omc.time
+                    ? new Date(omc.time).toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'})
+                    : '—';
+                document.getElementById('temp-summary').innerHTML = `
+                    <div class="temp-chip">
+                        <span class="temp-chip-source">NWS</span>
+                        <span class="temp-chip-temp">${tempF != null ? `${tempF}°F` : '—'}</span>
+                        <span class="temp-chip-time">@ ${nwsTimeShort}</span>
+                    </div>
+                    <div class="temp-chip">
+                        <span class="temp-chip-source">Open-Meteo</span>
+                        <span class="temp-chip-temp">${omc.temperature_2m != null ? `${omc.temperature_2m}°F` : '—'}</span>
+                        <span class="temp-chip-time">@ ${omTimeShort}</span>
+                    </div>`;
 
                 content.innerHTML =
                     makeSection('Latest Observation',
