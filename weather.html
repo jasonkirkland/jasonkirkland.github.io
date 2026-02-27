@@ -316,13 +316,13 @@
                     field('Cloud Layers', obs.cloudLayers?.length
                         ? obs.cloudLayers.map(l => `${l.amount} @ ${mToFt(l.base?.value)?.toLocaleString() ?? '?'} ft`).join(', ')
                         : null) +
-                    field('Wind Chill', obs.windChill?.value !== null ? `${cToF(obs.windChill.value)}°F` : null) +
-                    field('Heat Index', obs.heatIndex?.value !== null ? `${cToF(obs.heatIndex.value)}°F` : null) +
-                    field('Precipitation Last Hour', obs.precipitationLastHour?.value !== null
+                    field('Wind Chill', obs.windChill?.value != null ? `${cToF(obs.windChill.value)}°F` : null) +
+                    field('Heat Index', obs.heatIndex?.value != null ? `${cToF(obs.heatIndex.value)}°F` : null) +
+                    field('Precipitation Last Hour', obs.precipitationLastHour?.value != null
                         ? `${obs.precipitationLastHour.value} mm` : null) +
-                    field('Max Temp Last 24h', obs.maxTemperatureLast24Hours?.value !== null
+                    field('Max Temp Last 24h', obs.maxTemperatureLast24Hours?.value != null
                         ? `${cToF(obs.maxTemperatureLast24Hours.value)}°F` : null) +
-                    field('Min Temp Last 24h', obs.minTemperatureLast24Hours?.value !== null
+                    field('Min Temp Last 24h', obs.minTemperatureLast24Hours?.value != null
                         ? `${cToF(obs.minTemperatureLast24Hours.value)}°F` : null) +
                     field('Present Weather', obs.presentWeather?.map(w => w.rawString || w.intensity).join(', ') || null) +
                     field('Flight Rules', obs.flightRules);
