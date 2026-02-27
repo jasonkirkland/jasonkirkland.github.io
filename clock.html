@@ -22,42 +22,77 @@
             overflow: hidden;
         }
         #clock {
-            font-size: 32vw;
+            font-size: clamp(15vw, min(32vw, 28vh), 32vw);
             font-weight: bold;
             line-height: 1;
         }
         #date {
-            font-size: 4vw;
-            margin-top: 2vh;
+            font-size: clamp(2vw, 4vw, 5vw);
+            margin-top: clamp(4px, 2vh, 20px);
         }
         #weather {
-            font-size: 3.5vw;
-            margin-top: 3vh;
+            font-size: clamp(2vw, 3.5vw, 4.5vw);
+            margin-top: clamp(4px, 3vh, 24px);
             text-align: center;
         }
         #current-temp {
-            font-size: 8vw;
+            font-size: clamp(5vw, 8vw, 10vw);
             font-weight: bold;
-            margin: 1vh 0;
+            margin: clamp(2px, 1vh, 10px) 0;
         }
         #conditions {
-            font-size: 3vw;
-            margin-bottom: 2vh;
+            font-size: clamp(2vw, 3vw, 4vw);
+            margin-bottom: clamp(4px, 2vh, 20px);
         }
         #forecast {
             display: flex;
-            gap: 3vw;
-            margin-top: 2vh;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: clamp(8px, 3vw, 32px);
+            margin-top: clamp(4px, 2vh, 20px);
         }
         .forecast-day {
             text-align: center;
         }
         .forecast-day-name {
-            font-size: 2.5vw;
-            margin-bottom: 1vh;
+            font-size: clamp(2vw, 2.5vw, 3vw);
+            margin-bottom: clamp(2px, 1vh, 10px);
         }
         .forecast-temps {
-            font-size: 3vw;
+            font-size: clamp(2vw, 3vw, 4vw);
+        }
+        @media (orientation: landscape) and (max-height: 500px) {
+            #clock {
+                font-size: clamp(12vw, 26vh, 30vw);
+            }
+            #date {
+                margin-top: 2px;
+                font-size: 3.5vw;
+            }
+            #weather {
+                margin-top: 2px;
+            }
+            #current-temp {
+                font-size: 7vw;
+                margin: 2px 0;
+            }
+            #conditions {
+                margin-bottom: 2px;
+            }
+            #forecast {
+                margin-top: 2px;
+            }
+        }
+        @media (orientation: portrait) and (max-width: 430px) {
+            #clock {
+                font-size: clamp(25vw, min(32vw, 26vh), 32vw);
+            }
+            #conditions {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 90vw;
+            }
         }
         .high {
             color: #ff6b6b;
@@ -73,7 +108,7 @@
     <div id="weather">
         <div id="current-temp">--°</div>
         <div id="conditions">Loading weather...</div>
-        <div id="forecast"</div>
+        <div id="forecast"></div>
     </div>
 
     <script>
