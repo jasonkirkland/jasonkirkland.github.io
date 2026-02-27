@@ -171,6 +171,16 @@
         }
         button#refresh:hover { background: #30363d; }
         .error { color: #f85149; }
+        .stale-badge {
+            font-size: 0.65rem;
+            color: #d29922;
+            background: rgba(210, 153, 34, 0.15);
+            border-radius: 3px;
+            padding: 1px 4px;
+            margin-left: 4px;
+            vertical-align: middle;
+            cursor: default;
+        }
         .header-row {
             display: flex;
             justify-content: space-between;
@@ -204,6 +214,45 @@
     <script>
         const LAT = 33.2148;
         const LON = -97.1331;
+        let prevObs = null;
+
+        function mergeObs(fresh, prev) {
+            if (!prev) return { obs: fresh, stale: new Set() };
+            const merged = { ...fresh };
+            const stale = new Set();
+
+            const valueProps = [
+                'temperature', 'dewpoint', 'windDirection', 'windSpeed', 'windGust',
+                'barometricPressure', 'seaLevelPressure', 'visibility', 'relativeHumidity',
+                'windChill', 'heatIndex', 'precipitationLastHour',
+                'maxTemperatureLast24Hours', 'minTemperatureLast24Hours'
+            ];
+            for (const key of valueProps) {
+                if (fresh[key]?.value == null && prev[key]?.value != null) {
+                    merged[key] = prev[key];
+                    stale.add(key);
+                }
+            }
+
+            if (!fresh.textDescription && prev.textDescription) {
+                merged.textDescription = prev.textDescription;
+                stale.add('textDescription');
+            }
+            if (!fresh.flightRules && prev.flightRules) {
+                merged.flightRules = prev.flightRules;
+                stale.add('flightRules');
+            }
+            if ((!fresh.cloudLayers || fresh.cloudLayers.length === 0) && prev.cloudLayers?.length > 0) {
+                merged.cloudLayers = prev.cloudLayers;
+                stale.add('cloudLayers');
+            }
+            if ((!fresh.presentWeather || fresh.presentWeather.length === 0) && prev.presentWeather?.length > 0) {
+                merged.presentWeather = prev.presentWeather;
+                stale.add('presentWeather');
+            }
+
+            return { obs: merged, stale };
+        }
 
         function fmt(val, unit = '') {
             if (val === null || val === undefined) return null;
@@ -253,9 +302,12 @@
                 </div>`;
         }
 
-        function field(label, value, cls = '') {
+        function field(label, value, cls = '', stale = false) {
+            const staleTag = stale
+                ? ' <span class="stale-badge" title="Using cached value from previous fetch">↺</span>'
+                : '';
             return `<div class="field">
-                <div class="field-label">${label}</div>
+                <div class="field-label">${label}${staleTag}</div>
                 ${displayVal(value, cls)}
             </div>`;
         }
@@ -313,7 +365,7 @@
                 const obsRes = await fetch(`${stationId}/observations/latest`);
                 if (!obsRes.ok) throw new Error(`Observation API error: ${obsRes.status}`);
                 const obsData = await obsRes.json();
-                const obs = obsData.properties;
+                const { obs, stale } = mergeObs(obsData.properties, prevObs);
 
                 const tempF = cToF(obs.temperature?.value);
                 const dewF = cToF(obs.dewpoint?.value);
@@ -328,31 +380,31 @@
                 const obsTimestamp = obs.timestamp ? new Date(obs.timestamp).toLocaleString() : null;
 
                 const obsFields =
-                    field('Description', obs.textDescription) +
-                    field('Temperature', tempF !== null ? `${tempF}°F (${obs.temperature.value?.toFixed(1)}°C)` : null, 'highlight') +
-                    field('Dewpoint', dewF !== null ? `${dewF}°F (${obs.dewpoint.value?.toFixed(1)}°C)` : null) +
-                    field('Feels Like', feelsF !== null ? `${feelsF}°F` : null) +
-                    field('Relative Humidity', pctOrNull(obs.relativeHumidity?.value)) +
-                    field('Wind Direction', obs.windDirection?.value !== null ? `${obs.windDirection.value}°` : null) +
-                    field('Wind Speed', windMph !== null ? `${windMph} mph (${obs.windSpeed.value?.toFixed(1)} km/h)` : null) +
-                    field('Wind Gust', gustMph !== null ? `${gustMph} mph` : null) +
-                    field('Barometric Pressure', pressureInHg !== null ? `${pressureInHg} inHg` : null) +
-                    field('Sea Level Pressure', seaLevelInHg !== null ? `${seaLevelInHg} inHg` : null) +
-                    field('Visibility', visibFt !== null ? `${visibFt.toLocaleString()} ft (${(obs.visibility.value / 1000).toFixed(1)} km)` : null) +
-                    field('Cloud Ceiling (lowest)', ceilingFt !== null ? `${ceilingFt.toLocaleString()} ft` : null) +
+                    field('Description', obs.textDescription, '', stale.has('textDescription')) +
+                    field('Temperature', tempF !== null ? `${tempF}°F (${obs.temperature.value?.toFixed(1)}°C)` : null, 'highlight', stale.has('temperature')) +
+                    field('Dewpoint', dewF !== null ? `${dewF}°F (${obs.dewpoint.value?.toFixed(1)}°C)` : null, '', stale.has('dewpoint')) +
+                    field('Feels Like', feelsF !== null ? `${feelsF}°F` : null, '', stale.has('heatIndex') || stale.has('windChill')) +
+                    field('Relative Humidity', pctOrNull(obs.relativeHumidity?.value), '', stale.has('relativeHumidity')) +
+                    field('Wind Direction', obs.windDirection?.value !== null ? `${obs.windDirection.value}°` : null, '', stale.has('windDirection')) +
+                    field('Wind Speed', windMph !== null ? `${windMph} mph (${obs.windSpeed.value?.toFixed(1)} km/h)` : null, '', stale.has('windSpeed')) +
+                    field('Wind Gust', gustMph !== null ? `${gustMph} mph` : null, '', stale.has('windGust')) +
+                    field('Barometric Pressure', pressureInHg !== null ? `${pressureInHg} inHg` : null, '', stale.has('barometricPressure')) +
+                    field('Sea Level Pressure', seaLevelInHg !== null ? `${seaLevelInHg} inHg` : null, '', stale.has('seaLevelPressure')) +
+                    field('Visibility', visibFt !== null ? `${visibFt.toLocaleString()} ft (${(obs.visibility.value / 1000).toFixed(1)} km)` : null, '', stale.has('visibility')) +
+                    field('Cloud Ceiling (lowest)', ceilingFt !== null ? `${ceilingFt.toLocaleString()} ft` : null, '', stale.has('cloudLayers')) +
                     field('Cloud Layers', obs.cloudLayers?.length
                         ? obs.cloudLayers.map(l => `${l.amount} @ ${mToFt(l.base?.value)?.toLocaleString() ?? '?'} ft`).join(', ')
-                        : null) +
-                    field('Wind Chill', obs.windChill?.value != null ? `${cToF(obs.windChill.value)}°F` : null) +
-                    field('Heat Index', obs.heatIndex?.value != null ? `${cToF(obs.heatIndex.value)}°F` : null) +
+                        : null, '', stale.has('cloudLayers')) +
+                    field('Wind Chill', obs.windChill?.value != null ? `${cToF(obs.windChill.value)}°F` : null, '', stale.has('windChill')) +
+                    field('Heat Index', obs.heatIndex?.value != null ? `${cToF(obs.heatIndex.value)}°F` : null, '', stale.has('heatIndex')) +
                     field('Precipitation Last Hour', obs.precipitationLastHour?.value != null
-                        ? `${obs.precipitationLastHour.value} mm` : null) +
+                        ? `${obs.precipitationLastHour.value} mm` : null, '', stale.has('precipitationLastHour')) +
                     field('Max Temp Last 24h', obs.maxTemperatureLast24Hours?.value != null
-                        ? `${cToF(obs.maxTemperatureLast24Hours.value)}°F` : null) +
+                        ? `${cToF(obs.maxTemperatureLast24Hours.value)}°F` : null, '', stale.has('maxTemperatureLast24Hours')) +
                     field('Min Temp Last 24h', obs.minTemperatureLast24Hours?.value != null
-                        ? `${cToF(obs.minTemperatureLast24Hours.value)}°F` : null) +
-                    field('Present Weather', obs.presentWeather?.map(w => w.rawString || w.intensity).join(', ') || null) +
-                    field('Flight Rules', obs.flightRules);
+                        ? `${cToF(obs.minTemperatureLast24Hours.value)}°F` : null, '', stale.has('minTemperatureLast24Hours')) +
+                    field('Present Weather', obs.presentWeather?.map(w => w.rawString || w.intensity).join(', ') || null, '', stale.has('presentWeather')) +
+                    field('Flight Rules', obs.flightRules, '', stale.has('flightRules'));
 
                 // 4. Forecast
                 status.textContent = 'Fetching forecast…';
@@ -392,6 +444,7 @@
                     </div>`;
 
                 status.innerHTML = `Last updated: ${new Date().toLocaleString()}<br>Observed at: ${obsTimestamp ?? '—'}`;
+                prevObs = obsData.properties;
             } catch (err) {
                 status.innerHTML = `<span class="error">Error: ${err.message}</span>`;
                 console.error(err);
