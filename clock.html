@@ -127,9 +127,27 @@
         .low {
             color: #4dabf7;
         }
+        #reload-btn {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: gainsboro;
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
     </style>
 </head>
 <body>
+    <button id="reload-btn" onclick="location.reload()">↻</button>
     <div id="clock"></div>
     <div id="date"></div>
     <div id="weather">
