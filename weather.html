@@ -214,7 +214,24 @@
     <script>
         const LAT = 33.2148;
         const LON = -97.1331;
+        const OM_URL = 'https://api.open-meteo.com/v1/forecast?latitude=33.21&longitude=-97.13&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FChicago';
         let prevObs = null;
+
+        const WMO_CODES = {
+            0: 'Clear sky', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast',
+            45: 'Fog', 48: 'Depositing rime fog',
+            51: 'Light drizzle', 53: 'Moderate drizzle', 55: 'Dense drizzle',
+            56: 'Light freezing drizzle', 57: 'Heavy freezing drizzle',
+            61: 'Slight rain', 63: 'Moderate rain', 65: 'Heavy rain',
+            66: 'Light freezing rain', 67: 'Heavy freezing rain',
+            71: 'Slight snow', 73: 'Moderate snow', 75: 'Heavy snow', 77: 'Snow grains',
+            80: 'Slight rain showers', 81: 'Moderate rain showers', 82: 'Violent rain showers',
+            85: 'Slight snow showers', 86: 'Heavy snow showers',
+            95: 'Thunderstorm', 96: 'Thunderstorm w/ slight hail', 99: 'Thunderstorm w/ heavy hail'
+        };
+        function wmoDescription(code) {
+            return code != null ? (WMO_CODES[code] ?? `WMO code ${code}`) : null;
+        }
 
         function mergeObs(fresh, prev) {
             if (!prev) return { obs: fresh, stale: new Set() };
@@ -324,6 +341,9 @@
             content.innerHTML = '';
 
             try {
+                // Kick off Open-Meteo in parallel with the NWS chain
+                const omPromise = fetch(OM_URL);
+
                 // 1. Points
                 const pointRes = await fetch(`https://api.weather.gov/points/${LAT},${LON}`);
                 if (!pointRes.ok) throw new Error(`Points API error: ${pointRes.status}`);
@@ -427,9 +447,31 @@
                 const updatedLabel = fcstUpdated
                     ? `<div class="updated-at" style="padding:8px 14px">Forecast updated: ${fcstUpdated}</div>` : '';
 
+                // 5. Open-Meteo
+                status.textContent = 'Fetching Open-Meteo data…';
+                const omRes = await omPromise;
+                if (!omRes.ok) throw new Error(`Open-Meteo API error: ${omRes.status}`);
+                const omData = await omRes.json();
+                const omc = omData.current;
+                const omTime = omc.time ? new Date(omc.time).toLocaleString() : null;
+                const omInterval = omc.interval != null ? `${omc.interval / 60} min` : null;
+                const omElevFt = mToFt(omData.elevation);
+
+                const omFields =
+                    field('Observed At', omTime) +
+                    field('Temperature', omc.temperature_2m != null ? `${omc.temperature_2m}°F` : null, 'highlight') +
+                    field('Relative Humidity', omc.relative_humidity_2m != null ? `${omc.relative_humidity_2m}%` : null) +
+                    field('Wind Speed', omc.wind_speed_10m != null ? `${omc.wind_speed_10m} mph` : null) +
+                    field('Weather Code', omc.weather_code != null ? `${wmoDescription(omc.weather_code)} (${omc.weather_code})` : null) +
+                    field('Update Interval', omInterval) +
+                    field('Elevation', omElevFt != null ? `${omElevFt.toLocaleString()} ft (${omData.elevation} m)` : null) +
+                    field('Timezone', omData.timezone ? `${omData.timezone} (${omData.timezone_abbreviation})` : null);
+
                 content.innerHTML =
                     makeSection('Latest Observation',
                         `<a href="${stationId}/observations/latest" target="_blank">${stationProps?.stationIdentifier}/observations/latest</a>`, obsFields, obsData) +
+                    makeSection('Open-Meteo Current Conditions',
+                        `<a href="${OM_URL}" target="_blank">api.open-meteo.com/v1/forecast</a>`, omFields, omData) +
                     makeSection('Point / Grid Info',
                         `api.weather.gov/points/${LAT},${LON}`, pointFields, pointData) +
                     makeSection('Nearest Observation Station',
