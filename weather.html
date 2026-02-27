@@ -47,6 +47,13 @@
             justify-content: space-between;
             align-items: center;
         }
+        .section-header .endpoint a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+        .section-header .endpoint a:hover {
+            text-decoration: underline;
+        }
         .section-header .endpoint {
             font-size: 0.72rem;
             color: #8b949e;
@@ -349,7 +356,7 @@
 
                 content.innerHTML =
                     makeSection('Latest Observation',
-                        `${stationProps?.stationIdentifier}/observations/latest`, obsFields, obsData) +
+                        `<a href="${stationId}/observations/latest" target="_blank">${stationProps?.stationIdentifier}/observations/latest</a>`, obsFields, obsData) +
                     makeSection('Point / Grid Info',
                         `api.weather.gov/points/${LAT},${LON}`, pointFields, pointData) +
                     makeSection('Nearest Observation Station',
