@@ -171,11 +171,32 @@
         }
         button#refresh:hover { background: #30363d; }
         .error { color: #f85149; }
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        #countdown {
+            font-size: 0.78rem;
+            color: #8b949e;
+            text-align: right;
+            white-space: nowrap;
+            padding-top: 2px;
+        }
+        #countdown span {
+            color: #58a6ff;
+            font-variant-numeric: tabular-nums;
+        }
     </style>
 </head>
 <body>
-    <h1>NWS Weather Data</h1>
-    <div class="subtitle">Denton, TX &nbsp;|&nbsp; 33.2148°N, 97.1331°W</div>
+    <div class="header-row">
+        <div>
+            <h1>NWS Weather Data</h1>
+            <div class="subtitle">Denton, TX &nbsp;|&nbsp; 33.2148°N, 97.1331°W</div>
+        </div>
+        <div id="countdown">Refreshes in <span id="countdown-val">2:00</span></div>
+    </div>
     <div id="status">Loading…</div>
     <button id="refresh">Refresh</button>
     <div id="content"></div>
@@ -244,7 +265,7 @@
             el.style.display = el.style.display === 'block' ? 'none' : 'block';
         }
 
-        async function loadWeather() {
+        async function _loadWeather() {
             const status = document.getElementById('status');
             const content = document.getElementById('content');
             status.textContent = 'Fetching point data…';
@@ -375,6 +396,41 @@
                 status.innerHTML = `<span class="error">Error: ${err.message}</span>`;
                 console.error(err);
             }
+        }
+
+        const REFRESH_INTERVAL = 120; // seconds
+        let secondsLeft = REFRESH_INTERVAL;
+        let countdownTimer = null;
+        let autoRefreshTimer = null;
+
+        function formatCountdown(s) {
+            const m = Math.floor(s / 60);
+            const sec = s % 60;
+            return `${m}:${String(sec).padStart(2, '0')}`;
+        }
+
+        function startCountdown() {
+            clearInterval(countdownTimer);
+            clearTimeout(autoRefreshTimer);
+            secondsLeft = REFRESH_INTERVAL;
+            document.getElementById('countdown-val').textContent = formatCountdown(secondsLeft);
+
+            countdownTimer = setInterval(() => {
+                secondsLeft--;
+                document.getElementById('countdown-val').textContent = formatCountdown(secondsLeft);
+                if (secondsLeft <= 0) {
+                    clearInterval(countdownTimer);
+                }
+            }, 1000);
+
+            autoRefreshTimer = setTimeout(() => {
+                loadWeather();
+            }, REFRESH_INTERVAL * 1000);
+        }
+
+        async function loadWeather() {
+            startCountdown();
+            return _loadWeather();
         }
 
         document.getElementById('refresh').addEventListener('click', loadWeather);
