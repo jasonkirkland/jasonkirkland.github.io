@@ -194,7 +194,7 @@
         }
 
         function msToMph(mps) {
-            return mps !== null && mps !== undefined ? Math.round(mps * 2.23694) : null;
+            return mps !== null && mps !== undefined ? Math.round(mps * 0.621371) : null;
         }
 
         function mToFt(m) {
@@ -313,7 +313,7 @@
                     field('Feels Like', feelsF !== null ? `${feelsF}°F` : null) +
                     field('Relative Humidity', pctOrNull(obs.relativeHumidity?.value)) +
                     field('Wind Direction', obs.windDirection?.value !== null ? `${obs.windDirection.value}°` : null) +
-                    field('Wind Speed', windMph !== null ? `${windMph} mph (${obs.windSpeed.value?.toFixed(1)} m/s)` : null) +
+                    field('Wind Speed', windMph !== null ? `${windMph} mph (${obs.windSpeed.value?.toFixed(1)} km/h)` : null) +
                     field('Wind Gust', gustMph !== null ? `${gustMph} mph` : null) +
                     field('Barometric Pressure', pressureInHg !== null ? `${pressureInHg} inHg` : null) +
                     field('Sea Level Pressure', seaLevelInHg !== null ? `${seaLevelInHg} inHg` : null) +
