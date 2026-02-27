@@ -300,7 +300,6 @@
                 const obsTimestamp = obs.timestamp ? new Date(obs.timestamp).toLocaleString() : null;
 
                 const obsFields =
-                    field('Observed At', obsTimestamp) +
                     field('Description', obs.textDescription) +
                     field('Temperature', tempF !== null ? `${tempF}°F (${obs.temperature.value?.toFixed(1)}°C)` : null, 'highlight') +
                     field('Dewpoint', dewF !== null ? `${dewF}°F (${obs.dewpoint.value?.toFixed(1)}°C)` : null) +
@@ -349,12 +348,12 @@
                     ? `<div class="updated-at" style="padding:8px 14px">Forecast updated: ${fcstUpdated}</div>` : '';
 
                 content.innerHTML =
+                    makeSection('Latest Observation',
+                        `${stationProps?.stationIdentifier}/observations/latest`, obsFields, obsData) +
                     makeSection('Point / Grid Info',
                         `api.weather.gov/points/${LAT},${LON}`, pointFields, pointData) +
                     makeSection('Nearest Observation Station',
                         props.observationStations.replace('https://api.weather.gov', ''), stationFields, stationsData) +
-                    makeSection('Latest Observation',
-                        `${stationProps?.stationIdentifier}/observations/latest`, obsFields, obsData) +
                     `<div class="section">
                         <div class="section-header">
                             <span>7-Day Forecast</span>
@@ -364,7 +363,7 @@
                         ${updatedLabel}
                     </div>`;
 
-                status.textContent = `Last updated: ${new Date().toLocaleString()}`;
+                status.innerHTML = `Last updated: ${new Date().toLocaleString()}<br>Observed at: ${obsTimestamp ?? '—'}`;
             } catch (err) {
                 status.innerHTML = `<span class="error">Error: ${err.message}</span>`;
                 console.error(err);
