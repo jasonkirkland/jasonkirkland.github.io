@@ -193,6 +193,11 @@
             border-radius: 8px;
             padding: 10px 16px;
             display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .temp-chip-row {
+            display: flex;
             align-items: baseline;
             gap: 8px;
         }
@@ -506,14 +511,18 @@
                     : '—';
                 document.getElementById('temp-summary').innerHTML = `
                     <div class="temp-chip">
+                        <div class="temp-chip-row">
+                            <span class="temp-chip-temp">${tempF != null ? `${tempF}°F` : '—'}</span>
+                            <span class="temp-chip-time">@ ${nwsTimeShort}</span>
+                        </div>
                         <span class="temp-chip-source">NWS</span>
-                        <span class="temp-chip-temp">${tempF != null ? `${tempF}°F` : '—'}</span>
-                        <span class="temp-chip-time">@ ${nwsTimeShort}</span>
                     </div>
                     <div class="temp-chip">
+                        <div class="temp-chip-row">
+                            <span class="temp-chip-temp">${omc.temperature_2m != null ? `${omc.temperature_2m}°F` : '—'}</span>
+                            <span class="temp-chip-time">@ ${omTimeShort}</span>
+                        </div>
                         <span class="temp-chip-source">Open-Meteo</span>
-                        <span class="temp-chip-temp">${omc.temperature_2m != null ? `${omc.temperature_2m}°F` : '—'}</span>
-                        <span class="temp-chip-time">@ ${omTimeShort}</span>
                     </div>`;
 
                 content.innerHTML =
