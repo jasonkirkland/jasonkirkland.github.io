@@ -63,7 +63,7 @@
         .forecast-temps {
             font-size: clamp(3vw, 4.5vw, 6vw);
         }
-        @media (orientation: landscape) and (max-height: 500px) {
+        @media (orientation: landscape) {
             body {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
@@ -83,7 +83,7 @@
             #date {
                 grid-column: 1;
                 grid-row: 2;
-                font-size: 2.5vw;
+                font-size: clamp(2.5vw, 3.5vw, 4vh);
                 margin-top: 0.5vh;
             }
             #weather {
@@ -93,23 +93,23 @@
                 margin-top: 0;
             }
             #current-temp {
-                font-size: 8vw;
-                margin: 0.5vh 0;
+                font-size: clamp(8vw, 10vw, 18vh);
+                margin: 1vh 0;
             }
             #conditions {
-                font-size: 2.5vw;
-                margin-bottom: 0.5vh;
+                font-size: clamp(2.5vw, 4vw, 7vh);
+                margin-bottom: 1vh;
             }
             #forecast {
                 gap: 2vw;
-                margin-top: 0.5vh;
+                margin-top: 1vh;
             }
             .forecast-day-name {
-                font-size: 2.5vw;
+                font-size: clamp(2.5vw, 3.5vw, 6vh);
                 margin-bottom: 0.5vh;
             }
             .forecast-temps {
-                font-size: 2.5vw;
+                font-size: clamp(2.5vw, 3.5vw, 6vh);
             }
         }
         @media (orientation: portrait) and (max-width: 430px) {
