@@ -22,6 +22,7 @@
             overflow: hidden;
         }
         #clock {
+            font-size: 28vw;
             font-size: clamp(15vw, min(32vw, 28vh), 32vw);
             font-weight: bold;
             line-height: 1;
@@ -53,6 +54,7 @@
         }
         .forecast-day {
             text-align: center;
+            margin: 0 clamp(4px, 1.5vw, 16px);
         }
         .forecast-day-name {
             font-size: clamp(2vw, 2.5vw, 3vw);
@@ -112,6 +114,7 @@
         }
         @media (orientation: portrait) and (max-width: 430px) {
             #clock {
+                font-size: 28vw;
                 font-size: clamp(25vw, min(32vw, 26vh), 32vw);
             }
             #conditions {
@@ -211,7 +214,7 @@
                     try {
                         const omResponse = await fetch(OM_URL);
                         const omData = await omResponse.json();
-                        const temp = omData?.current?.temperature_2m;
+                        const temp = (omData && omData.current) ? omData.current.temperature_2m : null;
 
                         if (temp !== null && temp !== undefined) {
                             currentTemp = Math.round(temp);
