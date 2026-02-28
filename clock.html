@@ -176,74 +176,105 @@
             document.getElementById('date').textContent = dateString;
         }
 
+        const OM_URL = 'https://api.open-meteo.com/v1/forecast?latitude=33.21&longitude=-97.13&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FChicago';
+
+        function wmoCodeToDescription(code) {
+            const codes = {
+                0: 'Clear Sky', 1: 'Mainly Clear', 2: 'Partly Cloudy', 3: 'Overcast',
+                45: 'Fog', 48: 'Rime Fog',
+                51: 'Light Drizzle', 53: 'Drizzle', 55: 'Heavy Drizzle',
+                61: 'Light Rain', 63: 'Rain', 65: 'Heavy Rain',
+                71: 'Light Snow', 73: 'Snow', 75: 'Heavy Snow', 77: 'Snow Grains',
+                80: 'Rain Showers', 81: 'Moderate Rain Showers', 82: 'Heavy Rain Showers',
+                85: 'Snow Showers', 86: 'Heavy Snow Showers',
+                95: 'Thunderstorm', 96: 'Thunderstorm w/ Hail', 99: 'Thunderstorm w/ Heavy Hail'
+            };
+            return codes[code] || 'N/A';
+        }
+
         async function getWeather() {
             const MAX_RETRIES = 3;
             const TOTAL_ATTEMPTS = MAX_RETRIES + 1;
             const RETRY_DELAY_MS = 10000; // 10 seconds
-            
+
             const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-            
+
             for (let attempt = 1; attempt <= TOTAL_ATTEMPTS; attempt++) {
                 try {
                     console.log(`Weather API attempt ${attempt}/${TOTAL_ATTEMPTS}`);
-                    
-                    // First, get the grid point data for Denton
+
+                    // --- Try Open-Meteo first for current conditions ---
+                    let currentTemp = null;
+                    let currentConditions = null;
+                    let currentWind = null;
+
+                    try {
+                        const omResponse = await fetch(OM_URL);
+                        const omData = await omResponse.json();
+                        const temp = omData?.current?.temperature_2m;
+
+                        if (temp !== null && temp !== undefined) {
+                            currentTemp = Math.round(temp);
+                            currentConditions = wmoCodeToDescription(omData.current.weather_code);
+                            const wind = omData.current.wind_speed_10m;
+                            currentWind = wind !== null && wind !== undefined ? `${Math.round(wind)} mph` : '-- mph';
+                            console.log('Open-Meteo: valid temperature received');
+                        } else {
+                            console.log('Open-Meteo: temperature is null, falling back to NWS for current conditions');
+                        }
+                    } catch (omError) {
+                        console.error('Open-Meteo fetch failed:', omError);
+                    }
+
+                    // --- NWS: always needed for forecast; also for current if Open-Meteo gave null ---
                     const pointResponse = await fetch(`https://api.weather.gov/points/${DENTON_LAT},${DENTON_LON}`);
                     const pointData = await pointResponse.json();
-                    
-                    // Get current conditions
-                    const stationsResponse = await fetch(pointData.properties.observationStations);
-                    const stationsData = await stationsResponse.json();
-                    const stationUrl = stationsData.features[0].id;
-                    
-                    const observationResponse = await fetch(`${stationUrl}/observations/latest`);
-                    const observationData = await observationResponse.json();
-                    
-                    // Get forecast
                     const forecastResponse = await fetch(pointData.properties.forecast);
                     const forecastData = await forecastResponse.json();
-                    
-                    // Try to update the display and check if temperature is valid
-                    const isValid = updateWeatherDisplay(observationData, forecastData);
-                    
+
+                    if (currentTemp === null) {
+                        const stationsResponse = await fetch(pointData.properties.observationStations);
+                        const stationsData = await stationsResponse.json();
+                        const stationUrl = stationsData.features[0].id;
+                        const observationResponse = await fetch(`${stationUrl}/observations/latest`);
+                        const observationData = await observationResponse.json();
+
+                        const tempC = observationData.properties.temperature.value;
+                        currentTemp = tempC !== null && tempC !== undefined ? Math.round(tempC * 9/5 + 32) : null;
+                        currentConditions = observationData.properties.textDescription || 'N/A';
+                        const windSpeedMps = observationData.properties.windSpeed.value;
+                        currentWind = windSpeedMps !== null && windSpeedMps !== undefined
+                            ? `${Math.round(windSpeedMps * 2.23694)} mph`
+                            : '-- mph';
+                    }
+
+                    const isValid = updateWeatherDisplay(currentTemp, currentConditions, currentWind, forecastData);
+
                     if (isValid) {
                         console.log(`Weather API attempt ${attempt} succeeded - valid temperature received`);
-                        return; // Success, exit the function
+                        return;
                     }
-                    
+
                     console.log(`Weather API attempt ${attempt} failed - temperature is blank`);
                 } catch (error) {
                     console.error(`Weather API attempt ${attempt} failed with error:`, error);
                 }
-                
-                // If this isn't the last attempt, wait before retrying
+
                 if (attempt < TOTAL_ATTEMPTS) {
                     console.log(`Retrying in ${RETRY_DELAY_MS / 1000} seconds...`);
                     await delay(RETRY_DELAY_MS);
                 }
             }
-            
-            // All attempts failed
+
             console.error('All weather API attempts failed');
             document.getElementById('conditions').textContent = 'Weather unavailable';
         }
 
-        function updateWeatherDisplay(observation, forecast) {
-            // Current temperature
-            const tempC = observation.properties.temperature.value;
-            const tempF = tempC ? Math.round(tempC * 9/5 + 32) : '--';
-            const isTempValid = tempF !== '--';
-            
-            document.getElementById('current-temp').textContent = `${tempF}°`;
-            
-            // Current conditions
-            const conditions = observation.properties.textDescription || 'N/A';
-            const windSpeedMps = observation.properties.windSpeed.value;
-            const windSpeedMph = windSpeedMps !== null && windSpeedMps !== undefined
-                ? Math.round(windSpeedMps * 2.23694)
-                : null;
-            const windSpeedText = windSpeedMph !== null ? `${windSpeedMph} mph` : '-- mph';
-            document.getElementById('conditions').textContent = `${conditions} (${windSpeedText})`;
+        function updateWeatherDisplay(tempF, conditions, windText, forecast) {
+            const isTempValid = tempF !== null;
+
+            document.getElementById('current-temp').textContent = `${isTempValid ? tempF : '--'}°`;
+            document.getElementById('conditions').textContent = `${conditions} (${windText})`;
             
             // Forecast for next few days (showing today and next 2 days)
             const forecastHtml = forecast.properties.periods.slice(0, 6).filter((period, index) => {
