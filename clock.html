@@ -64,34 +64,37 @@
             font-size: clamp(3vw, 4.5vw, 6vw);
         }
         @media (orientation: landscape) {
+            body {
+                height: calc(var(--real-vh, 1vh) * 100);
+            }
             #clock {
-                font-size: clamp(10px, 22vh, 30vw);
+                font-size: clamp(10px, calc(var(--real-vh, 1vh) * 18), 25vw);
             }
             #date {
-                font-size: clamp(8px, 4vh, 3vw);
-                margin-top: 0.5vh;
+                font-size: clamp(8px, calc(var(--real-vh, 1vh) * 4), 3vw);
+                margin-top: calc(var(--real-vh, 1vh) * 0.5);
             }
             #current-temp {
-                font-size: clamp(8px, 18vh, 20vw);
-                margin: 0.5vh 0;
+                font-size: clamp(8px, calc(var(--real-vh, 1vh) * 15), 18vw);
+                margin: calc(var(--real-vh, 1vh) * 0.5) 0;
             }
             #conditions {
-                font-size: clamp(8px, 5vh, 4vw);
-                margin-bottom: 0.5vh;
+                font-size: clamp(8px, calc(var(--real-vh, 1vh) * 5), 4vw);
+                margin-bottom: calc(var(--real-vh, 1vh) * 0.5);
             }
             #forecast {
                 gap: clamp(8px, 2vw, 20px);
-                margin-top: 0.5vh;
+                margin-top: calc(var(--real-vh, 1vh) * 0.5);
             }
             #weather {
-                margin-top: 0.5vh;
+                margin-top: calc(var(--real-vh, 1vh) * 0.5);
             }
             .forecast-day-name {
-                font-size: clamp(8px, 4vh, 3vw);
-                margin-bottom: 0.25vh;
+                font-size: clamp(8px, calc(var(--real-vh, 1vh) * 4), 3vw);
+                margin-bottom: calc(var(--real-vh, 1vh) * 0.25);
             }
             .forecast-temps {
-                font-size: clamp(8px, 4.5vh, 3.5vw);
+                font-size: clamp(8px, calc(var(--real-vh, 1vh) * 4.5), 3.5vw);
             }
         }
         @media (orientation: portrait) and (max-width: 430px) {
@@ -286,6 +289,17 @@
             // Return true if temperature is valid, false if blank
             return isTempValid;
         }
+
+        // iOS Safari reports vh based on the full screen, ignoring browser chrome.
+        // Compute --real-vh from window.innerHeight which is the actual visible height.
+        function updateRealVh() {
+            document.documentElement.style.setProperty('--real-vh', (window.innerHeight / 100) + 'px');
+        }
+        updateRealVh();
+        window.addEventListener('resize', updateRealVh);
+        window.addEventListener('orientationchange', function() {
+            setTimeout(updateRealVh, 200);
+        });
 
         setInterval(updateClock, 1000);
         updateClock(); // Initial call to display time immediately
