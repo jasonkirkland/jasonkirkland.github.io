@@ -7,6 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Clock</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23111' stroke='%23555' stroke-width='3'/%3E%3Cline x1='50' y1='50' x2='50' y2='18' stroke='gainsboro' stroke-width='5' stroke-linecap='round'/%3E%3Cline x1='50' y1='50' x2='72' y2='50' stroke='gainsboro' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='50' cy='50' r='3' fill='gainsboro'/%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAB5JREFUaN7twQENAAAAwqD3T20PBxQAAAAAAAAAAHwYCcAAAVjE9woAAAAASUVORK5CYII=">
     <link rel="manifest" href='data:application/manifest+json,{"name":"Clock","short_name":"Clock","display":"standalone","background_color":"#000000","theme_color":"#000000"}'>
     <style>
@@ -186,14 +187,13 @@
     </div>
     <button id="reload-btn" onclick="location.reload()">↻</button>
 
-
 <script>
     /* ── Clock ── */
     function updateClock() {
         const now = new Date();
         let h = now.getHours() % 12 || 12;
         const m = String(now.getMinutes()).padStart(2, '0');
-        document.getElementById('clock').textContent = `${h}:${m}`;
+        document.getElementById('clock').textContent = h + ':' + m;
         document.getElementById('date').textContent = now.toLocaleDateString('en-US', {
             weekday: 'long', month: 'long', day: 'numeric'
         });
@@ -204,7 +204,7 @@
     /* ── Weather ── */
     const LAT = 33.21;
     const LON = -97.13;
-    const OM_URL = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,weather_code&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FChicago&forecast_days=4`;
+    const OM_URL = 'https://api.open-meteo.com/v1/forecast?latitude=' + LAT + '&longitude=' + LON + '&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,weather_code&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FChicago&forecast_days=4';
 
     function wmoDescription(code) {
         const map = {
@@ -244,26 +244,26 @@
                 const cond = wmoDescription(data.current.weather_code);
                 const wind = Math.round(data.current.wind_speed_10m || 0);
 
-                document.getElementById('current-temp').textContent = `${temp}°`;
-                document.getElementById('conditions').textContent = `${cond}  ·  ${wind} mph`;
+                document.getElementById('current-temp').textContent = temp + '\u00B0';
+                document.getElementById('conditions').textContent = cond + '  \u00B7  ' + wind + ' mph';
 
                 // Build 3-day forecast (skip today → indices 1,2,3)
                 const daily = data.daily;
                 let html = '';
                 for (let d = 1; d <= 3 && d < daily.time.length; d++) {
-                    html += `<div class="forecast-day">
-                        <div class="forecast-day-name">${dayName(daily.time[d])}</div>
-                        <div class="forecast-temps">
-                            <span class="high">${Math.round(daily.temperature_2m_max[d])}°</span>
-                            <span class="low">${Math.round(daily.temperature_2m_min[d])}°</span>
-                        </div>
-                    </div>`;
+                    html += '<div class="forecast-day">' +
+                        '<div class="forecast-day-name">' + dayName(daily.time[d]) + '</div>' +
+                        '<div class="forecast-temps">' +
+                            '<span class="high">' + Math.round(daily.temperature_2m_max[d]) + '\u00B0</span> ' +
+                            '<span class="low">' + Math.round(daily.temperature_2m_min[d]) + '\u00B0</span>' +
+                        '</div>' +
+                    '</div>';
                 }
                 document.getElementById('forecast').innerHTML = html;
-                console.log(`Weather updated (attempt ${i})`);
+                console.log('Weather updated (attempt ' + i + ')');
                 return;
             } catch (e) {
-                console.warn(`Weather attempt ${i} failed:`, e);
+                console.warn('Weather attempt ' + i + ' failed:', e);
                 if (i < MAX_ATTEMPTS) await new Promise(r => setTimeout(r, RETRY_MS));
             }
         }
