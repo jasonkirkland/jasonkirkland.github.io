@@ -37,12 +37,12 @@
             text-align: center;
         }
         #current-temp {
-            font-size: clamp(5vw, 8vw, 10vw);
+            font-size: clamp(6vw, 13vw, 18vw);
             font-weight: bold;
-            margin: clamp(2px, 1vh, 10px) 0;
+            margin: clamp(4px, 2vh, 20px) 0;
         }
         #conditions {
-            font-size: clamp(2vw, 3vw, 4vw);
+            font-size: clamp(3vw, 5vw, 7vw);
             margin-bottom: clamp(4px, 2vh, 20px);
         }
         #forecast {
@@ -57,60 +57,11 @@
             margin: 0 clamp(4px, 1.5vw, 16px);
         }
         .forecast-day-name {
-            font-size: clamp(2vw, 2.5vw, 3vw);
+            font-size: clamp(2.5vw, 4vw, 5.5vw);
             margin-bottom: clamp(2px, 1vh, 10px);
         }
         .forecast-temps {
-            font-size: clamp(2vw, 3vw, 4vw);
-        }
-        @media (orientation: landscape) and (max-height: 500px) {
-            body {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                grid-template-rows: auto auto;
-                align-content: center;
-                justify-items: center;
-                gap: 0 4vw;
-                padding: 2vh 4vw;
-                box-sizing: border-box;
-            }
-            #clock {
-                grid-column: 1;
-                grid-row: 1;
-                font-size: clamp(10px, 38vh, 45vw);
-                margin: 0;
-            }
-            #date {
-                grid-column: 1;
-                grid-row: 2;
-                font-size: 2.5vw;
-                margin-top: 0.5vh;
-            }
-            #weather {
-                grid-column: 2;
-                grid-row: 1 / span 2;
-                align-self: center;
-                margin-top: 0;
-            }
-            #current-temp {
-                font-size: 8vw;
-                margin: 0.5vh 0;
-            }
-            #conditions {
-                font-size: 2.5vw;
-                margin-bottom: 0.5vh;
-            }
-            #forecast {
-                gap: 2vw;
-                margin-top: 0.5vh;
-            }
-            .forecast-day-name {
-                font-size: 2.5vw;
-                margin-bottom: 0.5vh;
-            }
-            .forecast-temps {
-                font-size: 2.5vw;
-            }
+            font-size: clamp(3vw, 4.5vw, 6vw);
         }
         @media (orientation: portrait) and (max-width: 430px) {
             #clock {
