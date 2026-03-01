@@ -1,326 +1,292 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <title>iPad Mini Clock</title>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Clock</title>
     <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAB5JREFUaN7twQENAAAAwqD3T20PBxQAAAAAAAAAAHwYCcAAAVjE9woAAAAASUVORK5CYII=">
-    <link rel="manifest" href='data:application/manifest+json,{"name":"iPad Mini Clock","display":"standalone","background_color":"#000000","theme_color":"#000000"}'>
+    <link rel="manifest" href='data:application/manifest+json,{"name":"Clock","short_name":"Clock","display":"standalone","background_color":"#000000","theme_color":"#000000"}'>
     <style>
-        body {
-            background-color: black;
-            color: gainsboro;
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            width: 100%;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+```
+    :root {
+        --safe-top: env(safe-area-inset-top, 0px);
+        --safe-right: env(safe-area-inset-right, 0px);
+        --safe-bottom: env(safe-area-inset-bottom, 0px);
+        --safe-left: env(safe-area-inset-left, 0px);
+    }
+
+    html, body {
+        height: 100%;
+        height: 100dvh;
+        background: #000;
+        overflow: hidden;
+    }
+
+    body {
+        color: gainsboro;
+        font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+    }
+
+    /* ── Container keeps everything in view ── */
+    #container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        max-height: 100%;
+        gap: 0.5vh;
+        padding: 1vh 2vw;
+    }
+
+    /* ── CLOCK — the star of the show ── */
+    #clock {
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: -0.02em;
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* ── Date ── */
+    #date {
+        opacity: 0.6;
+        line-height: 1.2;
+    }
+
+    /* ── Current temp ── */
+    #current-temp {
+        font-weight: 600;
+        line-height: 1.1;
+    }
+
+    /* ── Conditions ── */
+    #conditions {
+        opacity: 0.5;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 90vw;
+    }
+
+    /* ── Forecast row ── */
+    #forecast {
+        display: flex;
+        justify-content: center;
+        gap: 3vw;
+        opacity: 0.55;
+    }
+
+    .forecast-day { text-align: center; }
+    .forecast-day-name { margin-bottom: 0.3vh; }
+
+    .high { color: #ff6b6b; }
+    .low  { color: #4dabf7; }
+
+    /* ── Refresh button ── */
+    #reload-btn {
+        position: fixed;
+        top: calc(12px + var(--safe-top));
+        right: calc(12px + var(--safe-right));
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: rgba(220, 220, 220, 0.5);
+        font-size: 22px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        -webkit-tap-highlight-color: transparent;
+        z-index: 10;
+    }
+    #reload-btn:active { background: rgba(255, 255, 255, 0.25); }
+
+    /* ═══════════════════════════════════════
+       PORTRAIT — tall screens
+       ═══════════════════════════════════════ */
+    @media (orientation: portrait) {
+        #clock        { font-size: 26vw; }
+        #date         { font-size: 3.8vw; }
+        #current-temp { font-size: 14vw; }
+        #conditions   { font-size: 3.8vw; }
+        .forecast-day-name { font-size: 3.2vw; }
+        .forecast-temps    { font-size: 3.5vw; }
+        #container { gap: 1vh; }
+    }
+
+    /* Smaller phones portrait (iPhone SE, etc) */
+    @media (orientation: portrait) and (max-width: 400px) {
+        #clock        { font-size: 28vw; }
+        #current-temp { font-size: 15vw; }
+    }
+
+    /* ═══════════════════════════════════════
+       LANDSCAPE — this is the primary mode
+       ═══════════════════════════════════════ */
+    @media (orientation: landscape) {
+        #container {
+            gap: 0.3vh;
+            padding: 0.5vh 2vw;
         }
-        #clock {
-            font-size: 28vw;
-            font-size: clamp(15vw, min(32vw, 28vh), 32vw);
-            font-weight: bold;
-            line-height: 1;
-        }
-        #date {
-            font-size: clamp(2vw, 4vw, 5vw);
-            margin-top: clamp(4px, 2vh, 20px);
-        }
-        #weather {
-            font-size: clamp(2vw, 3.5vw, 4.5vw);
-            margin-top: clamp(4px, 3vh, 24px);
-            text-align: center;
-        }
-        #current-temp {
-            font-size: clamp(6vw, 13vw, 18vw);
-            font-weight: bold;
-            margin: clamp(4px, 2vh, 20px) 0;
-        }
-        #conditions {
-            font-size: clamp(3vw, 5vw, 7vw);
-            margin-bottom: clamp(4px, 2vh, 20px);
-        }
-        #forecast {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: clamp(8px, 3vw, 32px);
-            margin-top: clamp(4px, 2vh, 20px);
-        }
-        .forecast-day {
-            text-align: center;
-            margin: 0 clamp(4px, 1.5vw, 16px);
-        }
-        .forecast-day-name {
-            font-size: clamp(2.5vw, 4vw, 5.5vw);
-            margin-bottom: clamp(2px, 1vh, 10px);
-        }
-        .forecast-temps {
-            font-size: clamp(3vw, 4.5vw, 6vw);
-        }
-        /* Landscape / short-screen layout.
-           Uses max-height (more reliable than orientation on iOS Safari) and
-           dvh units which account for the actual visible area after browser chrome. */
-        @media (max-height: 500px) {
-            body {
-                height: 100dvh;
-            }
-            #clock {
-                font-size: clamp(10px, 22dvh, 22vw);
-            }
-            #date {
-                font-size: clamp(8px, 4.5dvh, 3vw);
-                margin-top: 0.5dvh;
-            }
-            #current-temp {
-                font-size: clamp(8px, 18dvh, 18vw);
-                margin: 0.5dvh 0;
-            }
-            #conditions {
-                font-size: clamp(8px, 4.5dvh, 4vw);
-                margin-bottom: 0.5dvh;
-            }
-            #forecast {
-                gap: clamp(4px, 1.5vw, 16px);
-                margin-top: 0.5dvh;
-            }
-            #weather {
-                margin-top: 0.5dvh;
-            }
-            .forecast-day-name {
-                font-size: clamp(8px, 4dvh, 3vw);
-                margin-bottom: 0.25dvh;
-            }
-            .forecast-temps {
-                font-size: clamp(8px, 4dvh, 3.5vw);
-            }
-        }
-        @media (orientation: portrait) and (max-width: 430px) {
-            #clock {
-                font-size: 28vw;
-                font-size: clamp(25vw, min(32vw, 26vh), 32vw);
-            }
-            #conditions {
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                max-width: 90vw;
-            }
-        }
-        .high {
-            color: #ff6b6b;
-        }
-        .low {
-            color: #4dabf7;
-        }
-        #reload-btn {
-            position: fixed;
-            top: 16px;
-            right: 16px;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.15);
-            border: none;
-            color: gainsboro;
-            font-size: 22px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
-        }
-    </style>
+
+        /* Clock dominates */
+        #clock        { font-size: min(30vw, 42vh); }
+        #date         { font-size: min(2.8vw, 4.5vh); }
+        #current-temp { font-size: min(10vw, 16vh); }
+        #conditions   { font-size: min(2.2vw, 3.8vh); }
+        .forecast-day-name { font-size: min(1.8vw, 3vh); }
+        .forecast-temps    { font-size: min(2vw, 3.2vh); }
+        #forecast { gap: 2.5vw; }
+    }
+
+    /* ── Short landscape (iPhones, smaller iPads) ── */
+    @media (orientation: landscape) and (max-height: 450px) {
+        #clock        { font-size: min(26vw, 38vh); }
+        #current-temp { font-size: min(8vw, 14vh); }
+        #conditions   { font-size: min(2vw, 3.5vh); }
+        .forecast-day-name { font-size: min(1.6vw, 2.8vh); }
+        .forecast-temps    { font-size: min(1.8vw, 3vh); }
+    }
+
+    /* ── Tall landscape (full-size iPads) ── */
+    @media (orientation: landscape) and (min-height: 700px) {
+        #container { gap: 1vh; }
+        #clock        { font-size: min(28vw, 36vh); }
+        #current-temp { font-size: min(10vw, 14vh); }
+        #conditions   { font-size: min(2.5vw, 4vh); }
+        .forecast-day-name { font-size: min(2vw, 3vh); }
+        .forecast-temps    { font-size: min(2.2vw, 3.5vh); }
+    }
+</style>
+```
+
 </head>
 <body>
     <button id="reload-btn" onclick="location.reload()">↻</button>
-    <div id="clock"></div>
-    <div id="date"></div>
-    <div id="weather">
+    <div id="container">
+        <div id="clock"></div>
+        <div id="date"></div>
         <div id="current-temp">--°</div>
-        <div id="conditions">Loading weather...</div>
+        <div id="conditions">Loading weather…</div>
         <div id="forecast"></div>
     </div>
 
-    <script>
-        const DENTON_LAT = 33.2148;
-        const DENTON_LON = -97.1331;
-        
-        function updateClock() {
-            const now = new Date();
-            let hours = now.getHours();
-            const minutes = now.getMinutes().toString().padStart(2, '0');
-            
-            // Convert 24-hour time to 12-hour time
-            hours = hours % 12;
-            hours = hours ? hours : 12; // the hour '0' should be '12'
-            
-            const timeString = `${hours}:${minutes}`;
-            const dateString = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            
-            document.getElementById('clock').textContent = timeString;
-            document.getElementById('date').textContent = dateString;
-        }
-
-        const OM_URL = 'https://api.open-meteo.com/v1/forecast?latitude=33.21&longitude=-97.13&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FChicago';
-
-        function wmoCodeToDescription(code) {
-            const codes = {
-                0: 'Clear Sky', 1: 'Mainly Clear', 2: 'Partly Cloudy', 3: 'Overcast',
-                45: 'Fog', 48: 'Rime Fog',
-                51: 'Light Drizzle', 53: 'Drizzle', 55: 'Heavy Drizzle',
-                61: 'Light Rain', 63: 'Rain', 65: 'Heavy Rain',
-                71: 'Light Snow', 73: 'Snow', 75: 'Heavy Snow', 77: 'Snow Grains',
-                80: 'Rain Showers', 81: 'Moderate Rain Showers', 82: 'Heavy Rain Showers',
-                85: 'Snow Showers', 86: 'Heavy Snow Showers',
-                95: 'Thunderstorm', 96: 'Thunderstorm w/ Hail', 99: 'Thunderstorm w/ Heavy Hail'
-            };
-            return codes[code] || 'N/A';
-        }
-
-        async function getWeather() {
-            const MAX_RETRIES = 3;
-            const TOTAL_ATTEMPTS = MAX_RETRIES + 1;
-            const RETRY_DELAY_MS = 10000; // 10 seconds
-
-            const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-            for (let attempt = 1; attempt <= TOTAL_ATTEMPTS; attempt++) {
-                try {
-                    console.log(`Weather API attempt ${attempt}/${TOTAL_ATTEMPTS}`);
-
-                    // --- Try Open-Meteo first for current conditions ---
-                    let currentTemp = null;
-                    let currentConditions = null;
-                    let currentWind = null;
-
-                    try {
-                        const omResponse = await fetch(OM_URL);
-                        const omData = await omResponse.json();
-                        const temp = (omData && omData.current) ? omData.current.temperature_2m : null;
-
-                        if (temp !== null && temp !== undefined) {
-                            currentTemp = Math.round(temp);
-                            currentConditions = wmoCodeToDescription(omData.current.weather_code);
-                            const wind = omData.current.wind_speed_10m;
-                            currentWind = wind !== null && wind !== undefined ? `${Math.round(wind)} mph` : '-- mph';
-                            console.log('Open-Meteo: valid temperature received');
-                        } else {
-                            console.log('Open-Meteo: temperature is null, falling back to NWS for current conditions');
-                        }
-                    } catch (omError) {
-                        console.error('Open-Meteo fetch failed:', omError);
-                    }
-
-                    // --- NWS: always needed for forecast; also for current if Open-Meteo gave null ---
-                    const pointResponse = await fetch(`https://api.weather.gov/points/${DENTON_LAT},${DENTON_LON}`);
-                    const pointData = await pointResponse.json();
-                    const forecastResponse = await fetch(pointData.properties.forecast);
-                    const forecastData = await forecastResponse.json();
-
-                    if (currentTemp === null) {
-                        const stationsResponse = await fetch(pointData.properties.observationStations);
-                        const stationsData = await stationsResponse.json();
-                        const stationUrl = stationsData.features[0].id;
-                        const observationResponse = await fetch(`${stationUrl}/observations/latest`);
-                        const observationData = await observationResponse.json();
-
-                        const tempC = observationData.properties.temperature.value;
-                        currentTemp = tempC !== null && tempC !== undefined ? Math.round(tempC * 9/5 + 32) : null;
-                        currentConditions = observationData.properties.textDescription || 'N/A';
-                        const windSpeedMps = observationData.properties.windSpeed.value;
-                        currentWind = windSpeedMps !== null && windSpeedMps !== undefined
-                            ? `${Math.round(windSpeedMps * 2.23694)} mph`
-                            : '-- mph';
-                    }
-
-                    const isValid = updateWeatherDisplay(currentTemp, currentConditions, currentWind, forecastData);
-
-                    if (isValid) {
-                        console.log(`Weather API attempt ${attempt} succeeded - valid temperature received`);
-                        return;
-                    }
-
-                    console.log(`Weather API attempt ${attempt} failed - temperature is blank`);
-                } catch (error) {
-                    console.error(`Weather API attempt ${attempt} failed with error:`, error);
-                }
-
-                if (attempt < TOTAL_ATTEMPTS) {
-                    console.log(`Retrying in ${RETRY_DELAY_MS / 1000} seconds...`);
-                    await delay(RETRY_DELAY_MS);
-                }
-            }
-
-            console.error('All weather API attempts failed');
-            document.getElementById('conditions').textContent = 'Weather unavailable';
-        }
-
-        function updateWeatherDisplay(tempF, conditions, windText, forecast) {
-            const isTempValid = tempF !== null;
-
-            document.getElementById('current-temp').textContent = `${isTempValid ? tempF : '--'}°`;
-            document.getElementById('conditions').textContent = `${conditions} (${windText})`;
-            
-            // Forecast for next few days (showing today and next 2 days)
-            const forecastHtml = forecast.properties.periods.slice(0, 6).filter((period, index) => {
-                // Get only daytime periods for highs/lows
-                return period.isDaytime;
-            }).slice(0, 3).map(period => {
-                const nextPeriod = forecast.properties.periods.find(p => 
-                    p.name.includes('Night') && p.startTime > period.startTime
-                );
-                
-                return `
-                    <div class="forecast-day">
-                        <div class="forecast-day-name">${period.name}</div>
-                        <div class="forecast-temps">
-                            <span class="high">${period.temperature}°</span> / 
-                            <span class="low">${nextPeriod ? nextPeriod.temperature : '--'}°</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            document.getElementById('forecast').innerHTML = forecastHtml;
-            
-            // Return true if temperature is valid, false if blank
-            return isTempValid;
-        }
-
-        setInterval(updateClock, 1000);
-        updateClock(); // Initial call to display time immediately
-
-        // Update weather every 10 minutes
-        getWeather();
-        setInterval(getWeather, 2 * 60 * 1000);
-
-        // Prevent default touch behavior
-        document.addEventListener('touchmove', function(event) {
-            event.preventDefault();
-        }, { passive: false });
-
-        // Prevent display sleep
-        function keepAwake() {
-            if (navigator.wakeLock) {
-                navigator.wakeLock.request('screen').catch((err) => {
-                    console.error(`${err.name}, ${err.message}`);
-                });
-            }
-        }
-        keepAwake();
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') {
-                keepAwake();
-            }
+```
+<script>
+    /* ── Clock ── */
+    function updateClock() {
+        const now = new Date();
+        let h = now.getHours() % 12 || 12;
+        const m = String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('clock').textContent = `${h}:${m}`;
+        document.getElementById('date').textContent = now.toLocaleDateString('en-US', {
+            weekday: 'long', month: 'long', day: 'numeric'
         });
-    </script>
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    /* ── Weather ── */
+    const LAT = 33.21;
+    const LON = -97.13;
+    const OM_URL = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,weather_code&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FChicago&forecast_days=4`;
+
+    function wmoDescription(code) {
+        const map = {
+            0:'Clear',1:'Mostly Clear',2:'Partly Cloudy',3:'Overcast',
+            45:'Foggy',48:'Rime Fog',
+            51:'Lt Drizzle',53:'Drizzle',55:'Hvy Drizzle',
+            61:'Lt Rain',63:'Rain',65:'Heavy Rain',
+            71:'Lt Snow',73:'Snow',75:'Heavy Snow',77:'Snow Grains',
+            80:'Showers',81:'Mod Showers',82:'Heavy Showers',
+            85:'Snow Showers',86:'Hvy Snow Showers',
+            95:'T-Storm',96:'T-Storm/Hail',99:'Severe T-Storm'
+        };
+        return map[code] || 'N/A';
+    }
+
+    function dayName(dateStr) {
+        const d = new Date(dateStr + 'T12:00:00');
+        const today = new Date();
+        today.setHours(12,0,0,0);
+        const diff = Math.round((d - today) / 86400000);
+        if (diff === 0) return 'Today';
+        if (diff === 1) return 'Tomorrow';
+        return d.toLocaleDateString('en-US', { weekday: 'short' });
+    }
+
+    async function getWeather() {
+        const MAX_ATTEMPTS = 4;
+        const RETRY_MS = 10000;
+
+        for (let i = 1; i <= MAX_ATTEMPTS; i++) {
+            try {
+                const res = await fetch(OM_URL);
+                const data = await res.json();
+                if (!data.current || data.current.temperature_2m == null) throw new Error('No temp');
+
+                const temp = Math.round(data.current.temperature_2m);
+                const cond = wmoDescription(data.current.weather_code);
+                const wind = Math.round(data.current.wind_speed_10m || 0);
+
+                document.getElementById('current-temp').textContent = `${temp}°`;
+                document.getElementById('conditions').textContent = `${cond}  ·  ${wind} mph`;
+
+                // Build 3-day forecast (skip today → indices 1,2,3)
+                const daily = data.daily;
+                let html = '';
+                for (let d = 1; d <= 3 && d < daily.time.length; d++) {
+                    html += `<div class="forecast-day">
+                        <div class="forecast-day-name">${dayName(daily.time[d])}</div>
+                        <div class="forecast-temps">
+                            <span class="high">${Math.round(daily.temperature_2m_max[d])}°</span>
+                            <span class="low">${Math.round(daily.temperature_2m_min[d])}°</span>
+                        </div>
+                    </div>`;
+                }
+                document.getElementById('forecast').innerHTML = html;
+                console.log(`Weather updated (attempt ${i})`);
+                return;
+            } catch (e) {
+                console.warn(`Weather attempt ${i} failed:`, e);
+                if (i < MAX_ATTEMPTS) await new Promise(r => setTimeout(r, RETRY_MS));
+            }
+        }
+        document.getElementById('conditions').textContent = 'Weather unavailable';
+    }
+
+    getWeather();
+    setInterval(getWeather, 10 * 60 * 1000); // Every 10 minutes
+
+    /* ── Prevent scroll / bounce ── */
+    document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+
+    /* ── Wake lock ── */
+    async function keepAwake() {
+        try { if (navigator.wakeLock) await navigator.wakeLock.request('screen'); }
+        catch (e) { /* ignore */ }
+    }
+    keepAwake();
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') { keepAwake(); getWeather(); }
+    });
+</script>
+```
+
 </body>
 </html>
