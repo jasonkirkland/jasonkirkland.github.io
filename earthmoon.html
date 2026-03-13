@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Earth & Moon - Live Position</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #000; overflow: hidden; font-family: Arial, sans-serif; }
+  canvas { display: block; }
+  #info {
+    position: absolute; top: 10px; left: 10px; color: #fff;
+    background: rgba(0,0,0,0.6); padding: 10px 14px; border-radius: 8px;
+    font-size: 13px; line-height: 1.7;
+  }
+  #info h2 { font-size: 15px; margin-bottom: 4px; color: #aef; }
+</style>
+</head>
+<body>
+<div id="info">
+  <h2>Earth &amp; Moon</h2>
+  <div id="datestr"></div>
+  <div id="moonphase"></div>
+  <div>📍 Denton, TX pinned on Earth</div>
+</div>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// ── Scene setup ──────────────────────────────────────────────────────────────
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(0, 6, 18);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.minDistance = 4;
+controls.maxDistance = 80;
+
+// ── Starfield ─────────────────────────────────────────────────────────────────
+const starGeo = new THREE.BufferGeometry();
+const starCount = 4000;
+const starPos = new Float32Array(starCount * 3);
+for (let i = 0; i < starCount * 3; i++) starPos[i] = (Math.random() - 0.5) * 600;
+starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.4 })));
+
+// ── Lighting ──────────────────────────────────────────────────────────────────
+// Sun light from +X axis (roughly correct for ecliptic)
+const sunLight = new THREE.DirectionalLight(0xffffff, 2.2);
+sunLight.position.set(50, 5, 0);
+scene.add(sunLight);
+scene.add(new THREE.AmbientLight(0x111122, 0.6));
+
+// ── Texture loader helper ─────────────────────────────────────────────────────
+const loader = new THREE.TextureLoader();
+function tex(url) { return loader.load(url); }
+
+// ── Earth ─────────────────────────────────────────────────────────────────────
+const earthRadius = 2;
+const earthGeo = new THREE.SphereGeometry(earthRadius, 64, 64);
+const earthMat = new THREE.MeshPhongMaterial({
+  map:      tex('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg'),
+  bumpMap:  tex('https://unpkg.com/three-globe/example/img/earth-topology.png'),
+  bumpScale: 0.05,
+  specularMap: tex('https://unpkg.com/three-globe/example/img/earth-water.png'),
+  specular: new THREE.Color(0x226688),
+  shininess: 30,
+});
+const earthMesh = new THREE.Mesh(earthGeo, earthMat);
+
+// Earth axial tilt ~23.4°
+const earthTilt = 23.4 * Math.PI / 180;
+const earthPivot = new THREE.Group();
+earthPivot.rotation.z = earthTilt;
+earthPivot.add(earthMesh);
+scene.add(earthPivot);
+
+// Atmosphere glow
+const atmGeo = new THREE.SphereGeometry(earthRadius * 1.02, 64, 64);
+const atmMat = new THREE.MeshPhongMaterial({
+  color: 0x4488ff, transparent: true, opacity: 0.08, side: THREE.FrontSide
+});
+earthPivot.add(new THREE.Mesh(atmGeo, atmMat));
+
+// ── Denton, TX pin ────────────────────────────────────────────────────────────
+// Denton: 33.2148° N, 97.1331° W
+function latLonToVec3(lat, lon, radius) {
+  const phi   = (90 - lat) * Math.PI / 180;
+  const theta = (lon + 180) * Math.PI / 180;
+  return new THREE.Vector3(
+    -radius * Math.sin(phi) * Math.cos(theta),
+     radius * Math.cos(phi),
+     radius * Math.sin(phi) * Math.sin(theta)
+  );
+}
+
+const dentonLat = 33.2148, dentonLon = -97.1331;
+const pinBase = latLonToVec3(dentonLat, dentonLon, earthRadius);
+const pinTip  = latLonToVec3(dentonLat, dentonLon, earthRadius + 0.35);
+
+// Stick
+const stickGeo = new THREE.CylinderGeometry(0.012, 0.012, 0.35, 8);
+const stickMat = new THREE.MeshPhongMaterial({ color: 0xcc0000 });
+const stick = new THREE.Mesh(stickGeo, stickMat);
+const midPt = pinBase.clone().add(pinTip).multiplyScalar(0.5);
+stick.position.copy(midPt);
+stick.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), pinTip.clone().sub(pinBase).normalize());
+earthMesh.add(stick);
+
+// Ball head
+const ballGeo = new THREE.SphereGeometry(0.07, 16, 16);
+const ballMat = new THREE.MeshPhongMaterial({ color: 0xff2222, emissive: 0x660000 });
+const ball = new THREE.Mesh(ballGeo, ballMat);
+ball.position.copy(pinTip);
+earthMesh.add(ball);
+
+// ── Moon ─────────────────────────────────────────────────────────────────────
+const moonRadius = 0.54;
+const moonGeo = new THREE.SphereGeometry(moonRadius, 48, 48);
+const moonMat = new THREE.MeshPhongMaterial({
+  map: tex('https://unpkg.com/three-globe/example/img/earth-topology.png'),
+  color: 0xaaaaaa, bumpScale: 0.04,
+});
+const moonMesh = new THREE.Mesh(moonGeo, moonMat);
+scene.add(moonMesh);
+
+// Moon orbit ring (visual guide)
+const orbitPoints = [];
+const orbitR = 10;
+for (let i = 0; i <= 128; i++) {
+  const a = (i / 128) * Math.PI * 2;
+  orbitPoints.push(new THREE.Vector3(Math.cos(a) * orbitR, 0, Math.sin(a) * orbitR));
+}
+const orbitLine = new THREE.Line(
+  new THREE.BufferGeometry().setFromPoints(orbitPoints),
+  new THREE.LineBasicMaterial({ color: 0x334455, transparent: true, opacity: 0.5 })
+);
+scene.add(orbitLine);
+
+// ── Astronomy helpers ─────────────────────────────────────────────────────────
+// Returns Julian Day Number
+function julianDay(date) {
+  return date.getTime() / 86400000 + 2440587.5;
+}
+
+// Moon ecliptic longitude (simplified — accurate to ~1°)
+function moonLongitudeDeg(jd) {
+  const T  = (jd - 2451545.0) / 36525; // Julian centuries from J2000
+  const L0 = 218.316 + 13.176396 * (jd - 2451545.0); // mean longitude
+  const M  = 134.963 + 13.064993 * (jd - 2451545.0); // mean anomaly
+  const F  = 93.272  + 13.229350 * (jd - 2451545.0); // argument of latitude
+  const Mrad = M * Math.PI / 180;
+  const lon = L0 + 6.289 * Math.sin(Mrad)
+                 - 1.274 * Math.sin(2 * Mrad)
+                 + 0.658 * Math.sin(2 * F * Math.PI / 180);
+  return lon % 360;
+}
+
+// Greenwich Mean Sidereal Time in degrees
+function gmstDeg(date) {
+  const jd = julianDay(date);
+  const T  = (jd - 2451545.0) / 36525;
+  let gmst = 280.46061837 + 360.98564736629 * (jd - 2451545.0)
+           + 0.000387933 * T * T - T * T * T / 38710000;
+  return ((gmst % 360) + 360) % 360;
+}
+
+// ── Phase name helper ─────────────────────────────────────────────────────────
+function phaseName(angle) {
+  const a = ((angle % 360) + 360) % 360;
+  if (a < 22.5 || a >= 337.5) return '🌑 New Moon';
+  if (a < 67.5)  return '🌒 Waxing Crescent';
+  if (a < 112.5) return '🌓 First Quarter';
+  if (a < 157.5) return '🌔 Waxing Gibbous';
+  if (a < 202.5) return '🌕 Full Moon';
+  if (a < 247.5) return '🌖 Waning Gibbous';
+  if (a < 292.5) return '🌗 Last Quarter';
+  return '🌘 Waning Crescent';
+}
+
+// ── Animation loop ────────────────────────────────────────────────────────────
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+
+  const now = new Date();
+  const jd  = julianDay(now);
+
+  // Earth rotation: align so prime meridian faces correct GMST direction
+  const gmst = gmstDeg(now);
+  earthMesh.rotation.y = -gmst * Math.PI / 180;
+
+  // Moon position in ecliptic longitude → 3-D position on orbit plane
+  const moonLon = moonLongitudeDeg(jd);
+  const moonRad = moonLon * Math.PI / 180;
+  moonMesh.position.set(
+    Math.cos(moonRad) * orbitR,
+    Math.sin(moonRad) * 0.09 * orbitR,  // slight inclination
+    Math.sin(moonRad) * orbitR
+  );
+
+  // Moon always shows same face toward Earth (tidally locked)
+  moonMesh.lookAt(earthPivot.position);
+  moonMesh.rotation.y += Math.PI;
+
+  // Update HUD
+  document.getElementById('datestr').textContent =
+    '🕐 ' + now.toUTCString();
+
+  // Phase = moon longitude - sun longitude (sun ≈ 0 at vernal equinox)
+  const sunLon = (280.460 + 0.9856474 * (jd - 2451545.0)) % 360;
+  const phase  = ((moonLon - sunLon) + 360) % 360;
+  document.getElementById('moonphase').textContent = phaseName(phase);
+
+  renderer.render(scene, camera);
+}
+
+animate();
+
+// ── Resize ────────────────────────────────────────────────────────────────────
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+</body>
+</html>
