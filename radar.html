@@ -32,21 +32,29 @@
       .radar-card {
         height: 100%;
       }
-      .radar-image {
-        height: 0;
-        padding-bottom: 56.25%; /* 16:9 aspect ratio */
+      .radar-wrapper {
+        position: relative;
+        width: 100%;
+        padding-bottom: 56.25%; /* 16:9 */
+        overflow: hidden;
         cursor: pointer;
+        background: #333;
       }
-      .placeholder {
+      .radar-img {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: #f0f0f0;
+        object-fit: cover;
+        display: block;
+      }
+      .radar-next {
+        opacity: 0;
+        transition: opacity 0.6s ease-in-out;
+      }
+      .radar-next--visible {
+        opacity: 1;
       }
     </style>
   </head>
@@ -63,19 +71,15 @@
             <v-row>
               <v-col v-for="(image, key) in radar" :key="key" cols="12" md="4">
                 <v-card class="radar-card">
-                  <v-img
-                    :src="image.url"
-                    :lazy-src="'/api/placeholder/880/495'"
-                    aspect-ratio="16/9"
-                    class="radar-image grey darken-4"
-                    @click="openImageInNewTab(image.url)"
-                  >
-                    <template v-slot:placeholder>
-                      <div class="placeholder">
-                        <v-progress-circular indeterminate color="primary"></v-progress-circular>
-                      </div>
-                    </template>
-                  </v-img>
+                  <div class="radar-wrapper" @click="openImageInNewTab(image.currentUrl)">
+                    <img :src="image.currentUrl" class="radar-img">
+                    <img
+                      v-if="image.nextUrl"
+                      :src="image.nextUrl"
+                      class="radar-img radar-next"
+                      :class="{ 'radar-next--visible': image.transitioning }"
+                    >
+                  </div>
                   <v-card-title class="title">{{ image.name }}</v-card-title>
                 </v-card>
               </v-col>
@@ -84,7 +88,7 @@
         </v-main>
 
         <v-footer fixed class="grey font-weight-medium">
-          <v-col class="text-center" cols="12">            
+          <v-col class="text-center" cols="12">
             <a href="https://wfaa.com/weather" target="_blank">WFAA</a>
           </v-col>
         </v-footer>
@@ -103,27 +107,51 @@
           radar: {
             northtexas: {
               name: "North Texas",
-              url: "https://cdn.tegna-media.com/wfaa/weather/animated-loops/comp/temp_880x495/new_dma.gif?123"
+              baseUrl: "https://cdn.tegna-media.com/wfaa/weather/animated-loops/comp/temp_880x495/new_dma.gif",
+              currentUrl: "https://cdn.tegna-media.com/wfaa/weather/animated-loops/comp/temp_880x495/new_dma.gif?123",
+              nextUrl: null,
+              transitioning: false
             },
             metroplex: {
               name: "Metroplex",
-              url: "https://cdn.tegna-media.com/wfaa/weather/animated-loops/comp/temp_880x495/new_metro.gif?123"
+              baseUrl: "https://cdn.tegna-media.com/wfaa/weather/animated-loops/comp/temp_880x495/new_metro.gif",
+              currentUrl: "https://cdn.tegna-media.com/wfaa/weather/animated-loops/comp/temp_880x495/new_metro.gif?123",
+              nextUrl: null,
+              transitioning: false
             },
             usa: {
               name: "USA",
-              url: "https://cdn.tegna-media.com/wfaa/weather/animated-loops/comp/temp_880x495/usa_anim.gif?123"
+              baseUrl: "https://cdn.tegna-media.com/wfaa/weather/animated-loops/comp/temp_880x495/usa_anim.gif",
+              currentUrl: "https://cdn.tegna-media.com/wfaa/weather/animated-loops/comp/temp_880x495/usa_anim.gif?123",
+              nextUrl: null,
+              transitioning: false
             }
           },
         }),
         mounted: function () {
-          this.refreshRadarImages();
           setInterval(this.refreshRadarImages, 32 * 1000);
         },
         methods: {
           refreshRadarImages: function () {
             const timestamp = new Date().toISOString().replaceAll("-", "").replaceAll(":", "").replaceAll(".", "");
             Object.keys(this.radar).forEach((key) => {
-              this.radar[key].url = this.radar[key].url.split("?")[0] + "?" + timestamp;
+              const item = this.radar[key];
+              if (item.transitioning) return;
+
+              const newUrl = item.baseUrl + '?' + timestamp;
+              const img = new Image();
+              img.onload = () => {
+                item.nextUrl = newUrl;
+                this.$nextTick(() => {
+                  item.transitioning = true;
+                  setTimeout(() => {
+                    item.currentUrl = newUrl;
+                    item.transitioning = false;
+                    item.nextUrl = null;
+                  }, 700);
+                });
+              };
+              img.src = newUrl;
             });
           },
           openImageInNewTab: function (imageUrl) {
