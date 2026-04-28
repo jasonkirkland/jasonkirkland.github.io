@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Marathon Lab Results</title>
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+      --bg: #0f1419;
+      --surface: #1a1f26;
+      --surface-2: #232a33;
+      --border: #2d3640;
+      --text: #e8eef5;
+      --text-dim: #8a96a3;
+      --accent: #4a9eff;
+      --accent-dim: #2d5f99;
+      --danger: #ff6b6b;
+      --warn: #ffa94d;
+      --ok: #51cf66;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f6f8fa;
+        --surface: #ffffff;
+        --surface-2: #f0f3f6;
+        --border: #d8dee4;
+        --text: #1a1f26;
+        --text-dim: #5a6573;
+        --accent: #0969da;
+      }
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 16px;
+      line-height: 1.4;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app {
+      max-width: 720px;
+      margin: 0 auto;
+      padding-bottom: 80px;
+    }
+
+    /* Header */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px 8px;
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .icon-btn {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      min-height: 36px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      min-height: 40px;
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 16px;
+      color: var(--text);
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .meta {
+      font-size: 12px;
+      color: var(--text-dim);
+      padding: 6px 16px 0;
+    }
+
+    /* List */
+    .category {
+      margin-top: 16px;
+    }
+
+    .category-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+      padding: 0 16px 6px;
+    }
+
+    .test-item {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 60px;
+    }
+
+    .test-item:active {
+      background: var(--surface-2);
+    }
+
+    .test-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .test-name {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .test-sub {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .test-value {
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .value-num {
+      font-size: 18px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .value-num.flag-high { color: var(--danger); }
+    .value-num.flag-low { color: var(--warn); }
+
+    .value-unit {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-dim);
+    }
+
+    .value-date {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    /* Detail modal */
+    .detail-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .detail-overlay.open {
+      display: flex;
+    }
+
+    .detail-sheet {
+      background: var(--bg);
+      width: 100%;
+      max-width: 720px;
+      max-height: 90vh;
+      border-radius: 16px 16px 0 0;
+      overflow-y: auto;
+      animation: slideUp 0.2s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .detail-header {
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .detail-title {
+      flex: 1;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .detail-category {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    .close-btn {
+      background: var(--surface);
+      border: none;
+      color: var(--text);
+      width: 36px;
+      height: 36px;
+      border-radius: 18px;
+      font-size: 20px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .history-table th {
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+      padding: 12px 16px 8px;
+      font-weight: 600;
+      background: var(--bg);
+    }
+
+    .history-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .history-table td.value-cell {
+      font-variant-numeric: tabular-nums;
+      font-weight: 500;
+    }
+
+    .history-table td.value-cell.flag-high { color: var(--danger); }
+    .history-table td.value-cell.flag-low { color: var(--warn); }
+
+    .history-table td.range-cell {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .original-name {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    /* Settings modal */
+    .settings-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .settings-overlay.open {
+      display: flex;
+    }
+
+    .settings-sheet {
+      background: var(--bg);
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      border-radius: 16px;
+      overflow-y: auto;
+      padding: 20px;
+      border: 1px solid var(--border);
+    }
+
+    .settings-sheet h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+    }
+
+    .settings-sheet .hint {
+      color: var(--text-dim);
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: var(--text-dim);
+    }
+
+    .field input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 16px;
+      color: var(--text);
+      outline: none;
+    }
+
+    .field input:focus {
+      border-color: var(--accent);
+    }
+
+    .settings-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .settings-actions button {
+      flex: 1;
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 15px;
+      cursor: pointer;
+      min-height: 40px;
+    }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid var(--danger);
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 15px;
+      cursor: pointer;
+      min-height: 40px;
+    }
+
+    /* States */
+    .empty, .loading {
+      text-align: center;
+      padding: 48px 16px;
+      color: var(--text-dim);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--surface-2);
+      color: var(--text);
+      padding: 12px 20px;
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      font-size: 14px;
+      z-index: 300;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      max-width: 90%;
+    }
+
+    .toast.show { opacity: 1; }
+    .toast.error { border-color: var(--danger); }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="header-row">
+        <div class="title">Lab Results</div>
+        <button class="icon-btn" onclick="openSettings()" title="Settings">⚙</button>
+        <button class="btn-primary" id="fetchBtn" onclick="fetchAndRender()">Fetch</button>
+      </div>
+      <input
+        type="search"
+        class="search-input"
+        id="searchInput"
+        placeholder="Search tests..."
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+      >
+      <div class="actions">
+        <button class="icon-btn" id="aiGroupBtn" onclick="runAIGrouping()">✨ AI Group</button>
+        <button class="icon-btn" onclick="resetGrouping()">Reset Grouping</button>
+      </div>
+      <div class="meta" id="meta"></div>
+    </div>
+
+    <div id="content">
+      <div class="empty">Tap Fetch to load your results.</div>
+    </div>
+  </div>
+
+  <!-- Detail modal -->
+  <div class="detail-overlay" id="detailOverlay" onclick="closeDetail(event)">
+    <div class="detail-sheet" id="detailSheet" onclick="event.stopPropagation()"></div>
+  </div>
+
+  <!-- Settings modal -->
+  <div class="settings-overlay" id="settingsOverlay">
+    <div class="settings-sheet">
+      <h2>Settings</h2>
+      <div class="hint">Stored in your browser's localStorage. Never sent anywhere except the URLs you configure here.</div>
+
+      <div class="field">
+        <label>Apps Script Proxy URL</label>
+        <input type="url" id="proxyUrl" placeholder="https://script.google.com/macros/s/.../exec">
+      </div>
+
+      <div class="field">
+        <label>Marathon Email</label>
+        <input type="email" id="marathonEmail" autocomplete="username">
+      </div>
+
+      <div class="field">
+        <label>Marathon Password</label>
+        <input type="password" id="marathonPassword" autocomplete="current-password">
+      </div>
+
+      <div class="field">
+        <label>Dependent User ID</label>
+        <input type="text" id="dependentUserId" inputmode="numeric">
+      </div>
+
+      <div class="field">
+        <label>Claude API Key (sk-ant-...)</label>
+        <input type="password" id="claudeApiKey">
+      </div>
+
+      <div class="settings-actions">
+        <button class="btn-secondary" onclick="closeSettings()">Cancel</button>
+        <button class="btn-primary" onclick="saveSettings()">Save</button>
+      </div>
+      <div class="settings-actions">
+        <button class="btn-danger" onclick="clearEverything()">Clear all data</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // =========================================================================
+    // Storage keys
+    // =========================================================================
+    const STORAGE_KEYS = {
+      proxyUrl: 'mh_proxy_url',
+      email: 'mh_email',
+      password: 'mh_password',
+      dependentUserId: 'mh_dependent_id',
+      claudeKey: 'mh_claude_key',
+      rawResults: 'mh_raw_results',
+      groupings: 'mh_groupings',
+      lastFetch: 'mh_last_fetch'
+    };
+
+    const CLAUDE_MODEL = 'claude-opus-4-6';
+
+    // =========================================================================
+    // State
+    // =========================================================================
+    let rawResults = null;     // full Marathon response
+    let groupings = null;      // { groups: [...], analyteToGroupId: {...} } or null = use names as-is
+    let searchTerm = '';
+
+    // =========================================================================
+    // Init
+    // =========================================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      // Load cached data
+      try {
+        const raw = localStorage.getItem(STORAGE_KEYS.rawResults);
+        if (raw) rawResults = JSON.parse(raw);
+        const gr = localStorage.getItem(STORAGE_KEYS.groupings);
+        if (gr) groupings = JSON.parse(gr);
+      } catch (e) {
+        console.warn('Failed to load cached data', e);
+      }
+
+      // First-run: open settings if proxy URL not set
+      if (!localStorage.getItem(STORAGE_KEYS.proxyUrl)) {
+        openSettings();
+      } else if (rawResults) {
+        render();
+      }
+
+      document.getElementById('searchInput').addEventListener('input', e => {
+        searchTerm = e.target.value;
+        render();
+      });
+
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+          closeDetail({ target: { id: 'detailOverlay' } });
+          closeSettings();
+        }
+      });
+    });
+
+    // =========================================================================
+    // Settings
+    // =========================================================================
+    function openSettings() {
+      document.getElementById('proxyUrl').value = localStorage.getItem(STORAGE_KEYS.proxyUrl) || '';
+      document.getElementById('marathonEmail').value = localStorage.getItem(STORAGE_KEYS.email) || '';
+      document.getElementById('marathonPassword').value = localStorage.getItem(STORAGE_KEYS.password) || '';
+      document.getElementById('dependentUserId').value = localStorage.getItem(STORAGE_KEYS.dependentUserId) || '';
+      document.getElementById('claudeApiKey').value = localStorage.getItem(STORAGE_KEYS.claudeKey) || '';
+      document.getElementById('settingsOverlay').classList.add('open');
+    }
+
+    function closeSettings() {
+      document.getElementById('settingsOverlay').classList.remove('open');
+    }
+
+    function saveSettings() {
+      localStorage.setItem(STORAGE_KEYS.proxyUrl, document.getElementById('proxyUrl').value.trim());
+      localStorage.setItem(STORAGE_KEYS.email, document.getElementById('marathonEmail').value.trim());
+      localStorage.setItem(STORAGE_KEYS.password, document.getElementById('marathonPassword').value);
+      localStorage.setItem(STORAGE_KEYS.dependentUserId, document.getElementById('dependentUserId').value.trim());
+      localStorage.setItem(STORAGE_KEYS.claudeKey, document.getElementById('claudeApiKey').value.trim());
+      closeSettings();
+      showToast('Settings saved');
+    }
+
+    function clearEverything() {
+      if (!confirm('Clear all stored credentials and cached results?')) return;
+      Object.values(STORAGE_KEYS).forEach(k => localStorage.removeItem(k));
+      rawResults = null;
+      groupings = null;
+      document.getElementById('content').innerHTML =
+        '<div class="empty">Cleared. Open Settings to configure.</div>';
+      document.getElementById('meta').textContent = '';
+      closeSettings();
+      showToast('All data cleared');
+    }
+
+    function resetGrouping() {
+      if (!confirm('Reset to original Marathon names? You can re-run AI grouping after.')) return;
+      groupings = null;
+      localStorage.removeItem(STORAGE_KEYS.groupings);
+      render();
+      showToast('Grouping reset');
+    }
+
+    // =========================================================================
+    // Fetch from Marathon (via proxy)
+    // =========================================================================
+    async function fetchAndRender() {
+      const proxyUrl = localStorage.getItem(STORAGE_KEYS.proxyUrl);
+      const email = localStorage.getItem(STORAGE_KEYS.email);
+      const password = localStorage.getItem(STORAGE_KEYS.password);
+      const dependentUserId = localStorage.getItem(STORAGE_KEYS.dependentUserId);
+
+      if (!proxyUrl || !email || !password || !dependentUserId) {
+        showToast('Configure settings first', true);
+        openSettings();
+        return;
+      }
+
+      const btn = document.getElementById('fetchBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Fetching';
+
+      try {
+        const response = await fetch(proxyUrl, {
+          method: 'POST',
+          // Apps Script web apps don't accept custom Content-Type cleanly with
+          // application/json from cross-origin, so we use text/plain and
+          // parse JSON server-side. e.postData.contents still gets the body.
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ email, password, dependentUserId })
+        });
+
+        if (!response.ok) {
+          throw new Error('Proxy HTTP ' + response.status);
+        }
+
+        const data = await response.json();
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        rawResults = data.labResults;
+        localStorage.setItem(STORAGE_KEYS.rawResults, JSON.stringify(rawResults));
+        localStorage.setItem(STORAGE_KEYS.lastFetch, new Date().toISOString());
+
+        render();
+        showToast('Fetched ' + (rawResults?.length || 0) + ' lab groups');
+      } catch (err) {
+        showToast('Fetch failed: ' + err.message, true);
+        console.error(err);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Fetch';
+      }
+    }
+
+    // =========================================================================
+    // AI Grouping (Claude direct from browser)
+    // =========================================================================
+    async function runAIGrouping() {
+      if (!rawResults) {
+        showToast('Fetch results first', true);
+        return;
+      }
+      const claudeKey = localStorage.getItem(STORAGE_KEYS.claudeKey);
+      if (!claudeKey) {
+        showToast('Set Claude API key in Settings', true);
+        openSettings();
+        return;
+      }
+
+      const analyteNames = extractUniqueAnalyteNames(rawResults);
+      if (analyteNames.length === 0) {
+        showToast('No analyte names found', true);
+        return;
+      }
+
+      const btn = document.getElementById('aiGroupBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Grouping';
+
+      try {
+        const result = await callClaudeForGrouping(claudeKey, analyteNames);
+        groupings = result;
+        localStorage.setItem(STORAGE_KEYS.groupings, JSON.stringify(groupings));
+        render();
+        showToast('Grouped into ' + groupings.groups.length + ' canonical tests');
+      } catch (err) {
+        showToast('AI grouping failed: ' + err.message, true);
+        console.error(err);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '✨ AI Group';
+      }
+    }
+
+    function extractUniqueAnalyteNames(results) {
+      const names = new Set();
+      results.forEach(group => {
+        if (group.results && Array.isArray(group.results)) {
+          group.results.forEach(r => {
+            if (r.analyte_name) names.add(r.analyte_name);
+          });
+        }
+      });
+      return Array.from(names).sort();
+    }
+
+    async function callClaudeForGrouping(apiKey, analyteNames) {
+      const prompt = buildGroupingPrompt(analyteNames);
+
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: CLAUDE_MODEL,
+          max_tokens: 8000,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error('Claude API ' + response.status + ': ' + errText);
+      }
+
+      const data = await response.json();
+      const text = data.content[0].text;
+
+      // Extract JSON object (Claude may include prose)
+      const match = text.match(/\{[\s\S]*\}/);
+      if (!match) throw new Error('Could not parse JSON from Claude response');
+      return JSON.parse(match[0]);
+    }
+
+    function buildGroupingPrompt(analyteNames) {
+      return `You are organizing medical lab test results. Lab results often come back with slightly different names for the same underlying test (e.g., "Vitamin D, 25-Hydroxy" vs "25-OH Vitamin D" vs "Vit D 25-OH"). Group analyte names that refer to the same medical test under a single canonical name.
+
+ANALYTE NAMES TO GROUP:
+${JSON.stringify(analyteNames, null, 2)}
+
+Categories should be one of: "Lipid Panel", "Metabolic Panel", "Complete Blood Count", "Thyroid", "Vitamins & Minerals", "Hormones", "Inflammation", "Liver", "Kidney", "Cardiac", "Diabetes", "Iron Studies", "Urinalysis", "Other"
+
+CRITICAL RULES:
+- Be conservative. Only group names if you are confident they refer to the same test.
+- LDL Cholesterol Calculated vs LDL Cholesterol Direct are DIFFERENT tests.
+- HDL, LDL, total cholesterol, non-HDL are all different.
+- Free T4 vs Total T4 are different. Free T3 vs Total T3 are different.
+- Every analyte name in the input must appear as a key in analyteToGroupId.
+- Group ids must be snake_case and unique.
+
+Respond with ONLY a JSON object (no markdown fences, no commentary):
+{
+  "groups": [
+    { "id": "snake_case_id", "canonicalName": "Clean Name", "category": "Category Name" }
+  ],
+  "analyteToGroupId": {
+    "Original Analyte Name": "snake_case_id"
+  }
+}`;
+    }
+
+    // =========================================================================
+    // Build display data from raw + groupings
+    // =========================================================================
+    function buildDisplayGroups() {
+      if (!rawResults) return [];
+
+      // Build per-group history
+      const groupHistory = {}; // groupId -> [{date, value, ...}]
+      const groupMeta = {};    // groupId -> { canonicalName, category }
+
+      const useAI = groupings && groupings.analyteToGroupId;
+
+      rawResults.forEach(labGroup => {
+        const date = labGroup.lab_result_date;
+        if (!labGroup.results) return;
+
+        labGroup.results.forEach(result => {
+          const originalName = result.analyte_name;
+          if (!originalName) return;
+
+          let groupId, canonicalName, category;
+
+          if (useAI && groupings.analyteToGroupId[originalName]) {
+            groupId = groupings.analyteToGroupId[originalName];
+            const g = groupings.groups.find(gr => gr.id === groupId);
+            canonicalName = g ? g.canonicalName : originalName;
+            category = g ? g.category : 'Other';
+          } else {
+            // Default: each analyte name is its own group
+            groupId = 'name:' + originalName;
+            canonicalName = originalName;
+            category = 'All Tests';
+          }
+
+          if (!groupHistory[groupId]) groupHistory[groupId] = [];
+          if (!groupMeta[groupId]) groupMeta[groupId] = { canonicalName, category };
+
+          groupHistory[groupId].push({
+            date: date,
+            value: result.value,
+            unit: result.unit_of_measure || result.units || '',
+            referenceRange: result.reference_range || result.normal_range || '',
+            flag: result.flag || result.abnormal_flag || '',
+            originalName: originalName
+          });
+        });
+      });
+
+      // Sort each history newest first
+      Object.keys(groupHistory).forEach(id => {
+        groupHistory[id].sort((a, b) => new Date(b.date) - new Date(a.date));
+      });
+
+      // Build display list
+      const display = Object.keys(groupHistory).map(id => {
+        const history = groupHistory[id];
+        const latest = history[0];
+        return {
+          id: id,
+          canonicalName: groupMeta[id].canonicalName,
+          category: groupMeta[id].category,
+          latestValue: latest ? latest.value : null,
+          latestUnit: latest ? latest.unit : '',
+          latestDate: latest ? latest.date : null,
+          latestFlag: latest ? latest.flag : '',
+          historyCount: history.length,
+          history: history
+        };
+      });
+
+      display.sort((a, b) => {
+        if (a.category !== b.category) return a.category.localeCompare(b.category);
+        return a.canonicalName.localeCompare(b.canonicalName);
+      });
+
+      return display;
+    }
+
+    // =========================================================================
+    // Render
+    // =========================================================================
+    function render() {
+      const meta = document.getElementById('meta');
+      const lastFetch = localStorage.getItem(STORAGE_KEYS.lastFetch);
+      const parts = [];
+      if (lastFetch) parts.push('Last fetch: ' + formatDateTime(lastFetch));
+      if (groupings) parts.push('AI grouped (' + groupings.groups.length + ')');
+      else if (rawResults) parts.push('Raw names');
+      meta.textContent = parts.join(' · ');
+
+      const content = document.getElementById('content');
+
+      if (!rawResults) {
+        content.innerHTML = '<div class="empty">Tap Fetch to load your results.</div>';
+        return;
+      }
+
+      const allGroups = buildDisplayGroups();
+      const term = searchTerm.toLowerCase().trim();
+
+      const filtered = term
+        ? allGroups.filter(g => {
+            if (g.canonicalName.toLowerCase().includes(term)) return true;
+            if (g.category.toLowerCase().includes(term)) return true;
+            return g.history.some(h =>
+              (h.originalName || '').toLowerCase().includes(term));
+          })
+        : allGroups;
+
+      if (filtered.length === 0) {
+        content.innerHTML = '<div class="empty">No tests match "' +
+          escapeHtml(searchTerm) + '"</div>';
+        return;
+      }
+
+      // Group by category
+      const byCategory = {};
+      filtered.forEach(g => {
+        if (!byCategory[g.category]) byCategory[g.category] = [];
+        byCategory[g.category].push(g);
+      });
+
+      let html = '';
+      Object.keys(byCategory).sort().forEach(category => {
+        html += '<div class="category">';
+        html += '<div class="category-label">' + escapeHtml(category) + '</div>';
+        byCategory[category].forEach(g => {
+          html += renderListItem(g);
+        });
+        html += '</div>';
+      });
+
+      content.innerHTML = html;
+    }
+
+    function renderListItem(g) {
+      const flagClass = flagToClass(g.latestFlag);
+      const value = (g.latestValue !== null && g.latestValue !== undefined && g.latestValue !== '')
+        ? g.latestValue : '—';
+      const unit = g.latestUnit ? ' ' + g.latestUnit : '';
+      const sub = g.historyCount + ' result' + (g.historyCount === 1 ? '' : 's');
+
+      return '<div class="test-item" onclick="showDetail(\'' + escapeAttr(g.id) + '\')">' +
+        '<div class="test-info">' +
+          '<div class="test-name">' + escapeHtml(g.canonicalName) + '</div>' +
+          '<div class="test-sub">' + sub + '</div>' +
+        '</div>' +
+        '<div class="test-value">' +
+          '<div class="value-num ' + flagClass + '">' +
+            escapeHtml(value) +
+            '<span class="value-unit">' + escapeHtml(unit) + '</span></div>' +
+          '<div class="value-date">' + formatDate(g.latestDate) + '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    // =========================================================================
+    // Detail
+    // =========================================================================
+    function showDetail(groupId) {
+      const allGroups = buildDisplayGroups();
+      const group = allGroups.find(g => g.id === groupId);
+      if (!group) return;
+
+      let html = '<div class="detail-header">' +
+        '<div>' +
+          '<div class="detail-title">' + escapeHtml(group.canonicalName) + '</div>' +
+          '<div class="detail-category">' + escapeHtml(group.category) + '</div>' +
+        '</div>' +
+        '<button class="close-btn" onclick="closeDetail()">×</button>' +
+      '</div>';
+
+      html += '<table class="history-table">' +
+        '<thead><tr><th>Date</th><th>Value</th><th>Range</th></tr></thead>' +
+        '<tbody>';
+
+      group.history.forEach(h => {
+        const flagClass = flagToClass(h.flag);
+        const showOriginal = h.originalName !== group.canonicalName;
+        html += '<tr>' +
+          '<td>' + formatDate(h.date) + '</td>' +
+          '<td class="value-cell ' + flagClass + '">' +
+            escapeHtml(h.value || '—') +
+            (h.unit ? ' <span class="value-unit">' + escapeHtml(h.unit) + '</span>' : '') +
+            (showOriginal ? '<div class="original-name">as: ' +
+              escapeHtml(h.originalName) + '</div>' : '') +
+          '</td>' +
+          '<td class="range-cell">' + escapeHtml(h.referenceRange || '—') + '</td>' +
+        '</tr>';
+      });
+
+      html += '</tbody></table>';
+
+      document.getElementById('detailSheet').innerHTML = html;
+      document.getElementById('detailOverlay').classList.add('open');
+    }
+
+    function closeDetail(event) {
+      if (event && event.target && event.target.id !== 'detailOverlay') return;
+      document.getElementById('detailOverlay').classList.remove('open');
+    }
+
+    // =========================================================================
+    // Helpers
+    // =========================================================================
+    function flagToClass(flag) {
+      if (!flag) return '';
+      const f = String(flag).toUpperCase();
+      if (f.includes('H') || f.includes('HIGH') || f.includes('ABNORMAL')) return 'flag-high';
+      if (f.includes('L') || f.includes('LOW')) return 'flag-low';
+      return '';
+    }
+
+    function formatDate(d) {
+      if (!d) return '';
+      const date = new Date(d);
+      if (isNaN(date)) return d;
+      return date.toLocaleDateString(undefined, {
+        year: 'numeric', month: 'short', day: 'numeric'
+      });
+    }
+
+    function formatDateTime(d) {
+      if (!d) return '';
+      const date = new Date(d);
+      if (isNaN(date)) return d;
+      return date.toLocaleString(undefined, {
+        month: 'short', day: 'numeric',
+        hour: 'numeric', minute: '2-digit'
+      });
+    }
+
+    function escapeHtml(s) {
+      if (s === null || s === undefined) return '';
+      return String(s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function escapeAttr(s) {
+      return escapeHtml(s);
+    }
+
+    function showToast(msg, isError) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = 'toast show' + (isError ? ' error' : '');
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => {
+        toast.className = 'toast' + (isError ? ' error' : '');
+      }, 2500);
+    }
+  </script>
+</body>
+</html>
