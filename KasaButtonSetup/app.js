@@ -3,37 +3,28 @@
 // ---- BLE UUIDs (must match config.h) ----
 const SVC  = '12345678-1234-5678-1234-56789abcdef0';
 const CHAR = {
-  wifiSsid:  '12345678-1234-5678-1234-56789abcdef1',
-  wifiPass:  '12345678-1234-5678-1234-56789abcdef2',
-  kasaId:    '12345678-1234-5678-1234-56789abcdef3',
-  kasaAlias: '12345678-1234-5678-1234-56789abcdef4',
-  unitName:  '12345678-1234-5678-1234-56789abcdef5',
-  status:    '12345678-1234-5678-1234-56789abcdef6',
-  command:   '12345678-1234-5678-1234-56789abcdef7',
+  plugMac:  '12345678-1234-5678-1234-56789abcdef1',
+  unitName: '12345678-1234-5678-1234-56789abcdef2',
+  status:   '12345678-1234-5678-1234-56789abcdef3',
+  command:  '12345678-1234-5678-1234-56789abcdef4',
 };
 
-// ---- State ----
-let bleDevice = null, bleServer = null, chars = {};
-
-// ---- DOM refs ----
-const $ = id => document.getElementById(id);
-const panelConnect = $('panel-connect');
-const panelConfig  = $('panel-config');
-const btnConnect   = $('btn-connect');
-const btnDisconnect = $('btn-disconnect');
-const lblDevice    = $('lbl-device-name');
-const connectStatus = $('connect-status');
-const btnScanKasa  = $('btn-scan-kasa');
-const kasaScanStatus = $('kasa-scan-status');
-const deviceList   = $('kasa-device-list');
-const btnTest      = $('btn-test');
-const btnSave      = $('btn-save');
-const actionStatus = $('action-status');
-
-// ---- Helpers ----
 const enc = new TextEncoder();
 const dec = new TextDecoder();
 
+let bleDevice = null, bleServer = null, chars = {};
+let scanStream = null, scanRafId = null;
+
+// ---- DOM ----
+const $ = id => document.getElementById(id);
+
+// ---- Init ----
+if (!navigator.bluetooth) {
+  $('panel-unsupported').classList.remove('hidden');
+  $('panel-connect').classList.add('hidden');
+}
+
+// ---- Helpers ----
 function showStatus(el, msg, type = '') {
   el.textContent = msg;
   el.className = 'status-bar' + (type ? ` ${type}` : '');
@@ -44,55 +35,57 @@ function writeChar(char, value) {
 }
 
 async function readChar(char) {
-  const val = await char.readValue();
-  return dec.decode(val);
+  return dec.decode(await char.readValue());
 }
 
-// ---- Connect ----
-btnConnect.addEventListener('click', async () => {
-  if (!navigator.bluetooth) {
-    showStatus(connectStatus, 'Web Bluetooth is not available. Use Chrome or Edge.', 'err');
-    return;
+// Extract a MAC address from arbitrary text (handles colons, dashes, or no separator)
+function extractMac(text) {
+  // Colon or dash separated: AA:BB:CC:DD:EE:FF or AA-BB-CC-DD-EE-FF
+  let m = text.match(/([0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}/);
+  if (m) return m[0].toUpperCase().replace(/-/g, ':');
+  // 12 hex chars with no separator: AABBCCDDEEFF
+  m = text.match(/\b([0-9A-Fa-f]{12})\b/);
+  if (m) {
+    const h = m[1].toUpperCase();
+    return `${h[0]}${h[1]}:${h[2]}${h[3]}:${h[4]}${h[5]}:${h[6]}${h[7]}:${h[8]}${h[9]}:${h[10]}${h[11]}`;
   }
+  return null;
+}
+
+// ---- BLE Connect ----
+$('btn-connect').addEventListener('click', async () => {
   try {
-    showStatus(connectStatus, 'Opening Bluetooth scanner…');
+    showStatus($('connect-status'), 'Opening Bluetooth scanner…');
     bleDevice = await navigator.bluetooth.requestDevice({
       filters: [{ services: [SVC] }],
       optionalServices: [SVC],
     });
     bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
 
-    showStatus(connectStatus, 'Connecting…');
+    showStatus($('connect-status'), 'Connecting…');
     bleServer = await bleDevice.gatt.connect();
-
     const svc = await bleServer.getPrimaryService(SVC);
-    chars.wifiSsid  = await svc.getCharacteristic(CHAR.wifiSsid);
-    chars.wifiPass  = await svc.getCharacteristic(CHAR.wifiPass);
-    chars.kasaId    = await svc.getCharacteristic(CHAR.kasaId);
-    chars.kasaAlias = await svc.getCharacteristic(CHAR.kasaAlias);
-    chars.unitName  = await svc.getCharacteristic(CHAR.unitName);
-    chars.status    = await svc.getCharacteristic(CHAR.status);
-    chars.command   = await svc.getCharacteristic(CHAR.command);
 
-    // Subscribe to status notifications
+    chars.plugMac  = await svc.getCharacteristic(CHAR.plugMac);
+    chars.unitName = await svc.getCharacteristic(CHAR.unitName);
+    chars.status   = await svc.getCharacteristic(CHAR.status);
+    chars.command  = await svc.getCharacteristic(CHAR.command);
+
     await chars.status.startNotifications();
     chars.status.addEventListener('characteristicvaluechanged', onStatusNotify);
 
-    // Read existing values from device
+    $('inp-plug-mac').value  = await readChar(chars.plugMac);
     $('inp-unit-name').value = await readChar(chars.unitName);
-    $('inp-ssid').value      = await readChar(chars.wifiSsid);
-    $('inp-kasa-id').value   = await readChar(chars.kasaId);
-    $('inp-kasa-alias').value = await readChar(chars.kasaAlias);
 
-    lblDevice.textContent = bleDevice.name || bleDevice.id;
-    panelConnect.classList.add('hidden');
-    panelConfig.classList.remove('hidden');
-    connectStatus.className = 'status-bar hidden';
+    $('lbl-device-name').textContent = bleDevice.name || bleDevice.id;
+    $('panel-connect').classList.add('hidden');
+    $('panel-config').classList.remove('hidden');
+    $('connect-status').className = 'status-bar hidden';
   } catch (err) {
-    if (err.name !== 'NotFoundError') {  // user cancelled = NotFoundError, don't show error
-      showStatus(connectStatus, `Connection failed: ${err.message}`, 'err');
+    if (err.name !== 'NotFoundError') {
+      showStatus($('connect-status'), `Connection failed: ${err.message}`, 'err');
     } else {
-      connectStatus.className = 'status-bar hidden';
+      $('connect-status').className = 'status-bar hidden';
     }
     bleDevice = null;
   }
@@ -100,151 +93,141 @@ btnConnect.addEventListener('click', async () => {
 
 // ---- Disconnect ----
 function onDisconnected() {
+  stopScanner();
   bleDevice = null; bleServer = null; chars = {};
-  panelConfig.classList.add('hidden');
-  panelConnect.classList.remove('hidden');
-  showStatus(connectStatus, 'Disconnected from device.', 'warn');
+  $('panel-config').classList.add('hidden');
+  $('panel-connect').classList.remove('hidden');
+  showStatus($('connect-status'), 'Disconnected.', 'warn');
 }
 
-btnDisconnect.addEventListener('click', () => {
-  if (bleDevice && bleDevice.gatt.connected) bleDevice.gatt.disconnect();
+$('btn-disconnect').addEventListener('click', () => {
+  if (bleDevice?.gatt.connected) bleDevice.gatt.disconnect();
   else onDisconnected();
 });
 
 // ---- Status notifications from ESP32 ----
 function onStatusNotify(evt) {
-  const raw = dec.decode(evt.target.value);
   let data;
-  try { data = JSON.parse(raw); } catch { return; }
+  try { data = JSON.parse(dec.decode(evt.target.value)); } catch { return; }
 
   switch (data.state) {
-    case 'scanning':
-      showStatus(kasaScanStatus, 'Scanning network for Kasa devices…');
-      btnScanKasa.disabled = true;
-      break;
-
-    case 'wifi_connecting':
-      showStatus(kasaScanStatus, 'Connecting to WiFi first…');
-      break;
-
-    case 'scan_result':
-      btnScanKasa.disabled = false;
-      renderDeviceList(data.devices || []);
-      break;
-
     case 'testing':
-      showStatus(actionStatus, 'Testing connection…');
-      btnTest.disabled = true;
+      showStatus($('action-status'), 'Testing — scanning for plug on network…');
+      $('btn-test').disabled = true;
       break;
-
     case 'test_ok':
-      btnTest.disabled = false;
-      showStatus(actionStatus,
+      $('btn-test').disabled = false;
+      showStatus($('action-status'),
         `✓ Found "${data.alias}" at ${data.ip} — plug is ${data.relay === 1 ? 'ON' : 'OFF'}`, 'ok');
       break;
-
     case 'saved':
-      showStatus(actionStatus, '✓ Saved! Device is rebooting…', 'ok');
-      btnSave.disabled = false;
+      $('btn-save').disabled = false;
+      showStatus($('action-status'), '✓ Saved! Device is rebooting…', 'ok');
       break;
-
     case 'error':
-      btnScanKasa.disabled = false;
-      btnTest.disabled = false;
-      btnSave.disabled = false;
-      const target = data.msg?.includes('WiFi') ? kasaScanStatus : actionStatus;
-      showStatus(target, `✗ ${data.msg || 'Unknown error'}`, 'err');
+      $('btn-test').disabled = false;
+      $('btn-save').disabled = false;
+      showStatus($('action-status'), `✗ ${data.msg || 'Unknown error'}`, 'err');
       break;
   }
 }
 
-// ---- Kasa device list ----
-function renderDeviceList(devices) {
-  deviceList.innerHTML = '';
-  if (devices.length === 0) {
-    showStatus(kasaScanStatus, 'No Kasa devices found on the network.', 'warn');
+// ---- Camera barcode scanner ----
+$('btn-scan-barcode').addEventListener('click', startScanner);
+$('btn-close-scanner').addEventListener('click', stopScanner);
+
+async function startScanner() {
+  if (!('BarcodeDetector' in window)) {
+    showStatus($('scan-status'),
+      'Camera scanning not supported in this browser. Enter the MAC manually.', 'warn');
     return;
   }
-  showStatus(kasaScanStatus, `Found ${devices.length} device${devices.length > 1 ? 's' : ''} — tap to select:`, 'ok');
-  deviceList.classList.remove('hidden');
-
-  devices.forEach(dev => {
-    const item = document.createElement('div');
-    item.className = 'kasa-device-item';
-    item.innerHTML = `
-      <div>
-        <div class="name">${esc(dev.alias)}</div>
-        <div class="meta">${esc(dev.model)} · ${esc(dev.ip)}</div>
-        <div class="meta" style="word-break:break-all;margin-top:2px;opacity:0.6">${esc(dev.id)}</div>
-      </div>
-      <span class="relay-badge ${dev.state === 1 ? 'relay-on' : 'relay-off'}">${dev.state === 1 ? 'on' : 'off'}</span>
-    `;
-    item.addEventListener('click', () => {
-      document.querySelectorAll('.kasa-device-item').forEach(el => el.classList.remove('selected'));
-      item.classList.add('selected');
-      $('inp-kasa-id').value   = dev.id;
-      $('inp-kasa-alias').value = dev.alias;
-    });
-    deviceList.appendChild(item);
-  });
-}
-
-function esc(s) {
-  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-// ---- Scan for Kasa devices ----
-btnScanKasa.addEventListener('click', async () => {
-  // Write WiFi creds first so the ESP32 can connect
   try {
-    await writeChar(chars.wifiSsid, $('inp-ssid').value.trim());
-    const pass = $('inp-pass').value;
-    if (pass) await writeChar(chars.wifiPass, pass);
-    await writeChar(chars.command, 'scan');
-    deviceList.classList.add('hidden');
-    deviceList.innerHTML = '';
+    scanStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    const video = $('scanner-video');
+    video.srcObject = scanStream;
+    $('scanner-wrap').classList.remove('hidden');
+    $('scan-status').className = 'status-bar hidden';
+    scanRafId = requestAnimationFrame(scanFrame);
   } catch (err) {
-    showStatus(kasaScanStatus, `BLE write failed: ${err.message}`, 'err');
+    showStatus($('scan-status'), `Camera error: ${err.message}`, 'err');
   }
-});
+}
+
+async function scanFrame() {
+  const video = $('scanner-video');
+  if (video.readyState < video.HAVE_ENOUGH_DATA) {
+    scanRafId = requestAnimationFrame(scanFrame);
+    return;
+  }
+
+  const canvas = $('scanner-canvas');
+  canvas.width  = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+
+  try {
+    const detector = new BarcodeDetector({ formats: ['qr_code', 'code_128', 'code_39', 'ean_13'] });
+    const barcodes = await detector.detect(canvas);
+
+    for (const barcode of barcodes) {
+      const mac = extractMac(barcode.rawValue);
+      if (mac) {
+        $('inp-plug-mac').value = mac;
+        showStatus($('scan-status'), `✓ Found MAC: ${mac}`, 'ok');
+        stopScanner();
+        return;
+      }
+    }
+
+    // No MAC found yet — if any barcode was detected, show its raw value
+    if (barcodes.length > 0) {
+      const raw = barcodes[0].rawValue;
+      // Still try to continue scanning — don't stop
+      showStatus($('scan-status'), `Scanned: "${raw.substring(0, 60)}" — no MAC found, try another angle`, 'warn');
+    }
+  } catch {
+    // BarcodeDetector failed on this frame — keep trying
+  }
+
+  scanRafId = requestAnimationFrame(scanFrame);
+}
+
+function stopScanner() {
+  if (scanRafId)    { cancelAnimationFrame(scanRafId); scanRafId = null; }
+  if (scanStream)   { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
+  $('scanner-wrap').classList.add('hidden');
+  $('scanner-video').srcObject = null;
+}
 
 // ---- Test ----
-btnTest.addEventListener('click', async () => {
+$('btn-test').addEventListener('click', async () => {
+  const mac = $('inp-plug-mac').value.trim();
+  if (!mac) { showStatus($('action-status'), 'Enter a MAC address first.', 'err'); return; }
   try {
-    await pushAllChars();
+    await writeChar(chars.plugMac, mac);
     await writeChar(chars.command, 'test');
-    btnTest.disabled = true;
+    $('btn-test').disabled = true;
   } catch (err) {
-    showStatus(actionStatus, `BLE write failed: ${err.message}`, 'err');
+    showStatus($('action-status'), `BLE error: ${err.message}`, 'err');
   }
 });
 
 // ---- Save ----
-btnSave.addEventListener('click', async () => {
-  if (!$('inp-ssid').value.trim()) {
-    showStatus(actionStatus, 'WiFi SSID is required.', 'err');
-    return;
-  }
-  if (!$('inp-kasa-id').value.trim()) {
-    showStatus(actionStatus, 'Kasa Device ID is required. Run a scan or paste an ID.', 'err');
-    return;
-  }
+$('btn-save').addEventListener('click', async () => {
+  const mac  = $('inp-plug-mac').value.trim();
+  const name = $('inp-unit-name').value.trim();
+  if (!mac) { showStatus($('action-status'), 'A plug MAC address is required.', 'err'); return; }
   try {
-    btnSave.disabled = true;
-    showStatus(actionStatus, 'Writing config to device…');
-    await pushAllChars();
-    await writeChar(chars.command, 'save');
+    $('btn-save').disabled = true;
+    showStatus($('action-status'), 'Writing to device…');
+    await writeChar(chars.plugMac,  mac);
+    await writeChar(chars.unitName, name);
+    await writeChar(chars.command,  'save');
   } catch (err) {
-    btnSave.disabled = false;
-    showStatus(actionStatus, `BLE write failed: ${err.message}`, 'err');
+    $('btn-save').disabled = false;
+    showStatus($('action-status'), `BLE error: ${err.message}`, 'err');
   }
 });
-
-async function pushAllChars() {
-  await writeChar(chars.unitName,  $('inp-unit-name').value.trim());
-  await writeChar(chars.wifiSsid,  $('inp-ssid').value.trim());
-  const pass = $('inp-pass').value;
-  if (pass) await writeChar(chars.wifiPass, pass);
-  await writeChar(chars.kasaId,    $('inp-kasa-id').value.trim());
-  await writeChar(chars.kasaAlias, $('inp-kasa-alias').value.trim());
-}

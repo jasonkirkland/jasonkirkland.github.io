@@ -10,66 +10,74 @@
   <div class="container">
     <h1>Kasa Button<br><span class="sub">Configurator</span></h1>
 
-    <!-- Connection panel -->
+    <!-- Browser check -->
+    <div id="panel-unsupported" class="panel hidden">
+      <p class="warn-text">&#9888; Web Bluetooth is not supported in this browser.<br>
+        Please use <strong>Chrome</strong> or <strong>Edge</strong> on desktop or Android.</p>
+    </div>
+
+    <!-- Connect panel -->
     <div id="panel-connect" class="panel">
-      <p class="hint">Open this page in Chrome or Edge on a device near your ESP32.<br>
-        Web Bluetooth is not supported in Safari or Firefox.</p>
-      <button id="btn-connect" class="primary">Scan for Devices</button>
+      <p class="hint">Make sure your ESP32 is powered on and its LED is fast-blinking (BLE mode).<br>
+        Use Chrome or Edge — Web Bluetooth is not supported in Safari or Firefox.</p>
+      <button id="btn-connect" class="primary">Connect to Button</button>
       <div id="connect-status" class="status-bar hidden"></div>
     </div>
 
-    <!-- Config panel (shown after BLE connection) -->
+    <!-- Config panel -->
     <div id="panel-config" class="panel hidden">
       <div class="connected-badge">
         <span class="dot connected"></span>
-        Connected: <strong id="lbl-device-name">—</strong>
+        <strong id="lbl-device-name">—</strong>
         <button id="btn-disconnect" class="link-btn">disconnect</button>
       </div>
 
       <section>
-        <h2>Unit Identity</h2>
-        <label>Button Name
-          <input type="text" id="inp-unit-name" placeholder="e.g. Living Room Lamp">
+        <h2>Button Label</h2>
+        <label>Name for this button unit
+          <input type="text" id="inp-unit-name" placeholder="e.g. Desk Lamp">
         </label>
       </section>
 
       <section>
-        <h2>WiFi</h2>
-        <label>SSID
-          <input type="text" id="inp-ssid" placeholder="Your WiFi network name" autocomplete="off">
-        </label>
-        <label>Password
-          <input type="password" id="inp-pass" placeholder="WiFi password" autocomplete="new-password">
-          <span class="hint-inline">Write-only — not readable back from device</span>
-        </label>
-      </section>
+        <h2>Kasa Plug MAC Address</h2>
+        <p class="hint" style="text-align:left;margin-bottom:.75rem;">
+          Find the MAC address printed on your plug's label, or scan the QR code on the label.
+        </p>
 
-      <section>
-        <h2>Kasa Plug</h2>
-        <div class="kasa-row">
-          <div>
-            <label>Device ID
-              <input type="text" id="inp-kasa-id" placeholder="Paste ID from discovery script or scan below">
-            </label>
-            <label>Alias (display name)
-              <input type="text" id="inp-kasa-alias" placeholder="e.g. Floor Lamp">
-            </label>
+        <label>MAC Address
+          <input type="text" id="inp-plug-mac"
+                 placeholder="AA:BB:CC:DD:EE:FF"
+                 autocomplete="off" spellcheck="false">
+        </label>
+
+        <button id="btn-scan-barcode" class="secondary">
+          &#128247; Scan Plug Label with Camera
+        </button>
+
+        <!-- Camera scanner overlay -->
+        <div id="scanner-wrap" class="hidden">
+          <video id="scanner-video" autoplay playsinline muted></video>
+          <canvas id="scanner-canvas" style="display:none"></canvas>
+          <div class="scanner-frame">
+            <div class="scanner-crosshair"></div>
+            <p class="scanner-hint">Point camera at the QR code or barcode on the plug</p>
           </div>
+          <button id="btn-close-scanner" class="secondary">Cancel</button>
         </div>
-        <button id="btn-scan-kasa" class="secondary">Scan Network for Kasa Plugs</button>
-        <div id="kasa-scan-status" class="status-bar hidden"></div>
-        <div id="kasa-device-list" class="device-list hidden"></div>
+
+        <div id="scan-status" class="status-bar hidden"></div>
       </section>
 
       <div class="action-row">
-        <button id="btn-test" class="secondary">Test Connection</button>
+        <button id="btn-test" class="secondary">Test</button>
         <button id="btn-save" class="primary">Save &amp; Reboot</button>
       </div>
       <div id="action-status" class="status-bar hidden"></div>
     </div>
 
     <footer>
-      <a href="https://github.com/ervtr2/kasa-button" target="_blank">View on GitHub</a>
+      <a href="https://github.com/ervtr2/kasa-button" target="_blank">GitHub</a>
     </footer>
   </div>
 
