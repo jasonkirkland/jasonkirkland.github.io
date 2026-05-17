@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kasa Button Configurator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Kasa Button<br><span class="sub">Configurator</span></h1>
+
+    <!-- Connection panel -->
+    <div id="panel-connect" class="panel">
+      <p class="hint">Open this page in Chrome or Edge on a device near your ESP32.<br>
+        Web Bluetooth is not supported in Safari or Firefox.</p>
+      <button id="btn-connect" class="primary">Scan for Devices</button>
+      <div id="connect-status" class="status-bar hidden"></div>
+    </div>
+
+    <!-- Config panel (shown after BLE connection) -->
+    <div id="panel-config" class="panel hidden">
+      <div class="connected-badge">
+        <span class="dot connected"></span>
+        Connected: <strong id="lbl-device-name">—</strong>
+        <button id="btn-disconnect" class="link-btn">disconnect</button>
+      </div>
+
+      <section>
+        <h2>Unit Identity</h2>
+        <label>Button Name
+          <input type="text" id="inp-unit-name" placeholder="e.g. Living Room Lamp">
+        </label>
+      </section>
+
+      <section>
+        <h2>WiFi</h2>
+        <label>SSID
+          <input type="text" id="inp-ssid" placeholder="Your WiFi network name" autocomplete="off">
+        </label>
+        <label>Password
+          <input type="password" id="inp-pass" placeholder="WiFi password" autocomplete="new-password">
+          <span class="hint-inline">Write-only — not readable back from device</span>
+        </label>
+      </section>
+
+      <section>
+        <h2>Kasa Plug</h2>
+        <div class="kasa-row">
+          <div>
+            <label>Device ID
+              <input type="text" id="inp-kasa-id" placeholder="Paste ID from discovery script or scan below">
+            </label>
+            <label>Alias (display name)
+              <input type="text" id="inp-kasa-alias" placeholder="e.g. Floor Lamp">
+            </label>
+          </div>
+        </div>
+        <button id="btn-scan-kasa" class="secondary">Scan Network for Kasa Plugs</button>
+        <div id="kasa-scan-status" class="status-bar hidden"></div>
+        <div id="kasa-device-list" class="device-list hidden"></div>
+      </section>
+
+      <div class="action-row">
+        <button id="btn-test" class="secondary">Test Connection</button>
+        <button id="btn-save" class="primary">Save &amp; Reboot</button>
+      </div>
+      <div id="action-status" class="status-bar hidden"></div>
+    </div>
+
+    <footer>
+      <a href="https://github.com/ervtr2/kasa-button" target="_blank">View on GitHub</a>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
