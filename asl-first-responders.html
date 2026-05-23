@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASL for First Responders</title>
+  <style>
+    :root {
+      --navy:   #1e3a5f;
+      --blue:   #2563eb;
+      --lblue:  #eff6ff;
+      --red:    #dc2626;
+      --amber:  #d97706;
+      --green:  #16a34a;
+      --purple: #7c3aed;
+      --skin:   #F0B090;
+      --skin-d: #9B6845;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      color: #1f2937;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(155deg, #1e3a5f 0%, #1e40af 100%);
+      color: #fff;
+      text-align: center;
+      padding: 1.75rem 1rem 2.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+    header::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 60% 40%, rgba(255,255,255,0.07) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .gs-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 999px;
+      padding: 0.3rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-bottom: 0.9rem;
+    }
+    header h1 {
+      font-size: clamp(1.6rem, 6vw, 2.2rem);
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 0.4rem;
+    }
+    .header-sub {
+      font-size: 0.9rem;
+      opacity: 0.82;
+      max-width: 320px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    /* rainbow stripe */
+    .stripe {
+      height: 5px;
+      background: linear-gradient(90deg, #ef4444 0%, #f59e0b 33%, #3b82f6 66%, #22c55e 100%);
+    }
+
+    /* ── Main ── */
+    main {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 1.25rem 1rem 2rem;
+    }
+
+    .intro {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.25rem;
+      border-left: 4px solid var(--blue);
+      box-shadow: 0 1px 8px rgba(0,0,0,0.08);
+      font-size: 0.88rem;
+      line-height: 1.65;
+      color: #374151;
+    }
+    .intro strong { color: var(--navy); }
+
+    /* ── Cards ── */
+    .card {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 3px 18px rgba(0,0,0,0.1);
+      margin-bottom: 1.4rem;
+      overflow: hidden;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      padding: 1rem 1.25rem;
+      color: #fff;
+    }
+    .card-1 .card-header { background: linear-gradient(135deg, #1d4ed8, #60a5fa); }
+    .card-2 .card-header { background: linear-gradient(135deg, #991b1b, #f87171); }
+    .card-3 .card-header { background: linear-gradient(135deg, #92400e, #fbbf24); }
+    .card-4 .card-header { background: linear-gradient(135deg, #14532d, #4ade80); }
+    .card-5 .card-header { background: linear-gradient(135deg, #4c1d95, #a78bfa); }
+
+    .card-num {
+      width: 2.4rem;
+      height: 2.4rem;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .card-heading h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      line-height: 1.15;
+    }
+    .card-heading p {
+      font-size: 0.78rem;
+      opacity: 0.88;
+      margin-top: 0.15rem;
+    }
+
+    .card-body { padding: 1.25rem; }
+
+    /* ── Sign illustration box ── */
+    .sign-box {
+      background: #f8fafc;
+      border: 2px dashed #cbd5e1;
+      border-radius: 14px;
+      padding: 0.75rem;
+      margin-bottom: 1.2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .sign-box svg {
+      width: 100%;
+      max-width: 260px;
+      height: auto;
+      display: block;
+    }
+
+    /* ── Steps ── */
+    .steps-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: #64748b;
+      margin-bottom: 0.65rem;
+    }
+    .steps { list-style: none; }
+    .step {
+      display: flex;
+      gap: 0.7rem;
+      margin-bottom: 0.6rem;
+      align-items: flex-start;
+    }
+    .step-n {
+      min-width: 1.55rem;
+      height: 1.55rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+    .card-1 .step-n { background: #2563eb; }
+    .card-2 .step-n { background: #dc2626; }
+    .card-3 .step-n { background: #d97706; }
+    .card-4 .step-n { background: #16a34a; }
+    .card-5 .step-n { background: #7c3aed; }
+
+    .step-t {
+      font-size: 0.9rem;
+      line-height: 1.55;
+      color: #374151;
+      padding-top: 0.12rem;
+    }
+
+    /* ── Tip box ── */
+    .tip {
+      margin-top: 1rem;
+      padding: 0.7rem 1rem;
+      border-radius: 8px;
+      font-size: 0.83rem;
+      line-height: 1.55;
+    }
+    .card-1 .tip { background: #eff6ff; border-left: 3px solid #2563eb; color: #1e40af; }
+    .card-2 .tip { background: #fef2f2; border-left: 3px solid #dc2626; color: #991b1b; }
+    .card-3 .tip { background: #fffbeb; border-left: 3px solid #d97706; color: #92400e; }
+    .card-4 .tip { background: #f0fdf4; border-left: 3px solid #16a34a; color: #14532d; }
+    .card-5 .tip { background: #f5f3ff; border-left: 3px solid #7c3aed; color: #4c1d95; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 1.5rem 1rem 3rem;
+      color: #9ca3af;
+      font-size: 0.8rem;
+      line-height: 1.9;
+    }
+    footer a { color: #6b7280; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="gs-badge">🍀 Girl Scout Project</div>
+  <h1>🤟 ASL for First Responders</h1>
+  <p class="header-sub">American Sign Language phrases for police &amp; fire personnel communicating with the Deaf community</p>
+</header>
+<div class="stripe"></div>
+
+<main>
+
+  <div class="intro">
+    <strong>How to use this guide:</strong> Each card shows a key emergency phrase in American Sign Language (ASL). Follow the numbered steps to form the sign, then practice the motion shown by the <span style="color:#2563eb">↑ blue arrows</span>. ASL uses facial expressions too — raise your eyebrows for questions!
+  </div>
+
+  <!-- ════════ CARD 1 · HELP ════════ -->
+  <div class="card card-1">
+    <div class="card-header">
+      <div class="card-num">1</div>
+      <div class="card-heading">
+        <h2>HELP</h2>
+        <p>Call for / offer assistance</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="sign-box">
+        <svg viewBox="0 0 220 195" xmlns="http://www.w3.org/2000/svg" aria-label="HELP sign illustration">
+          <defs>
+            <marker id="arr1" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0,10 3.5,0 7" fill="#2563eb"/>
+            </marker>
+          </defs>
+
+          <!-- ── Flat hand (palm up) – base ── -->
+          <!-- palm oval -->
+          <ellipse cx="95" cy="165" rx="62" ry="22" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <!-- 4 fingers -->
+          <rect x="42"  y="120" width="15" height="50" rx="7.5" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <rect x="60"  y="110" width="15" height="60" rx="7.5" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <rect x="78"  y="108" width="15" height="62" rx="7.5" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <rect x="96"  y="113" width="15" height="57" rx="7.5" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <!-- thumb -->
+          <ellipse cx="146" cy="155" rx="18" ry="11" fill="#F0B090" stroke="#9B6845" stroke-width="1.8" transform="rotate(-28 146 155)"/>
+
+          <!-- ── A-hand fist with thumb UP (rests on flat hand) ── -->
+          <!-- fist body -->
+          <rect x="118" y="95" width="62" height="60" rx="15" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <!-- knuckle bumps -->
+          <ellipse cx="133" cy="95" rx="9" ry="7" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <ellipse cx="149" cy="92" rx="9" ry="7" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <ellipse cx="165" cy="94" rx="9" ry="7" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <!-- thumb pointing UP -->
+          <rect x="105" y="45" width="18" height="58" rx="9" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+
+          <!-- Motion arrows (both hands rise together) -->
+          <line x1="75"  y1="95" x2="75"  y2="10" stroke="#2563eb" stroke-width="3" stroke-dasharray="6,4" marker-end="url(#arr1)"/>
+          <line x1="155" y1="78" x2="155" y2="10" stroke="#2563eb" stroke-width="3" stroke-dasharray="6,4" marker-end="url(#arr1)"/>
+
+          <!-- Label -->
+          <text x="110" y="192" text-anchor="middle" font-size="10" fill="#64748b" font-style="italic">Both hands rise together</text>
+        </svg>
+      </div>
+
+      <p class="steps-label">How to sign it</p>
+      <ul class="steps">
+        <li class="step"><span class="step-n">1</span><span class="step-t">Hold your non-dominant hand flat in front of you, palm facing <strong>up</strong>.</span></li>
+        <li class="step"><span class="step-n">2</span><span class="step-t">Make a fist with your dominant hand and point your <strong>thumb straight up</strong> (like a thumbs-up).</span></li>
+        <li class="step"><span class="step-n">3</span><span class="step-t">Place your fist <strong>on top of</strong> your flat palm.</span></li>
+        <li class="step"><span class="step-n">4</span><span class="step-t">Lift <strong>both hands upward</strong> together in one smooth motion.</span></li>
+      </ul>
+      <div class="tip">💡 <strong>Tip:</strong> This sign looks like one hand is "helping" the other rise up — a great visual reminder!</div>
+    </div>
+  </div>
+
+  <!-- ════════ CARD 2 · STOP ════════ -->
+  <div class="card card-2">
+    <div class="card-header">
+      <div class="card-num">2</div>
+      <div class="card-heading">
+        <h2>STOP</h2>
+        <p>Halt / cease movement</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="sign-box">
+        <svg viewBox="0 0 220 200" xmlns="http://www.w3.org/2000/svg" aria-label="STOP sign illustration">
+          <defs>
+            <marker id="arr2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0,10 3.5,0 7" fill="#dc2626"/>
+            </marker>
+          </defs>
+
+          <!-- ── Left hand: flat, palm up ── -->
+          <ellipse cx="90" cy="178" rx="60" ry="20" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <rect x="38"  y="142" width="14" height="40" rx="7" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <rect x="55"  y="133" width="14" height="49" rx="7" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <rect x="72"  y="131" width="14" height="51" rx="7" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <rect x="89"  y="136" width="14" height="46" rx="7" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <ellipse cx="138" cy="170" rx="16" ry="10" fill="#F0B090" stroke="#9B6845" stroke-width="1.8" transform="rotate(-25 138 170)"/>
+
+          <!-- ── Right hand: flat blade (B-shape), vertical, chopping position ── -->
+          <!-- palm (vertical rectangle, angled slightly) -->
+          <rect x="130" y="75" width="22" height="85" rx="10" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <!-- 4 fingers going up from palm -->
+          <rect x="120" y="14" width="11" height="68" rx="5.5" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <rect x="134" y="7"  width="11" height="74" rx="5.5" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <rect x="148" y="11" width="11" height="70" rx="5.5" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <rect x="162" y="18" width="11" height="63" rx="5.5" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <!-- thumb (angled left) -->
+          <ellipse cx="118" cy="105" rx="11" ry="18" fill="#F0B090" stroke="#9B6845" stroke-width="1.8" transform="rotate(18 118 105)"/>
+
+          <!-- Chop arrow (downward onto left palm) -->
+          <line x1="145" y1="168" x2="145" y2="198" stroke="#dc2626" stroke-width="3.5" stroke-dasharray="7,4" marker-end="url(#arr2)"/>
+
+          <text x="110" y="197" text-anchor="middle" font-size="10" fill="#64748b" font-style="italic">Right hand chops down onto left palm</text>
+        </svg>
+      </div>
+
+      <p class="steps-label">How to sign it</p>
+      <ul class="steps">
+        <li class="step"><span class="step-n">1</span><span class="step-t">Hold your non-dominant hand flat in front of you, palm facing <strong>up</strong>.</span></li>
+        <li class="step"><span class="step-n">2</span><span class="step-t">Hold your dominant hand flat and vertical (like a karate-chop hand), fingers together.</span></li>
+        <li class="step"><span class="step-n">3</span><span class="step-t"><strong>Chop down</strong> sharply with your dominant hand onto the palm of your non-dominant hand.</span></li>
+      </ul>
+      <div class="tip">💡 <strong>Tip:</strong> Think of the edge of your hand as a stop bar coming down. A firm, quick chop makes the sign clearer and more urgent.</div>
+    </div>
+  </div>
+
+  <!-- ════════ CARD 3 · ARE YOU HURT? ════════ -->
+  <div class="card card-3">
+    <div class="card-header">
+      <div class="card-num">3</div>
+      <div class="card-heading">
+        <h2>ARE YOU HURT?</h2>
+        <p>Pain / injury assessment</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="sign-box">
+        <svg viewBox="0 0 220 180" xmlns="http://www.w3.org/2000/svg" aria-label="HURT sign illustration">
+          <defs>
+            <marker id="arr3a" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+              <polygon points="0 0,9 3.5,0 7" fill="#d97706"/>
+            </marker>
+            <marker id="arr3b" markerWidth="9" markerHeight="7" refX="1" refY="3.5" orient="auto-start-reverse">
+              <polygon points="0 0,9 3.5,0 7" fill="#d97706"/>
+            </marker>
+          </defs>
+
+          <!-- ── Left hand: index finger pointing RIGHT ── -->
+          <!-- fist body -->
+          <rect x="10" y="82" width="58" height="58" rx="14" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <!-- index finger pointing right -->
+          <rect x="58" y="90" width="55" height="15" rx="7.5" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <!-- thumb on top of fist -->
+          <ellipse cx="28" cy="80" rx="20" ry="10" fill="#F0B090" stroke="#9B6845" stroke-width="1.8" transform="rotate(-15 28 80)"/>
+          <!-- knuckles -->
+          <ellipse cx="20" cy="82" rx="7.5" ry="6" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <ellipse cx="34" cy="82" rx="7.5" ry="6" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <ellipse cx="48" cy="82" rx="7.5" ry="6" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+
+          <!-- ── Right hand: index finger pointing LEFT ── -->
+          <!-- fist body -->
+          <rect x="152" y="82" width="58" height="58" rx="14" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <!-- index finger pointing left -->
+          <rect x="107" y="90" width="55" height="15" rx="7.5" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <!-- thumb on top -->
+          <ellipse cx="192" cy="80" rx="20" ry="10" fill="#F0B090" stroke="#9B6845" stroke-width="1.8" transform="rotate(15 192 80)"/>
+          <!-- knuckles -->
+          <ellipse cx="162" cy="82" rx="7.5" ry="6" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <ellipse cx="176" cy="82" rx="7.5" ry="6" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <ellipse cx="190" cy="82" rx="7.5" ry="6" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+
+          <!-- Twist/rotation arrows between the two index fingers -->
+          <path d="M 108,72 C 98,52 88,48 82,62" stroke="#d97706" stroke-width="2.5" fill="none" marker-end="url(#arr3a)"/>
+          <path d="M 112,118 C 122,138 132,142 138,128" stroke="#d97706" stroke-width="2.5" fill="none" marker-end="url(#arr3a)"/>
+
+          <text x="110" y="168" text-anchor="middle" font-size="10" fill="#64748b" font-style="italic">Fingertips twist toward each other</text>
+        </svg>
+      </div>
+
+      <p class="steps-label">How to sign it</p>
+      <ul class="steps">
+        <li class="step"><span class="step-n">1</span><span class="step-t">Point <strong>both index fingers</strong> at each other (all other fingers curled in). Leave a small gap between the fingertips.</span></li>
+        <li class="step"><span class="step-n">2</span><span class="step-t"><strong>Twist</strong> both index fingers inward toward each other simultaneously — a quick back-and-forth rotation.</span></li>
+        <li class="step"><span class="step-n">3</span><span class="step-t">To ask <em>"Where does it hurt?"</em>, first sign HURT, then point to areas of the body questioningly (raise eyebrows).</span></li>
+      </ul>
+      <div class="tip">💡 <strong>Tip:</strong> The twisting motion represents a sharp, stabbing pain sensation. Raise your eyebrows to turn it into a yes/no question.</div>
+    </div>
+  </div>
+
+  <!-- ════════ CARD 4 · YOU ARE SAFE ════════ -->
+  <div class="card card-4">
+    <div class="card-header">
+      <div class="card-num">4</div>
+      <div class="card-heading">
+        <h2>YOU ARE SAFE</h2>
+        <p>Reassurance / all clear</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="sign-box">
+        <svg viewBox="0 0 220 200" xmlns="http://www.w3.org/2000/svg" aria-label="SAFE sign illustration">
+          <defs>
+            <marker id="arr4" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0,10 3.5,0 7" fill="#16a34a"/>
+            </marker>
+          </defs>
+
+          <!-- ── Two S-fists crossed at wrists ── -->
+
+          <!-- Right fist (crosses over, positioned slightly upper-right) -->
+          <rect x="112" y="60" width="65" height="65" rx="16" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <!-- knuckle bumps right fist -->
+          <ellipse cx="125" cy="60" rx="9" ry="7" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <ellipse cx="141" cy="57" rx="9" ry="7" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <ellipse cx="157" cy="59" rx="9" ry="7" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <!-- thumb wrapping (S-shape) -->
+          <rect x="112" y="88" width="16" height="38" rx="8" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+
+          <!-- Left fist (underneath, slightly lower-left) -->
+          <rect x="43" y="90" width="65" height="65" rx="16" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <!-- knuckle bumps left fist -->
+          <ellipse cx="56"  cy="90" rx="9" ry="7" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <ellipse cx="72"  cy="87" rx="9" ry="7" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <ellipse cx="88"  cy="89" rx="9" ry="7" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <!-- thumb wrapping -->
+          <rect x="92" y="118" width="16" height="38" rx="8" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+
+          <!-- X crossing indicator -->
+          <text x="110" y="108" text-anchor="middle" font-size="28" fill="#16a34a" opacity="0.18" font-weight="900">✕</text>
+
+          <!-- Outward arrows showing hands sweep apart -->
+          <line x1="180" y1="55" x2="210" y2="30" stroke="#16a34a" stroke-width="3" marker-end="url(#arr4)"/>
+          <line x1="40"  y1="85" x2="10"  y2="60" stroke="#16a34a" stroke-width="3" marker-end="url(#arr4)"/>
+
+          <text x="110" y="178" text-anchor="middle" font-size="10" fill="#64748b" font-style="italic">Cross wrists, then sweep outward</text>
+          <text x="110" y="192" text-anchor="middle" font-size="10" fill="#64748b" font-style="italic">ending with palms facing forward</text>
+        </svg>
+      </div>
+
+      <p class="steps-label">How to sign it</p>
+      <ul class="steps">
+        <li class="step"><span class="step-n">1</span><span class="step-t">Make two fists (S-handshape) with both hands.</span></li>
+        <li class="step"><span class="step-n">2</span><span class="step-t"><strong>Cross your wrists</strong> in front of your chest, like a big X, with one arm on top of the other.</span></li>
+        <li class="step"><span class="step-n">3</span><span class="step-t"><strong>Sweep both hands outward</strong> at the same time, rotating them so your palms end up facing <strong>forward</strong> (away from you).</span></li>
+        <li class="step"><span class="step-n">4</span><span class="step-t">For "YOU are safe," first point at the person before signing SAFE.</span></li>
+      </ul>
+      <div class="tip">💡 <strong>Tip:</strong> The motion looks like you're opening a pair of curtains. Calm facial expression reinforces the reassuring message.</div>
+    </div>
+  </div>
+
+  <!-- ════════ CARD 5 · COME WITH ME / FOLLOW ════════ -->
+  <div class="card card-5">
+    <div class="card-header">
+      <div class="card-num">5</div>
+      <div class="card-heading">
+        <h2>COME WITH ME</h2>
+        <p>Direct someone to follow you</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="sign-box">
+        <svg viewBox="0 0 220 200" xmlns="http://www.w3.org/2000/svg" aria-label="COME WITH ME sign illustration">
+          <defs>
+            <marker id="arr5" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0,10 3.5,0 7" fill="#7c3aed"/>
+            </marker>
+          </defs>
+
+          <!-- ── Hand with index finger extended, beckoning ── -->
+          <!-- fist/palm body -->
+          <rect x="65" y="95" width="85" height="80" rx="20" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <!-- index finger extended upward and slightly curved -->
+          <rect x="78" y="25" width="20" height="80" rx="10" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <!-- slight curve at fingertip (beckoning) -->
+          <path d="M 78,30 Q 65,18 68,8" stroke="#F0B090" stroke-width="16" stroke-linecap="round" fill="none"/>
+          <path d="M 78,30 Q 65,18 68,8" stroke="#9B6845" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+          <!-- thumb visible on side -->
+          <ellipse cx="50" cy="120" rx="15" ry="22" fill="#F0B090" stroke="#9B6845" stroke-width="1.8" transform="rotate(12 50 120)"/>
+          <!-- knuckle bumps -->
+          <ellipse cx="82"  cy="95" rx="9"  ry="7" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <ellipse cx="99"  cy="93" rx="9"  ry="7" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <ellipse cx="116" cy="95" rx="9"  ry="7" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+          <ellipse cx="132" cy="99" rx="8"  ry="7" fill="#F0B090" stroke="#9B6845" stroke-width="1.8"/>
+
+          <!-- Beckoning curved arrow (curves away then back toward body) -->
+          <path d="M 95,18 C 130,5 165,25 170,60 C 175,90 155,115 130,120"
+                stroke="#7c3aed" stroke-width="3" fill="none" stroke-dasharray="7,4" marker-end="url(#arr5)"/>
+
+          <text x="110" y="190" text-anchor="middle" font-size="10" fill="#64748b" font-style="italic">Index finger curls inward (beckons)</text>
+        </svg>
+      </div>
+
+      <p class="steps-label">How to sign it</p>
+      <ul class="steps">
+        <li class="step"><span class="step-n">1</span><span class="step-t">Extend your <strong>index finger</strong> upward (all other fingers curled in) with your dominant hand.</span></li>
+        <li class="step"><span class="step-n">2</span><span class="step-t"><strong>Curl your index finger</strong> inward toward your body — a natural beckoning gesture. Repeat once or twice.</span></li>
+        <li class="step"><span class="step-n">3</span><span class="step-t">To say "COME WITH ME," first point to the person, then make the beckoning sign, then point to yourself.</span></li>
+        <li class="step"><span class="step-n">4</span><span class="step-t">You can also nod in the direction you want them to go while signing.</span></li>
+      </ul>
+      <div class="tip">💡 <strong>Tip:</strong> The beckoning finger motion is nearly universal — most people will understand it immediately, even without ASL knowledge.</div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p>🍀 <strong>A Girl Scout Service Project</strong></p>
+  <p>Designed to help first responders communicate with the Deaf &amp; Hard-of-Hearing community</p>
+  <p style="margin-top:0.5rem;">Learn more ASL at <a href="https://www.handspeak.com" target="_blank" rel="noopener">handspeak.com</a> · <a href="https://lifeprint.com" target="_blank" rel="noopener">lifeprint.com</a></p>
+  <p style="margin-top:0.5rem; font-size:0.72rem;">ASL is a complete, natural language — this guide covers basic phrases only. For deeper communication, connect with a Deaf interpreter.</p>
+</footer>
+
+</body>
+</html>
