@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>North Texas Active RFP Dashboard</title>
+    <!-- Google Fonts (Outfit and Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --surface-bg: rgba(17, 25, 40, 0.75);
+            --card-bg: rgba(23, 33, 53, 0.6);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent: #3b82f6;
+            --accent-hover: #60a5fa;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --glow: rgba(59, 130, 246, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: var(--accent);
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Glassmorphism Auth Container */
+        .auth-container {
+            margin-top: 120px;
+            width: 90%;
+            max-width: 450px;
+            background: var(--surface-bg);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .auth-container h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .auth-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        .btn-google {
+            background-color: #ffffff;
+            color: #1f2937;
+            font-weight: 600;
+            font-size: 15px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-google:hover {
+            background-color: #f9fafb;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-google img {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Dashboard Layout */
+        .dashboard-container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 40px 20px;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 32px;
+        }
+
+        .brand h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .brand span {
+            color: var(--accent);
+        }
+
+        .btn-signout {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-signout:hover {
+            color: #ffffff;
+            border-color: #ffffff;
+        }
+
+        /* Stats Section */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--surface-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        /* Search and Filter Panel */
+        .search-panel {
+            background: var(--surface-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 32px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            flex-grow: 1;
+        }
+
+        .search-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 16px 12px 40px;
+            color: #ffffff;
+            font-size: 15px;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .btn-filter-toggle {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-filter-toggle.active {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: var(--accent);
+            color: var(--accent-hover);
+        }
+
+        /* RFP Cards Grid */
+        .rfp-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 24px;
+        }
+
+        .rfp-card {
+            background: var(--surface-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .rfp-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(59, 130, 246, 0.35);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(59, 130, 246, 0.05);
+        }
+
+        .rfp-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 14px;
+        }
+
+        .rfp-agency {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: var(--accent-hover);
+            background: rgba(59, 130, 246, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+            max-width: 70%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .rfp-badge-eng {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .rfp-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 12px;
+            color: #ffffff;
+        }
+
+        .rfp-summary {
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .rfp-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            margin-top: auto;
+        }
+
+        .rfp-date-box {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .rfp-date-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .rfp-date-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .btn-view-bid {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: #ffffff;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-view-bid:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+    <!-- Google Identity Services client script -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+    <!-- AUTHENTICATION SCREEN -->
+    <div id="login-screen" class="auth-container">
+        <h2>RFP Dashboard</h2>
+        <p class="auth-subtitle">Welcome! Sign in using your Google Account to view active civil engineering and city planning bids.</p>
+        
+        <div id="loading" class="hidden">
+            <div class="spinner"></div>
+            <p style="font-size: 13px; color: var(--text-secondary);">Authenticating securely...</p>
+        </div>
+
+        <button id="btn-login" class="btn-google" onclick="requestToken()">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_\"G\"_Logo.svg" alt="Google G Logo">
+            Sign In with Google
+        </button>
+    </div>
+
+    <!-- MAIN DASHBOARD -->
+    <div id="dashboard" class="dashboard-container hidden">
+        <div class="navbar">
+            <div class="brand">
+                <h1>North Texas <span>RFPs</span></h1>
+            </div>
+            <button class="btn-signout" onclick="logout()">Sign Out</button>
+        </div>
+
+        <!-- Dashboard Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Active Bids</div>
+                <div id="stat-total" class="stat-value">-</div>
+            </div>
+            <div class="stat-card" style="--accent: #10b981;">
+                <div class="stat-label">Engineering Services</div>
+                <div id="stat-eng" class="stat-value">-</div>
+            </div>
+            <div class="stat-card" style="--accent: #f59e0b;">
+                <div class="stat-label">County Keywords Matched</div>
+                <div id="stat-keywords" class="stat-value">-</div>
+            </div>
+        </div>
+
+        <!-- Search and Dynamic Filters Panel -->
+        <div class="search-panel">
+            <div class="search-input-wrapper">
+                <svg class="search-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input id="search-bar" type="text" class="search-input" placeholder="Search RFPs by agency, title, summary, or keywords..." oninput="filterData()">
+            </div>
+            <button id="filter-eng" class="btn-filter-toggle active" onclick="toggleEngineeringFilter()">
+                Engineering Only
+            </button>
+        </div>
+
+        <!-- RFP Cards Grid -->
+        <div id="rfp-list" class="rfp-grid">
+            <!-- Dynamic RFP cards append here -->
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // CONFIGURATION PARAMETERS
+        // ==========================================
+        // 1. Your actual Google Cloud Web Application Client ID (populated automatically by the agent!):
+        const CLIENT_ID = "552341895890-a9e4t287omlidj718hbufsgispi9kueq.apps.googleusercontent.com"; 
+        
+        // 2. Your actual Google Sheet ID (populated automatically by the agent!):
+        const SPREADSHEET_ID = "1Dppm-aBjP9RgqxESFCp1faZWiLgRX2tmNPGK5PTvXmY"; 
+
+        let tokenClient;
+        let accessToken = null;
+        let rfpRecords = [];
+        let filterEngineeringOnly = true;
+
+        // Initialize Google OAuth Token Client on script load
+        window.onload = function () {
+            // Check if Spreadsheet ID or Client ID contains placeholders and notify developer
+            if (CLIENT_ID.includes("mock") || SPREADSHEET_ID.includes("mock")) {
+                console.warn("Please replace CLIENT_ID and SPREADSHEET_ID at the top of the index.html script block with your own Google Cloud Client ID and Google Sheet ID!");
+            }
+
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: CLIENT_ID,
+                scope: 'https://www.googleapis.com/auth/spreadsheets.readonly',
+                callback: (tokenResponse) => {
+                    if (tokenResponse && tokenResponse.access_token) {
+                        accessToken = tokenResponse.access_token;
+                        document.getElementById("btn-login").classList.add("hidden");
+                        document.getElementById("loading").classList.remove("hidden");
+                        
+                        // Small transition delay
+                        setTimeout(() => {
+                            document.getElementById("login-screen").classList.add("hidden");
+                            document.getElementById("dashboard").classList.remove("hidden");
+                            loadSheetData();
+                        }, 800);
+                    }
+                },
+            });
+        };
+
+        function requestToken() {
+            tokenClient.requestAccessToken({ prompt: 'consent' });
+        }
+
+        function logout() {
+            if (accessToken) {
+                google.accounts.oauth2.revokeToken(accessToken);
+                accessToken = null;
+                document.getElementById("dashboard").classList.add("hidden");
+                document.getElementById("login-screen").classList.remove("hidden");
+                document.getElementById("btn-login").classList.remove("hidden");
+                document.getElementById("loading").classList.add("hidden");
+            }
+        }
+
+        async function loadSheetData() {
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Active_RFPs!A:K`;
+            
+            try {
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                
+                if (!response.ok) throw new Error("Google Sheets API rejected the access token.");
+                
+                const data = await response.json();
+                processSheetRows(data.values);
+            } catch (err) {
+                alert("Authorization Successful, but we could not read the Google Sheet.\n\n" +
+                      "Please ensure your wife's Google account has been explicitly invited as a Viewer or Editor to the Google Sheet 'North Texas RFPs' in Google Sheets sharing settings!");
+                console.error(err);
+                logout();
+            }
+        }
+
+        function processSheetRows(rows) {
+            if (!rows || rows.length <= 1) {
+                rfpRecords = [];
+                updateStats();
+                renderCards([]);
+                return;
+            }
+
+            const headers = rows[0];
+            const dataRows = rows.slice(1);
+
+            // Columns index map:
+            // 0: Agency Name, 1: RFP Title, 2: RFP Number, 3: Post Date, 4: Due Date,
+            // 5: RFP Link, 6: Matching Keywords, 7: Scraped At, 8: Status, 9: Ollama Summary, 10: Is Engineering
+            rfpRecords = dataRows.map(row => {
+                return {
+                    agency: row[0] || "Unknown Agency",
+                    title: row[1] || "Untitled Proposal",
+                    rfpNum: row[2] || "N/A",
+                    postDate: row[3] || "N/A",
+                    dueDate: row[4] || "N/A",
+                    link: row[5] || "#",
+                    keywords: row[6] ? row[6].split(",").map(k => k.trim()) : [],
+                    status: row[8] || "Active",
+                    summary: row[9] || "No summary details generated.",
+                    isEng: row[10] === "Yes"
+                };
+            }).filter(r => r.status === "Active"); // Only display Active RFPs
+
+            updateStats();
+            filterData();
+        }
+
+        function updateStats() {
+            document.getElementById("stat-total").innerText = rfpRecords.length;
+            
+            const engCount = rfpRecords.filter(r => r.isEng).length;
+            document.getElementById("stat-eng").innerText = engCount;
+
+            // Count distinct county keywords
+            const countiesSet = new Set();
+            rfpRecords.forEach(r => {
+                r.keywords.forEach(k => {
+                    if (k.toLowerCase().includes("county:")) {
+                        countiesSet.add(k.replace(/county:\s*/i, "").trim());
+                    }
+                });
+            });
+            document.getElementById("stat-keywords").innerText = countiesSet.size || "-";
+        }
+
+        function toggleEngineeringFilter() {
+            filterEngineeringOnly = !filterEngineeringOnly;
+            
+            const btn = document.getElementById("filter-eng");
+            if (filterEngineeringOnly) {
+                btn.classList.add("active");
+            } else {
+                btn.classList.remove("active");
+            }
+            filterData();
+        }
+
+        function filterData() {
+            const query = document.getElementById("search-bar").value.toLowerCase().trim();
+            
+            const filtered = rfpRecords.filter(r => {
+                // Apply Engineering services only filter
+                if (filterEngineeringOnly && !r.isEng) {
+                    return false;
+                }
+
+                // Apply search bar text filter
+                if (query) {
+                    const textString = `${r.agency} ${r.title} ${r.summary} ${r.keywords.join(" ")}`.toLowerCase();
+                    return textString.includes(query);
+                }
+
+                return true;
+            });
+
+            renderCards(filtered);
+        }
+
+        function renderCards(records) {
+            const grid = document.getElementById("rfp-list");
+            grid.innerHTML = "";
+
+            if (!records || records.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 60px 0; color: var(--text-muted);">
+                        <p style="font-size: 16px; font-weight: 500;">No active RFPs matched your filters.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            records.forEach(r => {
+                const card = document.createElement("div");
+                card.className = "rfp-card";
+
+                // Generate clean county list badge
+                const counties = r.keywords
+                    .filter(k => k.toLowerCase().includes("county:"))
+                    .map(k => k.replace(/county:\s*/i, ""))
+                    .join(", ");
+
+                card.innerHTML = `
+                    <div class="rfp-top">
+                        <div class="rfp-agency" title="${r.agency}">${r.agency}</div>
+                        ${r.isEng ? '<div class="rfp-badge-eng">Engineering Services</div>' : ''}
+                    </div>
+                    <div class="rfp-title">${r.title}</div>
+                    <div class="rfp-summary">${r.summary}</div>
+                    <div class="rfp-footer">
+                        <div class="rfp-date-box">
+                            <span class="rfp-date-label">Due Date</span>
+                            <span class="rfp-date-value">${r.dueDate}</span>
+                        </div>
+                        <a href="${r.link}" target="_blank" class="btn-view-bid">
+                            View Bid
+                            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
