@@ -19,6 +19,8 @@
             --accent-hover: #60a5fa;
             --success: #10b981;
             --warning: #f59e0b;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
             --text-primary: #f3f4f6;
             --text-secondary: #9ca3af;
             --text-muted: #6b7280;
@@ -284,29 +286,80 @@
             color: var(--accent-hover);
         }
 
-        /* RFP Cards Grid */
+        /* RFP Swipeable Cards Grid */
         .rfp-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
             gap: 24px;
         }
 
+        /* Swipeable RFP Card wrapper */
+        .rfp-card-wrapper {
+            position: relative;
+            border-radius: 14px;
+            overflow: hidden;
+            height: 100%;
+            min-height: 240px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+
+        .rfp-card-delete-bg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 90px;
+            height: 100%;
+            background-color: var(--danger);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-top-right-radius: 14px;
+            border-bottom-right-radius: 14px;
+            z-index: 1;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .rfp-card-delete-bg:hover {
+            background-color: var(--danger-hover);
+        }
+
+        .rfp-delete-btn-text {
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
         .rfp-card {
-            background: var(--surface-bg);
+            background: #111827;
             border: 1px solid var(--border-color);
             border-radius: 14px;
             padding: 24px;
             display: flex;
             flex-direction: column;
             position: relative;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow: hidden;
+            height: 100%;
+            z-index: 2; /* Sits on top of the red background */
+            transform: translateX(0px);
+            touch-action: pan-y; /* Allows vertical scrolling while swiping horizontally */
+            user-select: none;
+            -webkit-user-select: none;
+            cursor: grab;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .rfp-card:active {
+            cursor: grabbing;
         }
 
         .rfp-card:hover {
-            transform: translateY(-3px);
             border-color: rgba(59, 130, 246, 0.35);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(59, 130, 246, 0.05);
         }
 
         .rfp-top {
@@ -325,7 +378,7 @@
             background: rgba(59, 130, 246, 0.1);
             padding: 4px 8px;
             border-radius: 4px;
-            max-width: 70%;
+            max-width: 65%;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -493,12 +546,13 @@
         window.onload = function () {
             // Check if Spreadsheet ID or Client ID contains placeholders and notify developer
             if (CLIENT_ID.includes("mock") || SPREADSHEET_ID.includes("mock")) {
-                console.warn("Please replace CLIENT_ID and SPREADSHEET_ID at the top of the index.html script block with your own Google Cloud Client ID and Google Sheet ID!");
+                console.warn("Please replace CLIENT_ID and SPREADSHEET_ID at the top of the index.html script block!");
             }
 
             tokenClient = google.accounts.oauth2.initTokenClient({
                 client_id: CLIENT_ID,
-                scope: 'https://www.googleapis.com/auth/spreadsheets.readonly',
+                // Using the standard spreadsheets scope to support marking rows as "Not Interested" (Write permissions)
+                scope: 'https://www.googleapis.com/auth/spreadsheets',
                 callback: (tokenResponse) => {
                     if (tokenResponse && tokenResponse.access_token) {
                         accessToken = tokenResponse.access_token;
@@ -532,7 +586,7 @@
         }
 
         async function loadSheetData() {
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Active_RFPs!A:K`;
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Active_RFPs!A:L`;
             
             try {
                 const response = await fetch(url, {
@@ -564,9 +618,10 @@
 
             // Columns index map:
             // 0: Agency Name, 1: RFP Title, 2: RFP Number, 3: Post Date, 4: Due Date,
-            // 5: RFP Link, 6: Matching Keywords, 7: Scraped At, 8: Status, 9: Ollama Summary, 10: Is Engineering
-            rfpRecords = dataRows.map(row => {
+            // 5: RFP Link, 6: Matching Keywords, 7: Scraped At, 8: Status, 9: Ollama Summary, 10: Is Engineering, 11: Not Interested
+            rfpRecords = dataRows.map((row, idx) => {
                 return {
+                    rowNum: idx + 2, // 1-based Google Sheets row index (A1 is row 1, data starts on row 2)
                     agency: row[0] || "Unknown Agency",
                     title: row[1] || "Untitled Proposal",
                     rfpNum: row[2] || "N/A",
@@ -576,9 +631,10 @@
                     keywords: row[6] ? row[6].split(",").map(k => k.trim()) : [],
                     status: row[8] || "Active",
                     summary: row[9] || "No summary details generated.",
-                    isEng: row[10] === "Yes"
+                    isEng: row[10] === "Yes",
+                    notInterested: row[11] === "Yes"
                 };
-            }).filter(r => r.status === "Active"); // Only display Active RFPs
+            }).filter(r => r.status === "Active" && !r.notInterested); // Exclude Not Interested RFPs dynamically
 
             updateStats();
             filterData();
@@ -649,10 +705,25 @@
             }
 
             records.forEach(r => {
+                // Card Wrapper Container
+                const wrapper = document.createElement("div");
+                wrapper.className = "rfp-card-wrapper";
+
+                // Background delete button (placed under the card)
+                const deleteBg = document.createElement("div");
+                deleteBg.className = "rfp-card-delete-bg";
+                deleteBg.innerHTML = `
+                    <div class="rfp-delete-btn-text">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        <span>Delete</span>
+                    </div>
+                `;
+
+                // Front card container
                 const card = document.createElement("div");
                 card.className = "rfp-card";
 
-                // Generate clean county list badge
+                // Map clean county text
                 const counties = r.keywords
                     .filter(k => k.toLowerCase().includes("county:"))
                     .map(k => k.replace(/county:\s*/i, ""))
@@ -676,8 +747,153 @@
                         </a>
                     </div>
                 `;
-                grid.appendChild(card);
+
+                // Wire up dynamic swiping and click actions
+                makeSwipeable(card, deleteBg, r.rowNum, wrapper);
+                deleteBg.onclick = () => flagNotInterested(r.rowNum, wrapper);
+
+                wrapper.appendChild(deleteBg);
+                wrapper.appendChild(card);
+                grid.appendChild(wrapper);
             });
+        }
+
+        // ==========================================
+        // SWIPE GESTURE CONTROLLER (Mouse & Touch)
+        // ==========================================
+        function makeSwipeable(cardEl, deleteBtnEl, rowNum, wrapperEl) {
+            let startX = 0;
+            let currentX = 0;
+            let isDragging = false;
+            let isOpen = false;
+            const maxOffset = -90; // Offset matching the red delete button width in px
+
+            // Mobile Touch Events
+            cardEl.addEventListener('touchstart', dragStart, { passive: true });
+            cardEl.addEventListener('touchmove', dragMove, { passive: false });
+            cardEl.addEventListener('touchend', dragEnd);
+
+            // Desktop Mouse Events
+            cardEl.addEventListener('mousedown', dragStart);
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', dragEnd);
+
+            function dragStart(e) {
+                // Ignore dragging if clicking interactive links or buttons
+                if (e.target.closest('a') || e.target.closest('button')) return;
+                
+                isDragging = true;
+                startX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+                cardEl.style.transition = 'none';
+            }
+
+            function dragMove(e) {
+                if (!isDragging) return;
+                
+                const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+                const diffX = clientX - startX;
+                
+                let targetX = isOpen ? maxOffset + diffX : diffX;
+                
+                // Allow left swiping but prevent right swiping
+                if (targetX < 0) {
+                    // Damping effect past the maximum offset limit
+                    if (targetX < maxOffset) {
+                        targetX = maxOffset + (targetX - maxOffset) * 0.25;
+                    }
+                    cardEl.style.transform = `translateX(${targetX}px)`;
+                    currentX = targetX;
+                    
+                    // Prevent page scroll only when horizontal swiping is detected
+                    if (Math.abs(diffX) > 10 && e.cancelable) {
+                        e.preventDefault();
+                    }
+                } else {
+                    cardEl.style.transform = 'translateX(0px)';
+                    currentX = 0;
+                }
+            }
+
+            function dragEnd() {
+                if (!isDragging) return;
+                isDragging = false;
+                
+                cardEl.style.transition = 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
+                
+                // Threshold to trigger full open (snap to button width) or close (snap back)
+                if (currentX < maxOffset / 2) {
+                    cardEl.style.transform = `translateX(${maxOffset}px)`;
+                    isOpen = true;
+                } else {
+                    cardEl.style.transform = 'translateX(0px)';
+                    isOpen = false;
+                }
+            }
+        }
+
+        // ==========================================
+        // DYNAMIC GOOGLE SHEETS WRITE-BACK (L Column)
+        // ==========================================
+        async function flagNotInterested(rowNum, wrapperEl) {
+            if (!rowNum) return;
+            
+            const deleteBtn = wrapperEl.querySelector('.rfp-card-delete-bg');
+            // Show dynamic loading spinner
+            deleteBtn.innerHTML = '<div class="spinner" style="width:20px;height:20px;border-width:2px;margin:0;"></div>';
+            deleteBtn.style.pointerEvents = 'none';
+
+            // Google Sheets REST API cell write URL (Column L is index 12)
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Active_RFPs!L${rowNum}?valueInputOption=USER_ENTERED`;
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: { 
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        values: [["Yes"]] // Write 'Yes' to Not Interested column
+                    })
+                });
+                
+                if (!response.ok) throw new Error("Google Sheets API write failed.");
+                
+                // Animate card smooth deletion from grid
+                wrapperEl.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+                wrapperEl.style.opacity = '0';
+                wrapperEl.style.transform = 'scale(0.9)';
+                wrapperEl.style.maxHeight = wrapperEl.offsetHeight + 'px';
+                
+                setTimeout(() => {
+                    wrapperEl.style.maxHeight = '0px';
+                    wrapperEl.style.margin = '0px';
+                    wrapperEl.style.padding = '0px';
+                    wrapperEl.style.border = 'none';
+                    
+                    setTimeout(() => {
+                        wrapperEl.remove();
+                        // Remove from client records array and update stats counters
+                        rfpRecords = rfpRecords.filter(r => r.rowNum !== rowNum);
+                        updateStats();
+                    }, 400);
+                }, 100);
+                
+            } catch (err) {
+                alert("Error writing to sheet. Verify your internet connection and spreadsheet permissions.");
+                console.error(err);
+                
+                // Reset card and button state upon error
+                deleteBtn.style.pointerEvents = 'auto';
+                deleteBtn.innerHTML = `
+                    <div class="rfp-delete-btn-text">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        <span>Delete</span>
+                    </div>
+                `;
+                const card = wrapperEl.querySelector('.rfp-card');
+                card.style.transform = 'translateX(0px)';
+            }
         }
     </script>
 </body>
