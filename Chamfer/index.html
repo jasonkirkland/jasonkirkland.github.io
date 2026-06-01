@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CHAMFER · STL edge breaker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0d10; --bg2:#101216; --panel:#15181e; --panel2:#1b1f27;
+    --line:#272c36; --line2:#333a47;
+    --txt:#d7dbe2; --dim:#8b93a1; --faint:#5a616e;
+    --amber:#f5a623; --amber-d:#c47f10; --heat:#ff6a2c;
+    --good:#56d6a0; --bad:#ff5a6e;
+    --shadow:0 18px 40px rgba(0,0,0,.55);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;margin:0;}
+  body{
+    background:
+      radial-gradient(900px 500px at 78% -8%, rgba(245,166,35,.10), transparent 60%),
+      radial-gradient(700px 600px at 0% 110%, rgba(255,106,44,.06), transparent 55%),
+      var(--bg);
+    color:var(--txt);
+    font-family:'Chakra Petch',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+  }
+  /* faint engineering grid */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;opacity:.45;z-index:0;
+    background-image:
+      linear-gradient(var(--line) 1px,transparent 1px),
+      linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:46px 46px;
+    -webkit-mask-image:radial-gradient(circle at 50% 40%,#000,transparent 80%);
+            mask-image:radial-gradient(circle at 50% 40%,#000,transparent 80%);
+  }
+  .app{position:relative;z-index:1;display:grid;grid-template-columns:340px 1fr;height:100vh;}
+
+  /* ---- side panel ---- */
+  aside{
+    border-right:1px solid var(--line);
+    background:linear-gradient(180deg,var(--bg2),var(--bg));
+    display:flex;flex-direction:column;min-height:0;
+  }
+  .brand{
+    padding:18px 20px 14px;border-bottom:1px solid var(--line);
+    display:flex;align-items:baseline;gap:10px;
+  }
+  .brand h1{
+    font-size:22px;font-weight:700;letter-spacing:.16em;margin:0;
+    color:var(--txt);
+  }
+  .brand h1 b{color:var(--amber);}
+  .brand .v{font-family:'IBM Plex Mono';font-size:10px;color:var(--faint);letter-spacing:.1em;margin-left:auto;}
+  .brand .sub{font-size:10.5px;color:var(--dim);letter-spacing:.22em;text-transform:uppercase;}
+
+  .scroll{overflow-y:auto;padding:16px 18px 20px;flex:1;min-height:0;}
+  .scroll::-webkit-scrollbar{width:9px;}
+  .scroll::-webkit-scrollbar-thumb{background:var(--line2);border-radius:9px;border:2px solid var(--bg2);}
+
+  section.blk{margin-bottom:20px;}
+  .lbl{
+    font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint);
+    display:flex;align-items:center;gap:8px;margin:0 0 9px;
+  }
+  .lbl::after{content:"";flex:1;height:1px;background:var(--line);}
+
+  .drop{
+    border:1.5px dashed var(--line2);border-radius:10px;padding:18px 14px;text-align:center;
+    cursor:pointer;transition:.15s;background:rgba(255,255,255,.012);
+  }
+  .drop:hover,.drop.hot{border-color:var(--amber);background:rgba(245,166,35,.06);}
+  .drop .big{font-size:13px;color:var(--txt);letter-spacing:.04em;}
+  .drop .small{font-size:10.5px;color:var(--dim);margin-top:5px;font-family:'IBM Plex Mono';}
+
+  .row{display:flex;gap:8px;margin-top:9px;}
+  button{
+    font-family:'Chakra Petch';font-weight:600;letter-spacing:.08em;font-size:12px;
+    border:1px solid var(--line2);background:var(--panel2);color:var(--txt);
+    padding:9px 12px;border-radius:8px;cursor:pointer;transition:.13s;flex:1;text-transform:uppercase;
+  }
+  button:hover{border-color:var(--amber);color:#fff;}
+  button:active{transform:translateY(1px);}
+  button.ghost{background:transparent;}
+  button.primary{
+    background:linear-gradient(180deg,var(--amber),var(--amber-d));
+    border-color:var(--amber-d);color:#1a1206;font-weight:700;
+    box-shadow:0 6px 18px rgba(245,166,35,.22);
+  }
+  button.primary:hover{filter:brightness(1.07);color:#1a1206;}
+  button:disabled{opacity:.4;cursor:not-allowed;transform:none;border-color:var(--line);}
+  button:disabled:hover{color:var(--txt);}
+
+  .ctl{margin-bottom:15px;}
+  .ctl .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+  .ctl .name{font-size:12px;color:var(--txt);letter-spacing:.03em;}
+  .ctl .val{font-family:'IBM Plex Mono';font-size:12px;color:var(--amber);font-weight:500;}
+  .ctl .val small{color:var(--faint);}
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:3px;border-radius:3px;
+    background:var(--line2);outline:none;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:15px;height:15px;border-radius:50%;
+    background:var(--amber);border:2px solid var(--bg);box-shadow:0 0 0 1px var(--amber-d);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:15px;height:15px;border-radius:50%;background:var(--amber);
+    border:2px solid var(--bg);box-shadow:0 0 0 1px var(--amber-d);
+  }
+  .check{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--dim);cursor:pointer;margin-top:4px;}
+  .check input{accent-color:var(--amber);width:14px;height:14px;cursor:pointer;}
+
+  .stats{
+    display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:8px;overflow:hidden;
+  }
+  .stat{background:var(--panel);padding:9px 11px;}
+  .stat .k{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);}
+  .stat .n{font-family:'IBM Plex Mono';font-size:15px;color:var(--txt);margin-top:2px;}
+  .stat .n.ok{color:var(--good);} .stat .n.warn{color:var(--bad);} .stat .n.amb{color:var(--amber);}
+
+  .log{
+    font-family:'IBM Plex Mono';font-size:10.5px;line-height:1.55;color:var(--dim);
+    background:#0a0b0e;border:1px solid var(--line);border-radius:8px;padding:10px 11px;
+    max-height:120px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;
+  }
+  .log .t{color:var(--faint);}
+  .log .ok{color:var(--good);} .log .er{color:var(--bad);} .log .am{color:var(--amber);}
+
+  /* ---- viewport ---- */
+  main{position:relative;min-width:0;}
+  #view{position:absolute;inset:0;}
+  .vtools{
+    position:absolute;top:14px;left:14px;display:flex;gap:7px;z-index:5;flex-wrap:wrap;max-width:70%;
+  }
+  .chip{
+    font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.04em;
+    border:1px solid var(--line2);background:rgba(16,18,22,.82);backdrop-filter:blur(6px);
+    color:var(--dim);padding:6px 11px;border-radius:7px;cursor:pointer;transition:.13s;user-select:none;
+  }
+  .chip:hover{color:#fff;border-color:var(--line2);}
+  .chip.on{color:#1a1206;background:var(--amber);border-color:var(--amber);font-weight:600;}
+  .badge{
+    position:absolute;top:14px;right:14px;z-index:5;font-family:'IBM Plex Mono';font-size:10.5px;
+    color:var(--faint);background:rgba(16,18,22,.82);backdrop-filter:blur(6px);
+    border:1px solid var(--line);border-radius:7px;padding:6px 11px;letter-spacing:.05em;text-align:right;
+  }
+  .badge b{color:var(--amber);}
+  .overlay{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:8;
+    background:rgba(8,9,11,.74);backdrop-filter:blur(3px);flex-direction:column;gap:14px;
+  }
+  .overlay.hide{display:none;}
+  .spin{width:34px;height:34px;border:3px solid var(--line2);border-top-color:var(--amber);border-radius:50%;animation:sp .8s linear infinite;}
+  @keyframes sp{to{transform:rotate(360deg);}}
+  .overlay .msg{font-family:'IBM Plex Mono';font-size:12px;color:var(--dim);letter-spacing:.05em;}
+  .hint{position:absolute;bottom:12px;left:0;right:0;text-align:center;z-index:5;
+    font-family:'IBM Plex Mono';font-size:10px;color:var(--faint);letter-spacing:.08em;pointer-events:none;}
+  @media (max-width:760px){.app{grid-template-columns:1fr;grid-template-rows:auto 1fr;} aside{max-height:46vh;} }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="brand">
+      <h1>CHAM<b>FER</b></h1>
+      <div>
+        <div class="sub">edge breaker</div>
+      </div>
+      <span class="v">v1.0</span>
+    </div>
+    <div class="scroll">
+
+      <section class="blk">
+        <p class="lbl">Mesh input</p>
+        <div class="drop" id="drop">
+          <div class="big">Drop an <b>.stl</b> here</div>
+          <div class="small">or click to browse · binary &amp; ASCII</div>
+        </div>
+        <input type="file" id="file" accept=".stl" hidden>
+        <div class="row">
+          <button class="ghost" id="sampleCube">Sample cube</button>
+          <button class="ghost" id="sampleL">L-bracket</button>
+        </div>
+      </section>
+
+      <section class="blk">
+        <p class="lbl">Parameters</p>
+        <div class="ctl">
+          <div class="top"><span class="name">Chamfer size</span><span class="val" id="sizeV">—</span></div>
+          <input type="range" id="size" min="0" max="100" value="20">
+        </div>
+        <div class="ctl">
+          <div class="top"><span class="name">Feature angle</span><span class="val" id="angV">20<small>°</small></span></div>
+          <input type="range" id="ang" min="5" max="80" value="20">
+        </div>
+        <div class="ctl">
+          <div class="top"><span class="name">Weld tolerance</span><span class="val" id="welV">—</span></div>
+          <input type="range" id="wel" min="0" max="100" value="25">
+        </div>
+        <label class="check"><input type="checkbox" id="concave"> Also break concave edges</label>
+      </section>
+
+      <section class="blk">
+        <button class="primary" id="apply" disabled>Apply chamfer</button>
+        <div class="row">
+          <button class="ghost" id="reset" disabled>Reset</button>
+          <button class="ghost" id="export" disabled>Export STL</button>
+        </div>
+      </section>
+
+      <section class="blk">
+        <p class="lbl">Readout</p>
+        <div class="stats">
+          <div class="stat"><div class="k">In · tris</div><div class="n" id="sIn">—</div></div>
+          <div class="stat"><div class="k">Feature edges</div><div class="n amb" id="sEdge">—</div></div>
+          <div class="stat"><div class="k">Out · tris</div><div class="n" id="sOut">—</div></div>
+          <div class="stat"><div class="k">Watertight</div><div class="n" id="sTight">—</div></div>
+        </div>
+      </section>
+
+      <section class="blk" style="margin-bottom:6px;">
+        <p class="lbl">Console</p>
+        <div class="log" id="log"></div>
+      </section>
+    </div>
+  </aside>
+
+  <main>
+    <div id="view"></div>
+    <div class="vtools">
+      <div class="chip on" id="tShade">Solid</div>
+      <div class="chip" id="tWire">Wireframe</div>
+      <div class="chip on" id="tEdges">Feature edges</div>
+      <div class="chip" id="tOrig">Show original</div>
+    </div>
+    <div class="badge" id="badge">no model</div>
+    <div class="overlay" id="ov"><div class="spin"></div><div class="msg" id="ovMsg">loading engine…</div></div>
+    <div class="hint">drag to orbit · scroll to zoom · right-drag to pan</div>
+  </main>
+</div>
+
+<script type="importmap">
+{
+  "imports":{
+    "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+    "manifold-3d":"https://cdn.jsdelivr.net/npm/manifold-3d@3.5.0/manifold.js"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { STLLoader }   from 'three/addons/loaders/STLLoader.js';
+import { STLExporter } from 'three/addons/exporters/STLExporter.js';
+import ManifoldModule  from 'manifold-3d';
+
+/* ============================================================= *
+ *  Logging / UI helpers
+ * ============================================================= */
+const $ = id => document.getElementById(id);
+const logEl = $('log');
+function log(msg, cls=''){
+  const t = new Date().toLocaleTimeString('en-GB',{hour12:false});
+  const span = cls ? `<span class="${cls}">${msg}</span>` : msg;
+  logEl.innerHTML += `<span class="t">${t}</span>  ${span}\n`;
+  logEl.scrollTop = logEl.scrollHeight;
+}
+function setOverlay(show,msg){ $('ov').classList.toggle('hide',!show); if(msg)$('ovMsg').textContent=msg; }
+
+/* ============================================================= *
+ *  Vec math (plain arrays) — mirrors the validated node tests
+ * ============================================================= */
+const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]];
+const add=(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]];
+const mul=(a,s)=>[a[0]*s,a[1]*s,a[2]*s];
+const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+const vlen=a=>Math.hypot(a[0],a[1],a[2]);
+const vnorm=a=>{const l=vlen(a)||1;return[a[0]/l,a[1]/l,a[2]/l];};
+
+/* ============================================================= *
+ *  Topology reconstruction (proven on the cube test rig)
+ * ============================================================= */
+// weld a raw position Float32Array (triangle soup) into indexed verts
+function weld(pos, eps){
+  const map=new Map(), verts=[], indices=[];
+  const q = x => Math.round(x/eps);
+  for(let i=0;i<pos.length;i+=3){
+    const x=pos[i],y=pos[i+1],z=pos[i+2];
+    const k=`${q(x)},${q(y)},${q(z)}`;
+    let idx=map.get(k);
+    if(idx===undefined){ idx=verts.length; verts.push([x,y,z]); map.set(k,idx); }
+    indices.push(idx);
+  }
+  return {verts,indices};
+}
+function faceNormal(verts,t){
+  return vnorm(cross(sub(verts[t[1]],verts[t[0]]),sub(verts[t[2]],verts[t[0]])));
+}
+function buildEdges(indices){
+  const tris=[];
+  for(let i=0;i<indices.length;i+=3) tris.push([indices[i],indices[i+1],indices[i+2]]);
+  const em=new Map();
+  const key=(u,w)=>u<w?`${u},${w}`:`${w},${u}`;
+  tris.forEach((t,ti)=>{
+    for(let k=0;k<3;k++){
+      const u=t[k], w=t[(k+1)%3], kk=key(u,w);
+      let e=em.get(kk);
+      if(!e){ e={a:Math.min(u,w),b:Math.max(u,w),tris:[]}; em.set(kk,e); }
+      e.tris.push(ti);
+    }
+  });
+  return {tris,edges:[...em.values()]};
+}
+// classify feature edges + convexity; returns {convex:[], concave:[], nonManifold:int, rejected:int}
+function classify(verts,tris,edges,featureDeg){
+  const thr=Math.cos(featureDeg*Math.PI/180);
+  const out={convex:[],concave:[],nonManifold:0,rejected:0};
+  for(const e of edges){
+    if(e.tris.length!==2){ out.nonManifold++; continue; }
+    const n1=faceNormal(verts,tris[e.tris[0]]);
+    const n2=faceNormal(verts,tris[e.tris[1]]);
+    const ca=Math.max(-1,Math.min(1,dot(n1,n2)));
+    if(ca>thr){ out.rejected++; continue; }            // ~coplanar → not a real edge (e.g. face diagonals)
+    const bis=vnorm(add(n1,n2));
+    const ep=verts[e.a];
+    let apex=-1;
+    for(const i of tris[e.tris[0]]) if(i!==e.a&&i!==e.b){ apex=i; break; }
+    const convex = dot(bis,sub(verts[apex],ep)) < 0; // outward bisector points away from interior apex
+    const rec={a:e.a,b:e.b,bis};
+    (convex?out.convex:out.concave).push(rec);
+  }
+  return out;
+}
+
+/* ============================================================= *
+ *  Cutter geometry — self-orienting box (proven: genus 0, vol>0)
+ * ============================================================= */
+function cutterCorners(p0,p1,bis,size,inward){
+  const d   = size*Math.SQRT1_2;          // inward depth (≈ leg length on a 90° edge)
+  const u   = vnorm(sub(p1,p0));          // along edge
+  const w   = inward ? mul(bis,-1) : bis; // concave edges cut from the inside
+  const v   = vnorm(cross(w,u));
+  const L   = vlen(sub(p1,p0));
+  const m   = mul(add(p0,p1),0.5);
+  const Q   = add(m, mul(w,-d));          // cut-plane origin, set back from the edge
+  const mg  = 2*size;                     // overrun so neighbouring cuts meet at corners
+  const W   = 3*d + size;                 // extent past the plane
+  const V   = 3*size;                     // half-width across the wedge
+  const su=[-L/2-mg,L/2+mg], sw=[0,W], sv=[-V,V];
+  const c=[];
+  for(const a of su) for(const b of sw) for(const e of sv)
+    c.push(add(Q, add(mul(u,a), add(mul(w,b), mul(v,e)))));
+  return c; // 8 corners, idx=i*4+j*2+k
+}
+function boxTris(corners){
+  const center=mul(corners.reduce((s,c)=>add(s,c),[0,0,0]),1/8);
+  const I=(i,j,k)=>i*4+j*2+k;
+  const faces=[
+    [I(0,0,0),I(0,0,1),I(0,1,1),I(0,1,0)],
+    [I(1,0,0),I(1,1,0),I(1,1,1),I(1,0,1)],
+    [I(0,0,0),I(1,0,0),I(1,0,1),I(0,0,1)],
+    [I(0,1,0),I(0,1,1),I(1,1,1),I(1,1,0)],
+    [I(0,0,0),I(0,1,0),I(1,1,0),I(1,0,0)],
+    [I(0,0,1),I(1,0,1),I(1,1,1),I(0,1,1)],
+  ];
+  const tris=[];
+  for(const f of faces){
+    let [a,b,c,dd]=f;
+    const fc=mul(add(add(corners[a],corners[b]),add(corners[c],corners[dd])),1/4);
+    const nrm=cross(sub(corners[b],corners[a]),sub(corners[c],corners[a]));
+    if(dot(nrm,sub(fc,center))<0)[a,b,c,dd]=[a,dd,c,b]; // flip to face outward
+    tris.push(a,b,c,a,c,dd);
+  }
+  return tris;
+}
+
+/* ============================================================= *
+ *  Three.js scene
+ * ============================================================= */
+const viewEl=$('view');
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+viewEl.appendChild(renderer.domElement);
+
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(45,1,0.01,100000);
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true; controls.dampingFactor=.08;
+
+scene.add(new THREE.HemisphereLight(0xbfc6d2,0x20242c,1.05));
+const key=new THREE.DirectionalLight(0xfff0d8,1.5); key.position.set(1,1.4,1.1); scene.add(key);
+const rim=new THREE.DirectionalLight(0xffa050,.5); rim.position.set(-1.2,.3,-1); scene.add(rim);
+const grid=new THREE.GridHelper(10,10,0x39404c,0x23282f); scene.add(grid);
+
+const matSolid=new THREE.MeshStandardMaterial({color:0xc9ccd2,metalness:.18,roughness:.55,flatShading:true});
+const matOrig =new THREE.MeshStandardMaterial({color:0x4a5160,metalness:.1,roughness:.7,flatShading:true,transparent:true,opacity:.28,depthWrite:false});
+const matWire =new THREE.MeshBasicMaterial({color:0xf5a623,wireframe:true,transparent:true,opacity:.5});
+
+let meshSolid=null, meshWire=null, meshOrig=null, edgeLines=null, edgeLinesCc=null;
+const show={shade:true,wire:false,edges:true,orig:false};
+
+function clearGroup(...objs){
+  for(const o of objs){ if(o){ scene.remove(o); o.geometry?.dispose(); } }
+}
+function frame(geom){
+  geom.computeBoundingSphere();
+  const s=geom.boundingSphere; if(!s)return;
+  const r=s.radius||1;
+  grid.position.set(s.center.x,s.center.y-r*0.0,s.center.z);
+  grid.scale.setScalar(r/5*2);
+  const d=r/Math.sin(THREE.MathUtils.degToRad(camera.fov/2))*1.1;
+  camera.position.set(s.center.x+d*.7,s.center.y+d*.55,s.center.z+d*.7);
+  camera.near=r/100; camera.far=r*100; camera.updateProjectionMatrix();
+  controls.target.copy(s.center); controls.update();
+}
+function resize(){
+  const w=viewEl.clientWidth,h=viewEl.clientHeight;
+  renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(viewEl);
+(function loop(){ requestAnimationFrame(loop); controls.update(); renderer.render(scene,camera); })();
+
+/* ============================================================= *
+ *  State
+ * ============================================================= */
+let manifold=null;          // {Manifold, Mesh}
+let model=null;             // {verts, indices, bbox, diag, name}
+let analysis=null;          // classify() result for current params
+let lastResultGeom=null;    // chamfered BufferGeometry for export
+
+/* indexed verts/indices -> THREE.BufferGeometry */
+function toGeometry(verts,indices){
+  const g=new THREE.BufferGeometry();
+  const pos=new Float32Array(verts.length*3);
+  for(let i=0;i<verts.length;i++){ pos[i*3]=verts[i][0]; pos[i*3+1]=verts[i][1]; pos[i*3+2]=verts[i][2]; }
+  g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  g.setIndex(indices);
+  g.computeVertexNormals();
+  return g;
+}
+function flatPos(verts){ const a=new Float32Array(verts.length*3);
+  for(let i=0;i<verts.length;i++){a[i*3]=verts[i][0];a[i*3+1]=verts[i][1];a[i*3+2]=verts[i][2];} return a; }
+
+/* ============================================================= *
+ *  Load a model from raw soup positions
+ * ============================================================= */
+function loadSoup(pos,name){
+  const bb=new THREE.Box3();
+  const v=new THREE.Vector3();
+  for(let i=0;i<pos.length;i+=3){ bb.expandByPoint(v.set(pos[i],pos[i+1],pos[i+2])); }
+  const size=new THREE.Vector3(); bb.getSize(size);
+  const diag=size.length()||1;
+  const eps=Math.max(diag*1e-6, 1e-7) * Math.pow(10,(welPct/100)*4); // welPct maps 0..4 decades
+  const {verts,indices}=weld(pos,eps);
+
+  model={verts,indices,bbox:bb,diag,name,welded:verts.length, soupTris:pos.length/9};
+  log(`loaded <span class="am">${name}</span> · ${model.soupTris} tris → welded ${verts.length} verts (ε=${eps.toExponential(1)})`);
+
+  // display original/chamfered base mesh
+  clearGroup(meshSolid,meshWire,meshOrig,edgeLines,edgeLinesCc);
+  const g=toGeometry(verts,indices);
+  meshSolid=new THREE.Mesh(g,matSolid); scene.add(meshSolid);
+  meshWire =new THREE.Mesh(g,matWire);  meshWire.visible=show.wire; scene.add(meshWire);
+  lastResultGeom=null;
+
+  defaultSize();           // set chamfer slider default from bbox
+  analyse();               // detect + preview feature edges
+  frame(g);
+  $('apply').disabled=false; $('reset').disabled=false; $('export').disabled=true;
+  $('sIn').textContent=indices.length/3;
+  $('sOut').textContent='—'; $('sTight').textContent='—'; $('sTight').className='n';
+  $('badge').innerHTML=`<b>${name}</b> · ${indices.length/3} tris`;
+}
+
+/* sliders -> real-world values */
+let sizePct=20, angDeg=20, welPct=25;
+function sizeFromPct(){ return model ? model.diag*(0.002 + (sizePct/100)*0.078) : 0; } // 0.2%..8% of diag
+function defaultSize(){ sizePct=20; $('size').value=20; updateSizeLabel(); }
+function updateSizeLabel(){
+  const s=sizeFromPct();
+  $('sizeV').innerHTML = model ? `${s.toPrecision(3)} <small>u</small>` : '—';
+}
+function updateWelLabel(){
+  if(!model){ $('welV').textContent='—'; return; }
+  const eps=Math.max(model.diag*1e-6,1e-7)*Math.pow(10,(welPct/100)*4);
+  $('welV').innerHTML=`${eps.toExponential(1)} <small>u</small>`;
+}
+
+/* ============================================================= *
+ *  Analyse: detect feature edges & draw preview
+ * ============================================================= */
+function analyse(){
+  if(!model) return;
+  const {tris,edges}=buildEdges(model.indices);
+  analysis=classify(model.verts,tris,edges,angDeg);
+  const nC=analysis.convex.length, nX=analysis.concave.length;
+  $('sEdge').textContent = nC + (nX?`+${nX}`:'');
+
+  clearGroup(edgeLines,edgeLinesCc);
+  edgeLines  = makeEdgeLines(analysis.convex,  0xf5a623);
+  edgeLinesCc= makeEdgeLines(analysis.concave, 0x37b7ff);
+  edgeLines.visible   = show.edges;
+  edgeLinesCc.visible = show.edges && $('concave').checked;
+  scene.add(edgeLines); scene.add(edgeLinesCc);
+
+  log(`detected <span class="am">${nC}</span> convex` +
+      (nX?` · ${nX} concave`:'') +
+      (analysis.nonManifold?` · <span class="er">${analysis.nonManifold} non-manifold</span>`:'') +
+      ` · ${analysis.rejected} flat edges ignored`);
+}
+function makeEdgeLines(list,color){
+  const pos=new Float32Array(list.length*6);
+  for(let i=0;i<list.length;i++){
+    const a=model.verts[list[i].a], b=model.verts[list[i].b];
+    pos.set([a[0],a[1],a[2],b[0],b[1],b[2]], i*6);
+  }
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  return new THREE.LineSegments(g,new THREE.LineBasicMaterial({color}));
+}
+
+/* ============================================================= *
+ *  Apply chamfer via Manifold boolean
+ * ============================================================= */
+async function applyChamfer(){
+  if(!model||!manifold){ return; }
+  const {Manifold,Mesh}=manifold;
+  const useConcave=$('concave').checked;
+  const targets=[...analysis.convex, ...(useConcave?analysis.concave.map(e=>({...e,inward:true})):[])];
+  if(!targets.length){ log('no feature edges at this angle — nothing to chamfer','am'); return; }
+
+  setOverlay(true,`chamfering ${targets.length} edges…`);
+  await new Promise(r=>setTimeout(r,30)); // let overlay paint
+
+  const objs=[];
+  try{
+    const size=sizeFromPct();
+    const solid=new Manifold(new Mesh({numProp:3,
+      vertProperties:flatPos(model.verts), triVerts:new Uint32Array(model.indices)}));
+    objs.push(solid);
+    const inVol=solid.volume();
+
+    const cutters=targets.map(e=>{
+      const corners=cutterCorners(model.verts[e.a],model.verts[e.b],e.bis,size,!!e.inward);
+      const m=new Mesh({numProp:3,vertProperties:new Float32Array(corners.flat()),
+                        triVerts:new Uint32Array(boxTris(corners))});
+      const c=new Manifold(m); objs.push(c); return c;
+    });
+
+    const tStart=performance.now();
+    const allCut=Manifold.union(cutters); objs.push(allCut);
+    // convex edges are subtracted; if concave present we still subtract its inward cutters
+    const result=Manifold.difference(solid,allCut); objs.push(result);
+    const ms=Math.round(performance.now()-tStart);
+
+    const outVol=result.volume(), genus=result.genus();
+    const rmesh=result.getMesh();
+    const tris=rmesh.triVerts.length/3;
+
+    // sanity: a chamfer must remove material; growth ⇒ flipped input normals
+    if(outVol>inVol*1.0001){
+      log(`⚠ volume grew (${inVol.toFixed(2)}→${outVol.toFixed(2)}) — input normals may be flipped/inconsistent`,'er');
+    }
+
+    // build display + export geometry
+    const g=new THREE.BufferGeometry();
+    g.setAttribute('position',new THREE.BufferAttribute(rmesh.vertProperties.slice(),3));
+    g.setIndex(new THREE.BufferAttribute(rmesh.triVerts.slice(),1));
+    g.computeVertexNormals();
+    lastResultGeom=g;
+
+    clearGroup(meshSolid,meshWire);
+    meshSolid=new THREE.Mesh(g,matSolid); meshSolid.visible=show.shade; scene.add(meshSolid);
+    meshWire =new THREE.Mesh(g,matWire);  meshWire.visible=show.wire;  scene.add(meshWire);
+
+    $('sOut').textContent=tris;
+    $('sTight').textContent = genus===0 ? 'YES' : `genus ${genus}`;
+    $('sTight').className = 'n ' + (genus===0?'ok':'warn');
+    $('badge').innerHTML=`<b>${model.name}</b> · ${tris} tris · ${genus===0?'watertight':'genus '+genus}`;
+    $('export').disabled=false;
+    log(`✓ chamfered in ${ms}ms · ${tris} tris · vol ${inVol.toFixed(2)}→${outVol.toFixed(2)} · ` +
+        (genus===0?'<span class="ok">watertight</span>':`<span class="er">genus ${genus}</span>`),'');
+  }catch(err){
+    log('✕ '+err.message,'er'); console.error(err);
+  }finally{
+    objs.forEach(o=>{try{o.delete();}catch(_){}}); // free WASM memory
+    setOverlay(false);
+  }
+}
+
+/* ============================================================= *
+ *  Export
+ * ============================================================= */
+function exportSTL(){
+  if(!lastResultGeom) return;
+  const mesh=new THREE.Mesh(lastResultGeom);
+  const data=new STLExporter().parse(mesh,{binary:true});
+  const blob=new Blob([data],{type:'application/octet-stream'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=(model.name.replace(/\.stl$/i,'')||'model')+'_chamfered.stl';
+  a.click(); URL.revokeObjectURL(a.href);
+  log('exported <span class="am">'+a.download+'</span>');
+}
+
+/* ============================================================= *
+ *  Sample geometries (soup)
+ * ============================================================= */
+function sampleCube(s=40){
+  const h=s/2;
+  const v=[[-h,-h,-h],[h,-h,-h],[h,h,-h],[-h,h,-h],[-h,-h,h],[h,-h,h],[h,h,h],[-h,h,h]];
+  const q=[[4,5,6,7],[1,0,3,2],[0,1,5,4],[2,3,7,6],[1,2,6,5],[3,0,4,7]];
+  const p=[];
+  for(const f of q) for(const t of [[f[0],f[1],f[2]],[f[0],f[2],f[3]]]) for(const i of t) p.push(...v[i]);
+  return new Float32Array(p);
+}
+// an L-shaped extrusion: has both convex and one concave edge (good stress test)
+function sampleL(){
+  // L profile in XY, extruded along Z
+  const P=[[0,0],[40,0],[40,15],[15,15],[15,40],[0,40]]; // 6-pt L, the [40,15]->[15,15]->[15,40] inner corner is concave
+  const z0=-15,z1=15, p=[];
+  const tri=(A,B,C)=>p.push(...A,...B,...C);
+  // side walls
+  for(let i=0;i<P.length;i++){
+    const a=P[i], b=P[(i+1)%P.length];
+    const A=[a[0],a[1],z0],B=[b[0],b[1],z0],C=[b[0],b[1],z1],D=[a[0],a[1],z1];
+    tri(A,B,C); tri(A,C,D);
+  }
+  // caps (fan from P[0]) — front (z1) CCW, back (z0) CW
+  for(let i=1;i<P.length-1;i++){
+    const a=[P[0][0],P[0][1],z1],b=[P[i][0],P[i][1],z1],c=[P[i+1][0],P[i+1][1],z1];
+    tri(a,b,c);
+    const d=[P[0][0],P[0][1],z0],e=[P[i+1][0],P[i+1][1],z0],f=[P[i][0],P[i][1],z0];
+    tri(d,e,f);
+  }
+  return new Float32Array(p);
+}
+
+/* ============================================================= *
+ *  Wiring
+ * ============================================================= */
+const drop=$('drop'), fileInput=$('file');
+drop.onclick=()=>fileInput.click();
+fileInput.onchange=e=>{ if(e.target.files[0]) readFile(e.target.files[0]); };
+['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('hot');}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('hot');}));
+drop.addEventListener('drop',e=>{ const f=e.dataTransfer.files[0]; if(f) readFile(f); });
+
+function readFile(f){
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const geom=new STLLoader().parse(r.result);
+      const pos=geom.getAttribute('position').array;
+      loadSoup(pos.slice(),f.name);
+    }catch(err){ log('✕ could not parse STL: '+err.message,'er'); }
+  };
+  r.readAsArrayBuffer(f);
+}
+
+$('sampleCube').onclick=()=>loadSoup(sampleCube(),'cube.stl');
+$('sampleL').onclick   =()=>loadSoup(sampleL(),'l-bracket.stl');
+
+$('size').oninput=e=>{ sizePct=+e.target.value; updateSizeLabel(); };
+$('ang').oninput =e=>{ angDeg=+e.target.value; $('angV').innerHTML=`${angDeg}<small>°</small>`; if(model)analyse(); };
+$('wel').oninput =e=>{ welPct=+e.target.value; updateWelLabel(); };
+$('wel').onchange=()=>{ if(model){ const pos=flatPos(model.verts); /* re-weld from current verts is lossy; re-weld from soup if available */ } };
+// re-weld needs the original soup; keep it:
+let lastSoup=null, lastName=null;
+const _loadSoup=loadSoup;
+loadSoup=function(pos,name){ lastSoup=pos.slice(); lastName=name; _loadSoup(pos,name); };
+$('wel').addEventListener('change',()=>{ if(lastSoup) _loadSoup(lastSoup,lastName); });
+
+$('concave').onchange=()=>{ if(edgeLinesCc) edgeLinesCc.visible=show.edges && $('concave').checked; };
+$('apply').onclick=applyChamfer;
+$('export').onclick=exportSTL;
+$('reset').onclick=()=>{ if(lastSoup) _loadSoup(lastSoup,lastName); };
+
+// viewport toggles
+function chip(id,key,fn){ $(id).onclick=()=>{ show[key]=!show[key]; $(id).classList.toggle('on',show[key]); fn(); }; }
+chip('tShade','shade',()=>{ if(meshSolid)meshSolid.visible=show.shade; });
+chip('tWire','wire',  ()=>{ if(meshWire)meshWire.visible=show.wire; });
+chip('tEdges','edges',()=>{ if(edgeLines)edgeLines.visible=show.edges; if(edgeLinesCc)edgeLinesCc.visible=show.edges&&$('concave').checked; });
+chip('tOrig','orig', ()=>{
+  if(show.orig && !meshOrig && model){ meshOrig=new THREE.Mesh(toGeometry(model.verts,model.indices),matOrig); scene.add(meshOrig); }
+  if(meshOrig) meshOrig.visible=show.orig;
+});
+
+/* ============================================================= *
+ *  Boot: init Manifold engine
+ * ============================================================= */
+(async function init(){
+  try{
+    setOverlay(true,'loading geometry engine…');
+    const wasm=await ManifoldModule();
+    wasm.setup();
+    manifold={Manifold:wasm.Manifold, Mesh:wasm.Mesh};
+    log('geometry engine ready','ok');
+    setOverlay(false);
+    resize();
+    loadSoup(sampleCube(),'cube.stl');   // start with something on screen
+  }catch(err){
+    setOverlay(true,'engine failed to load');
+    $('ov').innerHTML='<div class="msg" style="max-width:340px;text-align:center;line-height:1.6">'+
+      '⚠ Could not load the geometry engine (WASM).<br>If you opened this file directly, try serving it over http '+
+      '(<span style="color:var(--amber)">python3 -m http.server</span>) or check your network — the CDN may be blocked.</div>';
+    log('✕ engine load failed: '+err.message,'er'); console.error(err);
+  }
+})();
+</script>
+</body>
+</html>
