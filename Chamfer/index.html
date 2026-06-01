@@ -203,7 +203,11 @@
           <div class="top"><span class="name">Weld tolerance</span><span class="val" id="welV">—</span></div>
           <input type="range" id="wel" min="0" max="100" value="25">
         </div>
-        <label class="check"><input type="checkbox" id="concave"> Also break concave edges</label>
+        <label class="check"><input type="checkbox" id="concave"> Round inner corners</label>
+        <div class="ctl" id="radCtl" style="margin-top:11px;display:none;">
+          <div class="top"><span class="name">Corner radius</span><span class="val" id="radV">—</span></div>
+          <input type="range" id="rad" min="0" max="100" value="30">
+        </div>
       </section>
 
       <section class="blk">
@@ -335,7 +339,7 @@ function classify(verts,tris,edges,featureDeg){
     let apex=-1;
     for(const i of tris[e.tris[0]]) if(i!==e.a&&i!==e.b){ apex=i; break; }
     const convex = dot(bis,sub(verts[apex],ep)) < 0; // outward bisector points away from interior apex
-    const rec={a:e.a,b:e.b,bis};
+    const rec={a:e.a,b:e.b,bis,nA:n1,nB:n2};          // bis points outward (convex) / into void (concave)
     (convex?out.convex:out.concave).push(rec);
   }
   return out;
@@ -343,19 +347,20 @@ function classify(verts,tris,edges,featureDeg){
 
 /* ============================================================= *
  *  Cutter geometry — self-orienting box (proven: genus 0, vol>0)
+ *  Per-end margins: overrun is clipped to 0 at concave-corner ends
+ *  so convex chamfers don't gouge reentrant corners.
  * ============================================================= */
-function cutterCorners(p0,p1,bis,size,inward){
+function cutterCorners(p0,p1,bis,size,mgA,mgB){
   const d   = size*Math.SQRT1_2;          // inward depth (≈ leg length on a 90° edge)
-  const u   = vnorm(sub(p1,p0));          // along edge
-  const w   = inward ? mul(bis,-1) : bis; // concave edges cut from the inside
+  const u   = vnorm(sub(p1,p0));          // along edge (p0→p1)
+  const w   = bis;                        // outward bisector
   const v   = vnorm(cross(w,u));
   const L   = vlen(sub(p1,p0));
   const m   = mul(add(p0,p1),0.5);
   const Q   = add(m, mul(w,-d));          // cut-plane origin, set back from the edge
-  const mg  = 2*size;                     // overrun so neighbouring cuts meet at corners
   const W   = 3*d + size;                 // extent past the plane
   const V   = 3*size;                     // half-width across the wedge
-  const su=[-L/2-mg,L/2+mg], sw=[0,W], sv=[-V,V];
+  const su=[-L/2-mgA, L/2+mgB], sw=[0,W], sv=[-V,V];   // mgA→p0 end, mgB→p1 end
   const c=[];
   for(const a of su) for(const b of sw) for(const e of sv)
     c.push(add(Q, add(mul(u,a), add(mul(w,b), mul(v,e)))));
@@ -381,6 +386,54 @@ function boxTris(corners){
     tris.push(a,b,c,a,c,dd);
   }
   return tris;
+}
+
+/* ============================================================= *
+ *  Inner-corner fillet — rounds a concave (reentrant) edge by
+ *  ADDING material (a quarter-round). Proven watertight when the
+ *  wedge overlaps slightly into the solid (dIn) to avoid coincident
+ *  faces. Returns a Manifold to UNION into the result.
+ * ============================================================= */
+function cylinderManifold(M,C,u,r,halfLen,N){
+  u=vnorm(u);
+  const ref = Math.abs(u[0])<0.9 ? [1,0,0] : [0,1,0];
+  const e1=vnorm(cross(u,ref)), e2=vnorm(cross(u,e1));
+  const verts=[], idx=[];
+  for(let s=0;s<N;s++){
+    const a=2*Math.PI*s/N;
+    const radial=add(mul(e1,r*Math.cos(a)),mul(e2,r*Math.sin(a)));
+    verts.push(add(add(C,mul(u,-halfLen)),radial));
+    verts.push(add(add(C,mul(u, halfLen)),radial));
+  }
+  const bot=verts.length, top=verts.length+1;
+  verts.push(add(C,mul(u,-halfLen))); verts.push(add(C,mul(u,halfLen)));
+  for(let s=0;s<N;s++){
+    const a0=2*s, b0=2*((s+1)%N), a1=a0+1, b1=b0+1;
+    idx.push(a0,b0,b1, a0,b1,a1, bot,b0,a0, top,a1,b1);
+  }
+  return new M.Manifold(new M.Mesh({numProp:3,
+    vertProperties:new Float32Array(verts.flat()), triVerts:new Uint32Array(idx)}));
+}
+function filletManifold(M, e, verts, r, dIn, segs){
+  const p0=verts[e.a], p1=verts[e.b];
+  const u=vnorm(sub(p1,p0)), bis=e.bis, vv=vnorm(cross(bis,u));
+  const L=vlen(sub(p1,p0)), m=mul(add(p0,p1),0.5), pe=p0;
+  const cosA=Math.max(dot(bis,e.nA),1e-3);   // angle between bisector and a wall normal
+  const s=r/cosA;                            // axis offset along the bisector
+  const C=add(m, mul(bis,s));
+  // wedge block straddling the void corner (overlaps into solid by dIn along bis)
+  const su=[-L/2, L/2], sb=[-dIn, s+r], sv=[-2*r, 2*r];
+  const corners=[];
+  for(const a of su) for(const b of sb) for(const c of sv)
+    corners.push(add(m, add(mul(u,a), add(mul(bis,b), mul(vv,c)))));
+  let wedge=new M.Manifold(new M.Mesh({numProp:3,
+    vertProperties:new Float32Array(corners.flat()), triVerts:new Uint32Array(boxTris(corners))}));
+  // keep only the void side of each wall, offset inward by dIn (overlap, no coincident faces)
+  wedge = wedge.trimByPlane(e.nA, dot(e.nA,pe)-dIn).trimByPlane(e.nB, dot(e.nB,pe)-dIn);
+  const cyl=cylinderManifold(M, C, u, r, L/2+0.01, segs);
+  const fil=wedge.subtract(cyl);
+  wedge.delete(); cyl.delete();
+  return fil;
 }
 
 /* ============================================================= *
@@ -482,12 +535,17 @@ function loadSoup(pos,name){
 }
 
 /* sliders -> real-world values */
-let sizePct=20, angDeg=20, welPct=25;
+let sizePct=20, angDeg=20, welPct=25, radPct=30;
 function sizeFromPct(){ return model ? model.diag*(0.002 + (sizePct/100)*0.078) : 0; } // 0.2%..8% of diag
-function defaultSize(){ sizePct=20; $('size').value=20; updateSizeLabel(); }
+function radiusFromPct(){ return model ? model.diag*(0.005 + (radPct/100)*0.075) : 0; }  // 0.5%..8% of diag
+function defaultSize(){ sizePct=20; $('size').value=20; updateSizeLabel(); radPct=30; $('rad').value=30; updateRadLabel(); }
 function updateSizeLabel(){
   const s=sizeFromPct();
   $('sizeV').innerHTML = model ? `${s.toPrecision(3)} <small>u</small>` : '—';
+}
+function updateRadLabel(){
+  const r=radiusFromPct();
+  $('radV').innerHTML = model ? `${r.toPrecision(3)} <small>u</small>` : '—';
 }
 function updateWelLabel(){
   if(!model){ $('welV').textContent='—'; return; }
@@ -533,41 +591,105 @@ function makeEdgeLines(list,color){
  * ============================================================= */
 async function applyChamfer(){
   if(!model||!manifold){ return; }
-  const {Manifold,Mesh}=manifold;
-  const useConcave=$('concave').checked;
-  const targets=[...analysis.convex, ...(useConcave?analysis.concave.map(e=>({...e,inward:true})):[])];
-  if(!targets.length){ log('no feature edges at this angle — nothing to chamfer','am'); return; }
+  const M=manifold; const {Manifold,Mesh}=manifold;
+  const roundCorners=$('concave').checked;
+  if(!analysis.convex.length && !(roundCorners&&analysis.concave.length)){
+    log('no feature edges at this angle — nothing to do','am'); return;
+  }
 
-  setOverlay(true,`chamfering ${targets.length} edges…`);
+  setOverlay(true, roundCorners ? 'chamfering + rounding corners…' : `chamfering ${analysis.convex.length} edges…`);
   await new Promise(r=>setTimeout(r,30)); // let overlay paint
 
   const objs=[];
   try{
     const size=sizeFromPct();
+    const r=radiusFromPct();
     const solid=new Manifold(new Mesh({numProp:3,
       vertProperties:flatPos(model.verts), triVerts:new Uint32Array(model.indices)}));
     objs.push(solid);
     const inVol=solid.volume();
+    const inGenus=solid.genus();   // toroidal parts (e.g. frames) are genus≥1; we preserve this
 
-    const cutters=targets.map(e=>{
-      const corners=cutterCorners(model.verts[e.a],model.verts[e.b],e.bis,size,!!e.inward);
-      const m=new Mesh({numProp:3,vertProperties:new Float32Array(corners.flat()),
-                        triVerts:new Uint32Array(boxTris(corners))});
-      const c=new Manifold(m); objs.push(c); return c;
+    // vertices that touch a concave (reentrant) corner
+    const concaveVerts=new Set();
+    analysis.concave.forEach(e=>{ concaveVerts.add(e.a); concaveVerts.add(e.b); });
+    const mg=2*size;
+
+    // convex rim edges meeting at each concave-corner vertex, with direction pointing AWAY
+    // from the corner — used to miter adjacent chamfers so they meet cleanly at inner corners.
+    const rimAtVert=new Map();
+    analysis.convex.forEach(e=>{
+      for(const [end,other] of [[e.a,e.b],[e.b,e.a]]){
+        if(concaveVerts.has(end)){
+          const dir=vnorm(sub(model.verts[other],model.verts[end]));
+          if(!rimAtVert.has(end)) rimAtVert.set(end,[]);
+          rimAtVert.get(end).push({dir,e});
+        }
+      }
     });
 
     const tStart=performance.now();
-    const allCut=Manifold.union(cutters); objs.push(allCut);
-    // convex edges are subtracted; if concave present we still subtract its inward cutters
-    const result=Manifold.difference(solid,allCut); objs.push(result);
+
+    // (1) convex chamfer. Cutters overrun fully at every end; at a concave corner each cutter
+    //     is miter-trimmed against its sibling rim edges so the bevels meet IN the corner
+    //     (filling it) instead of either gouging past it or stopping short of it.
+    let result=solid;
+    if(analysis.convex.length){
+      const cutters=analysis.convex.map(e=>{
+        const corners=cutterCorners(model.verts[e.a],model.verts[e.b],e.bis,size,mg,mg);
+        let box=new Manifold(new Mesh({numProp:3,vertProperties:new Float32Array(corners.flat()),
+                                       triVerts:new Uint32Array(boxTris(corners))}));
+        objs.push(box);
+        for(const end of [e.a,e.b]){
+          if(!concaveVerts.has(end)) continue;
+          const P=model.verts[end];
+          const myDir=vnorm(sub(end===e.a?model.verts[e.b]:model.verts[e.a], P));
+          for(const s of (rimAtVert.get(end)||[])){
+            if(s.e===e) continue;
+            const diff=sub(myDir,s.dir);
+            if(vlen(diff)<1e-6) continue;          // (near-parallel; nothing to miter)
+            const n=vnorm(diff);                    // miter plane normal
+            const trimmed=box.trimByPlane(n, dot(n,P)); // keep this edge's side of the miter
+            objs.push(trimmed); box=trimmed;
+          }
+        }
+        return box;
+      });
+      const allCut=Manifold.union(cutters); objs.push(allCut);
+      result=Manifold.difference(result,allCut); objs.push(result);
+    }
+
+    // (2) round inner corners — adds a fillet of material along each concave edge
+    let nFil=0;
+    if(roundCorners && analysis.concave.length){
+      const dIn=Math.max(model.diag*1e-3,1e-4);   // overlap into solid (avoids coincident faces)
+      nFil=analysis.concave.length;
+      // certain radii hit a near-degenerate pinch where the fillet meets the rim chamfers,
+      // adding a spurious hole. A sub-0.5% radius nudge clears it; retry until genus matches input.
+      const JIT=[1, 1.003, 0.997, 1.006, 0.994, 1.012];
+      let merged=null, usedJitter=1;
+      for(const rs of JIT){
+        const rj=r*rs;
+        const segs=Math.max(32,Math.min(64,Math.round(rj*8)));
+        const fillets=analysis.concave.map(e=>{ const f=filletManifold(M,e,model.verts,rj,dIn,segs); objs.push(f); return f; });
+        const cand=Manifold.union([result,...fillets]); objs.push(cand);
+        usedJitter=rs;
+        if(cand.genus()===inGenus){ merged=cand; break; }
+        merged=cand; // keep last as fallback
+      }
+      if(usedJitter!==1 && merged && merged.genus()===inGenus)
+        log(`· corner radius nudged ${((usedJitter-1)*100).toFixed(1)}% for a clean result`,'am');
+      result=merged;
+    }
     const ms=Math.round(performance.now()-tStart);
 
     const outVol=result.volume(), genus=result.genus();
+    const watertight=(genus===inGenus);   // boolean output is always closed; matching input genus ⇒ no defects
     const rmesh=result.getMesh();
     const tris=rmesh.triVerts.length/3;
 
-    // sanity: a chamfer must remove material; growth ⇒ flipped input normals
-    if(outVol>inVol*1.0001){
+    // sanity: convex-only chamfer must remove material; growth ⇒ flipped input normals
+    if(!roundCorners && outVol>inVol*1.0001){
       log(`⚠ volume grew (${inVol.toFixed(2)}→${outVol.toFixed(2)}) — input normals may be flipped/inconsistent`,'er');
     }
 
@@ -583,12 +705,13 @@ async function applyChamfer(){
     meshWire =new THREE.Mesh(g,matWire);  meshWire.visible=show.wire;  scene.add(meshWire);
 
     $('sOut').textContent=tris;
-    $('sTight').textContent = genus===0 ? 'YES' : `genus ${genus}`;
-    $('sTight').className = 'n ' + (genus===0?'ok':'warn');
-    $('badge').innerHTML=`<b>${model.name}</b> · ${tris} tris · ${genus===0?'watertight':'genus '+genus}`;
+    $('sTight').textContent = watertight ? 'YES' : `genus ${genus}≠${inGenus}`;
+    $('sTight').className = 'n ' + (watertight?'ok':'warn');
+    const handleNote = watertight && genus>0 ? ` · ${genus} hole${genus>1?'s':''}` : '';
+    $('badge').innerHTML=`<b>${model.name}</b> · ${tris} tris · ${watertight?'watertight'+handleNote:'genus '+genus}`;
     $('export').disabled=false;
-    log(`✓ chamfered in ${ms}ms · ${tris} tris · vol ${inVol.toFixed(2)}→${outVol.toFixed(2)} · ` +
-        (genus===0?'<span class="ok">watertight</span>':`<span class="er">genus ${genus}</span>`),'');
+    log(`✓ ${analysis.convex.length} chamfered${nFil?` · ${nFil} corner${nFil>1?'s':''} rounded`:''} in ${ms}ms · ${tris} tris · ` +
+        (watertight?`<span class="ok">watertight${handleNote}</span>`:`<span class="er">genus ${genus} (input ${inGenus}) — check result</span>`),'');
   }catch(err){
     log('✕ '+err.message,'er'); console.error(err);
   }finally{
@@ -672,15 +795,18 @@ $('sampleL').onclick   =()=>loadSoup(sampleL(),'l-bracket.stl');
 
 $('size').oninput=e=>{ sizePct=+e.target.value; updateSizeLabel(); };
 $('ang').oninput =e=>{ angDeg=+e.target.value; $('angV').innerHTML=`${angDeg}<small>°</small>`; if(model)analyse(); };
+$('rad').oninput =e=>{ radPct=+e.target.value; updateRadLabel(); };
 $('wel').oninput =e=>{ welPct=+e.target.value; updateWelLabel(); };
-$('wel').onchange=()=>{ if(model){ const pos=flatPos(model.verts); /* re-weld from current verts is lossy; re-weld from soup if available */ } };
 // re-weld needs the original soup; keep it:
 let lastSoup=null, lastName=null;
 const _loadSoup=loadSoup;
 loadSoup=function(pos,name){ lastSoup=pos.slice(); lastName=name; _loadSoup(pos,name); };
 $('wel').addEventListener('change',()=>{ if(lastSoup) _loadSoup(lastSoup,lastName); });
 
-$('concave').onchange=()=>{ if(edgeLinesCc) edgeLinesCc.visible=show.edges && $('concave').checked; };
+$('concave').onchange=()=>{
+  $('radCtl').style.display = $('concave').checked ? '' : 'none';
+  if(edgeLinesCc) edgeLinesCc.visible=show.edges && $('concave').checked;
+};
 $('apply').onclick=applyChamfer;
 $('export').onclick=exportSTL;
 $('reset').onclick=()=>{ if(lastSoup) _loadSoup(lastSoup,lastName); };
