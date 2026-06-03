@@ -614,29 +614,44 @@ async function applyChamfer(){
     const concaveVerts=new Set();
     analysis.concave.forEach(e=>{ concaveVerts.add(e.a); concaveVerts.add(e.b); });
     const mg=2*size;
+    const cd=size*Math.SQRT1_2;   // chamfer depth
 
-    // convex rim edges meeting at each concave-corner vertex, with direction pointing AWAY
-    // from the corner — used to miter adjacent chamfers so they meet cleanly at inner corners.
-    const rimAtVert=new Map();
+    // convex feature edges meeting at each vertex, with direction pointing AWAY from it.
+    // Used two ways: (a) miter-trim at concave corners, (b) scale the cutter overrun to the
+    // turn angle at every convex joint so chamfers on a curve abut cleanly instead of
+    // overrunning ~2 segments and scalloping the bevel.
+    const edgesAtVert=new Map();
     analysis.convex.forEach(e=>{
       for(const [end,other] of [[e.a,e.b],[e.b,e.a]]){
-        if(concaveVerts.has(end)){
-          const dir=vnorm(sub(model.verts[other],model.verts[end]));
-          if(!rimAtVert.has(end)) rimAtVert.set(end,[]);
-          rimAtVert.get(end).push({dir,e});
-        }
+        const dir=vnorm(sub(model.verts[other],model.verts[end]));
+        if(!edgesAtVert.has(end)) edgesAtVert.set(end,[]);
+        edgesAtVert.get(end).push({dir,e});
       }
     });
+    function overrunAt(end, myDir){
+      if(concaveVerts.has(end)) return mg;        // concave corner: full overrun, miter-trimmed below
+      let theta=0;                                // largest turn angle to a neighbour rim edge
+      for(const s of (edgesAtVert.get(end)||[])){
+        if(s.dir===myDir) continue;
+        const t=Math.acos(Math.max(-1,Math.min(1, dot(myDir, mul(s.dir,-1)))));
+        if(t>theta) theta=t;
+      }
+      // straight joint ⇒ ~0 overlap; sharper turn ⇒ enough overlap to form the corner facet
+      return Math.min(mg, cd*Math.tan(Math.min(theta,Math.PI*0.49)/2) + 0.15*size);
+    }
 
     const tStart=performance.now();
 
-    // (1) convex chamfer. Cutters overrun fully at every end; at a concave corner each cutter
-    //     is miter-trimmed against its sibling rim edges so the bevels meet IN the corner
-    //     (filling it) instead of either gouging past it or stopping short of it.
+    // (1) convex chamfer. Overrun is scaled per joint (smooth curves get a tiny overlap, sharp
+    //     corners get more); at concave corners each cutter is additionally miter-trimmed so the
+    //     bevels meet inside the corner instead of gouging past or stopping short.
     let result=solid;
     if(analysis.convex.length){
       const cutters=analysis.convex.map(e=>{
-        const corners=cutterCorners(model.verts[e.a],model.verts[e.b],e.bis,size,mg,mg);
+        const dirA=vnorm(sub(model.verts[e.b],model.verts[e.a]));
+        const dirB=vnorm(sub(model.verts[e.a],model.verts[e.b]));
+        const corners=cutterCorners(model.verts[e.a],model.verts[e.b],e.bis,size,
+                                    overrunAt(e.a,dirA), overrunAt(e.b,dirB));
         let box=new Manifold(new Mesh({numProp:3,vertProperties:new Float32Array(corners.flat()),
                                        triVerts:new Uint32Array(boxTris(corners))}));
         objs.push(box);
@@ -644,7 +659,7 @@ async function applyChamfer(){
           if(!concaveVerts.has(end)) continue;
           const P=model.verts[end];
           const myDir=vnorm(sub(end===e.a?model.verts[e.b]:model.verts[e.a], P));
-          for(const s of (rimAtVert.get(end)||[])){
+          for(const s of (edgesAtVert.get(end)||[])){
             if(s.e===e) continue;
             const diff=sub(myDir,s.dir);
             if(vlen(diff)<1e-6) continue;          // (near-parallel; nothing to miter)
