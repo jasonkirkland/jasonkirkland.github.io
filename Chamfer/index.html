@@ -8,14 +8,33 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;450;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#0c0d10; --bg2:#101216; --panel:#15181e; --panel2:#1b1f27;
-    --line:#272c36; --line2:#333a47;
-    --txt:#ffffff; --dim:#d4dae3; --faint:#9aa3b2;
-    --amber:#f5a623; --amber-d:#c47f10; --heat:#ff6a2c;
-    --good:#56d6a0; --bad:#ff5a6e;
-    --shadow:0 18px 40px rgba(0,0,0,.55);
-  }
+  :root {
+  /* Backgrounds: Shifted to Gainsboro and slightly darker shades for depth */
+  --bg: #dcdcdc;       /* Gainsboro */
+  --bg2: #d2d6dc;      /* Slightly darker light gray */
+  --panel: #c8ced6;    /* Soft panel gray */
+  --panel2: #be light; /* Muted panel contrast */
+  --panel2: #b8bfc9;   /* Deeper panel layer */
+  
+  /* Lines & Borders: Darker grays to slice through the light backgrounds */
+  --line: #a2adb8;     
+  --line2: #8c9aa8;    
+  
+  /* Text: Flipped to dark values for high contrast against light mode */
+  --txt: #0c0d10;      /* Your original deep black, now used for main text */
+  --dim: #333a47;      /* Dark gray for secondary text */
+  --faint: #626f84;    /* Muted gray for captions/faint text */
+  
+  /* Accents: Kept vibrant but slightly adjusted for light mode legibility */
+  --amber: #e69516;    /* Darkened slightly for contrast */
+  --amber-d: #a36605;  
+  --heat: #e05319;     /* Darkened slightly for contrast */
+  --good: #1ca870;     /* Deeper green for readability */
+  --bad: #d9384c;      /* Deeper red for readability */
+  
+  /* Shadow: Softened significantly so it doesn't look muddy on light gray */
+  --shadow: 0 18px 40px rgba(12, 13, 16, 0.12);
+}
   *{box-sizing:border-box;}
   html,body{height:100%;margin:0;}
   body{
