@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#000000" />
+  <title>DOOM</title>
+
+  <!-- js-dos v8: DOSBox compiled to WebAssembly. Engine loaded at runtime from the
+       js-dos CDN; the game itself (shareware DOOM) is hosted here in doom.jsdos. -->
+  <link rel="stylesheet" href="https://v8.js-dos.com/latest/js-dos.css" />
+  <script src="https://v8.js-dos.com/latest/js-dos.js"></script>
+
+  <style>
+    :root{
+      --bg:#000; --panel:#15100c; --edge:#3a2a1c; --accent:#b5341f;
+      --text:#f2e9df; --muted:#caa; --btn:#241813; --btnEdge:#4a3526;
+      --fire:#b5341f; --use:#1f6f3a;
+      --barH: 230px;
+    }
+    *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+    html,body{
+      height:100%; margin:0; background:var(--bg); color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      overflow:hidden; overscroll-behavior:none; touch-action:none;
+      -webkit-user-select:none; user-select:none;
+    }
+    .wrap{display:flex; flex-direction:column; height:100vh; height:100dvh; width:100vw;}
+
+    header{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:6px 12px; padding-top:max(6px, env(safe-area-inset-top));
+      background:var(--panel); border-bottom:1px solid var(--edge); flex:0 0 auto;
+    }
+    header h1{
+      margin:0; font-size:17px; font-weight:800; letter-spacing:3px; color:var(--accent);
+      text-shadow:0 1px 0 #000;
+    }
+    header .hint{font-size:11px; color:var(--muted);}
+
+    /* Game viewport */
+    #stage{position:relative; flex:1 1 auto; min-height:0; background:#000;}
+    #dos{position:absolute; inset:0;}
+
+    /* Control deck */
+    .deck{
+      flex:0 0 auto; background:var(--panel); border-top:1px solid var(--edge);
+      padding:8px 8px max(8px, env(safe-area-inset-bottom));
+      display:flex; flex-direction:column; gap:8px;
+    }
+    .row{display:flex; gap:6px; justify-content:center; flex-wrap:wrap;}
+    .util .key{min-width:40px; font-size:12px; padding:8px 6px;}
+
+    .pads{display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:8px;}
+
+    .key{
+      display:flex; align-items:center; justify-content:center;
+      background:var(--btn); border:1px solid var(--btnEdge); border-radius:12px;
+      color:var(--text); font-weight:700; font-size:15px;
+      box-shadow:0 2px 0 #000; touch-action:none; user-select:none;
+      min-height:46px; padding:10px;
+    }
+    .key.held, .key:active{transform:translateY(1px); box-shadow:0 1px 0 #000; background:#33231a;}
+    .key.on{background:var(--accent); border-color:#e0573f; color:#fff;}
+
+    /* D-pad (left) */
+    .dpad{display:grid; grid-template-columns:repeat(3,58px); grid-template-rows:repeat(3,52px); gap:6px;}
+    .dpad .sp{visibility:hidden;}
+    .dpad .key{font-size:22px;}
+
+    /* Action cluster (right) */
+    .actions{display:grid; grid-template-columns:repeat(2,68px); grid-template-rows:repeat(2,52px); gap:6px;}
+    .actions .fire{grid-column:1 / span 2; background:var(--fire); border-color:#e0573f; color:#fff; font-size:16px; letter-spacing:1px;}
+    .actions .use{background:var(--use); border-color:#2e9b54; color:#fff;}
+
+    .center-col{display:flex; flex-direction:column; gap:6px; align-items:center;}
+    .strafe{display:flex; gap:6px;}
+    .strafe .key{width:54px; font-size:12px;}
+
+    /* Loading / start overlay */
+    #boot{
+      position:absolute; inset:0; display:flex; flex-direction:column; gap:10px;
+      align-items:center; justify-content:center; background:#000; color:var(--muted);
+      font-size:13px; text-align:center; padding:24px; z-index:5;
+    }
+    #boot b{color:var(--accent); letter-spacing:4px; font-size:26px;}
+    .spinner{width:26px;height:26px;border:3px solid #3a2a1c;border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    @media (min-width:760px){
+      :root{--barH:200px;}
+      header .hint{display:inline;}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>DOOM</h1>
+      <span class="hint">Shareware E1 · tap <b style="color:var(--accent)">▶</b> to start, then use the pad</span>
+    </header>
+
+    <div id="stage">
+      <div id="dos"></div>
+      <div id="boot">
+        <b>DOOM</b>
+        <div class="spinner"></div>
+        <div id="bootmsg">Loading WebAssembly engine…</div>
+      </div>
+    </div>
+
+    <div class="deck">
+      <!-- Utility row -->
+      <div class="row util">
+        <div class="key" data-key="256">ESC</div>
+        <div class="key" data-key="257">ENTER</div>
+        <div class="key" data-key="258">MAP</div>
+        <div class="key" data-toggle="340">RUN</div>
+        <div class="key" data-key="49">1</div>
+        <div class="key" data-key="50">2</div>
+        <div class="key" data-key="51">3</div>
+        <div class="key" data-key="52">4</div>
+        <div class="key" data-key="53">5</div>
+      </div>
+
+      <!-- Pads -->
+      <div class="pads">
+        <!-- Movement / turning -->
+        <div class="dpad" style="justify-self:start;">
+          <div class="sp"></div>
+          <div class="key" data-key="265">▲</div>
+          <div class="sp"></div>
+          <div class="key" data-key="263">◀</div>
+          <div class="sp"></div>
+          <div class="key" data-key="262">▶</div>
+          <div class="sp"></div>
+          <div class="key" data-key="264">▼</div>
+          <div class="sp"></div>
+        </div>
+
+        <!-- Strafe in the middle -->
+        <div class="center-col">
+          <div class="strafe">
+            <div class="key" data-key="44">⟲ STR</div>
+            <div class="key" data-key="46">STR ⟳</div>
+          </div>
+        </div>
+
+        <!-- Fire / Use -->
+        <div class="actions" style="justify-self:end;">
+          <div class="key fire" data-key="341">FIRE</div>
+          <div class="key use" data-key="32">USE</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+      var ci = null;             // js-dos CommandInterface
+      var ready = false;
+      var held = {};             // keyCode -> true while pressed (avoid duplicate ups)
+
+      function press(code, down) {
+        if (!ready || ci == null) return;
+        if (down) {
+          if (held[code]) return;
+          held[code] = true;
+        } else {
+          if (!held[code]) return;
+          delete held[code];
+        }
+        try { ci.sendKeyEvent(code, down); } catch (e) { /* engine not live yet */ }
+      }
+
+      function tap(code) { // discrete press for menu keys / weapons
+        press(code, true);
+        setTimeout(function () { press(code, false); }, 90);
+      }
+
+      // Wire a button: hold-style (movement/fire) by default.
+      function wireHold(el, code) {
+        var active = false;
+        function on(e) {
+          e.preventDefault();
+          if (active) return;
+          active = true;
+          el.classList.add("held");
+          press(code, true);
+          if (e.pointerId !== undefined && el.setPointerCapture) {
+            try { el.setPointerCapture(e.pointerId); } catch (_) {}
+          }
+        }
+        function off(e) {
+          if (e) e.preventDefault();
+          if (!active) return;
+          active = false;
+          el.classList.remove("held");
+          press(code, false);
+        }
+        el.addEventListener("pointerdown", on, { passive: false });
+        el.addEventListener("pointerup", off, { passive: false });
+        el.addEventListener("pointercancel", off, { passive: false });
+        el.addEventListener("pointerleave", off, { passive: false });
+        // Safety: if pointer is lost, release on global pointerup too.
+        window.addEventListener("pointerup", off, { passive: false });
+      }
+
+      // Util keys: ESC/ENTER/MAP/weapons -> discrete tap; RUN -> toggle (hold shift).
+      function wireUtil() {
+        document.querySelectorAll(".util .key").forEach(function (el) {
+          var toggle = el.getAttribute("data-toggle");
+          if (toggle) {
+            var code = parseInt(toggle, 10);
+            el.addEventListener("pointerdown", function (e) {
+              e.preventDefault();
+              if (el.classList.toggle("on")) press(code, true);
+              else press(code, false);
+            }, { passive: false });
+            return;
+          }
+          var k = parseInt(el.getAttribute("data-key"), 10);
+          el.addEventListener("pointerdown", function (e) { e.preventDefault(); tap(k); }, { passive: false });
+        });
+      }
+
+      function wireControls() {
+        // Hold-style: dpad + strafe + fire + use
+        document.querySelectorAll(".dpad .key, .strafe .key, .actions .key").forEach(function (el) {
+          var k = el.getAttribute("data-key");
+          if (k) wireHold(el, parseInt(k, 10));
+        });
+        wireUtil();
+      }
+
+      function boot(msg, spinner) {
+        var b = document.getElementById("boot");
+        var m = document.getElementById("bootmsg");
+        if (msg === null) { b.style.display = "none"; return; }
+        if (m) m.textContent = msg;
+        if (spinner === false) {
+          var s = b.querySelector(".spinner");
+          if (s) s.style.display = "none";
+        }
+      }
+
+      if (typeof Dos !== "function") {
+        boot("Could not load the js-dos engine. Check your connection and reload.", false);
+        return;
+      }
+
+      wireControls();
+
+      Dos(document.getElementById("dos"), {
+        url: "doom.jsdos",
+        theme: "black",
+        backend: "dosbox",
+        renderAspect: "4/3",
+        imageRendering: "pixelated",
+        thinSidebar: true,
+        autoStart: false,   // js-dos shows a Play button: the tap unlocks iOS audio
+        autoSave: false,
+        noCursor: true,
+        onEvent: function (event, arg) {
+          if (event === "emu-ready") {
+            // Reveal the js-dos UI so its ▶ play button (which unlocks audio) is tappable.
+            boot(null);
+          } else if (event === "ci-ready") {
+            ci = arg;
+            ready = true;
+            boot(null);
+          }
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
