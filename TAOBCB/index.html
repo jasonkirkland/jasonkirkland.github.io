@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!-- viewport-fit + user-scalable=no keeps it full-screen and stops pinch-zoom on phones -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0b1d12" />
+  <title>The Act of Bringing Creatures Back</title>
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!--
+    IMPORT MAP — this is how we use Three.js with NO build step.
+    The browser reads "three" in our code and fetches it straight from a CDN.
+    To work offline later, download these files and point the paths at local copies.
+  -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <!-- The 3D game draws onto this canvas -->
+  <canvas id="game"></canvas>
+
+  <!-- ============ MENU / SPECIES SELECT SCREEN ============ -->
+  <div id="menu" class="screen">
+    <div class="menu-inner">
+      <h1 class="title">The Act of<br /><span>Bringing Creatures Back</span></h1>
+      <p class="subtitle">Choose a dinosaur to live as and learn about.</p>
+
+      <div class="scale-counter" id="menuScales" title="Scales you've collected">
+        🦎 <span id="menuScaleCount">0</span> scales
+      </div>
+
+      <!-- Dinosaur cards get filled in by js/ui.js -->
+      <div id="dinoList" class="dino-list"></div>
+
+      <!-- Details for the highlighted dinosaur -->
+      <div id="dinoDetails" class="dino-details"></div>
+
+      <button id="startBtn" class="big-btn" disabled>Select a dinosaur</button>
+    </div>
+  </div>
+
+  <!-- ============ ROTATE-YOUR-PHONE NUDGE ============ -->
+  <div id="rotateNote" class="rotate-note">
+    <div>🔄</div>
+    <p>Turn your phone sideways (landscape) to play.</p>
+  </div>
+
+  <!-- ============ IN-GAME HEADS-UP DISPLAY ============ -->
+  <div id="hud" class="hud hidden">
+    <div class="hud-top">
+      <div class="bars">
+        <div class="bar"><label>Hunger</label><div class="bar-track"><div id="barHunger" class="bar-fill hunger"></div></div></div>
+        <div class="bar"><label>Thirst</label><div class="bar-track"><div id="barThirst" class="bar-fill thirst"></div></div></div>
+        <div class="bar"><label>Stamina</label><div class="bar-track"><div id="barStamina" class="bar-fill stamina"></div></div></div>
+        <div class="bar"><label>Health</label><div class="bar-track"><div id="barHealth" class="bar-fill health"></div></div></div>
+      </div>
+      <div class="hud-right">
+        <div class="info-chip" id="speciesChip">—</div>
+        <div class="info-chip" id="scaleChip">🦎 0</div>
+        <div class="info-chip" id="clockChip">☀️ Day</div>
+        <div class="info-chip" id="ageChip">🥚 Baby</div>
+      </div>
+    </div>
+
+    <!-- Popup that teaches a fact when something happens (eat, drink, find fossil) -->
+    <div id="factPopup" class="fact-popup hidden"></div>
+
+    <!-- Center prompt, e.g. "Press E to eat" -->
+    <div id="prompt" class="prompt hidden"></div>
+
+    <!-- Touch controls (only shown on touch devices) -->
+    <div id="touchControls" class="touch-controls hidden">
+      <div id="joystick" class="joystick"><div id="joyKnob" class="joy-knob"></div></div>
+      <div class="action-buttons">
+        <button id="btnRun" class="action-btn">Run</button>
+        <button id="btnAction" class="action-btn primary">Act</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ DEATH SCREEN ============ -->
+  <div id="deathScreen" class="screen hidden">
+    <div class="menu-inner">
+      <h1 class="title small">Your dinosaur has died</h1>
+      <p id="deathReason" class="subtitle"></p>
+      <p class="subtitle" id="deathLearned"></p>
+      <button id="backToMenuBtn" class="big-btn">Choose another dinosaur</button>
+    </div>
+  </div>
+
+  <!-- Entry point. type="module" lets us use import/export with no build tool. -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
