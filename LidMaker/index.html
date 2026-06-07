@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Snap-Lid Generator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+  :root{
+    --bg:#0e0f12; --panel:#16181d; --panel2:#1c1f26; --line:#2a2e38;
+    --ink:#e6e8ee; --muted:#8b909c; --accent:#ff6a2b; --accent2:#39d0d8;
+    --mono:"DM Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:"Space Grotesk",-apple-system,BlinkMacSystemFont,sans-serif;
+  }
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--sans)}
+  body{display:flex;flex-direction:column;overflow:hidden}
+  header{display:flex;align-items:center;gap:14px;padding:12px 18px;
+    border-bottom:1px solid var(--line);background:linear-gradient(180deg,#191b21,#131419)}
+  header .mark{width:26px;height:26px;border:2px solid var(--accent);border-radius:6px;position:relative;flex:0 0 auto}
+  header .mark::after{content:"";position:absolute;inset:5px;border:2px solid var(--accent2);border-radius:3px}
+  header h1{font-size:15px;letter-spacing:.5px;margin:0;font-weight:600}
+  header h1 span{color:var(--muted);font-weight:400}
+  header .tag{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted);
+    border:1px solid var(--line);padding:4px 9px;border-radius:20px}
+  main{flex:1;display:flex;min-height:0}
+  #stage{flex:1;position:relative;background:radial-gradient(120% 120% at 50% 0%,#1a1d24 0%,#0c0d10 70%);min-width:0}
+  #canvas{display:block;width:100%;height:100%}
+  #drop{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    flex-direction:column;gap:14px;pointer-events:none;transition:.2s}
+  #drop.show{pointer-events:auto}
+  #drop.gone{opacity:0;visibility:hidden;pointer-events:none}
+  #drop .box{border:1.5px dashed var(--line);border-radius:16px;padding:34px 46px;text-align:center;
+    background:rgba(20,22,28,.55);backdrop-filter:blur(3px)}
+  #drop.drag .box{border-color:var(--accent);background:rgba(255,106,43,.08)}
+  #drop h2{margin:0 0 6px;font-size:18px;font-weight:600}
+  #drop p{margin:0;color:var(--muted);font-size:13px}
+  #drop .pick{margin-top:16px;display:inline-block;font-family:var(--mono);font-size:12px;
+    color:var(--accent);border:1px solid var(--accent);padding:8px 16px;border-radius:8px;cursor:pointer}
+  .hud{position:absolute;left:14px;bottom:14px;font-family:var(--mono);font-size:11px;
+    color:var(--muted);line-height:1.7;pointer-events:none;text-shadow:0 1px 3px #000}
+  .hud b{color:var(--accent2);font-weight:500}
+  .viewbtns{position:absolute;right:14px;top:14px;display:flex;gap:6px;flex-wrap:wrap;max-width:230px;justify-content:flex-end}
+  .viewbtns button{font-family:var(--mono);font-size:11px;color:var(--muted);background:rgba(22,24,29,.8);
+    border:1px solid var(--line);padding:6px 10px;border-radius:7px;cursor:pointer;backdrop-filter:blur(4px)}
+  .viewbtns button.on{color:var(--accent);border-color:var(--accent)}
+  aside{width:340px;flex:0 0 340px;border-left:1px solid var(--line);background:var(--panel);
+    display:flex;flex-direction:column;min-height:0}
+  .scroll{overflow-y:auto;padding:16px 16px 90px}
+  .scroll::-webkit-scrollbar{width:9px}
+  .scroll::-webkit-scrollbar-thumb{background:var(--line);border-radius:9px}
+  .grp{margin-bottom:18px}
+  .grp>.title{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;
+    letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin:0 0 10px}
+  .grp>.title::before{content:"";width:7px;height:7px;background:var(--accent);border-radius:2px;flex:0 0 auto}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+  .row label{font-size:13px;color:#c7cad3}
+  .row .sub{font-size:11px;color:var(--muted);font-family:var(--mono)}
+  .field{display:flex;align-items:center;gap:6px}
+  .field input[type=number]{width:74px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);
+    font-family:var(--mono);font-size:13px;padding:6px 8px;border-radius:7px;text-align:right}
+  .field input:focus{outline:none;border-color:var(--accent)}
+  .field .unit{font-family:var(--mono);font-size:11px;color:var(--muted);width:22px}
+  .seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .seg button{flex:1;background:var(--panel2);border:0;color:var(--muted);font-family:var(--mono);
+    font-size:12px;padding:7px 4px;cursor:pointer}
+  .seg button.on{background:var(--accent);color:#1a0d05;font-weight:600}
+  .toggle{position:relative;width:42px;height:24px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:20px;cursor:pointer;flex:0 0 auto;transition:.15s}
+  .toggle.on{background:var(--accent)}
+  .toggle::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;
+    background:#cfd2da;transition:.15s}
+  .toggle.on::after{left:21px;background:#1a0d05}
+  .measure{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;margin-bottom:14px}
+  .measure .mr{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;margin:4px 0}
+  .measure .mr span:first-child{color:var(--muted)}
+  .measure .mr span:last-child{color:var(--accent2)}
+  .note{font-size:11.5px;color:var(--muted);line-height:1.5;margin-top:4px}
+  .hidden{display:none!important}
+  footer{padding:12px 16px;border-top:1px solid var(--line);background:var(--panel);display:flex;gap:10px;align-items:center}
+  #export{flex:1;background:var(--accent);color:#1a0d05;border:0;font-family:var(--sans);font-weight:600;
+    font-size:14px;padding:12px;border-radius:9px;cursor:pointer;letter-spacing:.3px}
+  #export:hover{filter:brightness(1.07)}
+  #export:disabled{opacity:.4;cursor:not-allowed}
+  @media(max-width:780px){
+    main{flex-direction:column} aside{width:100%;flex:1 1 auto;border-left:0;border-top:1px solid var(--line)}
+    #stage{flex:0 0 46%}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="mark"></div>
+  <h1>SNAP&#8209;LID <span>/ parametric lid generator &middot; round &amp; rectangular</span></h1>
+  <div class="tag" id="status">no model</div>
+</header>
+
+<main>
+  <section id="stage">
+    <canvas id="canvas"></canvas>
+    <div class="viewbtns">
+      <button id="vBox" class="on">box</button>
+      <button id="vLid" class="on">lid</button>
+      <button id="vAssembled" class="on">assembled</button>
+      <button id="vWire">wireframe</button>
+      <button id="vReset">reset view</button>
+    </div>
+    <div id="drop" class="show">
+      <div class="box">
+        <h2>Drop a box STL here</h2>
+        <p>round or rectangular boxes &middot; binary or ASCII STL</p>
+        <label class="pick">choose file<input id="file" type="file" accept=".stl" hidden></label>
+        <p style="margin-top:14px">&mdash; or just type dimensions in the panel &rarr;</p>
+      </div>
+    </div>
+    <div class="hud" id="hud"></div>
+  </section>
+
+  <aside>
+    <div class="scroll">
+      <div class="measure" id="measureCard">
+        <div class="mr"><span id="lOuter">measured outer</span><span id="mOuter">&mdash;</span></div>
+        <div class="mr"><span id="lInner">measured inner</span><span id="mInner">&mdash;</span></div>
+        <div class="mr"><span>model height</span><span id="mHeight">&mdash;</span></div>
+        <p class="note">Measured from a slice at the top of the model. If the rim is chamfered or detection looks off, type the real opening dimensions below &mdash; every value is editable.</p>
+      </div>
+
+      <div class="grp">
+        <p class="title">Box opening</p>
+        <div class="row">
+          <label>Shape</label>
+          <div class="seg" id="shapeSeg" style="width:160px">
+            <button data-sh="round" class="on">round</button>
+            <button data-sh="rect">rectangular</button>
+          </div>
+        </div>
+        <div class="row">
+          <label>Up axis <span class="sub">(height)</span></label>
+          <div class="seg" id="axisSeg" style="width:120px">
+            <button data-ax="0">X</button><button data-ax="1">Y</button><button data-ax="2" class="on">Z</button>
+          </div>
+        </div>
+
+        <div id="roundFields">
+          <div class="row"><label>Inner &Oslash; <span class="sub">opening</span></label>
+            <div class="field"><input id="pInner" type="number" step="0.1" value="50"><span class="unit">mm</span></div></div>
+          <div class="row"><label>Outer &Oslash; <span class="sub">for lip</span></label>
+            <div class="field"><input id="pOuter" type="number" step="0.1" value="54"><span class="unit">mm</span></div></div>
+        </div>
+
+        <div id="rectFields" class="hidden">
+          <div class="row"><label>Inner W <span class="sub">opening</span></label>
+            <div class="field"><input id="pInnerW" type="number" step="0.1" value="60"><span class="unit">mm</span></div></div>
+          <div class="row"><label>Inner D <span class="sub">opening</span></label>
+            <div class="field"><input id="pInnerD" type="number" step="0.1" value="40"><span class="unit">mm</span></div></div>
+          <div class="row"><label>Outer W <span class="sub">for lip</span></label>
+            <div class="field"><input id="pOuterW" type="number" step="0.1" value="64"><span class="unit">mm</span></div></div>
+          <div class="row"><label>Outer D <span class="sub">for lip</span></label>
+            <div class="field"><input id="pOuterD" type="number" step="0.1" value="44"><span class="unit">mm</span></div></div>
+        </div>
+      </div>
+
+      <div class="grp">
+        <p class="title">Fit</p>
+        <div class="row">
+          <label>Style</label>
+          <div class="seg" id="styleSeg" style="width:170px">
+            <button data-st="plug" class="on">plug + lip</button>
+            <button data-st="flush">flush plug</button>
+          </div>
+        </div>
+        <div class="row">
+          <label>Radial clearance</label>
+          <div class="field"><input id="pClear" type="number" step="0.05" value="0.2"><span class="unit">mm</span></div>
+        </div>
+        <p class="note">Gap per side between skirt and box wall. FDM: ~0.15&ndash;0.25 snug, ~0.3 loose.</p>
+      </div>
+
+      <div class="grp">
+        <p class="title">Lid body</p>
+        <div class="row"><label>Skirt height <span class="sub">insert depth</span></label>
+          <div class="field"><input id="pSkirt" type="number" step="0.5" value="8"><span class="unit">mm</span></div></div>
+        <div class="row"><label>Skirt wall</label>
+          <div class="field"><input id="pWall" type="number" step="0.1" value="2"><span class="unit">mm</span></div></div>
+        <div class="row"><label>Top thickness</label>
+          <div class="field"><input id="pTop" type="number" step="0.1" value="2"><span class="unit">mm</span></div></div>
+        <div class="row" id="lipRow"><label>Lip overhang</label>
+          <div class="field"><input id="pLip" type="number" step="0.5" value="2.5"><span class="unit">mm</span></div></div>
+      </div>
+
+      <div class="grp">
+        <p class="title">Snap bead</p>
+        <div class="row"><label>Enable snap ridge</label><div class="toggle on" id="beadToggle"></div></div>
+        <div id="beadFields">
+          <div class="row"><label>Protrusion <span class="sub">outward</span></label>
+            <div class="field"><input id="pBead" type="number" step="0.05" value="0.4"><span class="unit">mm</span></div></div>
+          <div class="row"><label>Height from skirt base</label>
+            <div class="field"><input id="pBeadPos" type="number" step="0.5" value="1.5"><span class="unit">mm</span></div></div>
+          <div class="row"><label>Bead width</label>
+            <div class="field"><input id="pBeadW" type="number" step="0.1" value="0.9"><span class="unit">mm</span></div></div>
+          <p class="note">The ridge flexes past the box rim and seats just below it for the &ldquo;click&rdquo;. On rectangular lids the bead runs the flat faces and skips the corners. Keep protrusion small for stiff/thick walls.</p>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <button id="export" disabled>Export lid STL</button>
+    </footer>
+  </aside>
+</main>
+
+<script>
+/* ---------- scene (core three only, hand-rolled orbit) ---------- */
+const canvas=document.getElementById('canvas');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const scene=new THREE.Scene(); scene.background=null;
+const camera=new THREE.PerspectiveCamera(45,1,0.1,100000);
+scene.add(new THREE.HemisphereLight(0xbfd4ff,0x20242c,0.9));
+const key=new THREE.DirectionalLight(0xffffff,0.9); key.position.set(1,1.5,1); scene.add(key);
+const fill=new THREE.DirectionalLight(0xffe6cc,0.4); fill.position.set(-1,0.5,-1); scene.add(fill);
+const grid=new THREE.GridHelper(400,40,0x2a2e38,0x1d2027);
+grid.material.opacity=0.5; grid.material.transparent=true; scene.add(grid);
+
+const boxMat=new THREE.MeshStandardMaterial({color:0x5b6472,metalness:0.1,roughness:0.75,transparent:true,opacity:0.55,side:THREE.DoubleSide});
+const lidMat=new THREE.MeshStandardMaterial({color:0xff6a2b,metalness:0.15,roughness:0.5,side:THREE.DoubleSide});
+let boxMesh=null, lidMesh=null;
+
+let radius=200,theta=0.9,phi=1.05,target=new THREE.Vector3();
+function applyCam(){
+  camera.position.set(
+    target.x+radius*Math.sin(phi)*Math.cos(theta),
+    target.y+radius*Math.cos(phi),
+    target.z+radius*Math.sin(phi)*Math.sin(theta));
+  camera.lookAt(target);
+}
+let dragging=false,lx=0,ly=0;
+canvas.addEventListener('pointerdown',e=>{dragging=true;lx=e.clientX;ly=e.clientY;canvas.setPointerCapture(e.pointerId);});
+canvas.addEventListener('pointerup',()=>{dragging=false;});
+canvas.addEventListener('pointermove',e=>{if(!dragging)return;
+  theta-=(e.clientX-lx)*0.01; phi-=(e.clientY-ly)*0.01;
+  phi=Math.max(0.05,Math.min(Math.PI-0.05,phi)); lx=e.clientX;ly=e.clientY;});
+canvas.addEventListener('wheel',e=>{e.preventDefault();radius*=(1+Math.sign(e.deltaY)*0.1);radius=Math.max(5,radius);},{passive:false});
+function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;
+  if(canvas.width!==w*devicePixelRatio||canvas.height!==h*devicePixelRatio){
+    renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}}
+function loop(){resize();applyCam();renderer.render(scene,camera);requestAnimationFrame(loop);}
+loop();
+
+/* ---------- STL parse ---------- */
+function parseSTL(buf){
+  const dv=new DataView(buf); let ascii=false;
+  if(buf.byteLength<84)ascii=true;
+  else{const n=dv.getUint32(80,true); if(84+n*50!==buf.byteLength)ascii=true;}
+  if(ascii){
+    const txt=new TextDecoder().decode(buf);
+    const re=/vertex\s+(-?[\d.eE+]+)\s+(-?[\d.eE+]+)\s+(-?[\d.eE+]+)/g;
+    const v=[];let m;while((m=re.exec(txt)))v.push(+m[1],+m[2],+m[3]);
+    return new Float32Array(v);
+  }
+  const n=dv.getUint32(80,true),out=new Float32Array(n*9);let o=84,k=0;
+  for(let i=0;i<n;i++){o+=12;for(let j=0;j<9;j++){out[k++]=dv.getFloat32(o,true);o+=4;}o+=2;}
+  return out;
+}
+
+/* ---------- shape guess ---------- */
+function guessShape(pos,up){
+  const a0=(up+1)%3,a1=(up+2)%3;
+  let minU=Infinity,maxU=-Infinity,mnx=Infinity,mxx=-Infinity,mnz=Infinity,mxz=-Infinity;
+  for(let i=0;i<pos.length;i+=3){const u=pos[i+up],x=pos[i+a0],z=pos[i+a1];
+    if(u<minU)minU=u;if(u>maxU)maxU=u;if(x<mnx)mnx=x;if(x>mxx)mxx=x;if(z<mnz)mnz=z;if(z>mxz)mxz=z;}
+  const lo=maxU-Math.max(0.06*(maxU-minU),0.5);
+  const cx=(mnx+mxx)/2,cz=(mnz+mxz)/2,hx=Math.max((mxx-mnx)/2,1e-6),hz=Math.max((mxz-mnz)/2,1e-6);
+  let corner=0,tot=0;
+  for(let i=0;i<pos.length;i+=3){if(pos[i+up]<lo)continue;
+    const nx=Math.abs((pos[i+a0]-cx)/hx),nz=Math.abs((pos[i+a1]-cz)/hz);tot++;
+    if(nx>0.72&&nz>0.72)corner++;}
+  return (tot&&corner/tot>0.12)?'rect':'round';
+}
+
+/* ---------- measure: round ---------- */
+function measureRound(pos,up){
+  const a0=(up+1)%3,a1=(up+2)%3;
+  let minU=Infinity,maxU=-Infinity,mnx=Infinity,mxx=-Infinity,mnz=Infinity,mxz=-Infinity;
+  for(let i=0;i<pos.length;i+=3){const u=pos[i+up];
+    if(u<minU)minU=u;if(u>maxU)maxU=u;
+    if(pos[i+a0]<mnx)mnx=pos[i+a0];if(pos[i+a0]>mxx)mxx=pos[i+a0];
+    if(pos[i+a1]<mnz)mnz=pos[i+a1];if(pos[i+a1]>mxz)mxz=pos[i+a1];}
+  const height=maxU-minU,cx=(mnx+mxx)/2,cy=(mnz+mxz)/2;
+  const lo=maxU-Math.max(0.06*height,0.5);
+  let inner=Infinity,outer=0,hit=0;
+  for(let i=0;i<pos.length;i+=3){if(pos[i+up]<lo)continue;
+    const r=Math.hypot(pos[i+a0]-cx,pos[i+a1]-cy);if(r>outer)outer=r;if(r<inner)inner=r;hit++;}
+  if(!hit||outer<=0){for(let i=0;i<pos.length;i+=3){const r=Math.hypot(pos[i+a0]-cx,pos[i+a1]-cy);if(r>outer)outer=r;}inner=Math.max(0,outer-2);}
+  if(inner===Infinity)inner=Math.max(0,outer-2);
+  return {shape:'round',height,innerD:inner*2,outerD:outer*2,maxOuter:outer,up,a0,a1,cx,cy,minU,maxU};
+}
+
+/* ---------- measure: rect ---------- */
+function measureRect(pos,up){
+  const a0=(up+1)%3,a1=(up+2)%3;
+  let minU=Infinity,maxU=-Infinity;
+  for(let i=0;i<pos.length;i+=3){const u=pos[i+up];if(u<minU)minU=u;if(u>maxU)maxU=u;}
+  const height=maxU-minU,lo=maxU-Math.max(0.06*height,0.5);
+  let mnx=Infinity,mxx=-Infinity,mnz=Infinity,mxz=-Infinity;
+  for(let i=0;i<pos.length;i+=3){if(pos[i+up]<lo)continue;
+    if(pos[i+a0]<mnx)mnx=pos[i+a0];if(pos[i+a0]>mxx)mxx=pos[i+a0];
+    if(pos[i+a1]<mnz)mnz=pos[i+a1];if(pos[i+a1]>mxz)mxz=pos[i+a1];}
+  const cx=(mnx+mxx)/2,cy=(mnz+mxz)/2,outerW=mxx-mnx,outerD=mxz-mnz;
+  // inner via center-band: sides walls give inner W, front/back give inner D
+  const bandZ=0.15*outerD, bandX=0.15*outerW;
+  let il=-Infinity,ir=Infinity,ifr=-Infinity,ibk=Infinity;
+  for(let i=0;i<pos.length;i+=3){if(pos[i+up]<lo)continue;
+    const x=pos[i+a0],z=pos[i+a1];
+    if(Math.abs(z-cy)<bandZ){ if(x<cx&&x>il)il=x; if(x>cx&&x<ir)ir=x; }
+    if(Math.abs(x-cx)<bandX){ if(z<cy&&z>ifr)ifr=z; if(z>cy&&z<ibk)ibk=z; }
+  }
+  const innerW=(il>-Infinity&&ir<Infinity&&ir>il)?(ir-il):Math.max(0,outerW-4);
+  const innerD=(ifr>-Infinity&&ibk<Infinity&&ibk>ifr)?(ibk-ifr):Math.max(0,outerD-4);
+  return {shape:'rect',height,innerW,innerD,outerW,outerD,maxOuter:Math.max(outerW,outerD)/2,up,a0,a1,cx,cy,minU,maxU};
+}
+
+/* ---------- display box mesh (rotate up->+Y, sit on grid) ---------- */
+let meas=null, rawPos=null;
+function buildBoxMesh(){
+  if(boxMesh){scene.remove(boxMesh);boxMesh.geometry.dispose();boxMesh=null;}
+  if(!rawPos||!meas)return;
+  const {up,a0,a1,cx,cy,minU}=meas;
+  const g=new THREE.BufferGeometry(),out=new Float32Array(rawPos.length);
+  for(let i=0;i<rawPos.length;i+=3){
+    out[i]=rawPos[i+a0]-cx; out[i+1]=rawPos[i+up]-minU; out[i+2]=rawPos[i+a1]-cy;}
+  g.setAttribute('position',new THREE.BufferAttribute(out,3)); g.computeVertexNormals();
+  boxMesh=new THREE.Mesh(g,boxMat); scene.add(boxMesh); applyVis();
+}
+
+/* ---------- params ---------- */
+let shape='round';
+function P(){return {
+  shape,
+  innerD:+pInner.value, outerD:+pOuter.value,
+  innerW:+pInnerW.value, innerDr:+pInnerD.value, outerW:+pOuterW.value, outerDr:+pOuterD.value,
+  clear:+pClear.value, skirt:+pSkirt.value, wall:+pWall.value, top:+pTop.value, lip:+pLip.value,
+  style:styleSeg.querySelector('.on').dataset.st,
+  bead:beadToggle.classList.contains('on'), beadB:+pBead.value, beadPos:+pBeadPos.value, beadW:+pBeadW.value
+};}
+
+/* ---------- round lid (lathe) ---------- */
+function lidProfile(p){
+  const r_so=Math.max(0.5,p.innerD/2-p.clear), r_si=Math.max(0.2,r_so-p.wall);
+  const r_lip=(p.style==='plug')?r_so+Math.max(0,p.lip):r_so;
+  const tTop=p.top,hSk=p.skirt,pts=[];
+  pts.push(new THREE.Vector2(0,0));
+  pts.push(new THREE.Vector2(r_lip,0));
+  pts.push(new THREE.Vector2(r_lip,-tTop));
+  if(r_lip>r_so+0.001)pts.push(new THREE.Vector2(r_so,-tTop));
+  if(p.bead&&p.beadB>0){const bw=Math.max(0.2,p.beadW),yb=-(tTop+hSk)+Math.min(Math.max(p.beadPos,bw),hSk-bw);
+    pts.push(new THREE.Vector2(r_so,yb+bw));pts.push(new THREE.Vector2(r_so+p.beadB,yb));pts.push(new THREE.Vector2(r_so,yb-bw));}
+  pts.push(new THREE.Vector2(r_so,-(tTop+hSk)));
+  pts.push(new THREE.Vector2(r_si,-(tTop+hSk)));
+  pts.push(new THREE.Vector2(r_si,-tTop));
+  pts.push(new THREE.Vector2(0,-tTop));
+  return {pts,r_so,r_si,r_lip,tTop,hSk};
+}
+
+/* ---------- rect lid (solid slabs, slicer-unioned) ---------- */
+function addQuad(out,a,b,c,d,n){
+  const e1=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],e2=[c[0]-a[0],c[1]-a[1],c[2]-a[2]];
+  const cr=[e1[1]*e2[2]-e1[2]*e2[1],e1[2]*e2[0]-e1[0]*e2[2],e1[0]*e2[1]-e1[1]*e2[0]];
+  if(cr[0]*n[0]+cr[1]*n[1]+cr[2]*n[2]<0){const t=b;b=d;d=t;}
+  out.push(a[0],a[1],a[2],b[0],b[1],b[2],c[0],c[1],c[2]);
+  out.push(a[0],a[1],a[2],c[0],c[1],c[2],d[0],d[1],d[2]);
+}
+function addBox(out,x0,x1,y0,y1,z0,z1){
+  const A=[x0,y0,z0],B=[x1,y0,z0],C=[x1,y1,z0],D=[x0,y1,z0];
+  const E=[x0,y0,z1],F=[x1,y0,z1],G=[x1,y1,z1],H=[x0,y1,z1];
+  addQuad(out,E,F,G,H,[0,0,1]); addQuad(out,A,B,C,D,[0,0,-1]);
+  addQuad(out,B,F,G,C,[1,0,0]); addQuad(out,A,E,H,D,[-1,0,0]);
+  addQuad(out,D,C,G,H,[0,1,0]); addQuad(out,A,B,F,E,[0,-1,0]);
+}
+function buildLidRect(p){
+  const sx=Math.max(0.5,p.innerW/2-p.clear), sz=Math.max(0.5,p.innerDr/2-p.clear);
+  const t=p.wall, ix=Math.max(0.2,sx-t), iz=Math.max(0.2,sz-t);
+  const tTop=p.top,hSk=p.skirt,ov=0.02;
+  const lipX=(p.style==='plug')?sx+Math.max(0,p.lip):sx, lipZ=(p.style==='plug')?sz+Math.max(0,p.lip):sz;
+  const out=[];
+  addBox(out,-lipX,lipX,-tTop,0,-lipZ,lipZ);            // top plate
+  const y0=-(tTop+hSk),y1=-tTop+ov;
+  addBox(out,-sx,-ix,y0,y1,-sz,sz);                     // left wall
+  addBox(out,ix,sx,y0,y1,-sz,sz);                       // right wall
+  addBox(out,-ix-ov,ix+ov,y0,y1,-sz,-iz);              // front wall
+  addBox(out,-ix-ov,ix+ov,y0,y1,iz,sz);                // back wall
+  if(p.bead&&p.beadB>0){
+    const bw=Math.max(0.2,p.beadW),yc=-(tTop+hSk)+Math.min(Math.max(p.beadPos,bw),hSk-bw),b=p.beadB,by0=yc-bw,by1=yc+bw;
+    addBox(out,-sx-b,-sx+ov,by0,by1,-iz,iz);
+    addBox(out,sx-ov,sx+b,by0,by1,-iz,iz);
+    addBox(out,-ix,ix,by0,by1,-sz-b,-sz+ov);
+    addBox(out,-ix,ix,by0,by1,sz-ov,sz+b);
+  }
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(out),3)); geo.computeVertexNormals();
+  return {geo,info:{shape:'rect',sx,sz,ix,iz,lipX,lipZ,tTop,hSk}};
+}
+
+/* ---------- dispatch build ---------- */
+let lidInfo=null;
+function buildLid(){
+  if(lidMesh){scene.remove(lidMesh);lidMesh.geometry.dispose();lidMesh=null;}
+  const p=P(); let geo;
+  if(shape==='round'){
+    if(!(p.innerD>0))return;
+    const lp=lidProfile(p); lidInfo={...lp}; lidInfo.shape='round';
+    geo=new THREE.LatheGeometry(lp.pts,128); geo.computeVertexNormals();
+  }else{
+    if(!(p.innerW>0&&p.innerDr>0))return;
+    const r=buildLidRect(p); geo=r.geo; lidInfo=r.info;
+  }
+  lidMesh=new THREE.Mesh(geo,lidMat); scene.add(lidMesh); placeLid(); applyVis();
+  export_.disabled=false;
+  const tot=(lidInfo.tTop+lidInfo.hSk).toFixed(2);
+  if(shape==='round'){
+    hud.innerHTML=`skirt &Oslash; <b>${(lidInfo.r_so*2).toFixed(2)}</b> &nbsp; cavity &Oslash; <b>${(lidInfo.r_si*2).toFixed(2)}</b> mm<br>`+
+      `overall &Oslash; <b>${(lidInfo.r_lip*2).toFixed(2)}</b> &nbsp; total H <b>${tot}</b> mm`+
+      (p.bead?`<br>snap interference <b>${p.beadB.toFixed(2)}</b> mm/side`:``);
+  }else{
+    hud.innerHTML=`skirt <b>${(lidInfo.sx*2).toFixed(1)}&times;${(lidInfo.sz*2).toFixed(1)}</b> &nbsp; cavity <b>${(lidInfo.ix*2).toFixed(1)}&times;${(lidInfo.iz*2).toFixed(1)}</b> mm<br>`+
+      `overall <b>${(lidInfo.lipX*2).toFixed(1)}&times;${(lidInfo.lipZ*2).toFixed(1)}</b> &nbsp; total H <b>${tot}</b> mm`+
+      (p.bead?`<br>snap interference <b>${p.beadB.toFixed(2)}</b> mm/side`:``);
+  }
+}
+
+let assembled=true;
+function placeLid(){
+  if(!lidMesh)return;
+  const boxTop=meas?meas.height:30;
+  const lift=assembled?0:(lidInfo.hSk+Math.max(20,boxTop*0.4));
+  lidMesh.position.set(0,boxTop+lidInfo.tTop+lift,0);
+}
+
+/* ---------- view toggles ---------- */
+const vBox=document.getElementById('vBox'),vLid=document.getElementById('vLid'),
+      vAssembled=document.getElementById('vAssembled'),vWire=document.getElementById('vWire');
+function applyVis(){
+  if(boxMesh)boxMesh.visible=vBox.classList.contains('on');
+  if(lidMesh)lidMesh.visible=vLid.classList.contains('on');
+  const w=vWire.classList.contains('on'); boxMat.wireframe=w; lidMat.wireframe=w; boxMat.opacity=w?0.9:0.55;
+}
+vBox.onclick=()=>{vBox.classList.toggle('on');applyVis();};
+vLid.onclick=()=>{vLid.classList.toggle('on');applyVis();};
+vWire.onclick=()=>{vWire.classList.toggle('on');applyVis();};
+vAssembled.onclick=()=>{vAssembled.classList.toggle('on');assembled=vAssembled.classList.contains('on');placeLid();};
+document.getElementById('vReset').onclick=()=>frame();
+function frame(){const boxT=meas?meas.height:30,rad=meas?meas.maxOuter:30;
+  target.set(0,boxT*0.5,0); radius=Math.max(rad*4,boxT*2.4,60); theta=0.9; phi=1.0;}
+
+/* ---------- file + recompute ---------- */
+const drop=document.getElementById('drop');
+function ingest(buf){
+  rawPos=parseSTL(buf);
+  if(!rawPos.length){status.textContent='parse failed';return;}
+  const up=+axisSeg.querySelector('.on').dataset.ax;
+  setShape(guessShape(rawPos,up));
+  recompute();
+  drop.classList.add('gone'); drop.classList.remove('drag','show'); status.textContent='model loaded'; measureCard.classList.remove('hidden'); frame();
+}
+function recompute(){
+  if(!rawPos)return;
+  const up=+axisSeg.querySelector('.on').dataset.ax;
+  if(shape==='round'){
+    meas=measureRound(rawPos,up);
+    lOuter.textContent='measured outer'; lInner.textContent='measured inner';
+    mOuter.textContent='\u00D8 '+meas.outerD.toFixed(2)+' mm';
+    mInner.textContent='\u00D8 '+meas.innerD.toFixed(2)+' mm';
+    pInner.value=meas.innerD.toFixed(2); pOuter.value=meas.outerD.toFixed(2);
+  }else{
+    meas=measureRect(rawPos,up);
+    lOuter.textContent='measured outer'; lInner.textContent='measured inner';
+    mOuter.textContent=meas.outerW.toFixed(1)+' \u00D7 '+meas.outerD.toFixed(1)+' mm';
+    mInner.textContent=meas.innerW.toFixed(1)+' \u00D7 '+meas.innerD.toFixed(1)+' mm';
+    pInnerW.value=meas.innerW.toFixed(1); pInnerD.value=meas.innerD.toFixed(1);
+    pOuterW.value=meas.outerW.toFixed(1); pOuterD.value=meas.outerD.toFixed(1);
+  }
+  mHeight.textContent=meas.height.toFixed(2)+' mm';
+  buildBoxMesh(); buildLid();
+}
+document.getElementById('file').addEventListener('change',e=>{const f=e.target.files[0];if(f)f.arrayBuffer().then(ingest);});
+['dragenter','dragover'].forEach(ev=>stage.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('gone');drop.classList.add('show','drag');}));
+['dragleave','drop'].forEach(ev=>stage.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag');if(ev==='dragleave'&&rawPos){drop.classList.add('gone');drop.classList.remove('show');}}));
+stage.addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(f)f.arrayBuffer().then(ingest);});
+
+/* ---------- controls ---------- */
+function setShape(s){
+  shape=s;
+  shapeSeg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.sh===s));
+  roundFields.classList.toggle('hidden',s!=='round');
+  rectFields.classList.toggle('hidden',s!=='rect');
+}
+shapeSeg.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  setShape(b.dataset.sh); if(rawPos)recompute(); else buildLid();
+});
+axisSeg.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  axisSeg.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  if(rawPos){setShape(guessShape(rawPos,+b.dataset.ax));recompute();}
+});
+styleSeg.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  styleSeg.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  lipRow.classList.toggle('hidden',b.dataset.st!=='plug'); buildLid();
+});
+beadToggle.onclick=()=>{beadToggle.classList.toggle('on');
+  beadFields.classList.toggle('hidden',!beadToggle.classList.contains('on'));buildLid();};
+['pInner','pOuter','pInnerW','pInnerD','pOuterW','pOuterD','pClear','pSkirt','pWall','pTop','pLip','pBead','pBeadPos','pBeadW']
+  .forEach(id=>document.getElementById(id).addEventListener('input',buildLid));
+
+/* ---------- export (plate on bed, skirt up, Z up) ---------- */
+function trisFromGeo(g){
+  const pos=g.attributes.position,idx=g.index,out=[];
+  const get=i=>new THREE.Vector3(pos.getX(i),pos.getY(i),pos.getZ(i));
+  if(idx){for(let i=0;i<idx.count;i+=3)out.push([get(idx.getX(i)),get(idx.getX(i+1)),get(idx.getX(i+2))]);}
+  else{for(let i=0;i<pos.count;i+=3)out.push([get(i),get(i+1),get(i+2)]);}
+  return out;
+}
+function toExport(v){return new THREE.Vector3(v.x,-v.z,-v.y);}
+function buildSTL(tris){
+  const n=tris.length,buf=new ArrayBuffer(84+n*50),dv=new DataView(buf); dv.setUint32(80,n,true);let o=84;
+  const ab=new THREE.Vector3(),ac=new THREE.Vector3(),nrm=new THREE.Vector3();
+  for(const t of tris){
+    const a=toExport(t[0]),b=toExport(t[2]),c=toExport(t[1]); // reverse winding for reflection
+    ab.subVectors(b,a);ac.subVectors(c,a);nrm.crossVectors(ab,ac); if(nrm.lengthSq()>0)nrm.normalize();
+    dv.setFloat32(o,nrm.x,true);dv.setFloat32(o+4,nrm.y,true);dv.setFloat32(o+8,nrm.z,true);o+=12;
+    for(const v of [a,b,c]){dv.setFloat32(o,v.x,true);dv.setFloat32(o+4,v.y,true);dv.setFloat32(o+8,v.z,true);o+=12;}
+    dv.setUint16(o,0,true);o+=2;
+  }
+  return buf;
+}
+export_=document.getElementById('export');
+export_.onclick=()=>{
+  if(!lidMesh)return;
+  const buf=buildSTL(trisFromGeo(lidMesh.geometry));
+  const blob=new Blob([buf],{type:'application/octet-stream'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  const name=(shape==='round')?`snap-lid_${(lidInfo.r_so*2).toFixed(1)}mm`
+                              :`snap-lid_${(lidInfo.sx*2).toFixed(0)}x${(lidInfo.sz*2).toFixed(0)}mm`;
+  a.href=url;a.download=name+'.stl';a.click(); setTimeout(()=>URL.revokeObjectURL(url),1500);
+};
+
+/* boot */
+buildLid(); frame();
+</script>
+</body>
+</html>
