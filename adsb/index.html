@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ADS-B 2.5D — Denton, TX (live)</title>
+<link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+<style>
+  html, body { margin:0; height:100%; font-family:-apple-system,Segoe UI,Roboto,sans-serif; }
+  #map { position:absolute; inset:0; }
+  #hud {
+    position:absolute; top:10px; left:10px; z-index:5;
+    background:rgba(8,11,16,.92); color:#eaf4ff; padding:11px 14px;
+    border-radius:10px; font-size:13px; line-height:1.5; border:1px solid #2a3e52;
+    box-shadow:0 4px 18px rgba(0,0,0,.5); min-width:210px; max-width:250px;
+    max-height:calc(100vh - 20px); overflow-y:auto;
+  }
+  #hud b { color:#7fd1ff; font-size:15px; }
+  #hud .big { font-size:24px; color:#fff; font-weight:700; }
+  #hud .sub { color:#d4e6f5; font-size:12.5px; }
+  #hud .dim { color:#aec7da; font-size:11.5px; }
+  #hud hr { border:0; border-top:1px solid #1d2b3a; margin:8px 0; }
+  .legend-row { display:flex; align-items:center; gap:6px; font-size:12px; color:#eaf4ff; }
+  .sw { width:11px; height:11px; border-radius:2px; display:inline-block; }
+  #exag { width:100%; }
+  #hud-hide {
+    position:absolute; top:6px; right:8px; width:20px; height:20px; padding:0;
+    background:transparent; border:0; color:#7fd1ff; font-size:17px; line-height:18px;
+    cursor:pointer; border-radius:4px;
+  }
+  #hud-hide:hover { color:#fff; background:rgba(127,209,255,.12); }
+  #hud-show {
+    position:absolute; top:10px; left:10px; z-index:6; display:none;
+    background:rgba(11,15,20,.86); color:#cfe8ff; border:1px solid #1d2b3a; border-radius:8px;
+    padding:7px 11px; font-size:13px; cursor:pointer; box-shadow:0 4px 18px rgba(0,0,0,.5);
+  }
+  #hud-show:hover { color:#fff; }
+  #tilt-ctrls {
+    position:absolute; right:10px; bottom:34px; z-index:6;
+    display:flex; flex-direction:column; gap:6px;
+  }
+  #tilt-ctrls button {
+    width:48px; height:44px; border-radius:9px; cursor:pointer;
+    background:rgba(11,15,20,.86); color:#cfe8ff; border:1px solid #1d2b3a;
+    font-size:18px; line-height:1; box-shadow:0 3px 12px rgba(0,0,0,.5);
+    display:flex; align-items:center; justify-content:center;
+    -webkit-user-select:none; user-select:none; touch-action:manipulation;
+  }
+  #tilt-ctrls button:hover { color:#fff; border-color:#2f455a; }
+  #tilt-ctrls button:active { background:rgba(127,209,255,.18); }
+  #tilt-ctrls #reset { font-size:11px; height:36px; }
+  #planelist { margin-top:4px; }
+  details.ac { border-top:1px solid #2a3e52; }
+  details.ac summary {
+    cursor:pointer; padding:5px 2px; font-size:12.5px; color:#eaf4ff;
+    display:flex; align-items:center; gap:6px; list-style:none;
+  }
+  details.ac summary::-webkit-details-marker { display:none; }
+  details.ac summary::before { content:'▸'; color:#7fd1ff; font-size:10px; }
+  details.ac[open] summary::before { content:'▾'; }
+  .acid { display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .acalt { margin-left:auto; color:#d4e6f5; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .acdot { width:9px; height:9px; border-radius:50%; display:inline-block; flex:0 0 auto; }
+  .acbody { font-size:11.5px; color:#bcd2e3; padding:2px 4px 7px 16px; line-height:1.55; }
+  .maplibregl-popup-content { font-size:13px; line-height:1.5; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="hud">
+  <button id="hud-hide" title="Hide panel">×</button>
+  <div><b>ADS-B 2.5D</b> · Denton TX</div>
+  <div class="big"><span id="count">0</span> <span id="countlbl">aircraft</span></div>
+  <div class="sub" id="tracked">— tracked</div>
+  <div class="sub" id="rate">— msg/s</div>
+  <div class="sub" id="range">max range: — nm</div>
+  <div class="dim">peak range: <span id="peakval">—</span> nm · <span id="peakreset" style="cursor:pointer;text-decoration:underline;">reset</span></div>
+  <div class="dim" id="msgs">— messages</div>
+  <div class="dim" id="updated">connecting to live feed…</div>
+  <hr>
+  <div class="sub">Altitude exaggeration: <span id="exagval">2×</span></div>
+  <input type="range" id="exag" min="1" max="12" step="1" value="2">
+  <div class="dim">Tower height = altitude. Right-drag or ctrl-drag to tilt/rotate.</div>
+  <hr>
+  <div class="legend-row"><span class="sw" style="background:#1864ab"></span>≥ 25,000 ft</div>
+  <div class="legend-row"><span class="sw" style="background:#0a8754"></span>10,000–25,000 ft</div>
+  <div class="legend-row"><span class="sw" style="background:#e8590c"></span>2,000–10,000 ft</div>
+  <div class="legend-row"><span class="sw" style="background:#d62728"></span>&lt; 2,000 ft / ground</div>
+  <div class="legend-row"><span class="sw" style="background:#6741d9"></span>no altitude</div>
+  <hr>
+  <div class="sub" id="aclist-hd">Aircraft</div>
+  <div id="planelist"></div>
+</div>
+<button id="hud-show" title="Show panel">☰ Panel</button>
+<div id="tilt-ctrls">
+  <button data-act="tiltup" title="Tilt up (more 3D)">⤓</button>
+  <button data-act="tiltdn" title="Tilt down (toward top-down)">⤒</button>
+  <button data-act="rotl" title="Rotate left">↺</button>
+  <button data-act="rotr" title="Rotate right">↻</button>
+  <button id="reset" data-act="reset" title="Reset view">Reset</button>
+</div>
+<script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/deck.gl@8.9.36/dist.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+<script>
+// ---- Firebase (public web config — NOT a secret; writes are blocked by DB rules) ----
+const firebaseConfig = {
+  apiKey: "AIzaSyBSU81g4Y9othSKmWZicY2BqD4ZrzhZe4Y",
+  authDomain: "adsb-feed.firebaseapp.com",
+  databaseURL: "https://adsb-feed-default-rtdb.firebaseio.com",
+  projectId: "adsb-feed",
+  storageBucket: "adsb-feed.firebasestorage.app",
+  messagingSenderId: "926894892498",
+  appId: "1:926894892498:web:79cdf64de69c6ff0c7d40b"
+};
+firebase.initializeApp(firebaseConfig);
+const fbdb = firebase.database();
+
+const RX = [-97.1331, 33.2148]; // [lng,lat] Denton
+let EXAG = 2;
+const MAX_TRAIL = 200;
+let prevNow=null, prevMsgs=0, msgRate=null;   // for message-rate calc
+let mapReady=false, latest=null, connected=false;
+
+// great-circle distance in nautical miles
+function distNm(lat1,lon1,lat2,lon2){
+  const R=3440.065, toRad=x=>x*Math.PI/180;
+  const dLat=toRad(lat2-lat1), dLon=toRad(lon2-lon1);
+  const a=Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+  return 2*R*Math.asin(Math.sqrt(a));
+}
+
+// white airplane silhouette (points "up"/north); used as a tintable mask icon
+const PLANE_SVG = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(
+  "<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 24 24'><path fill='white' d='M12 2c-.6 0-1 .9-1 2v5.2L2 14v2l9-2.5V18l-2.5 1.7V21L12 20l3.5 1v-1.3L13 18v-4.5L22 16v-2l-9-4.8V4c0-1.1-.4-2-1-2z'/></svg>"
+);
+
+function altColor(alt){
+  if (alt==='ground' || (typeof alt==='number' && alt<2000)) return '#d62728';
+  if (typeof alt==='number' && alt<10000) return '#e8590c';
+  if (typeof alt==='number' && alt<25000) return '#0a8754';
+  if (typeof alt==='number') return '#1864ab';
+  return '#6741d9';
+}
+function altRGB(alt){ const h=altColor(alt); return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]; }
+function altMeters(alt){ return (typeof alt==='number') ? alt*0.3048 : 0; }
+function towerH(alt){ return Math.max(50, altMeters(alt)*EXAG); }
+
+function squareAround(lng,lat,half=0.0011){
+  const dLat=half, dLon=half/Math.cos(lat*Math.PI/180);
+  return [[[lng-dLon,lat-dLat],[lng+dLon,lat-dLat],[lng+dLon,lat+dLat],[lng-dLon,lat+dLat],[lng-dLon,lat-dLat]]];
+}
+function ringCoords(lng,lat,radiusM,n=72){
+  const R=6378137,out=[];
+  for(let i=0;i<=n;i++){const a=i/n*2*Math.PI;
+    const dLat=(radiusM*Math.sin(a))/R*180/Math.PI;
+    const dLon=(radiusM*Math.cos(a))/(R*Math.cos(lat*Math.PI/180))*180/Math.PI;
+    out.push([lng+dLon,lat+dLat]);}
+  return out;
+}
+
+const style = {
+  version:8,
+  sources:{ base:{ type:'raster', tileSize:256,
+    tiles:['https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+           'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+           'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png'],
+    attribution:'© OpenStreetMap © CARTO' } },
+  layers:[{ id:'base', type:'raster', source:'base' }]
+};
+const map = new maplibregl.Map({ container:'map', style, center:RX, zoom:8.3, pitch:62, bearing:-18, maxPitch:80 });
+map.addControl(new maplibregl.NavigationControl({visualizePitch:true}), 'top-right');
+map.addControl(new maplibregl.ScaleControl({unit:'nautical'}));
+
+const trails={};            // hex -> [[lng,lat],...]
+let planeData=[];           // current positioned aircraft (for deck.gl)
+let overlay=null;
+const popup = new maplibregl.Popup({offset:12, closeButton:true});
+
+function buildLayers(){
+  const bearing = map.getBearing();
+  const icons = new deck.IconLayer({
+    id:'planes', data:planeData, pickable:true, billboard:true,
+    sizeUnits:'pixels', getSize: 30, sizeScale:1,
+    getPosition: d => [d.lon, d.lat, towerH(d.alt_baro)],
+    getIcon: () => ({id:'plane', url:PLANE_SVG, width:64, height:64, anchorX:32, anchorY:32, mask:true}),
+    getColor: d => altRGB(d.alt_baro),
+    getAngle: d => (typeof d.track==='number') ? (bearing - d.track) : 0,
+    updateTriggers:{ getPosition:[EXAG], getAngle:[bearing] },
+    onClick: info => { if(info && info.object){ const d=info.object;
+      popup.setLngLat([d.lon,d.lat]).setHTML(popupHTML(d)).addTo(map); } }
+  });
+  const labels = new deck.TextLayer({
+    id:'labels', data:planeData, billboard:true, getPosition:d=>[d.lon,d.lat,towerH(d.alt_baro)],
+    getText: d => `${(d.flight||d.hex).trim()}  ${typeof d.alt_baro==='number'?(d.alt_baro/1000).toFixed(1)+'k':''}`,
+    getSize: 12, getColor:[20,28,36], getPixelOffset:[0,-24],
+    background:true, getBackgroundColor:[255,255,255,210], backgroundPadding:[4,2],
+    fontFamily:'-apple-system, Helvetica, Arial, sans-serif', characterSet:'auto',
+    getTextAnchor:'middle', getAlignmentBaseline:'center',
+    updateTriggers:{ getPosition:[EXAG] }
+  });
+  return [icons, labels];
+}
+function pushDeck(){ if(overlay) overlay.setProps({layers: buildLayers()}); }
+
+function popupHTML(a){
+  const alt=a.alt_baro;
+  return `<b>${(a.flight||a.hex).trim()}</b><br>Hex: ${a.hex}<br>`+
+    `Alt: ${typeof alt==='number'?alt+' ft':(alt||'—')}<br>`+
+    `Speed: ${a.gs!=null?Math.round(a.gs)+' kt':'—'}<br>Track: ${a.track!=null?Math.round(a.track)+'°':'—'}<br>`+
+    `Squawk: ${a.squawk||'—'}<br>Signal: ${a.rssi!=null?a.rssi+' dBFS':'—'} · ${a.messages||0} msgs`;
+}
+
+// ---- aircraft accordion list ----
+const acItems={}; // hex -> {det, sum, body}
+function fmtAltShort(a){ const al=a.alt_baro; return (typeof al==='number')?(al/1000).toFixed(1)+'k ft':(al||'—'); }
+function acBody(a){
+  const al=a.alt_baro;
+  const dnm=(typeof a.lat==='number'&&typeof a.lon==='number')?distNm(RX[1],RX[0],a.lat,a.lon).toFixed(1)+' nm':'—';
+  return `Alt: ${typeof al==='number'?al.toLocaleString()+' ft':(al||'—')}<br>`+
+    `Speed: ${a.gs!=null?Math.round(a.gs)+' kt':'—'}<br>`+
+    `Heading: ${a.track!=null?Math.round(a.track)+'°':'—'}<br>`+
+    `Distance: ${dnm}<br>`+
+    `Lat: ${a.lat==null?'null':a.lat}<br>`+
+    `Lng: ${a.lon==null?'null':a.lon}<br>`+
+    `Vert rate: ${a.baro_rate!=null?(a.baro_rate>0?'+':'')+a.baro_rate+' ft/min':'—'}<br>`+
+    `Squawk: ${a.squawk||'—'}<br>`+
+    `Signal: ${a.rssi!=null?a.rssi+' dBFS':'—'} · ${a.messages||0} msgs<br>`+
+    `Hex: ${a.hex}`;
+}
+function updatePlaneList(ac){
+  const list=document.getElementById('planelist'); if(!list) return;
+  const seen=new Set();
+  const sorted=[...ac].sort((x,y)=>{
+    const ix=((x.flight||x.hex)+'').trim().toUpperCase(), iy=((y.flight||y.hex)+'').trim().toUpperCase();
+    return ix<iy?-1:ix>iy?1:0;
+  });
+  for(const a of sorted){
+    seen.add(a.hex);
+    const id=((a.flight||a.hex)+'').trim()||a.hex;
+    let it=acItems[a.hex];
+    if(!it){
+      const det=document.createElement('details'); det.className='ac';
+      const sum=document.createElement('summary');
+      const body=document.createElement('div'); body.className='acbody';
+      det.appendChild(sum); det.appendChild(body);
+      it=acItems[a.hex]={det,sum,body};
+    }
+    it.sum.innerHTML=`<span class="acid"><span class="acdot" style="background:${altColor(a.alt_baro)}"></span>${id}</span><span class="acalt">${fmtAltShort(a)}</span>`;
+    it.body.innerHTML=acBody(a);
+    list.appendChild(it.det);
+  }
+  for(const hex in acItems) if(!seen.has(hex)){ acItems[hex].det.remove(); delete acItems[hex]; }
+  const hd=document.getElementById('aclist-hd'); if(hd) hd.textContent=`Aircraft (${ac.length})`;
+}
+
+map.on('load', () => {
+  const rings=[50,100,150].map(nm=>({type:'Feature',properties:{nm},geometry:{type:'LineString',coordinates:ringCoords(RX[0],RX[1],nm*1852)}}));
+  map.addSource('rings',{type:'geojson',data:{type:'FeatureCollection',features:rings}});
+  map.addLayer({id:'rings',type:'line',source:'rings',paint:{'line-color':'#5a6b7a','line-width':1.2,'line-dasharray':[3,4],'line-opacity':0.8}});
+
+  map.addSource('rx',{type:'geojson',data:{type:'Feature',geometry:{type:'Point',coordinates:RX}}});
+  map.addLayer({id:'rx',type:'circle',source:'rx',paint:{'circle-radius':6,'circle-color':'#ff2d55','circle-stroke-color':'#fff','circle-stroke-width':2}});
+
+  map.addSource('trails',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+  map.addLayer({id:'trails',type:'line',source:'trails',paint:{'line-color':['get','color'],'line-width':2,'line-opacity':0.6}});
+
+  map.addSource('dots',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+  map.addLayer({id:'dots',type:'circle',source:'dots',paint:{'circle-radius':3,'circle-color':['get','color'],'circle-stroke-color':'#fff','circle-stroke-width':1,'circle-opacity':0.9}});
+
+  map.addSource('towers',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+  map.addLayer({id:'towers',type:'fill-extrusion',source:'towers',
+    paint:{'fill-extrusion-color':['get','color'],'fill-extrusion-base':0,'fill-extrusion-height':['get','height'],'fill-extrusion-opacity':0.45}});
+
+  overlay = new deck.MapboxOverlay({interleaved:false, layers:[]});
+  map.addControl(overlay);
+
+  map.on('rotate', pushDeck);  // keep plane headings correct as the view rotates
+  mapReady = true;
+  if(latest) render(latest);
+});
+
+// hide / show the control panel
+(function(){
+  const hud=document.getElementById('hud'), show=document.getElementById('hud-show');
+  document.getElementById('hud-hide').addEventListener('click', ()=>{ hud.style.display='none'; show.style.display='block'; });
+  show.addEventListener('click', ()=>{ hud.style.display='block'; show.style.display='none'; });
+})();
+
+// reset the persistent peak-range record (use when you reposition the antenna)
+document.getElementById('peakreset').addEventListener('click', ()=>{
+  localStorage.removeItem('adsb_peak_nm');
+  document.getElementById('peakval').textContent='—';
+});
+
+// touch-friendly tilt / rotate controls
+(function(){
+  const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
+  const acts = {
+    tiltup: ()=> map.easeTo({pitch: clamp(map.getPitch()+12, 0, 80), duration:250}),
+    tiltdn: ()=> map.easeTo({pitch: clamp(map.getPitch()-12, 0, 80), duration:250}),
+    rotl:   ()=> map.easeTo({bearing: map.getBearing()-30, duration:250}),
+    rotr:   ()=> map.easeTo({bearing: map.getBearing()+30, duration:250}),
+    reset:  ()=> map.easeTo({center:RX, zoom:8.3, pitch:62, bearing:-18, duration:450})
+  };
+  document.querySelectorAll('#tilt-ctrls button').forEach(b=>{
+    b.addEventListener('click', ()=>{ const f=acts[b.dataset.act]; if(f) f(); });
+  });
+})();
+
+document.getElementById('exag').addEventListener('input', e=>{
+  EXAG=+e.target.value; document.getElementById('exagval').textContent=EXAG+'×';
+  if(mapReady && latest) render(latest);
+});
+
+// render one data snapshot (called on every Firebase push)
+function render(d){
+  const u=document.getElementById('updated');
+  if(!d){ u.textContent = connected ? 'connected · waiting for data…' : 'connecting…'; return; }
+  const ac=d.aircraft||[];
+  const towerFeats=[],dotFeats=[],trailFeats=[]; const seen=new Set(); let positioned=0; let maxNow=0;
+  planeData=[];
+
+  for(const a of ac){
+    if(typeof a.lat!=='number'||typeof a.lon!=='number') continue;
+    positioned++; seen.add(a.hex);
+    const alt=a.alt_baro, color=altColor(alt), lng=a.lon, lat=a.lat;
+    const dnm=distNm(RX[1],RX[0],lat,lng); if(dnm>maxNow) maxNow=dnm;
+    planeData.push(a);
+    towerFeats.push({type:'Feature',properties:{color,height:towerH(alt)},geometry:{type:'Polygon',coordinates:squareAround(lng,lat)}});
+    dotFeats.push({type:'Feature',properties:{color},geometry:{type:'Point',coordinates:[lng,lat]}});
+    const t=trails[a.hex]||(trails[a.hex]=[]); const last=t[t.length-1];
+    if(!last||last[0]!==lng||last[1]!==lat){ t.push([lng,lat]); if(t.length>MAX_TRAIL) t.shift(); }
+    if(t.length>1) trailFeats.push({type:'Feature',properties:{color},geometry:{type:'LineString',coordinates:t.slice()}});
+  }
+
+  map.getSource('towers').setData({type:'FeatureCollection',features:towerFeats});
+  map.getSource('dots').setData({type:'FeatureCollection',features:dotFeats});
+  map.getSource('trails').setData({type:'FeatureCollection',features:trailFeats});
+  pushDeck();
+
+  for(const hex in trails) if(!seen.has(hex)) delete trails[hex];
+
+  const tracked=ac.length;
+  document.title = `Planes (${tracked})`;
+  updatePlaneList(ac);
+  if(positioned>0){document.getElementById('count').textContent=positioned;document.getElementById('countlbl').textContent='aircraft on map';}
+  else if(tracked>0){document.getElementById('count').textContent='0';document.getElementById('countlbl').textContent='with position — locating…';}
+  else {document.getElementById('count').textContent='0';document.getElementById('countlbl').textContent='aircraft — none in range';}
+  document.getElementById('tracked').textContent=tracked+' aircraft tracked (incl. no-position)';
+
+  if(prevNow!=null && d.now>prevNow){
+    const inst=((d.messages||0)-prevMsgs)/(d.now-prevNow);
+    msgRate=(msgRate==null)?inst:(msgRate*0.6+inst*0.4);
+  }
+  prevNow=d.now; prevMsgs=d.messages||0;
+  document.getElementById('rate').textContent=(msgRate!=null?Math.max(0,Math.round(msgRate)):'—')+' msg/s';
+
+  document.getElementById('range').textContent='max range: '+(positioned?maxNow.toFixed(1):'—')+' nm';
+  let peak=parseFloat(localStorage.getItem('adsb_peak_nm')||'0');
+  if(positioned && maxNow>peak){ peak=maxNow; localStorage.setItem('adsb_peak_nm',peak.toFixed(1)); }
+  document.getElementById('peakval').textContent = peak>0?peak.toFixed(1):'—';
+
+  document.getElementById('msgs').textContent=(d.messages||0).toLocaleString()+' messages decoded';
+  u.style.color='#aec7da';
+  u.textContent='live · '+new Date().toLocaleTimeString();
+}
+
+// ---- Firebase live subscription ----
+fbdb.ref('.info/connected').on('value', s=>{
+  connected = !!s.val();
+  const u=document.getElementById('updated');
+  if(!connected){ u.textContent='reconnecting to live feed…'; u.style.color='#ffcf66'; }
+});
+fbdb.ref('aircraft').on('value', snap=>{
+  latest = snap.val();
+  if(mapReady) render(latest);
+}, err=>{
+  const u=document.getElementById('updated');
+  u.textContent='feed error: '+err.code; u.style.color='#ff6b6b';
+});
+
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden && mapReady && latest) render(latest); });
+window.addEventListener('focus',()=>{ if(mapReady && latest) render(latest); });
+</script>
+</body>
+</html>
