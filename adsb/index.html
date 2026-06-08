@@ -63,9 +63,38 @@
   .acdot { width:9px; height:9px; border-radius:50%; display:inline-block; flex:0 0 auto; }
   .acbody { font-size:11.5px; color:#bcd2e3; padding:2px 4px 7px 16px; line-height:1.55; }
   .maplibregl-popup-content { font-size:13px; line-height:1.5; }
+  #gate {
+    position:absolute; inset:0; z-index:20; background:#0b0f14;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .gatebox {
+    background:#0e141b; border:1px solid #2a3e52; border-radius:14px;
+    padding:26px 28px; width:280px; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,.6);
+  }
+  .gtitle { color:#eaf4ff; font-size:20px; font-weight:700; }
+  .gsub { color:#aec7da; font-size:13px; margin:6px 0 16px; }
+  #gpass {
+    width:100%; box-sizing:border-box; padding:10px 12px; border-radius:8px;
+    border:1px solid #2a3e52; background:#0b0f14; color:#eaf4ff; font-size:15px;
+  }
+  #gbtn {
+    margin-top:12px; width:100%; padding:10px; border-radius:8px; border:0;
+    background:#1d72c2; color:#fff; font-size:15px; cursor:pointer;
+  }
+  #gbtn:hover { background:#2a86db; }
+  #gerr { color:#ff6b6b; font-size:12.5px; min-height:16px; margin-top:10px; }
 </style>
 </head>
 <body>
+<div id="gate">
+  <div class="gatebox">
+    <div class="gtitle">✈︎ ADS-B Live</div>
+    <div class="gsub">Enter passphrase to view the map</div>
+    <input id="gpass" type="password" autocomplete="off" placeholder="passphrase" />
+    <button id="gbtn">Unlock</button>
+    <div id="gerr"></div>
+  </div>
+</div>
 <div id="map"></div>
 <div id="hud">
   <button id="hud-hide" title="Hide panel">×</button>
@@ -103,6 +132,7 @@
 <script src="https://unpkg.com/deck.gl@8.9.36/dist.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
 <script>
 // ---- Firebase (public web config — NOT a secret; writes are blocked by DB rules) ----
 const firebaseConfig = {
@@ -367,19 +397,47 @@ function render(d){
   u.textContent='live · '+new Date().toLocaleTimeString();
 }
 
-// ---- Firebase live subscription ----
-fbdb.ref('.info/connected').on('value', s=>{
-  connected = !!s.val();
-  const u=document.getElementById('updated');
-  if(!connected){ u.textContent='reconnecting to live feed…'; u.style.color='#ffcf66'; }
-});
-fbdb.ref('aircraft').on('value', snap=>{
-  latest = snap.val();
-  if(mapReady) render(latest);
-}, err=>{
-  const u=document.getElementById('updated');
-  u.textContent='feed error: '+err.code; u.style.color='#ff6b6b';
-});
+// ---- passphrase gate (lite) + Firebase anonymous auth ----
+const EXPECTED_HASH='693abdcb878949e1de958b895eda13719c9b224251ace6da34200a182fa5016c';
+async function sha256(s){
+  const buf=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return [...new Uint8Array(buf)].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+
+// connect to the live feed (only after unlock): sign in anonymously, then subscribe
+function connectFeed(){
+  firebase.auth().signInAnonymously().then(()=>{
+    fbdb.ref('.info/connected').on('value', s=>{
+      connected=!!s.val();
+      const u=document.getElementById('updated');
+      if(!connected){ u.textContent='reconnecting to live feed…'; u.style.color='#ffcf66'; }
+    });
+    fbdb.ref('aircraft').on('value', snap=>{
+      latest=snap.val(); if(mapReady) render(latest);
+    }, err=>{
+      const u=document.getElementById('updated');
+      u.textContent='feed error: '+err.code; u.style.color='#ff6b6b';
+    });
+  }).catch(err=>{
+    const u=document.getElementById('updated');
+    u.textContent='auth error: '+err.code; u.style.color='#ff6b6b';
+  });
+}
+
+(function gate(){
+  const gate=document.getElementById('gate'), inp=document.getElementById('gpass'),
+        btn=document.getElementById('gbtn'), err=document.getElementById('gerr');
+  function unlock(){ gate.style.display='none'; connectFeed(); }
+  if(localStorage.getItem('adsb_unlocked')==='1'){ unlock(); return; }
+  async function tryUnlock(){
+    const h=await sha256(inp.value.trim().toLowerCase());
+    if(h===EXPECTED_HASH){ localStorage.setItem('adsb_unlocked','1'); err.textContent=''; unlock(); }
+    else { err.textContent='Incorrect passphrase'; inp.select(); }
+  }
+  btn.addEventListener('click', tryUnlock);
+  inp.addEventListener('keydown', e=>{ if(e.key==='Enter') tryUnlock(); });
+  inp.focus();
+})();
 
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden && mapReady && latest) render(latest); });
 window.addEventListener('focus',()=>{ if(mapReady && latest) render(latest); });
