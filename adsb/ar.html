@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>ADS-B AR — point & identify</title>
+<style>
+  html,body{ margin:0; height:100%; overflow:hidden; background:#06090d;
+    font-family:-apple-system,Segoe UI,Roboto,sans-serif; color:#eaf4ff;
+    -webkit-user-select:none; user-select:none; }
+  #cam{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:#06090d; }
+  #sky{ position:absolute; inset:0;
+    background:linear-gradient(#0a1830,#06090d 60%); display:none; }
+  #overlay{ position:absolute; inset:0; pointer-events:none; }
+  .marker{ position:absolute; transform:translate(-50%,-50%); text-align:center; }
+  .mdot{ width:16px; height:16px; border-radius:50%; margin:0 auto;
+    border:2px solid #fff; box-shadow:0 0 6px rgba(0,0,0,.8); }
+  .mlabel{ margin-top:3px; font-size:12px; font-weight:600;
+    text-shadow:0 1px 3px #000, 0 0 4px #000; white-space:nowrap; }
+  .msub{ font-size:10.5px; color:#dce8f5; text-shadow:0 1px 3px #000; white-space:nowrap; }
+  .marker.off .mdot{ width:11px; height:11px; opacity:.85; }
+  .marker.off .mlabel{ font-size:11px; }
+  #reticle{ position:absolute; left:50%; top:50%; width:64px; height:64px;
+    transform:translate(-50%,-50%); border:2px solid rgba(255,255,255,.55);
+    border-radius:50%; }
+  #reticle::before,#reticle::after{ content:''; position:absolute; background:rgba(255,255,255,.55); }
+  #reticle::before{ left:50%; top:-10px; width:1px; height:14px; transform:translateX(-50%); }
+  #reticle::after{ top:50%; left:-10px; height:1px; width:14px; transform:translateY(-50%); }
+  #target{ position:absolute; left:0; right:0; top:14px; text-align:center; z-index:5; }
+  #target .tflt{ font-size:26px; font-weight:800; text-shadow:0 2px 6px #000; }
+  #target .tinfo{ font-size:14px; color:#dce8f5; text-shadow:0 1px 4px #000; }
+  #target .thint{ font-size:12.5px; color:#aec7da; margin-top:2px; text-shadow:0 1px 4px #000; }
+  #hud{ position:absolute; left:8px; bottom:8px; z-index:5; font-size:11px;
+    color:#cfe0ee; background:rgba(6,9,13,.55); padding:6px 8px; border-radius:8px; line-height:1.5; }
+  #fovbox{ position:absolute; right:8px; bottom:8px; z-index:5; display:flex; gap:6px; align-items:center;
+    background:rgba(6,9,13,.55); padding:6px 8px; border-radius:8px; font-size:12px; }
+  #fovbox button{ width:30px; height:30px; border-radius:6px; border:1px solid #2a3e52;
+    background:#101a26; color:#eaf4ff; font-size:16px; }
+  #back{ position:absolute; right:8px; top:8px; z-index:5; background:rgba(6,9,13,.6);
+    color:#cfe0ee; border:1px solid #2a3e52; border-radius:8px; padding:6px 10px; font-size:13px; text-decoration:none; }
+  /* start / gate screens */
+  .screen{ position:absolute; inset:0; z-index:20; background:#06090d;
+    display:flex; align-items:center; justify-content:center; }
+  .box{ width:300px; max-width:86vw; text-align:center; background:#0e141b;
+    border:1px solid #2a3e52; border-radius:14px; padding:26px 26px; box-shadow:0 10px 40px rgba(0,0,0,.6); }
+  .box h1{ font-size:20px; margin:0 0 4px; }
+  .box p{ color:#aec7da; font-size:13px; margin:6px 0 16px; }
+  .box input{ width:100%; box-sizing:border-box; padding:10px 12px; border-radius:8px;
+    border:1px solid #2a3e52; background:#0b0f14; color:#eaf4ff; font-size:15px; }
+  .box button.go{ margin-top:12px; width:100%; padding:12px; border-radius:8px; border:0;
+    background:#1d72c2; color:#fff; font-size:16px; }
+  .err{ color:#ff6b6b; font-size:12.5px; min-height:16px; margin-top:8px; }
+</style>
+</head>
+<body>
+<video id="cam" autoplay playsinline muted></video>
+<div id="sky"></div>
+<div id="overlay"></div>
+<div id="reticle"></div>
+<div id="target"></div>
+<a id="back" href="./">◀ Map</a>
+<div id="hud">starting…</div>
+<div id="fovbox"><span>FOV</span><button id="fovm">–</button><span id="fovv">60°</span><button id="fovp">+</button></div>
+
+<!-- gate -->
+<div id="gate" class="screen">
+  <div class="box">
+    <h1>✈︎ ADS-B AR</h1>
+    <p>Enter passphrase</p>
+    <input id="gpass" type="password" autocomplete="off" placeholder="passphrase" />
+    <button id="gbtn" class="go">Unlock</button>
+    <div id="gerr" class="err"></div>
+  </div>
+</div>
+<!-- start (needs a tap for iOS sensor + camera permission) -->
+<div id="start" class="screen" style="display:none">
+  <div class="box">
+    <h1>Point &amp; identify</h1>
+    <p>Hold your phone up and aim it at an aircraft. We'll label the planes your antenna can see.</p>
+    <button id="startbtn" class="go">Start AR</button>
+    <div id="serr" class="err"></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBSU81g4Y9othSKmWZicY2BqD4ZrzhZe4Y",
+  authDomain: "adsb-feed.firebaseapp.com",
+  databaseURL: "https://adsb-feed-default-rtdb.firebaseio.com",
+  projectId: "adsb-feed",
+  storageBucket: "adsb-feed.firebasestorage.app",
+  messagingSenderId: "926894892498",
+  appId: "1:926894892498:web:79cdf64de69c6ff0c7d40b"
+};
+firebase.initializeApp(firebaseConfig);
+const fbdb = firebase.database();
+
+// observer (phone) position; Denton fallback until GPS arrives
+let obs = { lat:33.2148, lon:-97.1331, alt:200, gps:false };
+let planes = [];           // [{hex,flight,lat,lon,alt_baro,...}] positioned only
+let heading = 0, pitch = 0, roll = 0, haveOrient = false, headingSrc='—';
+let FOV = 60;              // horizontal field of view (deg) — calibratable
+
+const R_EARTH = 6371000;   // m
+const d2r = x => x*Math.PI/180, r2d = x => x*180/Math.PI;
+const norm180 = a => { a=((a+180)%360+360)%360-180; return a; };
+
+// horizontal ground distance (m) between two lat/lons
+function groundDist(lat1,lon1,lat2,lon2){
+  const dLat=d2r(lat2-lat1), dLon=d2r(lon2-lon1);
+  const a=Math.sin(dLat/2)**2+Math.cos(d2r(lat1))*Math.cos(d2r(lat2))*Math.sin(dLon/2)**2;
+  return 2*R_EARTH*Math.asin(Math.sqrt(a));
+}
+// initial bearing (deg from true north) observer -> target
+function bearing(lat1,lon1,lat2,lon2){
+  const y=Math.sin(d2r(lon2-lon1))*Math.cos(d2r(lat2));
+  const x=Math.cos(d2r(lat1))*Math.sin(d2r(lat2))-Math.sin(d2r(lat1))*Math.cos(d2r(lat2))*Math.cos(d2r(lon2-lon1));
+  return (r2d(Math.atan2(y,x))+360)%360;
+}
+// azimuth + elevation (deg) of a plane from the observer
+function azel(a){
+  const planeAltM = (typeof a.alt_baro==='number') ? a.alt_baro*0.3048 : obs.alt;
+  const g = groundDist(obs.lat,obs.lon,a.lat,a.lon);
+  const dh = planeAltM - obs.alt;
+  const el = r2d(Math.atan2(dh, g));     // ignores Earth curvature (fine at these ranges)
+  const az = bearing(obs.lat,obs.lon,a.lat,a.lon);
+  const slantNm = Math.sqrt(g*g+dh*dh)/1852;
+  return { az, el, slantNm };
+}
+
+// ---- device orientation -> where the camera points (portrait model) ----
+function onOrient(e){
+  // azimuth: prefer iOS true-north compass heading
+  if (typeof e.webkitCompassHeading === 'number' && !isNaN(e.webkitCompassHeading)) {
+    heading = e.webkitCompassHeading; headingSrc='compass';
+  } else if (e.absolute && typeof e.alpha === 'number') {
+    heading = (360 - e.alpha) % 360; headingSrc='abs-alpha';
+  } else if (typeof e.alpha === 'number') {
+    heading = (360 - e.alpha) % 360; headingSrc='alpha(rel)';
+  }
+  // elevation the back camera points at: phone vertical(beta~90)=horizon, tilt back to look up
+  if (typeof e.beta === 'number')  pitch = e.beta - 90;   // -90..+90
+  if (typeof e.gamma === 'number') roll  = e.gamma;
+  haveOrient = true;
+  render();
+}
+
+const overlay=document.getElementById('overlay'), target=document.getElementById('target'), hud=document.getElementById('hud');
+const mEls = {}; // hex -> marker element
+
+function render(){
+  const W=window.innerWidth, H=window.innerHeight;
+  const degPerPx = FOV / W;                 // uniform angular scale
+  const halfV = (H*degPerPx)/2;
+  const seen=new Set();
+  let best=null, bestSep=1e9;
+
+  for(const a of planes){
+    const {az,el,slantNm}=azel(a);
+    const dAz=norm180(az-heading);
+    const dEl=el-pitch;
+    const sep=Math.hypot(dAz,dEl);
+    if(sep<bestSep){ bestSep=sep; best={a,az,el,slantNm,dAz,dEl}; }
+
+    const id=((a.flight||a.hex)+'').trim()||a.hex;
+    seen.add(a.hex);
+    let m=mEls[a.hex];
+    if(!m){ m=document.createElement('div'); m.className='marker';
+      m.innerHTML='<div class="mdot"></div><div class="mlabel"></div><div class="msub"></div>';
+      overlay.appendChild(m); mEls[a.hex]=m; }
+    // screen position (rectilinear-ish): center + angular offset / degPerPx
+    let x=W/2 + dAz/degPerPx;
+    let y=H/2 - dEl/degPerPx;
+    const onScreen = (Math.abs(dAz) <= FOV/2+4) && (Math.abs(dEl) <= halfV+4);
+    if(!onScreen){
+      // clamp to edge as a "turn this way" hint
+      x=Math.max(18,Math.min(W-18,x)); y=Math.max(40,Math.min(H-18,y));
+      m.classList.add('off');
+    } else { m.classList.remove('off'); }
+    m.style.left=x+'px'; m.style.top=y+'px';
+    const col=altColor(a.alt_baro);
+    m.querySelector('.mdot').style.background=col;
+    m.querySelector('.mlabel').textContent=id;
+    m.querySelector('.msub').textContent=(typeof a.alt_baro==='number'?Math.round(a.alt_baro/1000)+'k ft · ':'')+slantNm.toFixed(0)+' nm';
+  }
+  for(const hex in mEls){ if(!seen.has(hex)){ mEls[hex].remove(); delete mEls[hex]; } }
+
+  // targeted readout (the plane closest to the center reticle)
+  if(best && bestSep<10){
+    const a=best.a, id=((a.flight||a.hex)+'').trim()||a.hex;
+    target.innerHTML=`<div class="tflt">${id}</div>`+
+      `<div class="tinfo">${typeof a.alt_baro==='number'?a.alt_baro.toLocaleString()+' ft':'alt —'} · ${best.slantNm.toFixed(1)} nm · ${Math.round(best.el)}° up</div>`+
+      `<div class="thint">aim locked</div>`;
+  } else if(best){
+    const a=best.a, id=((a.flight||a.hex)+'').trim()||a.hex;
+    const dir = Math.abs(best.dAz)<8?'' : (best.dAz>0?'▶ turn right':'◀ turn left');
+    const vert = Math.abs(best.dEl)<6?'' : (best.dEl>0?' / tilt up':' / tilt down');
+    target.innerHTML=`<div class="thint">nearest: <b>${id}</b> ${dir}${vert}</div>`;
+  } else {
+    target.innerHTML=`<div class="thint">no aircraft with position in view</div>`;
+  }
+
+  hud.innerHTML=`hdg ${Math.round(heading)}° (${headingSrc}) · tilt ${Math.round(pitch)}° · `+
+    `planes ${planes.length} · GPS ${obs.gps?'on':'(Denton)'} `+
+    `${obs.gps?`${obs.lat.toFixed(4)},${obs.lon.toFixed(4)} ${Math.round(obs.alt)}m`:''}`;
+}
+
+function altColor(alt){
+  if (alt==='ground' || (typeof alt==='number' && alt<2000)) return '#ff5a5a';
+  if (typeof alt==='number' && alt<10000) return '#ff9f43';
+  if (typeof alt==='number' && alt<25000) return '#36d399';
+  if (typeof alt==='number') return '#5aa9ff';
+  return '#b58cff';
+}
+
+// ---- startup: gate -> start button -> sensors/camera/feed ----
+const EXPECTED_HASH='693abdcb878949e1de958b895eda13719c9b224251ace6da34200a182fa5016c';
+async function sha256(s){ const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));
+  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
+
+function connectFeed(){
+  firebase.auth().signInAnonymously().then(()=>{
+    fbdb.ref('aircraft').on('value', snap=>{
+      const d=snap.val()||{}; planes=(d.aircraft||[]).filter(a=>typeof a.lat==='number'&&typeof a.lon==='number');
+      render();
+    });
+  }).catch(e=>{ hud.textContent='auth error: '+e.code; });
+}
+
+async function beginAR(){
+  // iOS 13+ needs a permission request from a user gesture
+  try{
+    if(typeof DeviceOrientationEvent!=='undefined' && DeviceOrientationEvent.requestPermission){
+      const p=await DeviceOrientationEvent.requestPermission();
+      if(p!=='granted'){ document.getElementById('serr').textContent='Motion access denied — heading won\'t work.'; }
+    }
+  }catch(e){}
+  window.addEventListener('deviceorientationabsolute', onOrient, true);
+  window.addEventListener('deviceorientation', onOrient, true);
+
+  // GPS
+  if(navigator.geolocation){
+    navigator.geolocation.watchPosition(p=>{
+      obs={ lat:p.coords.latitude, lon:p.coords.longitude,
+            alt:(p.coords.altitude!=null?p.coords.altitude:200), gps:true };
+      render();
+    }, ()=>{}, {enableHighAccuracy:true, maximumAge:5000, timeout:15000});
+  }
+
+  // camera passthrough (fallback to synthetic sky)
+  try{
+    const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+    document.getElementById('cam').srcObject=s;
+  }catch(e){
+    document.getElementById('cam').style.display='none';
+    document.getElementById('sky').style.display='block';
+  }
+
+  document.getElementById('start').style.display='none';
+  render();
+}
+
+(function gate(){
+  const gate=document.getElementById('gate'), startScreen=document.getElementById('start');
+  const inp=document.getElementById('gpass'), btn=document.getElementById('gbtn'), err=document.getElementById('gerr');
+  function unlocked(){ gate.style.display='none'; connectFeed(); startScreen.style.display='flex'; }
+  document.getElementById('startbtn').addEventListener('click', beginAR);
+  if(localStorage.getItem('adsb_unlocked')==='1'){ unlocked(); return; }
+  async function tryUnlock(){
+    const h=await sha256(inp.value.trim().toLowerCase());
+    if(h===EXPECTED_HASH){ localStorage.setItem('adsb_unlocked','1'); err.textContent=''; unlocked(); }
+    else { err.textContent='Incorrect passphrase'; inp.select(); }
+  }
+  btn.addEventListener('click', tryUnlock);
+  inp.addEventListener('keydown', e=>{ if(e.key==='Enter') tryUnlock(); });
+  inp.focus();
+})();
+
+// FOV calibration + resize
+document.getElementById('fovm').addEventListener('click', ()=>{ FOV=Math.max(30,FOV-5); document.getElementById('fovv').textContent=FOV+'°'; render(); });
+document.getElementById('fovp').addEventListener('click', ()=>{ FOV=Math.min(110,FOV+5); document.getElementById('fovv').textContent=FOV+'°'; render(); });
+window.addEventListener('resize', render);
+</script>
+</body>
+</html>
