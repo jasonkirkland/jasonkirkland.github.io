@@ -64,6 +64,8 @@
   .acbody { font-size:11.5px; color:#bcd2e3; padding:2px 4px 7px 16px; line-height:1.55; }
   .nopos-badge { margin-left:6px; font-size:10px; color:#ffcf66; border:1px solid #6b5a2a;
     border-radius:4px; padding:0 5px; white-space:nowrap; flex:0 0 auto; }
+  .vr { font-size:10px; }
+  .vr.up { color:#36d399; } .vr.dn { color:#ff9f43; }
   .maplibregl-popup-content { font-size:13px; line-height:1.5; }
   #gate {
     position:absolute; inset:0; z-index:20; background:#0b0f14;
@@ -256,7 +258,8 @@ function buildLayers(){
   });
   const labels = new deck.TextLayer({
     id:'labels', data:planeData, billboard:true, getPosition:d=>[d.lon,d.lat,towerH(d.alt_baro)],
-    getText: d => `${(d.flight||d.hex).trim()}  ${typeof d.alt_baro==='number'?(d.alt_baro/1000).toFixed(1)+'k':''}`,
+    getText: d => { const v=d.baro_rate, ar=(typeof v==='number'&&Math.abs(v)>=100)?(v>0?' ↑':' ↓'):'';
+      return `${(d.flight||d.hex).trim()}${ar}  ${typeof d.alt_baro==='number'?(d.alt_baro/1000).toFixed(1)+'k':''}`; },
     getSize: 12, getColor:[20,28,36], getPixelOffset:[0,-24],
     background:true, getBackgroundColor:[255,255,255,210], backgroundPadding:[4,2],
     fontFamily:'-apple-system, Helvetica, Arial, sans-serif', characterSet:'auto',
@@ -280,6 +283,8 @@ function popupHTML(a){
 // ---- aircraft accordion list ----
 const acItems={}; // hex -> {det, sum, body}
 function fmtAltShort(a){ const al=a.alt_baro; return (typeof al==='number')?(al/1000).toFixed(1)+'k ft':(al||'—'); }
+function vrArrow(a){ const v=a.baro_rate; if(typeof v!=='number'||Math.abs(v)<100) return '';
+  return v>0?'<span class="vr up">▲</span> ':'<span class="vr dn">▼</span> '; }
 function acBody(a){
   const al=a.alt_baro;
   const dnm=(typeof a.lat==='number'&&typeof a.lon==='number')?distNm(RX[1],RX[0],a.lat,a.lon).toFixed(1)+' nm':'—';
@@ -317,7 +322,7 @@ function updatePlaneList(ac){
     const hasPos = typeof a.lat==='number' && typeof a.lon==='number';
     it.sum.innerHTML=`<span class="acid"><span class="acdot" style="background:${altColor(a.alt_baro)}"></span>${id}</span>`+
       `${hasPos?'':'<span class="nopos-badge">no pos</span>'}`+
-      `<span class="acalt">${fmtAltShort(a)}</span>`;
+      `<span class="acalt">${vrArrow(a)}${fmtAltShort(a)}</span>`;
     it.body.innerHTML=acBody(a);
     list.appendChild(it.det);
   }
