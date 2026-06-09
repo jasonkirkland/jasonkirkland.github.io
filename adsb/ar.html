@@ -36,6 +36,10 @@
     background:rgba(6,9,13,.55); padding:6px 8px; border-radius:8px; font-size:12px; }
   #fovbox button{ width:30px; height:30px; border-radius:6px; border:1px solid #2a3e52;
     background:#101a26; color:#eaf4ff; font-size:16px; }
+  #tapcatch{ position:absolute; inset:0; z-index:4; }   /* captures tap-to-align */
+  #flash{ position:absolute; left:0; right:0; top:46%; text-align:center; z-index:6;
+    font-size:18px; font-weight:700; color:#7fffd4; text-shadow:0 1px 6px #000;
+    opacity:0; transition:opacity .25s; pointer-events:none; }
   #back{ position:absolute; right:8px; top:8px; z-index:5; background:rgba(6,9,13,.6);
     color:#cfe0ee; border:1px solid #2a3e52; border-radius:8px; padding:6px 10px; font-size:13px; text-decoration:none; }
   /* start / gate screens */
@@ -56,11 +60,13 @@
 <video id="cam" autoplay playsinline muted></video>
 <div id="sky"></div>
 <div id="overlay"></div>
+<div id="tapcatch"></div>
 <div id="reticle"></div>
 <div id="target"></div>
+<div id="flash"></div>
 <a id="back" href="./">◀ Map</a>
 <div id="hud">starting…</div>
-<div id="fovbox"><span>FOV</span><button id="fovm">–</button><span id="fovv">60°</span><button id="fovp">+</button></div>
+<div id="fovbox"><span>FOV</span><button id="fovm">–</button><span id="fovv">60°</span><button id="fovp">+</button><button id="alignreset" title="Reset alignment">⟲</button></div>
 
 <!-- gate -->
 <div id="gate" class="screen">
@@ -76,7 +82,7 @@
 <div id="start" class="screen" style="display:none">
   <div class="box">
     <h1>Point &amp; identify</h1>
-    <p>Hold your phone up and aim it at an aircraft. We'll label the planes your antenna can see.</p>
+    <p>Hold your phone up and aim it at an aircraft. We'll label the planes your antenna can see.<br><br><b>To align:</b> aim near a plane you can actually see, then <b>tap it on screen</b> — that locks the compass to reality.</p>
     <button id="startbtn" class="go">Start AR</button>
     <div id="serr" class="err"></div>
   </div>
@@ -102,7 +108,9 @@ const fbdb = firebase.database();
 let obs = { lat:33.2148, lon:-97.1331, alt:200, gps:false };
 let planes = [];           // [{hex,flight,lat,lon,alt_baro,...}] positioned only
 let heading = 0, pitch = 0, roll = 0, haveOrient = false, headingSrc='—';
-let FOV = 60;              // horizontal field of view (deg) — calibratable
+let FOV = +(localStorage.getItem('ar_fov')||60);     // horizontal field of view (deg)
+let azOff = +(localStorage.getItem('ar_azOff')||0);  // manual azimuth calibration (tap-to-align)
+let elOff = +(localStorage.getItem('ar_elOff')||0);  // manual elevation calibration
 
 const R_EARTH = 6371000;   // m
 const d2r = x => x*Math.PI/180, r2d = x => x*180/Math.PI;
@@ -134,16 +142,22 @@ function azel(a){
 // ---- device orientation -> where the camera points (portrait model) ----
 function onOrient(e){
   // azimuth: prefer iOS true-north compass heading
+  let h=null;
   if (typeof e.webkitCompassHeading === 'number' && !isNaN(e.webkitCompassHeading)) {
-    heading = e.webkitCompassHeading; headingSrc='compass';
+    h = e.webkitCompassHeading; headingSrc='compass';
   } else if (e.absolute && typeof e.alpha === 'number') {
-    heading = (360 - e.alpha) % 360; headingSrc='abs-alpha';
+    h = (360 - e.alpha) % 360; headingSrc='abs-alpha';
   } else if (typeof e.alpha === 'number') {
-    heading = (360 - e.alpha) % 360; headingSrc='alpha(rel)';
+    h = (360 - e.alpha) % 360; headingSrc='alpha(rel)';
   }
-  // elevation the back camera points at: phone vertical(beta~90)=horizon, tilt back to look up
-  if (typeof e.beta === 'number')  pitch = e.beta - 90;   // -90..+90
-  if (typeof e.gamma === 'number') roll  = e.gamma;
+  // elevation = world-up component of the back-camera (−Z) axis: exact, roll-aware
+  const b=d2r(e.beta||0), g=d2r(e.gamma||0);
+  const elev = r2d(Math.asin(Math.max(-1,Math.min(1, -Math.cos(b)*Math.cos(g)))));
+  // low-pass smoothing (wrap-aware for heading) to stop jitter
+  const k=0.25;
+  if (h!=null){ if(!haveOrient) heading=h; else { const dd=((h-heading+540)%360)-180; heading=(heading+k*dd+360)%360; } }
+  pitch = haveOrient ? pitch + k*(elev-pitch) : elev;
+  roll = e.gamma||0;
   haveOrient = true;
   render();
 }
@@ -157,11 +171,12 @@ function render(){
   const halfV = (H*degPerPx)/2;
   const seen=new Set();
   let best=null, bestSep=1e9;
+  const pAz=(heading+azOff+360)%360, pEl=pitch+elOff;   // where the camera points, after calibration
 
   for(const a of planes){
     const {az,el,slantNm}=azel(a);
-    const dAz=norm180(az-heading);
-    const dEl=el-pitch;
+    const dAz=norm180(az-pAz);
+    const dEl=el-pEl;
     const sep=Math.hypot(dAz,dEl);
     if(sep<bestSep){ bestSep=sep; best={a,az,el,slantNm,dAz,dEl}; }
 
@@ -204,9 +219,42 @@ function render(){
   }
 
   hud.innerHTML=`hdg ${Math.round(heading)}° (${headingSrc}) · tilt ${Math.round(pitch)}° · `+
+    `cal az${azOff>=0?'+':''}${Math.round(azOff)}/el${elOff>=0?'+':''}${Math.round(elOff)} · `+
     `planes ${planes.length} · GPS ${obs.gps?'on':'(Denton)'} `+
     `${obs.gps?`${obs.lat.toFixed(4)},${obs.lon.toFixed(4)} ${Math.round(obs.alt)}m`:''}`;
 }
+
+// ---- tap-to-align: tap a plane you can see; lock the whole field to it ----
+function flash(msg){
+  const f=document.getElementById('flash'); f.textContent=msg; f.style.opacity='1';
+  setTimeout(()=>{ f.style.opacity='0'; }, 1400);
+}
+function calibrateAt(x,y){
+  if(!planes.length){ flash('no planes to align to'); return; }
+  const W=window.innerWidth, H=window.innerHeight, degPerPx=FOV/W;
+  const pAz=(heading+azOff+360)%360, pEl=pitch+elOff;
+  const tapAz=pAz + (x-W/2)*degPerPx;          // direction the user tapped
+  const tapEl=pEl - (y-H/2)*degPerPx;
+  let best=null, bs=1e9;
+  for(const a of planes){ const {az,el}=azel(a); const s=Math.hypot(norm180(az-tapAz), el-tapEl); if(s<bs){bs=s; best={a,az,el};} }
+  if(!best) return;
+  // set offsets so that plane's marker lands exactly under the tap
+  azOff = norm180(best.az - heading - (x-W/2)*degPerPx);
+  elOff = best.el - pitch + (y-H/2)*degPerPx;
+  localStorage.setItem('ar_azOff', azOff.toFixed(2));
+  localStorage.setItem('ar_elOff', elOff.toFixed(2));
+  flash('Aligned to '+(((best.a.flight||best.a.hex)+'').trim()));
+  render();
+}
+(function(){
+  const tc=document.getElementById('tapcatch');
+  const handler=ev=>{ const t=(ev.changedTouches&&ev.changedTouches[0])||ev; calibrateAt(t.clientX,t.clientY); ev.preventDefault(); };
+  tc.addEventListener('click', handler);
+  document.getElementById('alignreset').addEventListener('click', e=>{
+    e.stopPropagation(); azOff=0; elOff=0;
+    localStorage.removeItem('ar_azOff'); localStorage.removeItem('ar_elOff'); flash('Alignment reset'); render();
+  });
+})();
 
 function altColor(alt){
   if (alt==='ground' || (typeof alt==='number' && alt<2000)) return '#ff5a5a';
@@ -280,8 +328,11 @@ async function beginAR(){
 })();
 
 // FOV calibration + resize
-document.getElementById('fovm').addEventListener('click', ()=>{ FOV=Math.max(30,FOV-5); document.getElementById('fovv').textContent=FOV+'°'; render(); });
-document.getElementById('fovp').addEventListener('click', ()=>{ FOV=Math.min(110,FOV+5); document.getElementById('fovv').textContent=FOV+'°'; render(); });
+document.getElementById('fovv').textContent=FOV+'°';
+function setFov(v){ FOV=Math.max(30,Math.min(110,v)); localStorage.setItem('ar_fov',FOV);
+  document.getElementById('fovv').textContent=FOV+'°'; render(); }
+document.getElementById('fovm').addEventListener('click', e=>{ e.stopPropagation(); setFov(FOV-5); });
+document.getElementById('fovp').addEventListener('click', e=>{ e.stopPropagation(); setFov(FOV+5); });
 window.addEventListener('resize', render);
 </script>
 </body>
