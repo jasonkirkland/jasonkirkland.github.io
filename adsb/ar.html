@@ -26,6 +26,11 @@
   #reticle::before,#reticle::after{ content:''; position:absolute; background:rgba(255,255,255,.55); }
   #reticle::before{ left:50%; top:-10px; width:1px; height:14px; transform:translateX(-50%); }
   #reticle::after{ top:50%; left:-10px; height:1px; width:14px; transform:translateY(-50%); }
+  @keyframes reticlePulse{
+    0%,100%{ box-shadow:0 0 0 0 rgba(90,170,255,0); border-color:rgba(255,255,255,.55); }
+    50%{ box-shadow:0 0 13px 3px rgba(90,170,255,.55); border-color:rgba(120,200,255,.95); }
+  }
+  #reticle.locked{ animation:reticlePulse 1.15s ease-in-out infinite; }
   #target{ position:absolute; left:0; right:0; top:14px; text-align:center; z-index:5; }
   #target .tflt{ font-size:26px; font-weight:800; text-shadow:0 2px 6px #000; }
   #target .tinfo{ font-size:14px; color:#dce8f5; text-shadow:0 1px 4px #000; }
@@ -202,6 +207,9 @@ function render(){
     m.querySelector('.msub').textContent=(typeof a.alt_baro==='number'?Math.round(a.alt_baro/1000)+'k ft · ':'')+slantNm.toFixed(0)+' nm';
   }
   for(const hex in mEls){ if(!seen.has(hex)){ mEls[hex].remove(); delete mEls[hex]; } }
+
+  // pulse the bullseye blue while a plane sits inside the ring (reticle radius ≈ 32px)
+  document.getElementById('reticle').classList.toggle('locked', !!(best && bestSep < 32*degPerPx));
 
   // targeted readout (the plane closest to the center reticle)
   if(best && bestSep<10){
