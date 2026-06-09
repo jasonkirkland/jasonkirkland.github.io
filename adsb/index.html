@@ -178,6 +178,36 @@ function altRGB(alt){ const h=altColor(alt); return [parseInt(h.slice(1,3),16),p
 function altMeters(alt){ return (typeof alt==='number') ? alt*0.3048 : 0; }
 function towerH(alt){ return Math.max(50, altMeters(alt)*EXAG); }
 
+// ICAO airline designator (first 3 letters of the callsign) -> operator name
+const AIRLINES={
+AAL:"American Airlines",DAL:"Delta Air Lines",UAL:"United Airlines",SWA:"Southwest",
+ENY:"Envoy Air",SKW:"SkyWest",RPA:"Republic Airways",EDV:"Endeavor Air",JIA:"PSA Airlines",
+AWI:"Air Wisconsin",ASH:"Mesa Airlines",GJS:"GoJet",QXE:"Horizon Air",
+NKS:"Spirit",FFT:"Frontier",JBU:"JetBlue",ASA:"Alaska Airlines",HAL:"Hawaiian",
+AAY:"Allegiant",SCX:"Sun Country",
+FDX:"FedEx",UPS:"UPS",GTI:"Atlas Air",ABX:"ABX Air",ATN:"Air Transport Intl",
+CKS:"Kalitta Air",GEC:"Lufthansa Cargo",CLX:"Cargolux",
+ACA:"Air Canada",ROU:"Air Canada Rouge",JZA:"Jazz Aviation",WJA:"WestJet",TSC:"Air Transat",
+AMX:"Aeroméxico",VOI:"Volaris",VIV:"Viva Aerobus",AVA:"Avianca",CMP:"Copa",
+LAN:"LATAM",TAM:"LATAM Brasil",GLO:"Gol",AZU:"Azul",
+BAW:"British Airways",DLH:"Lufthansa",AFR:"Air France",KLM:"KLM",IBE:"Iberia",VLG:"Vueling",
+RYR:"Ryanair",EZY:"easyJet",EXS:"Jet2",WZZ:"Wizz Air",SAS:"Scandinavian",FIN:"Finnair",
+TAP:"TAP Air Portugal",SWR:"Swiss",AUA:"Austrian",BEL:"Brussels Airlines",LOT:"LOT Polish",
+AEE:"Aegean",THY:"Turkish Airlines",VIR:"Virgin Atlantic",EIN:"Aer Lingus",NAX:"Norwegian",
+UAE:"Emirates",QTR:"Qatar Airways",ETD:"Etihad",SVA:"Saudia",MSR:"EgyptAir",ELY:"El Al",
+SIA:"Singapore Airlines",ANA:"All Nippon",JAL:"Japan Airlines",KAL:"Korean Air",AAR:"Asiana",
+CCA:"Air China",CES:"China Eastern",CSN:"China Southern",CPA:"Cathay Pacific",EVA:"EVA Air",
+CAL:"China Airlines",THA:"Thai Airways",MAS:"Malaysia Airlines",GIA:"Garuda",AIC:"Air India",
+IGO:"IndiGo",QFA:"Qantas",ANZ:"Air New Zealand",VOZ:"Virgin Australia",JST:"Jetstar",
+NJE:"NetJets Europe",EJA:"NetJets",LXJ:"Flexjet"
+};
+function airlineName(flight){
+  if(!flight) return null;
+  const m=(flight+'').trim().toUpperCase().match(/^([A-Z]{3})\d/);  // 3 letters + digit = airline callsign
+  if(!m) return null;                       // tail numbers (N123AB) = private/GA
+  return AIRLINES[m[1]] || m[1];            // known code -> name, else show the code
+}
+
 function squareAround(lng,lat,half=0.0011){
   const dLat=half, dLon=half/Math.cos(lat*Math.PI/180);
   return [[[lng-dLon,lat-dLat],[lng+dLon,lat-dLat],[lng+dLon,lat+dLat],[lng-dLon,lat+dLat],[lng-dLon,lat-dLat]]];
@@ -236,8 +266,10 @@ function buildLayers(){
 function pushDeck(){ if(overlay) overlay.setProps({layers: buildLayers()}); }
 
 function popupHTML(a){
-  const alt=a.alt_baro;
-  return `<b>${(a.flight||a.hex).trim()}</b><br>Hex: ${a.hex}<br>`+
+  const alt=a.alt_baro; const air=airlineName(a.flight);
+  return `<b>${(a.flight||a.hex).trim()}</b><br>`+
+    `${air?`Airline: ${air}<br>`:''}`+
+    `Hex: ${a.hex}<br>`+
     `Alt: ${typeof alt==='number'?alt+' ft':(alt||'—')}<br>`+
     `Speed: ${a.gs!=null?Math.round(a.gs)+' kt':'—'}<br>Track: ${a.track!=null?Math.round(a.track)+'°':'—'}<br>`+
     `Squawk: ${a.squawk||'—'}<br>Signal: ${a.rssi!=null?a.rssi+' dBFS':'—'} · ${a.messages||0} msgs`;
@@ -249,7 +281,9 @@ function fmtAltShort(a){ const al=a.alt_baro; return (typeof al==='number')?(al/
 function acBody(a){
   const al=a.alt_baro;
   const dnm=(typeof a.lat==='number'&&typeof a.lon==='number')?distNm(RX[1],RX[0],a.lat,a.lon).toFixed(1)+' nm':'—';
-  return `Alt: ${typeof al==='number'?al.toLocaleString()+' ft':(al||'—')}<br>`+
+  const air=airlineName(a.flight);
+  return `${air?`Airline: ${air}<br>`:''}`+
+    `Alt: ${typeof al==='number'?al.toLocaleString()+' ft':(al||'—')}<br>`+
     `Speed: ${a.gs!=null?Math.round(a.gs)+' kt':'—'}<br>`+
     `Heading: ${a.track!=null?Math.round(a.track)+'°':'—'}<br>`+
     `Distance: ${dnm}<br>`+
