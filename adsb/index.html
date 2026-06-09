@@ -250,7 +250,7 @@ function buildLayers(){
     sizeUnits:'pixels', getSize: 30, sizeScale:1,
     getPosition: d => [d.lon, d.lat, towerH(d.alt_baro)],
     getIcon: () => ({id:'plane', url:PLANE_SVG, width:64, height:64, anchorX:32, anchorY:32, mask:true}),
-    getColor: d => altRGB(d.alt_baro),
+    getColor: d => (d.category==='A7') ? [236,64,210] : altRGB(d.alt_baro),  // rotorcraft = magenta
     getAngle: d => (typeof d.track==='number') ? (bearing - d.track) : 0,
     updateTriggers:{ getPosition:[EXAG], getAngle:[bearing] },
     onClick: info => { if(info && info.object){ const d=info.object;
@@ -273,6 +273,7 @@ function pushDeck(){ if(overlay) overlay.setProps({layers: buildLayers()}); }
 function popupHTML(a){
   const alt=a.alt_baro; const air=airlineName(a.flight);
   return `<b>${(a.flight||a.hex).trim()}</b><br>`+
+    `${a.category==='A7'?'Type: Rotorcraft 🚁<br>':''}`+
     `${air?`Airline: ${air}<br>`:''}`+
     `Hex: ${a.hex}<br>`+
     `Alt: ${typeof alt==='number'?alt+' ft':(alt||'—')}<br>`+
@@ -320,7 +321,7 @@ function updatePlaneList(ac){
       it=acItems[a.hex]={det,sum,body};
     }
     const hasPos = typeof a.lat==='number' && typeof a.lon==='number';
-    it.sum.innerHTML=`<span class="acid"><span class="acdot" style="background:${altColor(a.alt_baro)}"></span>${id}</span>`+
+    it.sum.innerHTML=`<span class="acid"><span class="acdot" style="background:${altColor(a.alt_baro)}"></span>${a.category==='A7'?'🚁 ':''}${id}</span>`+
       `${hasPos?'':'<span class="nopos-badge">no pos</span>'}`+
       `<span class="acalt">${vrArrow(a)}${fmtAltShort(a)}</span>`;
     it.body.innerHTML=acBody(a);
