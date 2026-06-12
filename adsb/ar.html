@@ -109,8 +109,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const fbdb = firebase.database();
 
-// observer (phone) position; Denton fallback until GPS arrives
-let obs = { lat:33.2148, lon:-97.1331, alt:200, gps:false };
+// observer (phone) position; home fallback until GPS arrives
+let obs = { lat:33.186108205874696, lon:-97.11117956029418, alt:200, gps:false };
 let planes = [];           // [{hex,flight,lat,lon,alt_baro,...}] positioned only
 let heading = 0, pitch = 0, roll = 0, haveOrient = false, headingSrc='—';
 let FOV = +(localStorage.getItem('ar_fov')||60);     // horizontal field of view (deg)
