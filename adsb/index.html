@@ -67,11 +67,25 @@
   .vr { font-size:10px; }
   .vr.up { color:#36d399; } .vr.dn { color:#ff9f43; }
   .maplibregl-popup-content { font-size:13px; line-height:1.5; }
+  #detail {
+    position:absolute; left:10px; bottom:10px; z-index:7; display:none;
+    background:rgba(8,11,16,.94); color:#eaf4ff; border:1px solid #2a3e52; border-radius:12px;
+    padding:12px 30px 12px 14px; min-width:230px; max-width:300px; max-height:46vh; overflow-y:auto;
+    box-shadow:0 6px 22px rgba(0,0,0,.6); font-size:13px; line-height:1.6;
+  }
+  #detail b { color:#7fd1ff; font-size:15px; }
+  #detail-close {
+    position:absolute; top:6px; right:8px; width:26px; height:26px; padding:0;
+    background:transparent; border:0; color:#7fd1ff; font-size:20px; line-height:1; cursor:pointer; border-radius:5px;
+  }
+  #detail-close:hover { color:#fff; background:rgba(127,209,255,.12); }
   /* bigger zoom/compass controls on touch devices */
   @media (pointer: coarse) {
     .maplibregl-ctrl-group button { width:44px !important; height:44px !important; }
     .maplibregl-ctrl-group button .maplibregl-ctrl-icon { background-size:26px 26px; }
     .maplibregl-ctrl-group { border-radius:10px; }
+    #detail-close { width:34px; height:34px; font-size:24px; }
+    #detail { padding-right:38px; }
   }
   #gate {
     position:absolute; inset:0; z-index:20; background:#0b0f14;
@@ -139,6 +153,7 @@
   <button data-act="rotr" title="Rotate right">↻</button>
   <button id="reset" data-act="reset" title="Reset view">Reset</button>
 </div>
+<div id="detail"><button id="detail-close" title="Close">×</button><div id="detail-body"></div></div>
 <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
 <script src="https://unpkg.com/deck.gl@8.9.36/dist.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
@@ -300,10 +315,9 @@ map.addControl(new maplibregl.ScaleControl({unit:'nautical'}));
 const trails={};            // hex -> [[lng,lat],...]
 let planeData=[];           // current positioned aircraft (for deck.gl)
 let overlay=null;
-const popup = new maplibregl.Popup({offset:14, closeButton:true});
-let selectedHex=null;                       // which plane's popup is open
-popup.on('close', ()=>{ selectedHex=null; });
-function openPopupFor(a){ selectedHex=a.hex; popup.setLngLat([a.lon,a.lat]).setHTML(popupHTML(a)).addTo(map); }
+let selectedHex=null;                       // which plane's docked panel is open
+function showDetail(a){ selectedHex=a.hex; document.getElementById('detail-body').innerHTML=popupHTML(a); document.getElementById('detail').style.display='block'; }
+function closeDetail(){ selectedHex=null; const d=document.getElementById('detail'); if(d) d.style.display='none'; }
 
 function buildLayers(){
   const bearing = map.getBearing();
@@ -315,7 +329,7 @@ function buildLayers(){
     getColor: d => altRGB(d.alt_baro),
     getAngle: d => (typeof d.track==='number') ? (bearing - d.track) : 0,
     updateTriggers:{ getPosition:[EXAG], getAngle:[bearing] },
-    onClick: info => { if(info && info.object) openPopupFor(info.object); }
+    onClick: info => { if(info && info.object) showDetail(info.object); }
   });
   const labels = new deck.TextLayer({
     id:'labels', data:planeData, billboard:true, getPosition:d=>[d.lon,d.lat,towerH(d.alt_baro)],
@@ -435,6 +449,7 @@ document.getElementById('peakreset').addEventListener('click', ()=>{
   localStorage.removeItem('adsb_peak_nm');
   document.getElementById('peakval').textContent='—';
 });
+document.getElementById('detail-close').addEventListener('click', closeDetail);
 
 // touch-friendly tilt / rotate controls
 (function(){
@@ -482,11 +497,11 @@ function render(d){
   map.getSource('trails').setData({type:'FeatureCollection',features:trailFeats});
   pushDeck();
 
-  // keep an open popup glued to its plane and refresh its data
+  // keep the docked detail panel refreshed for the selected plane
   if(selectedHex){
-    const sa=planeData.find(x=>x.hex===selectedHex);
-    if(sa){ popup.setLngLat([sa.lon,sa.lat]).setHTML(popupHTML(sa)); }
-    else if(!ac.some(x=>x.hex===selectedHex)){ popup.remove(); }  // plane left coverage
+    const sa=planeData.find(x=>x.hex===selectedHex) || ac.find(x=>x.hex===selectedHex);
+    if(sa){ document.getElementById('detail-body').innerHTML=popupHTML(sa); }
+    else { closeDetail(); }   // plane left coverage
   }
 
   for(const hex in trails) if(!seen.has(hex)) delete trails[hex];
