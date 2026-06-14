@@ -294,20 +294,22 @@ map.addControl(new maplibregl.ScaleControl({unit:'nautical'}));
 const trails={};            // hex -> [[lng,lat],...]
 let planeData=[];           // current positioned aircraft (for deck.gl)
 let overlay=null;
-const popup = new maplibregl.Popup({offset:12, closeButton:true});
+const popup = new maplibregl.Popup({offset:14, closeButton:true});
+let selectedHex=null;                       // which plane's popup is open
+popup.on('close', ()=>{ selectedHex=null; });
+function openPopupFor(a){ selectedHex=a.hex; popup.setLngLat([a.lon,a.lat]).setHTML(popupHTML(a)).addTo(map); }
 
 function buildLayers(){
   const bearing = map.getBearing();
   const icons = new deck.IconLayer({
     id:'planes', data:planeData, pickable:true, billboard:true,
-    sizeUnits:'pixels', getSize: 30, sizeScale:1,
+    sizeUnits:'pixels', getSize: 36, sizeScale:1,
     getPosition: d => [d.lon, d.lat, towerH(d.alt_baro)],
     getIcon: d => iconFor(d.category),
     getColor: d => altRGB(d.alt_baro),
     getAngle: d => (typeof d.track==='number') ? (bearing - d.track) : 0,
     updateTriggers:{ getPosition:[EXAG], getAngle:[bearing] },
-    onClick: info => { if(info && info.object){ const d=info.object;
-      popup.setLngLat([d.lon,d.lat]).setHTML(popupHTML(d)).addTo(map); } }
+    onClick: info => { if(info && info.object) openPopupFor(info.object); }
   });
   const labels = new deck.TextLayer({
     id:'labels', data:planeData, billboard:true, getPosition:d=>[d.lon,d.lat,towerH(d.alt_baro)],
@@ -407,7 +409,7 @@ map.on('load', () => {
   map.addLayer({id:'towers',type:'fill-extrusion',source:'towers',
     paint:{'fill-extrusion-color':['get','color'],'fill-extrusion-base':0,'fill-extrusion-height':['get','height'],'fill-extrusion-opacity':0.45}});
 
-  overlay = new deck.MapboxOverlay({interleaved:false, layers:[]});
+  overlay = new deck.MapboxOverlay({interleaved:false, pickingRadius:18, layers:[]});
   map.addControl(overlay);
 
   map.on('rotate', pushDeck);  // keep plane headings correct as the view rotates
@@ -473,6 +475,13 @@ function render(d){
   map.getSource('dots').setData({type:'FeatureCollection',features:dotFeats});
   map.getSource('trails').setData({type:'FeatureCollection',features:trailFeats});
   pushDeck();
+
+  // keep an open popup glued to its plane and refresh its data
+  if(selectedHex){
+    const sa=planeData.find(x=>x.hex===selectedHex);
+    if(sa){ popup.setLngLat([sa.lon,sa.lat]).setHTML(popupHTML(sa)); }
+    else if(!ac.some(x=>x.hex===selectedHex)){ popup.remove(); }  // plane left coverage
+  }
 
   for(const hex in trails) if(!seen.has(hex)) delete trails[hex];
 
