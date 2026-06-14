@@ -67,6 +67,12 @@
   .vr { font-size:10px; }
   .vr.up { color:#36d399; } .vr.dn { color:#ff9f43; }
   .maplibregl-popup-content { font-size:13px; line-height:1.5; }
+  /* bigger zoom/compass controls on touch devices */
+  @media (pointer: coarse) {
+    .maplibregl-ctrl-group button { width:44px !important; height:44px !important; }
+    .maplibregl-ctrl-group button .maplibregl-ctrl-icon { background-size:26px 26px; }
+    .maplibregl-ctrl-group { border-radius:10px; }
+  }
   #gate {
     position:absolute; inset:0; z-index:20; background:#0b0f14;
     display:flex; align-items:center; justify-content:center;
