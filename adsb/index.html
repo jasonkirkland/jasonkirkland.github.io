@@ -177,7 +177,7 @@ const fbdb = firebase.database();
 
 const RX = [-97.11117956029418, 33.186108205874696]; // [lng,lat] receiver (home)
 let EXAG = 2;
-let mode2d = localStorage.getItem('adsb_2d')==='1';   // flat top-down mode (no towers)
+let mode2d = localStorage.getItem('adsb_2d')!=='0';   // default 2D (flat); '0' = user chose 3D
 const MAX_TRAIL = 200;
 let prevNow=null, prevMsgs=0, msgRate=null;   // for message-rate calc
 let mapReady=false, latest=null, connected=false;
