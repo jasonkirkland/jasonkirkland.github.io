@@ -488,7 +488,7 @@ map.on('load', () => {
   map.addLayer({id:'rx',type:'circle',source:'rx',paint:{'circle-radius':6,'circle-color':'#ff2d55','circle-stroke-color':'#fff','circle-stroke-width':2}});
 
   map.addSource('trails',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
-  map.addLayer({id:'trails',type:'line',source:'trails',paint:{'line-color':['get','color'],'line-width':2,'line-opacity':0.6}});
+  map.addLayer({id:'trails',type:'line',source:'trails',paint:{'line-color':['get','color'],'line-width':2,'line-opacity':0.35}});
 
   map.addSource('dots',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
   map.addLayer({id:'dots',type:'circle',source:'dots',paint:{'circle-radius':3,'circle-color':['get','color'],'circle-stroke-color':'#fff','circle-stroke-width':1,'circle-opacity':0.9}});
