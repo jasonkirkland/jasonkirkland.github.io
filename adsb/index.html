@@ -49,6 +49,7 @@
   #tilt-ctrls button:hover { color:#fff; border-color:#2f455a; }
   #tilt-ctrls button:active { background:rgba(127,209,255,.18); }
   #tilt-ctrls #reset { font-size:11px; height:36px; }
+  #tilt-ctrls #mode2d { font-size:14px; font-weight:700; }
   #planelist { margin-top:4px; }
   details.ac { border-top:1px solid #2a3e52; }
   details.ac summary {
@@ -147,6 +148,7 @@
 </div>
 <button id="hud-show" title="Show panel">☰ Panel</button>
 <div id="tilt-ctrls">
+  <button id="mode2d" title="Toggle 2D / 3D">2D</button>
   <button data-act="tiltup" title="Tilt up (more 3D)">⤓</button>
   <button data-act="tiltdn" title="Tilt down (toward top-down)">⤒</button>
   <button data-act="rotl" title="Rotate left">↺</button>
@@ -175,6 +177,7 @@ const fbdb = firebase.database();
 
 const RX = [-97.11117956029418, 33.186108205874696]; // [lng,lat] receiver (home)
 let EXAG = 2;
+let mode2d = localStorage.getItem('adsb_2d')==='1';   // flat top-down mode (no towers)
 const MAX_TRAIL = 200;
 let prevNow=null, prevMsgs=0, msgRate=null;   // for message-rate calc
 let mapReady=false, latest=null, connected=false;
@@ -342,22 +345,22 @@ function buildLayers(){
   const icons = new deck.IconLayer({
     id:'planes', data:planeData, pickable:true, billboard:true,
     sizeUnits:'pixels', getSize: 36, sizeScale:1,
-    getPosition: d => [d.lon, d.lat, towerH(d.alt_baro)],
+    getPosition: d => [d.lon, d.lat, mode2d?0:towerH(d.alt_baro)],
     getIcon: d => iconFor(d.category),
     getColor: d => altRGB(d.alt_baro),
     getAngle: d => (typeof d.track==='number') ? (bearing - d.track) : 0,
-    updateTriggers:{ getPosition:[EXAG], getAngle:[bearing] },
+    updateTriggers:{ getPosition:[EXAG,mode2d], getAngle:[bearing] },
     onClick: info => { if(info && info.object) showDetail(info.object); }
   });
   const labels = new deck.TextLayer({
-    id:'labels', data:planeData, billboard:true, getPosition:d=>[d.lon,d.lat,towerH(d.alt_baro)],
+    id:'labels', data:planeData, billboard:true, getPosition:d=>[d.lon,d.lat,mode2d?0:towerH(d.alt_baro)],
     getText: d => { const v=d.baro_rate, ar=(typeof v==='number'&&Math.abs(v)>=100)?(v>0?' ↑':' ↓'):'';
       return `${(d.flight||d.hex).trim()}${ar}  ${typeof d.alt_baro==='number'?(d.alt_baro/1000).toFixed(1)+'k':''}`; },
     getSize: 12, getColor:[20,28,36], getPixelOffset:[0,-24],
     background:true, getBackgroundColor:[255,255,255,210], backgroundPadding:[4,2],
     fontFamily:'-apple-system, Helvetica, Arial, sans-serif', characterSet:'auto',
     getTextAnchor:'middle', getAlignmentBaseline:'center',
-    updateTriggers:{ getPosition:[EXAG] }
+    updateTriggers:{ getPosition:[EXAG,mode2d] }
   });
   return [icons, labels];
 }
@@ -451,6 +454,7 @@ map.on('load', () => {
   map.addControl(overlay);
 
   map.on('rotate', pushDeck);  // keep plane headings correct as the view rotates
+  applyMode();                 // apply persisted 2D/3D choice
   mapReady = true;
   if(latest) render(latest);
 });
@@ -477,12 +481,24 @@ document.getElementById('detail-close').addEventListener('click', closeDetail);
     tiltdn: ()=> map.easeTo({pitch: clamp(map.getPitch()-12, 0, 80), duration:250}),
     rotl:   ()=> map.easeTo({bearing: map.getBearing()-30, duration:250}),
     rotr:   ()=> map.easeTo({bearing: map.getBearing()+30, duration:250}),
-    reset:  ()=> map.easeTo({center:RX, zoom:8.3, pitch:62, bearing:-18, duration:450})
+    reset:  ()=> map.easeTo({center:RX, zoom:8.3, pitch:mode2d?0:62, bearing:-18, duration:450})
   };
   document.querySelectorAll('#tilt-ctrls button').forEach(b=>{
     b.addEventListener('click', ()=>{ const f=acts[b.dataset.act]; if(f) f(); });
   });
 })();
+
+// 2D / 3D toggle — flat top-down with no altitude towers, or the 2.5D tower view
+function applyMode(){
+  if(map.getLayer('towers')) map.setLayoutProperty('towers','visibility', mode2d?'none':'visible');
+  const b=document.getElementById('mode2d'); if(b) b.textContent=mode2d?'3D':'2D';
+  const ex=document.getElementById('exag'); if(ex){ ex.disabled=mode2d; ex.style.opacity=mode2d?0.4:1; }
+  map.easeTo({pitch: mode2d?0:62, duration:400});
+  pushDeck();   // rebuild deck icons/labels at ground (2D) or tower-top (3D)
+}
+document.getElementById('mode2d').addEventListener('click', e=>{
+  e.stopPropagation(); mode2d=!mode2d; localStorage.setItem('adsb_2d', mode2d?'1':'0'); applyMode();
+});
 
 document.getElementById('exag').addEventListener('input', e=>{
   EXAG=+e.target.value; document.getElementById('exagval').textContent=EXAG+'×';
