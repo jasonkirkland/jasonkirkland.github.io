@@ -366,6 +366,49 @@ function buildLayers(){
 }
 function pushDeck(){ if(overlay) overlay.setProps({layers: buildLayers()}); }
 
+// ---- smooth position interpolation (glide planes between updates, DoorDash-style) ----
+let targets=[];      // latest real positioned aircraft
+const anim={};       // hex -> {fLat,fLon,fTrk,tLat,tLon,tTrk,t0,dur}
+const cur={};        // hex -> current interpolated {lat,lon,trk}
+let lastDataT=0, lastFrameT=0;
+function setTargets(list){
+  const now=performance.now();
+  const dur=Math.min(2500, Math.max(800, lastDataT? now-lastDataT : 1500));
+  lastDataT=now;
+  const seen=new Set();
+  for(const a of list){
+    seen.add(a.hex);
+    const c=cur[a.hex];
+    const fLat=c?c.lat:a.lat, fLon=c?c.lon:a.lon, fTrk=c?c.trk:(typeof a.track==='number'?a.track:0);
+    anim[a.hex]={fLat,fLon,fTrk,tLat:a.lat,tLon:a.lon,tTrk:(typeof a.track==='number'?a.track:fTrk),t0:now,dur};
+    if(!c) cur[a.hex]={lat:a.lat,lon:a.lon,trk:fTrk};
+  }
+  for(const h in anim) if(!seen.has(h)){ delete anim[h]; delete cur[h]; }
+  targets=list;
+}
+function animFrame(){
+  requestAnimationFrame(animFrame);
+  const now=performance.now();
+  if(now-lastFrameT<33) return;   // ~30fps cap to stay light on mobile
+  lastFrameT=now;
+  const towerFeats=[], dotFeats=[], pd=[];
+  for(const a of targets){
+    const an=anim[a.hex]; if(!an) continue;
+    let f = an.dur>0 ? (now-an.t0)/an.dur : 1; if(f<0)f=0; if(f>1)f=1;
+    const lat=an.fLat+(an.tLat-an.fLat)*f, lon=an.fLon+(an.tLon-an.fLon)*f;
+    const dT=((an.tTrk-an.fTrk+540)%360)-180, trk=(an.fTrk+dT*f+360)%360;
+    cur[a.hex]={lat,lon,trk};
+    const color=altColor(a.alt_baro);
+    pd.push({hex:a.hex,flight:a.flight,alt_baro:a.alt_baro,category:a.category,baro_rate:a.baro_rate,lon,lat,track:trk});
+    towerFeats.push({type:'Feature',properties:{color,height:towerH(a.alt_baro)},geometry:{type:'Polygon',coordinates:squareAround(lon,lat)}});
+    dotFeats.push({type:'Feature',properties:{color},geometry:{type:'Point',coordinates:[lon,lat]}});
+  }
+  planeData=pd;
+  if(map.getSource('towers')) map.getSource('towers').setData({type:'FeatureCollection',features:towerFeats});
+  if(map.getSource('dots')) map.getSource('dots').setData({type:'FeatureCollection',features:dotFeats});
+  pushDeck();
+}
+
 function popupHTML(a){
   const alt=a.alt_baro; const air=bestAirline(a);
   return `<b>${(a.flight||a.hex).trim()}</b><br>`+
@@ -455,6 +498,7 @@ map.on('load', () => {
 
   map.on('rotate', pushDeck);  // keep plane headings correct as the view rotates
   applyMode();                 // apply persisted 2D/3D choice
+  requestAnimationFrame(animFrame);   // start the smooth-motion loop
   mapReady = true;
   if(latest) render(latest);
 });
@@ -510,30 +554,26 @@ function render(d){
   const u=document.getElementById('updated');
   if(!d){ u.textContent = connected ? 'connected · waiting for data…' : 'connecting…'; return; }
   const ac=d.aircraft||[];
-  const towerFeats=[],dotFeats=[],trailFeats=[]; const seen=new Set(); let positioned=0; let maxNow=0;
-  planeData=[];
+  const trailFeats=[]; const seen=new Set(); let positioned=0; let maxNow=0;
+  const posReal=[];
 
   for(const a of ac){
     if(typeof a.lat!=='number'||typeof a.lon!=='number') continue;
     positioned++; seen.add(a.hex);
-    const alt=a.alt_baro, color=altColor(alt), lng=a.lon, lat=a.lat;
+    const color=altColor(a.alt_baro), lng=a.lon, lat=a.lat;
     const dnm=distNm(RX[1],RX[0],lat,lng); if(dnm>maxNow) maxNow=dnm;
-    planeData.push(a);
-    towerFeats.push({type:'Feature',properties:{color,height:towerH(alt)},geometry:{type:'Polygon',coordinates:squareAround(lng,lat)}});
-    dotFeats.push({type:'Feature',properties:{color},geometry:{type:'Point',coordinates:[lng,lat]}});
+    posReal.push(a);
     const t=trails[a.hex]||(trails[a.hex]=[]); const last=t[t.length-1];
     if(!last||last[0]!==lng||last[1]!==lat){ t.push([lng,lat]); if(t.length>MAX_TRAIL) t.shift(); }
     if(t.length>1) trailFeats.push({type:'Feature',properties:{color},geometry:{type:'LineString',coordinates:t.slice()}});
   }
 
-  map.getSource('towers').setData({type:'FeatureCollection',features:towerFeats});
-  map.getSource('dots').setData({type:'FeatureCollection',features:dotFeats});
-  map.getSource('trails').setData({type:'FeatureCollection',features:trailFeats});
-  pushDeck();
+  setTargets(posReal);   // hand new positions to the interpolator; the rAF loop draws them
+  if(map.getSource('trails')) map.getSource('trails').setData({type:'FeatureCollection',features:trailFeats});
 
-  // keep the docked detail panel refreshed for the selected plane
+  // keep the docked detail panel refreshed for the selected plane (real values)
   if(selectedHex){
-    const sa=planeData.find(x=>x.hex===selectedHex) || ac.find(x=>x.hex===selectedHex);
+    const sa=ac.find(x=>x.hex===selectedHex);
     if(sa){ document.getElementById('detail-body').innerHTML=popupHTML(sa); }
     else { closeDetail(); }   // plane left coverage
   }
