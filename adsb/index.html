@@ -343,13 +343,13 @@ function closeDetail(){ selectedHex=null; const d=document.getElementById('detai
 function buildLayers(){
   const bearing = map.getBearing();
   const icons = new deck.IconLayer({
-    id:'planes', data:planeData, pickable:true, billboard:true,
+    id:'planes', data:planeData, pickable:true, billboard:!mode2d,
     sizeUnits:'pixels', getSize: 36, sizeScale:1,
     getPosition: d => [d.lon, d.lat, mode2d?0:towerH(d.alt_baro)],
     getIcon: d => iconFor(d.category),
     getColor: d => altRGB(d.alt_baro),
-    getAngle: d => (typeof d.track==='number') ? (bearing - d.track) : 0,
-    updateTriggers:{ getPosition:[EXAG,mode2d], getAngle:[bearing] },
+    getAngle: d => (typeof d.track==='number') ? (mode2d ? -d.track : (bearing - d.track)) : 0,
+    updateTriggers:{ getPosition:[EXAG,mode2d], getAngle:[bearing,mode2d] },
     onClick: info => { if(info && info.object) showDetail(info.object); }
   });
   const labels = new deck.TextLayer({
