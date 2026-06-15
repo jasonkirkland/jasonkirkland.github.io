@@ -391,7 +391,7 @@ function animFrame(){
   const now=performance.now();
   if(now-lastFrameT<33) return;   // ~30fps cap to stay light on mobile
   lastFrameT=now;
-  const towerFeats=[], dotFeats=[], pd=[];
+  const towerFeats=[], dotFeats=[], trailFeats=[], pd=[];
   for(const a of targets){
     const an=anim[a.hex]; if(!an) continue;
     let f = an.dur>0 ? (now-an.t0)/an.dur : 1; if(f<0)f=0; if(f>1)f=1;
@@ -402,10 +402,14 @@ function animFrame(){
     pd.push({hex:a.hex,flight:a.flight,alt_baro:a.alt_baro,category:a.category,baro_rate:a.baro_rate,lon,lat,track:trk});
     towerFeats.push({type:'Feature',properties:{color,height:towerH(a.alt_baro)},geometry:{type:'Polygon',coordinates:squareAround(lon,lat)}});
     dotFeats.push({type:'Feature',properties:{color},geometry:{type:'Point',coordinates:[lon,lat]}});
+    const tr=trails[a.hex];   // trail tip = the gliding icon, so the path never leads the plane
+    if(tr && tr.length>=2){ const line=tr.slice(0,-1); line.push([lon,lat]);
+      trailFeats.push({type:'Feature',properties:{color},geometry:{type:'LineString',coordinates:line}}); }
   }
   planeData=pd;
   if(map.getSource('towers')) map.getSource('towers').setData({type:'FeatureCollection',features:towerFeats});
   if(map.getSource('dots')) map.getSource('dots').setData({type:'FeatureCollection',features:dotFeats});
+  if(map.getSource('trails')) map.getSource('trails').setData({type:'FeatureCollection',features:trailFeats});
   pushDeck();
 }
 
@@ -554,22 +558,20 @@ function render(d){
   const u=document.getElementById('updated');
   if(!d){ u.textContent = connected ? 'connected · waiting for data…' : 'connecting…'; return; }
   const ac=d.aircraft||[];
-  const trailFeats=[]; const seen=new Set(); let positioned=0; let maxNow=0;
+  const seen=new Set(); let positioned=0; let maxNow=0;
   const posReal=[];
 
   for(const a of ac){
     if(typeof a.lat!=='number'||typeof a.lon!=='number') continue;
     positioned++; seen.add(a.hex);
-    const color=altColor(a.alt_baro), lng=a.lon, lat=a.lat;
+    const lng=a.lon, lat=a.lat;
     const dnm=distNm(RX[1],RX[0],lat,lng); if(dnm>maxNow) maxNow=dnm;
     posReal.push(a);
     const t=trails[a.hex]||(trails[a.hex]=[]); const last=t[t.length-1];
     if(!last||last[0]!==lng||last[1]!==lat){ t.push([lng,lat]); if(t.length>MAX_TRAIL) t.shift(); }
-    if(t.length>1) trailFeats.push({type:'Feature',properties:{color},geometry:{type:'LineString',coordinates:t.slice()}});
   }
 
-  setTargets(posReal);   // hand new positions to the interpolator; the rAF loop draws them
-  if(map.getSource('trails')) map.getSource('trails').setData({type:'FeatureCollection',features:trailFeats});
+  setTargets(posReal);   // hand new positions to the interpolator; the rAF loop draws icons + trails
 
   // keep the docked detail panel refreshed for the selected plane (real values)
   if(selectedHex){
