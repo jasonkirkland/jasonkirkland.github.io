@@ -142,6 +142,7 @@
   <div class="legend-row"><span class="sw" style="background:#e8590c"></span>2,000–10,000 ft</div>
   <div class="legend-row"><span class="sw" style="background:#d62728"></span>&lt; 2,000 ft / ground</div>
   <div class="legend-row"><span class="sw" style="background:#6741d9"></span>no altitude</div>
+  <div class="legend-row"><span class="sw" style="background:#cfd6dd"></span>alert zone (≤6k ft · 1.5 nm)</div>
   <hr>
   <div class="sub" id="aclist-hd">Aircraft</div>
   <div id="planelist"></div>
@@ -179,6 +180,8 @@ const RX = [-97.11117956029418, 33.186108205874696]; // [lng,lat] receiver (home
 let EXAG = 2;
 let mode2d = localStorage.getItem('adsb_2d')!=='0';   // default 2D (flat); '0' = user chose 3D
 const MAX_TRAIL = 200;
+const BUFFER_NM = 1.5, BUFFER_FT = 6000;   // alert zone — mirrors ntfy_alert.py (CPA_NM, MAX_ALT)
+function bufferHeightM(){ return BUFFER_FT*0.3048*EXAG; }
 let prevNow=null, prevMsgs=0, msgRate=null;   // for message-rate calc
 let mapReady=false, latest=null, connected=false;
 
@@ -484,6 +487,13 @@ map.on('load', () => {
   map.addSource('rings',{type:'geojson',data:{type:'FeatureCollection',features:rings}});
   map.addLayer({id:'rings',type:'line',source:'rings',paint:{'line-color':'#5a6b7a','line-width':1.2,'line-dasharray':[3,4],'line-opacity':0.8}});
 
+  // notification buffer: 1.5 nm circle (2D footprint) + cylinder to 6000 ft (3D), light gray
+  map.addSource('buffer',{type:'geojson',data:{type:'Feature',geometry:{type:'Polygon',coordinates:[ringCoords(RX[0],RX[1],BUFFER_NM*1852)]}}});
+  map.addLayer({id:'buffer-fill',type:'fill',source:'buffer',paint:{'fill-color':'#cfd6dd','fill-opacity':0.16}});
+  map.addLayer({id:'buffer-line',type:'line',source:'buffer',paint:{'line-color':'#aeb7c0','line-width':1,'line-opacity':0.7}});
+  map.addLayer({id:'buffer-3d',type:'fill-extrusion',source:'buffer',
+    paint:{'fill-extrusion-color':'#cfd6dd','fill-extrusion-opacity':0.13,'fill-extrusion-base':0,'fill-extrusion-height':bufferHeightM()}});
+
   map.addSource('rx',{type:'geojson',data:{type:'Feature',geometry:{type:'Point',coordinates:RX}}});
   map.addLayer({id:'rx',type:'circle',source:'rx',paint:{'circle-radius':6,'circle-color':'#ff2d55','circle-stroke-color':'#fff','circle-stroke-width':2}});
 
@@ -539,6 +549,7 @@ document.getElementById('detail-close').addEventListener('click', closeDetail);
 // 2D / 3D toggle — flat top-down with no altitude towers, or the 2.5D tower view
 function applyMode(){
   if(map.getLayer('towers')) map.setLayoutProperty('towers','visibility', mode2d?'none':'visible');
+  if(map.getLayer('buffer-3d')) map.setLayoutProperty('buffer-3d','visibility', mode2d?'none':'visible');
   const b=document.getElementById('mode2d'); if(b) b.textContent=mode2d?'3D':'2D';
   const ex=document.getElementById('exag'); if(ex){ ex.disabled=mode2d; ex.style.opacity=mode2d?0.4:1; }
   map.easeTo({pitch: mode2d?0:62, duration:400});
@@ -550,6 +561,7 @@ document.getElementById('mode2d').addEventListener('click', e=>{
 
 document.getElementById('exag').addEventListener('input', e=>{
   EXAG=+e.target.value; document.getElementById('exagval').textContent=EXAG+'×';
+  if(map.getLayer('buffer-3d')) map.setPaintProperty('buffer-3d','fill-extrusion-height', bufferHeightM());
   if(mapReady && latest) render(latest);
 });
 
