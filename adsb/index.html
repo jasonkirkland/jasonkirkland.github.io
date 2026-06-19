@@ -80,6 +80,10 @@
     background:transparent; border:0; color:#7fd1ff; font-size:20px; line-height:1; cursor:pointer; border-radius:5px;
   }
   #detail-close:hover { color:#fff; background:rgba(127,209,255,.12); }
+  #faa { position:absolute; top:8px; left:50%; transform:translateX(-50%); z-index:8; display:none;
+    max-width:92%; padding:8px 14px; border-radius:9px; font-size:13px; font-weight:600; color:#fff;
+    background:rgba(200,40,40,.92); border:1px solid #ff7a7a; box-shadow:0 3px 14px rgba(0,0,0,.5);
+    text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   /* bigger zoom/compass controls on touch devices */
   @media (pointer: coarse) {
     .maplibregl-ctrl-group button { width:44px !important; height:44px !important; }
@@ -121,6 +125,7 @@
   </div>
 </div>
 <div id="map"></div>
+<div id="faa"></div>
 <div id="hud">
   <button id="hud-hide" title="Hide panel">×</button>
   <div><b>ADS-B 2.5D</b> · Denton TX</div>
@@ -182,6 +187,28 @@ let mode2d = localStorage.getItem('adsb_2d')!=='0';   // default 2D (flat); '0' 
 const MAX_TRAIL = 200;
 const BUFFER_NM = 1.5, BUFFER_FT = 6000;   // alert zone — mirrors ntfy_alert.py (CPA_NM, MAX_ALT)
 function bufferHeightM(){ return BUFFER_FT*0.3048*EXAG; }
+
+// nearby airports for FAA ground-stop/delay status
+const AIRPORTS = { DFW:[-97.0403,32.8998], DAL:[-96.8518,32.8471] };
+function airportsFC(faa){
+  const ap=(faa&&faa.airports)||{};
+  return {type:'FeatureCollection', features:Object.entries(AIRPORTS).map(([code,ll])=>(
+    {type:'Feature', properties:{code, state:(ap[code]&&ap[code].state)||'normal'}, geometry:{type:'Point',coordinates:ll}}))};
+}
+function setFaa(faa){
+  if(map.getSource('airports')) map.getSource('airports').setData(airportsFC(faa));
+  const ap=(faa&&faa.airports)||{}; const msgs=[]; let severe=false;
+  for(const code of Object.keys(ap)){ const v=ap[code]; if(!v||v.state==='normal') continue;
+    if(v.state==='ground_stop'){ severe=true; msgs.push(`${code} GROUND STOP — ${v.reason||'?'}${v.until?' (until '+v.until+')':''}`); }
+    else if(v.state==='closure'){ severe=true; msgs.push(`${code} CLOSED`); }
+    else { msgs.push(`${code} ground delay — ${v.reason||'?'}${v.avg?', avg '+v.avg:''}`); }
+  }
+  const b=document.getElementById('faa'); if(!b) return;
+  if(msgs.length){ b.innerHTML='⚠ '+msgs.join('  ·  ');
+    b.style.background=severe?'rgba(200,40,40,.92)':'rgba(190,120,20,.93)';
+    b.style.borderColor=severe?'#ff7a7a':'#f0c060'; b.style.display='block'; }
+  else b.style.display='none';
+}
 let prevNow=null, prevMsgs=0, msgRate=null;   // for message-rate calc
 let mapReady=false, latest=null, connected=false;
 
@@ -494,6 +521,13 @@ map.on('load', () => {
   map.addLayer({id:'buffer-3d',type:'fill-extrusion',source:'buffer',
     paint:{'fill-extrusion-color':'#cfd6dd','fill-extrusion-opacity':0.13,'fill-extrusion-base':0,'fill-extrusion-height':bufferHeightM()}});
 
+  // nearby airports, tinted by FAA status (red=ground stop/closed, amber=delay, green=normal)
+  map.addSource('airports',{type:'geojson',data:airportsFC(null)});
+  map.addLayer({id:'airports',type:'circle',source:'airports',paint:{
+    'circle-radius':7,
+    'circle-color':['match',['get','state'],'ground_stop','#e23b3b','closure','#e23b3b','ground_delay','#f0a020','#36d399'],
+    'circle-stroke-color':'#ffffff','circle-stroke-width':2,'circle-opacity':0.95}});
+
   map.addSource('rx',{type:'geojson',data:{type:'Feature',geometry:{type:'Point',coordinates:RX}}});
   map.addLayer({id:'rx',type:'circle',source:'rx',paint:{'circle-radius':6,'circle-color':'#ff2d55','circle-stroke-color':'#fff','circle-stroke-width':2}});
 
@@ -584,6 +618,7 @@ function render(d){
   }
 
   setTargets(posReal);   // hand new positions to the interpolator; the rAF loop draws icons + trails
+  setFaa(d.faa);         // FAA ground-stop/delay status (merged into the payload by the publisher)
 
   // keep the docked detail panel refreshed for the selected plane (real values)
   if(selectedHex){
