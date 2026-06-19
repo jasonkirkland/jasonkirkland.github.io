@@ -551,11 +551,21 @@ map.on('load', () => {
   if(latest) render(latest);
 });
 
-// hide / show the control panel
+// hide / show the control panel + swipe-left-to-close on docked panels
 (function(){
   const hud=document.getElementById('hud'), show=document.getElementById('hud-show');
   document.getElementById('hud-hide').addEventListener('click', ()=>{ hud.style.display='none'; show.style.display='block'; });
   show.addEventListener('click', ()=>{ hud.style.display='block'; show.style.display='none'; });
+  // swipe left to dismiss a left-docked panel (mostly-horizontal, >55px)
+  function swipeToClose(el, onClose){
+    if(!el) return; let x0=0,y0=0,on=false;
+    el.addEventListener('touchstart', e=>{ const t=e.touches[0]; x0=t.clientX; y0=t.clientY; on=true; }, {passive:true});
+    el.addEventListener('touchend', e=>{ if(!on) return; on=false; const t=e.changedTouches[0];
+      const dx=t.clientX-x0, dy=t.clientY-y0;
+      if(dx < -55 && Math.abs(dx) > Math.abs(dy)*1.5) onClose(); }, {passive:true});
+  }
+  swipeToClose(hud, ()=>{ hud.style.display='none'; show.style.display='block'; });
+  swipeToClose(document.getElementById('detail'), ()=>{ if(typeof closeDetail==='function') closeDetail(); });
 })();
 
 // reset the persistent peak-range record (use when you reposition the antenna)
