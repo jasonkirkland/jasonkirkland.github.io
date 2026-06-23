@@ -334,6 +334,17 @@ function enrichLines(a){
   }
   return s;
 }
+// FAA registry deep link — opens the official N-number inquiry in a new tab (US-registered only).
+// Resolves the N-number from adsbdb's registration, else a tail-number-style callsign.
+function faaLink(a){
+  const c=acData(a.hex); let reg=(c&&c.reg)||null;
+  if(!reg){ const f=((a.flight||'')+'').trim(); if(/^N[A-Z0-9]/i.test(f)) reg=f; }
+  if(!reg) return `<span class="dim">FAA registry: —</span><br>`;
+  const nn=reg.toUpperCase();
+  if(!/^N/.test(nn)) return `<span class="dim">FAA registry: foreign (${nn})</span><br>`;
+  const u='https://registry.faa.gov/AircraftInquiry/Search/NNumberResult?NNumbertxt='+encodeURIComponent(nn);
+  return `<a href="${u}" target="_blank" rel="noopener" style="color:#7fd1ff;text-decoration:none;">FAA registry: ${nn} ↗</a><br>`;
+}
 function queueEnrich(a){
   const hex=a.hex, cs=((a.flight||'')+'').trim().toUpperCase();
   if(hex && !acCache[hex] && !enrIn.has('a:'+hex)){ enrIn.add('a:'+hex); enrQ.push({t:'a',k:hex}); }
@@ -477,6 +488,7 @@ function popupHTML(a){
     `${a.category==='A7'?'Type: Rotorcraft 🚁<br>':''}`+
     `${air?`Airline: ${air}<br>`:''}`+
     `${enrichLines(a)}`+
+    `${faaLink(a)}`+
     `Hex: ${a.hex}<br>`+
     `Alt: ${typeof alt==='number'?alt+' ft':(alt||'—')}<br>`+
     `Speed: ${a.gs!=null?Math.round(a.gs)+' kt':'—'}<br>Track: ${a.track!=null?Math.round(a.track)+'°':'—'}<br>`+
@@ -494,6 +506,7 @@ function acBody(a){
   const air=bestAirline(a);
   return `${air?`Airline: ${air}<br>`:''}`+
     `${enrichLines(a)}`+
+    `${faaLink(a)}`+
     `Alt: ${typeof al==='number'?al.toLocaleString()+' ft':(al||'—')}<br>`+
     `Speed: ${a.gs!=null?Math.round(a.gs)+' kt':'—'}<br>`+
     `Heading: ${a.track!=null?Math.round(a.track)+'°':'—'}<br>`+
