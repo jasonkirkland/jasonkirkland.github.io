@@ -239,6 +239,26 @@ function setFaa(faa){
 }
 let prevNow=null, prevMsgs=0, msgRate=null;   // for message-rate calc
 let mapReady=false, latest=null, connected=false;
+let latestAircraft=null, latestDrones=null;   // /aircraft (Pi) + /drones (CYD RID) snapshots
+
+// Merge the Pi's /aircraft doc with the CYD's /drones RID detections (same per-aircraft
+// schema), aging out drone detections older than 30 min by their epoch. Called on every
+// push to either node; sets the global `latest` and re-renders.
+function compose(){
+  const base = latestAircraft || {};
+  let ac = Array.isArray(base.aircraft) ? base.aircraft.slice() : [];
+  if (latestDrones) {
+    const cutoff = Date.now()/1000 - 30*60;     // keep drone detections from the last 30 min
+    for (const k in latestDrones) {
+      const d = latestDrones[k];
+      if (!d || typeof d.lat!=='number' || typeof d.lon!=='number') continue;
+      if (typeof d.epoch==='number' && d.epoch < cutoff) continue;   // aged out -> drop
+      ac.push(d);
+    }
+  }
+  latest = Object.assign({}, base, { aircraft: ac });
+  if (mapReady) render(latest);
+}
 
 // great-circle distance in nautical miles
 function distNm(lat1,lon1,lat2,lon2){
@@ -265,8 +285,11 @@ const HELI_SVG= SVG("<svg xmlns='http://www.w3.org/2000/svg' width='64' height='
 const IC_JET ={id:'jet', url:JET_SVG,  width:64,height:64,anchorX:32,anchorY:32,mask:true};
 const IC_GA  ={id:'ga',  url:GA_SVG,   width:64,height:64,anchorX:32,anchorY:32,mask:true};
 const IC_HELI={id:'heli',url:HELI_SVG, width:64,height:64,anchorX:32,anchorY:32,mask:true};
-// ADS-B emitter category -> icon: A7 rotorcraft, A1 light GA, else jet/airliner
-function iconFor(c){ return c==='A7' ? IC_HELI : c==='A1' ? IC_GA : IC_JET; }
+// Remote ID drone: quad silhouette (distinct from manned aircraft so drones read on the map)
+const DRONE_SVG=SVG("<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 24 24'><g fill='white'><circle cx='5' cy='5' r='2.1'/><circle cx='19' cy='5' r='2.1'/><circle cx='5' cy='19' r='2.1'/><circle cx='19' cy='19' r='2.1'/><rect x='7' y='10.6' width='10' height='2.8' rx='1.4'/><rect x='10.6' y='7' width='2.8' height='10' rx='1.4'/></g></svg>");
+const IC_DRONE={id:'drone',url:DRONE_SVG,width:64,height:64,anchorX:32,anchorY:32,mask:true};
+// ADS-B emitter category -> icon: RID drone, A7 rotorcraft, A1 light GA, else jet/airliner
+function iconFor(c){ return c==='RID' ? IC_DRONE : c==='A7' ? IC_HELI : c==='A1' ? IC_GA : IC_JET; }
 
 function altColor(alt){
   if (alt==='ground' || (typeof alt==='number' && alt<2000)) return '#d62728';
@@ -722,11 +745,15 @@ function connectFeed(){
       if(!connected){ u.textContent='reconnecting to live feed…'; u.style.color='#ffcf66'; }
     });
     fbdb.ref('aircraft').on('value', snap=>{
-      latest=snap.val(); if(mapReady) render(latest);
+      latestAircraft=snap.val(); compose();
     }, err=>{
       const u=document.getElementById('updated');
       u.textContent='feed error: '+err.code; u.style.color='#ff6b6b';
     });
+    // CYD-pushed Remote ID drone detections (same per-aircraft schema; merged + aged in compose)
+    fbdb.ref('drones').on('value', snap=>{
+      latestDrones=snap.val(); compose();
+    }, ()=>{ /* permission/absence handled silently; drones are best-effort */ });
   }).catch(err=>{
     const u=document.getElementById('updated');
     u.textContent='auth error: '+err.code; u.style.color='#ff6b6b';
