@@ -208,7 +208,7 @@ function fmtUptime(s){ const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=
 function setPi(h){
   const set=(id,t)=>{ const e=document.getElementById(id); if(e) e.textContent=t; };
   if(!h){ const p=document.getElementById('pi-power'); if(p){ p.textContent='no data'; p.className='pi-pill pi-warn'; } return; }
-  if(h.temp_c!=null) set('pi-temp', Math.round(h.temp_c)+'°C');
+  if(h.temp_c!=null) set('pi-temp', Math.round(h.temp_c*9/5+32)+'°F');
   if(h.cpu_pct!=null) set('pi-cpu', 'CPU '+Math.round(h.cpu_pct)+'%');
   if(h.mem_pct!=null) set('pi-mem', 'mem '+Math.round(h.mem_pct)+'%');
   if(h.disk_pct!=null) set('pi-disk', 'disk '+Math.round(h.disk_pct)+'%');
@@ -219,7 +219,7 @@ function setPi(h){
     if(stale){ p.textContent='no data'; p.className='pi-pill pi-warn'; }
     else if(h.undervolt_now){ p.textContent='UNDER-VOLT'; p.className='pi-pill pi-bad'; }
     else if(h.throttled_now){ p.textContent='THROTTLED'; p.className='pi-pill pi-bad'; }
-    else if(h.temp_c!=null && h.temp_c>=75){ p.textContent='HOT '+Math.round(h.temp_c)+'°C'; p.className='pi-pill pi-warn'; }
+    else if(h.temp_c!=null && h.temp_c>=75){ p.textContent='HOT '+Math.round(h.temp_c*9/5+32)+'°F'; p.className='pi-pill pi-warn'; }
     else { p.textContent='OK'; p.className='pi-pill pi-ok'; }
   }
 }
