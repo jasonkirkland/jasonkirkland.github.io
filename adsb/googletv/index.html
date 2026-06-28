@@ -443,7 +443,7 @@ const style = {
             'raster-saturation':-0.35, 'raster-contrast':-0.08 } }]
 };
 const TV_ZOOM = 8.7;   // zoomed on home (≈60 nm across); raise to tighten, lower to widen
-const BUILD = '20260628-9';   // bump each deploy — auto-updater reloads the TV when this changes
+const BUILD = '20260628-10';   // bump each deploy — auto-updater reloads the TV when this changes
 const map = new maplibregl.Map({ container:'map', style, center:RX, zoom:TV_ZOOM, pitch:0, bearing:0, maxPitch:80,
   interactive:false });   // read-only TV display — no pan/zoom/rotate
 // (NavigationControl + ScaleControl intentionally omitted for the TV read-only view)
@@ -517,7 +517,7 @@ function animFrame(){
   const now=performance.now();
   if(now-lastFrameT<33) return;   // ~30fps cap to stay light on mobile
   lastFrameT=now;
-  const towerFeats=[], dotFeats=[], trailFeats=[], pd=[];
+  const towerFeats=[], trailFeats=[], pd=[];
   for(const a of targets){
     const an=anim[a.hex]; if(!an) continue;
     let f = an.dur>0 ? (now-an.t0)/an.dur : 1; if(f<0)f=0; if(f>1)f=1;
@@ -527,14 +527,12 @@ function animFrame(){
     const color=altColor(a.alt_baro);
     pd.push({hex:a.hex,flight:a.flight,alt_baro:a.alt_baro,category:a.category,baro_rate:a.baro_rate,lon,lat,track:trk});
     towerFeats.push({type:'Feature',properties:{color,height:towerH(a.alt_baro)},geometry:{type:'Polygon',coordinates:squareAround(lon,lat)}});
-    dotFeats.push({type:'Feature',properties:{color},geometry:{type:'Point',coordinates:[lon,lat]}});
     const tr=trails[a.hex];   // trail tip = the gliding icon, so the path never leads the plane
     if(tr && tr.length>=2){ const line=tr.slice(0,-1); line.push([lon,lat]);
       trailFeats.push({type:'Feature',properties:{color},geometry:{type:'LineString',coordinates:line}}); }
   }
   planeData=pd;
   if(map.getSource('towers')) map.getSource('towers').setData({type:'FeatureCollection',features:towerFeats});
-  if(map.getSource('dots')) map.getSource('dots').setData({type:'FeatureCollection',features:dotFeats});
   if(map.getSource('trails')) map.getSource('trails').setData({type:'FeatureCollection',features:trailFeats});
   pushDeck();
 }
@@ -633,8 +631,7 @@ map.on('load', () => {
   map.addLayer({id:'trails',type:'line',source:'trails',paint:{'line-color':['get','color'],'line-width':2,'line-opacity':0.35}});
 
   map.addSource('dots',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
-  map.addLayer({id:'dots',type:'circle',source:'dots',paint:{'circle-radius':3,'circle-color':['get','color'],'circle-stroke-color':'#fff','circle-stroke-width':1,'circle-opacity':0.9}});
-
+  map.addLayer({id:'dots',type:'circle',source:'dots',paint:{'circle-radius':0,'circle-color':['get','color'],'circle-stroke-width':0,'circle-opacity':0}});   // disabled — icon already marks position
   map.addSource('towers',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
   map.addLayer({id:'towers',type:'fill-extrusion',source:'towers',
     paint:{'fill-extrusion-color':['get','color'],'fill-extrusion-base':0,'fill-extrusion-height':['get','height'],'fill-extrusion-opacity':0.45}});
