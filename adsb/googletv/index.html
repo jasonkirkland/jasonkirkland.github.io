@@ -443,9 +443,20 @@ const style = {
             'raster-saturation':-0.35, 'raster-contrast':-0.08 } }]
 };
 const TV_ZOOM = 8.7;   // zoomed on home (≈60 nm across); raise to tighten, lower to widen
+const BUILD = '20260628-7';   // bump each deploy — auto-updater reloads the TV when this changes
 const map = new maplibregl.Map({ container:'map', style, center:RX, zoom:TV_ZOOM, pitch:0, bearing:0, maxPitch:80,
   interactive:false });   // read-only TV display — no pan/zoom/rotate
 // (NavigationControl + ScaleControl intentionally omitted for the TV read-only view)
+
+// Auto-update: every 10 min, fetch a cache-busted copy of this page in the background and
+// compare its BUILD to ours. Only reload when a new deploy is detected — no idle flashing.
+setInterval(async () => {
+  try {
+    const r = await fetch(location.pathname + '?probe=' + Date.now(), { cache:'no-store' });
+    const m = (await r.text()).match(/const BUILD\s*=\s*'([^']+)'/);
+    if (m && m[1] !== BUILD) location.replace(location.pathname + '?v=' + m[1]);
+  } catch(e) {}
+}, 10 * 60 * 1000);
 
 const trails={};            // hex -> [[lng,lat],...]
 let planeData=[];           // current positioned aircraft (for deck.gl)
