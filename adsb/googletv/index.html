@@ -458,8 +458,8 @@ const style = {
     paint:{ 'raster-brightness-min':0.02, 'raster-brightness-max':0.55,   // dim the bright Voyager basemap for a dim den (not full dark mode)
             'raster-saturation':-0.35, 'raster-contrast':-0.08 } }]
 };
-const TV_ZOOM = 8.7;   // zoomed on home (≈60 nm across); raise to tighten, lower to widen
-const BUILD = '20260628-13';   // bump each deploy — auto-updater reloads the TV when this changes
+const TV_ZOOM = 9.7;   // zoomed on home (≈30 nm across); raise to tighten, lower to widen
+const BUILD = '20260628-14';   // bump each deploy — auto-updater reloads the TV when this changes
 const map = new maplibregl.Map({ container:'map', style, center:RX, zoom:TV_ZOOM, pitch:0, bearing:0, maxPitch:80,
   interactive:false });   // read-only TV display — no pan/zoom/rotate
 // (NavigationControl + ScaleControl intentionally omitted for the TV read-only view)
