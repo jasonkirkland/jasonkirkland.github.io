@@ -438,7 +438,9 @@ const style = {
            'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
            'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png'],
     attribution:'© OpenStreetMap © CARTO' } },
-  layers:[{ id:'base', type:'raster', source:'base' }]
+  layers:[{ id:'base', type:'raster', source:'base',
+    paint:{ 'raster-brightness-low':0.02, 'raster-brightness-high':0.55,   // dim the bright Voyager basemap for a dim den (not full dark mode)
+            'raster-saturation':-0.35, 'raster-contrast':-0.08 } }]
 };
 const TV_ZOOM = 10.7;   // zoomed in on home (≈15 nm across); raise to tighten, lower to widen
 const map = new maplibregl.Map({ container:'map', style, center:RX, zoom:TV_ZOOM, pitch:0, bearing:0, maxPitch:80,
@@ -456,7 +458,7 @@ function buildLayers(){
   const bearing = map.getBearing();
   const icons = new deck.IconLayer({
     id:'planes', data:planeData, pickable:true, billboard:!mode2d,
-    sizeUnits:'pixels', getSize: 48, sizeScale:1,   // TV: larger icons
+    sizeUnits:'pixels', getSize: 34, sizeScale:1,   // TV: smaller icons so they cover less map
     getPosition: d => [d.lon, d.lat, mode2d?0:towerH(d.alt_baro)],
     getIcon: d => iconFor(d.category),
     getColor: d => altRGB(d.alt_baro),
