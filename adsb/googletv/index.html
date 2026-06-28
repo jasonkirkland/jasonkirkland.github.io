@@ -443,7 +443,7 @@ const style = {
             'raster-saturation':-0.35, 'raster-contrast':-0.08 } }]
 };
 const TV_ZOOM = 8.7;   // zoomed on home (≈60 nm across); raise to tighten, lower to widen
-const BUILD = '20260628-10';   // bump each deploy — auto-updater reloads the TV when this changes
+const BUILD = '20260628-11';   // bump each deploy — auto-updater reloads the TV when this changes
 const map = new maplibregl.Map({ container:'map', style, center:RX, zoom:TV_ZOOM, pitch:0, bearing:0, maxPitch:80,
   interactive:false });   // read-only TV display — no pan/zoom/rotate
 // (NavigationControl + ScaleControl intentionally omitted for the TV read-only view)
@@ -620,12 +620,12 @@ map.on('load', () => {
   // nearby airports, tinted by FAA status (red=ground stop/closed, amber=delay, green=normal)
   map.addSource('airports',{type:'geojson',data:airportsFC(null)});
   map.addLayer({id:'airports',type:'circle',source:'airports',paint:{
-    'circle-radius':7,
+    'circle-radius':3.5,
     'circle-color':['match',['get','state'],'ground_stop','#e23b3b','closure','#e23b3b','ground_delay','#f0a020','#36d399'],
-    'circle-stroke-color':'#ffffff','circle-stroke-width':2,'circle-opacity':0.95}});
+    'circle-stroke-color':'#ffffff','circle-stroke-width':1.5,'circle-opacity':0.95}});
 
   map.addSource('rx',{type:'geojson',data:{type:'Feature',geometry:{type:'Point',coordinates:RX}}});
-  map.addLayer({id:'rx',type:'circle',source:'rx',paint:{'circle-radius':6,'circle-color':'#ff2d55','circle-stroke-color':'#fff','circle-stroke-width':2}});
+  map.addLayer({id:'rx',type:'circle',source:'rx',paint:{'circle-radius':4,'circle-color':'#ff2d55','circle-stroke-color':'#fff','circle-stroke-width':1.5}});
 
   map.addSource('trails',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
   map.addLayer({id:'trails',type:'line',source:'trails',paint:{'line-color':['get','color'],'line-width':2,'line-opacity':0.35}});
