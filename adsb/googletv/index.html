@@ -440,7 +440,7 @@ const style = {
     attribution:'© OpenStreetMap © CARTO' } },
   layers:[{ id:'base', type:'raster', source:'base' }]
 };
-const TV_ZOOM = 9.7;   // zoomed in on home (≈30 nm across); raise to ~10.3 to tighten, lower to ~9 to widen
+const TV_ZOOM = 10.7;   // zoomed in on home (≈15 nm across); raise to tighten, lower to widen
 const map = new maplibregl.Map({ container:'map', style, center:RX, zoom:TV_ZOOM, pitch:0, bearing:0, maxPitch:80,
   interactive:false });   // read-only TV display — no pan/zoom/rotate
 // (NavigationControl + ScaleControl intentionally omitted for the TV read-only view)
@@ -468,8 +468,8 @@ function buildLayers(){
     id:'labels', data:planeData, billboard:true, getPosition:d=>[d.lon,d.lat,mode2d?0:towerH(d.alt_baro)],
     getText: d => { const v=d.baro_rate, ar=(typeof v==='number'&&Math.abs(v)>=100)?(v>0?' ↑':' ↓'):'';
       return `${(d.flight||d.hex).trim()}${ar}  ${typeof d.alt_baro==='number'?(d.alt_baro/1000).toFixed(1)+'k':''}`; },
-    getSize: 19, getColor:[16,22,30], getPixelOffset:[0,-32],   // TV: larger labels
-    background:true, getBackgroundColor:[255,255,255,225], backgroundPadding:[6,4],
+    getSize: 14, getColor:[16,22,30], getPixelOffset:[0,-32],   // TV: smaller labels so they cover less map
+    background:true, getBackgroundColor:[255,255,255,225], backgroundPadding:[4,3],
     fontFamily:'-apple-system, Helvetica, Arial, sans-serif', characterSet:'auto',
     getTextAnchor:'middle', getAlignmentBaseline:'center',
     updateTriggers:{ getPosition:[EXAG,mode2d] }
