@@ -442,7 +442,7 @@ const style = {
     paint:{ 'raster-brightness-min':0.02, 'raster-brightness-max':0.55,   // dim the bright Voyager basemap for a dim den (not full dark mode)
             'raster-saturation':-0.35, 'raster-contrast':-0.08 } }]
 };
-const TV_ZOOM = 10.7;   // zoomed in on home (≈15 nm across); raise to tighten, lower to widen
+const TV_ZOOM = 9.7;   // zoomed on home (≈30 nm across); raise to tighten, lower to widen
 const map = new maplibregl.Map({ container:'map', style, center:RX, zoom:TV_ZOOM, pitch:0, bearing:0, maxPitch:80,
   interactive:false });   // read-only TV display — no pan/zoom/rotate
 // (NavigationControl + ScaleControl intentionally omitted for the TV read-only view)
@@ -470,7 +470,7 @@ function buildLayers(){
     id:'labels', data:planeData, billboard:true, getPosition:d=>[d.lon,d.lat,mode2d?0:towerH(d.alt_baro)],
     getText: d => { const v=d.baro_rate, ar=(typeof v==='number'&&Math.abs(v)>=100)?(v>0?' ↑':' ↓'):'';
       return `${(d.flight||d.hex).trim()}${ar}  ${typeof d.alt_baro==='number'?(d.alt_baro/1000).toFixed(1)+'k':''}`; },
-    getSize: 14, getColor:[16,22,30], getPixelOffset:[0,-32],   // TV: smaller labels so they cover less map
+    getSize: 14, getColor:[16,22,30], getPixelOffset:[0,-22],   // TV: smaller labels, tucked closer to the icon
     background:false,                                                 // no label pill — float directly on map
     outlineWidth:3, getOutlineColor:[235,244,255,205],               // near-white halo keeps dark text legible over the basemap
     fontFamily:'-apple-system, Helvetica, Arial, sans-serif', characterSet:'auto',
