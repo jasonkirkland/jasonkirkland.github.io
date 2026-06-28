@@ -357,7 +357,22 @@ try{ acCache=JSON.parse(localStorage.getItem('adsb_enr_ac')||'{}'); }catch(e){}
 try{ rtCache=JSON.parse(localStorage.getItem('adsb_enr_rt2')||'{}'); }catch(e){}
 const RT_TTL=12*3600*1000, NEG_TTL=6*3600*1000;   // routes ~12h; retry unknowns after 6h
 const enrQ=[], enrIn=new Set(); let enrBusy=false, lastAc=[];
-function saveEnr(){ try{ localStorage.setItem('adsb_enr_ac',JSON.stringify(acCache)); localStorage.setItem('adsb_enr_rt2',JSON.stringify(rtCache)); }catch(e){} }
+let lastEnrSave=0;
+function saveEnr(force){   // throttle: persist at most every 30s (forces a save after a prune/pump run)
+  const now=Date.now();
+  if(!force && now-lastEnrSave<30000) return;
+  lastEnrSave=now;
+  try{ localStorage.setItem('adsb_enr_ac',JSON.stringify(acCache)); localStorage.setItem('adsb_enr_rt2',JSON.stringify(rtCache)); }catch(e){}
+}
+function pruneEnr(){   // bound long-running TV sessions: drop entries not seen in 7d, hard-cap at 4000 each
+  const cut=Date.now()-7*24*3600*1000;
+  for(const k in acCache){ if(!acCache[k]||acCache[k].ts<cut) delete acCache[k]; }
+  for(const k in rtCache){ if(!rtCache[k]||rtCache[k].ts<cut) delete rtCache[k]; }
+  const cap=4000, trim=(obj)=>{ const ks=Object.keys(obj); if(ks.length>cap){ ks.map(k=>[k,obj[k].ts||0]).sort((a,b)=>a[1]-b[1]).slice(0,ks.length-cap).forEach(([k])=>delete obj[k]); } };
+  trim(acCache); trim(rtCache);
+  saveEnr(true);
+}
+setInterval(pruneEnr, 5*60*1000);   // sweep caches every 5 min so memory/storage don't climb over days
 function acData(hex){ const e=acCache[hex]; return (e&&!e.unknown)?e:null; }
 function rtData(cs){ const e=rtCache[cs]; return (e&&!e.unknown)?e:null; }
 function bestAirline(a){ const cs=((a.flight||'')+'').trim().toUpperCase(); const r=rtData(cs), c=acData(a.hex);
@@ -416,6 +431,7 @@ async function pumpEnr(){
     await new Promise(res=>setTimeout(res,250));   // throttle ~4 req/s
   }
   enrBusy=false;
+  saveEnr(true);   // persist the final cache state after a pump run
 }
 
 function squareAround(lng,lat,half=0.0011){
@@ -443,7 +459,7 @@ const style = {
             'raster-saturation':-0.35, 'raster-contrast':-0.08 } }]
 };
 const TV_ZOOM = 8.7;   // zoomed on home (≈60 nm across); raise to tighten, lower to widen
-const BUILD = '20260628-11';   // bump each deploy — auto-updater reloads the TV when this changes
+const BUILD = '20260628-12';   // bump each deploy — auto-updater reloads the TV when this changes
 const map = new maplibregl.Map({ container:'map', style, center:RX, zoom:TV_ZOOM, pitch:0, bearing:0, maxPitch:80,
   interactive:false });   // read-only TV display — no pan/zoom/rotate
 // (NavigationControl + ScaleControl intentionally omitted for the TV read-only view)
@@ -515,7 +531,7 @@ function setTargets(list){
 function animFrame(){
   requestAnimationFrame(animFrame);
   const now=performance.now();
-  if(now-lastFrameT<33) return;   // ~30fps cap to stay light on mobile
+  if(now-lastFrameT<50) return;   // ~20fps cap — eases GPU/CPU + GC pressure on low-RAM TV
   lastFrameT=now;
   const towerFeats=[], trailFeats=[], pd=[];
   for(const a of targets){
