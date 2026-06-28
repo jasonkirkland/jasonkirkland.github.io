@@ -459,7 +459,7 @@ const style = {
             'raster-saturation':-0.35, 'raster-contrast':-0.08 } }]
 };
 const TV_ZOOM = 8.7;   // zoomed on home (≈60 nm across); raise to tighten, lower to widen
-const BUILD = '20260628-12';   // bump each deploy — auto-updater reloads the TV when this changes
+const BUILD = '20260628-13';   // bump each deploy — auto-updater reloads the TV when this changes
 const map = new maplibregl.Map({ container:'map', style, center:RX, zoom:TV_ZOOM, pitch:0, bearing:0, maxPitch:80,
   interactive:false });   // read-only TV display — no pan/zoom/rotate
 // (NavigationControl + ScaleControl intentionally omitted for the TV read-only view)
@@ -652,7 +652,7 @@ map.on('load', () => {
   map.addLayer({id:'towers',type:'fill-extrusion',source:'towers',
     paint:{'fill-extrusion-color':['get','color'],'fill-extrusion-base':0,'fill-extrusion-height':['get','height'],'fill-extrusion-opacity':0.45}});
 
-  overlay = new deck.MapboxOverlay({interleaved:false, pickingRadius:18, layers:[]});
+  overlay = new deck.MapboxOverlay({interleaved:true, pickingRadius:18, layers:[]});   // shared GL context — one WebGL context instead of two (eases TV GPU pressure)
   map.addControl(overlay);
 
   map.on('rotate', pushDeck);  // keep plane headings correct as the view rotates
