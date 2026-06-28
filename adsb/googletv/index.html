@@ -439,7 +439,7 @@ const style = {
            'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png'],
     attribution:'© OpenStreetMap © CARTO' } },
   layers:[{ id:'base', type:'raster', source:'base',
-    paint:{ 'raster-brightness-low':0.02, 'raster-brightness-high':0.55,   // dim the bright Voyager basemap for a dim den (not full dark mode)
+    paint:{ 'raster-brightness-min':0.02, 'raster-brightness-max':0.55,   // dim the bright Voyager basemap for a dim den (not full dark mode)
             'raster-saturation':-0.35, 'raster-contrast':-0.08 } }]
 };
 const TV_ZOOM = 10.7;   // zoomed in on home (≈15 nm across); raise to tighten, lower to widen
