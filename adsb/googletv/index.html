@@ -471,7 +471,8 @@ function buildLayers(){
     getText: d => { const v=d.baro_rate, ar=(typeof v==='number'&&Math.abs(v)>=100)?(v>0?' ↑':' ↓'):'';
       return `${(d.flight||d.hex).trim()}${ar}  ${typeof d.alt_baro==='number'?(d.alt_baro/1000).toFixed(1)+'k':''}`; },
     getSize: 14, getColor:[16,22,30], getPixelOffset:[0,-32],   // TV: smaller labels so they cover less map
-    background:true, getBackgroundColor:[255,255,255,225], backgroundPadding:[4,3],
+    background:false,                                                 // no label pill — float directly on map
+    outlineWidth:3, getOutlineColor:[235,244,255,205],               // near-white halo keeps dark text legible over the basemap
     fontFamily:'-apple-system, Helvetica, Arial, sans-serif', characterSet:'auto',
     getTextAnchor:'middle', getAlignmentBaseline:'center',
     updateTriggers:{ getPosition:[EXAG,mode2d] }
