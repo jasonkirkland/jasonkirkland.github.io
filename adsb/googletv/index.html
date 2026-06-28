@@ -443,7 +443,7 @@ const style = {
             'raster-saturation':-0.35, 'raster-contrast':-0.08 } }]
 };
 const TV_ZOOM = 8.7;   // zoomed on home (≈60 nm across); raise to tighten, lower to widen
-const BUILD = '20260628-7';   // bump each deploy — auto-updater reloads the TV when this changes
+const BUILD = '20260628-8';   // bump each deploy — auto-updater reloads the TV when this changes
 const map = new maplibregl.Map({ container:'map', style, center:RX, zoom:TV_ZOOM, pitch:0, bearing:0, maxPitch:80,
   interactive:false });   // read-only TV display — no pan/zoom/rotate
 // (NavigationControl + ScaleControl intentionally omitted for the TV read-only view)
@@ -469,7 +469,7 @@ function buildLayers(){
   const bearing = map.getBearing();
   const icons = new deck.IconLayer({
     id:'planes', data:planeData, pickable:true, billboard:!mode2d,
-    sizeUnits:'pixels', getSize: 34, sizeScale:1,   // TV: smaller icons so they cover less map
+    sizeUnits:'pixels', getSize: 26, sizeScale:1,   // TV: smaller icons so they cover less map
     getPosition: d => [d.lon, d.lat, mode2d?0:towerH(d.alt_baro)],
     getIcon: d => iconFor(d.category),
     getColor: d => altRGB(d.alt_baro),
@@ -481,9 +481,9 @@ function buildLayers(){
     id:'labels', data:planeData, billboard:true, getPosition:d=>[d.lon,d.lat,mode2d?0:towerH(d.alt_baro)],
     getText: d => { const v=d.baro_rate, ar=(typeof v==='number'&&Math.abs(v)>=100)?(v>0?' ↑':' ↓'):'';
       return `${(d.flight||d.hex).trim()}${ar}  ${typeof d.alt_baro==='number'?(d.alt_baro/1000).toFixed(1)+'k':''}`; },
-    getSize: 14, getColor:[16,22,30], getPixelOffset:[0,-22],   // TV: smaller labels, tucked closer to the icon
+    getSize: 11, getColor:[16,22,30], getPixelOffset:[0,-18],   // TV: smaller labels, tucked closer to the icon
     background:false,                                                 // no label pill — float directly on map
-    outlineWidth:3, getOutlineColor:[235,244,255,205],               // near-white halo keeps dark text legible over the basemap
+    outlineWidth:2, getOutlineColor:[235,244,255,205],               // near-white halo keeps dark text legible over the basemap
     fontFamily:'-apple-system, Helvetica, Arial, sans-serif', characterSet:'auto',
     getTextAnchor:'middle', getAlignmentBaseline:'center',
     updateTriggers:{ getPosition:[EXAG,mode2d] }
