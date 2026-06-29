@@ -421,7 +421,7 @@ const style = {
     attribution:'© OpenStreetMap © CARTO' } },
   layers:[{ id:'base', type:'raster', source:'base' }]
 };
-const map = new maplibregl.Map({ container:'map', style, center:RX, zoom:8.3, pitch:62, bearing:-18, maxPitch:80 });
+const map = new maplibregl.Map({ container:'map', style, center:RX, zoom:10.3, pitch:62, bearing:-18, maxPitch:80 });
 map.addControl(new maplibregl.NavigationControl({visualizePitch:true}), 'top-right');
 map.addControl(new maplibregl.ScaleControl({unit:'nautical'}));
 
@@ -647,7 +647,7 @@ document.getElementById('detail-close').addEventListener('click', closeDetail);
     tiltdn: ()=> map.easeTo({pitch: clamp(map.getPitch()-12, 0, 80), duration:250}),
     rotl:   ()=> map.easeTo({bearing: map.getBearing()-30, duration:250}),
     rotr:   ()=> map.easeTo({bearing: map.getBearing()+30, duration:250}),
-    reset:  ()=> map.easeTo({center:RX, zoom:8.3, pitch:mode2d?0:62, bearing:-18, duration:450})
+    reset:  ()=> map.easeTo({center:RX, zoom:10.3, pitch:mode2d?0:62, bearing:-18, duration:450})
   };
   document.querySelectorAll('#tilt-ctrls button').forEach(b=>{
     b.addEventListener('click', ()=>{ const f=acts[b.dataset.act]; if(f) f(); });
