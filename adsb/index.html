@@ -147,6 +147,12 @@
   <div class="dim"><span id="pi-mem">mem —</span> · <span id="pi-disk">disk —</span></div>
   <div class="dim" id="pi-up">up —</div>
   <hr>
+  <div class="sub">Drone array <span id="agg-pill" class="pi-pill"></span></div>
+  <div class="dim">ch1: <span id="agg-ch1">—</span></div>
+  <div class="dim">ch6: <span id="agg-ch6">—</span></div>
+  <div class="dim">ch11: <span id="agg-ch11">—</span></div>
+  <div class="dim" id="agg-status">agg —</div>
+  <hr>
   <div class="sub">Altitude exaggeration: <span id="exagval">2×</span></div>
   <input type="range" id="exag" min="1" max="12" step="1" value="2">
   <div class="dim">Tower height = altitude. Right-drag or ctrl-drag to tilt/rotate.</div>
@@ -222,6 +228,44 @@ function setPi(h){
     else if(h.temp_c!=null && h.temp_c>=75){ p.textContent='HOT '+Math.round(h.temp_c*9/5+32)+'°F'; p.className='pi-pill pi-warn'; }
     else { p.textContent='OK'; p.className='pi-pill pi-ok'; }
   }
+}
+// Drone-array aggregator health (C5 pushes /droneagg every ~15s). Per-channel lines/age shows
+// what each LoBI sniffer board is (or isn't) feeding in. High-contrast, bright row colors.
+function setAgg(h){
+  const set=(id,t)=>{ const e=document.getElementById(id); if(e) e.textContent=t; };
+  const pill=document.getElementById('agg-pill');
+  const setRow=(id,c)=>{ const e=document.getElementById(id); if(e){ e.textContent=c.text; e.style.color=c.color; } };
+  if(!h){
+    if(pill){ pill.textContent='no data'; pill.className='pi-pill pi-warn'; }
+    setRow('agg-ch1',{text:'ch1 — never heard',color:'#ff9090'});
+    setRow('agg-ch6',{text:'ch6 — never heard',color:'#ff9090'});
+    setRow('agg-ch11',{text:'ch11 — never heard',color:'#ff9090'});
+    set('agg-status','agg —');
+    return;
+  }
+  const stale=(Date.now()/1000 - (h.now||0)) > 60;
+  if(pill){
+    if(stale){ pill.textContent='no data'; pill.className='pi-pill pi-warn'; }
+    else if(!h.wifi){ pill.textContent='WIFI DOWN'; pill.className='pi-pill pi-bad'; }
+    else if(h.fb==='FAIL' || h.ntfy==='FAIL'){ pill.textContent='FB/NTFY FAIL'; pill.className='pi-pill pi-bad'; }
+    else { pill.textContent='OK'; pill.className='pi-pill pi-ok'; }
+  }
+  const rowColor=(age)=> age<0 ? '#ff9090' : age<10 ? '#63e6a8' : age<60 ? '#ffd166' : '#ff9090';
+  const ageText=(age)=>{
+    if(age<0) return 'never heard';
+    if(age<60) return age+'s ago';
+    return Math.round(age/60)+'m ago';
+  };
+  const chRow=(label,c)=>{ const a=(c&&c.age_s!=null)?c.age_s:-1; const n=(c&&c.lines!=null)?c.lines:0;
+    return {text: label+': '+(n+' lines · ')+ageText(a), color: rowColor(a)}; };
+  setRow('agg-ch1',  chRow('ch1',  h.ch1));
+  setRow('agg-ch6',  chRow('ch6',  h.ch6));
+  setRow('agg-ch11', chRow('ch11', h.ch11));
+  const cyd = (h.ble_cyd)?' · CYD linked':' · CYD off';
+  set('agg-status',
+    'up '+fmtUptime(h.uptime_s||0)+' · heap '+(h.heap!=null?(Math.round(h.heap/1024)+'KB'):'—')+
+    ' · rid '+(h.rid_count||0)+' bcn '+(h.bcn_count||0)+' skip '+(h.skip_count||0)+cyd+
+    (h.ssid?(' · '+h.ssid):''));
 }
 function setFaa(faa){
   if(map.getSource('airports')) map.getSource('airports').setData(airportsFC(faa));
@@ -754,6 +798,10 @@ function connectFeed(){
     fbdb.ref('drones').on('value', snap=>{
       latestDrones=snap.val(); compose();
     }, ()=>{ /* permission/absence handled silently; drones are best-effort */ });
+    // C5 aggregator health (per-LoBI-channel lines/age + wifi/fb/ble status) -> Drone array panel.
+    fbdb.ref('droneagg').on('value', snap=>{
+      setAgg(snap.val());
+    }, ()=>{ /* permission/absence handled silently; health is best-effort */ });
   }).catch(err=>{
     const u=document.getElementById('updated');
     u.textContent='auth error: '+err.code; u.style.color='#ff6b6b';
