@@ -125,7 +125,7 @@
   <div class="grid">
     <div class="card lg">
       <h2>Detected drones — live map</h2>
-      <div class="role">RID positions from <code>/drones</code>, last 60&nbsp;min · <span id="mapCount">0</span> shown</div>
+      <div class="role">live tracks from <code>/drones</code>, last 60&nbsp;min · each line is a drone's path (updates as it flies) · <span id="mapCount">0</span> drone(s)</div>
       <div id="map"></div>
       <div id="mapEmpty" class="empty">no drone positions in the last 60&nbsp;min</div>
     </div>
@@ -323,32 +323,51 @@ function ensureMap(){
   droneLayer = L.layerGroup().addTo(map);
   setTimeout(()=>map.invalidateSize(), 200);
 }
+const TRACK_COLORS = ['#f2660a','#0b6cc4','#8a2be2','#c0281f','#0a7d43','#b8860b','#d6338a','#008b8b'];
 function renderMap(val){
   ensureMap();
   if(!map) return;
   droneLayer.clearLayers();
   const now = nowEpoch();
-  const pts = [];
+  // group each drone's position fixes over the last 60 min -> a track that shows its movement
+  const groups = {};
   if(val) for(const d of Object.values(val)){
     if(!d || typeof d!=='object') continue;
     const lat=+d.lat, lon=+d.lon, ep=+d.epoch||0;
     if(!isFinite(lat) || !isFinite(lon)) continue;
     if(Math.abs(lat)>90 || Math.abs(lon)>180 || (lat===0&&lon===0)) continue;  // drop bad coords
     if(!ep || (now-ep) > 3600) continue;                                       // last 60 min
-    pts.push({lat,lon,d,age:now-ep});
+    const key = d.uasid || d.flight || d.hex || '?';
+    const g = groups[key] || (groups[key] = { id:key, latest:d, maxEp:0, pts:[] });
+    g.pts.push({ lat, lon, ep });
+    if(ep >= g.maxEp){ g.maxEp = ep; g.latest = d; }
   }
-  $('mapCount').textContent = pts.length;
-  $('mapEmpty').style.display = pts.length ? 'none' : 'block';
-  const bounds=[];
-  for(const p of pts){
-    const ico = L.divIcon({ className:'', html:'<div class="drone-ico"></div>', iconSize:[16,16], iconAnchor:[8,8] });
-    L.marker([p.lat,p.lon], {icon:ico}).addTo(droneLayer)
-      .bindPopup('<b>'+(p.d.flight||p.d.hex||'?')+'</b><br>UAS '+(p.d.uasid||'?')+
-        '<br>ch '+(p.d.ch!=null?p.d.ch:'?')+' · '+(p.d.rssi!=null?p.d.rssi+' dBm':'')+
-        '<br>'+ageText(p.age)+' ago · src '+(p.d.src||'?'));
-    bounds.push([p.lat,p.lon]);
-  }
-  if(bounds.length) map.fitBounds(bounds, { padding:[40,40], maxZoom:14 });
+  const ids = Object.keys(groups);
+  $('mapCount').textContent = ids.length;
+  $('mapEmpty').style.display = ids.length ? 'none' : 'block';
+  const bounds = [];
+  ids.forEach((id, i) => {
+    const g = groups[id];
+    g.pts.sort((a,b)=>a.ep-b.ep);                 // oldest -> newest
+    const col = TRACK_COLORS[i % TRACK_COLORS.length];
+    const path = g.pts.map(p=>[p.lat,p.lon]);
+    // the track line (movement)
+    if(path.length > 1) L.polyline(path, { color:col, weight:3, opacity:.65 }).addTo(droneLayer);
+    // small faded dots for the earlier fixes
+    g.pts.forEach((p,j)=>{
+      if(j < g.pts.length-1)
+        L.circleMarker([p.lat,p.lon], { radius:3, color:col, weight:1, fillColor:col, fillOpacity:.5 }).addTo(droneLayer);
+      bounds.push([p.lat,p.lon]);
+    });
+    // latest position: labeled marker
+    const last = g.pts[g.pts.length-1], d = g.latest, age = now - last.ep;
+    const ico = L.divIcon({ className:'', html:`<div class="drone-ico" style="background:${col}"></div>`, iconSize:[16,16], iconAnchor:[8,8] });
+    L.marker([last.lat,last.lon], { icon:ico }).addTo(droneLayer)
+      .bindTooltip(id, { direction:'top', offset:[0,-8] })
+      .bindPopup('<b>'+id+'</b><br>ch '+(d.ch!=null?d.ch:'?')+' · '+(d.rssi!=null?d.rssi+' dBm':'')+
+        '<br>'+g.pts.length+' fixes over '+ageText(g.maxEp-g.pts[0].ep)+'<br>last seen '+ageText(age)+' ago · src '+(d.src||'?'));
+  });
+  if(bounds.length) map.fitBounds(bounds, { padding:[40,40], maxZoom:15 });
 }
 
 // ---------- tick: refresh relative-time labels every second ----------
