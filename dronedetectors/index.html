@@ -187,10 +187,17 @@ function renderAgg(h){
   lastAggNow = h.now || 0;
   if(h.now){ serverSkew = Math.floor(Date.now()/1000) - h.now; }
 
+  // detector feeding = BLE connected AND at least one channel heard a heartbeat in the last 20s
+  const bleBuild = ('ble' in h);
+  const chKeys = Object.keys(h).filter(k=>/^ch\d+$/.test(k));
+  const feeding = (h.ble===1 || h.ble===true) &&
+    chKeys.some(k=>{ const a=h[k] && h[k].age_s; return a!=null && a>=0 && a<20; });
+
   const stale = (Math.floor(Date.now()/1000) - (h.now||0)) > 60;
   if(stale){ overall.className='pill warn'; overall.textContent='STALE'; }
   else if(!h.wifi){ overall.className='pill bad'; overall.textContent='WIFI DOWN'; }
   else if(h.fb==='FAIL' || h.ntfy==='FAIL'){ overall.className='pill bad'; overall.textContent='FB / NTFY FAIL'; }
+  else if(bleBuild && !feeding){ overall.className='pill bad'; overall.textContent='NO DETECTOR DATA'; }
   else { overall.className='pill ok'; overall.textContent='OK'; }
 
   setAggKV(h, stale);
