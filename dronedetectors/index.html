@@ -13,14 +13,15 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   :root{
-    --bg:#06090d; --panel:#0e141b; --panel2:#0b0f14; --edge:#22303f;
-    --ink:#eaf4ff;         /* bright primary text (high contrast) */
-    --ink2:#cfe0ee;        /* still-bright secondary */
-    --dim:#a8c0d4;         /* only for the least important labels */
-    --accent:#7fd1ff;
-    --ok:#63e6a8; --okbg:#0c3a28; --okedge:#1c5c40;
-    --warn:#ffd166; --warnbg:#4a3a10; --warnedge:#7a5e1f;
-    --bad:#ff8a8a; --badbg:#4a1212; --badedge:#7a2020;
+    /* light theme, high-contrast dark text */
+    --bg:#eef2f6; --panel:#ffffff; --panel2:#f4f7fa; --edge:#d3dde6;
+    --ink:#0d1b28;         /* near-black primary text (high contrast) */
+    --ink2:#2b3d4d;        /* dark slate secondary */
+    --dim:#5f7180;         /* medium gray — least important labels, still readable */
+    --accent:#0b6cc4;
+    --ok:#0a7d43; --okbg:#e0f5ea; --okedge:#a7dcc0;
+    --warn:#8a5a00; --warnbg:#fbeecb; --warnedge:#e6cf90;
+    --bad:#bb2418; --badbg:#fbe3e0; --badedge:#eeb3ac;
   }
   *{ box-sizing:border-box; }
   html,body{ margin:0; height:100%; background:var(--bg); color:var(--ink);
@@ -43,7 +44,7 @@
   .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
     gap:12px; margin-top:14px; }
   .card{ background:var(--panel); border:1px solid var(--edge); border-radius:14px;
-    padding:14px 15px; box-shadow:0 4px 18px rgba(0,0,0,.45); }
+    padding:14px 15px; box-shadow:0 2px 10px rgba(15,30,50,.08); }
   .card.lg{ grid-column:1 / -1; }
   .card h2{ font-size:13px; margin:0 0 2px; color:var(--accent); letter-spacing:.4px;
     text-transform:uppercase; }
@@ -61,8 +62,8 @@
   .metrics b{ color:var(--ink); font-variant-numeric:tabular-nums; }
   .diag{ font-size:12.5px; font-weight:700; margin-bottom:4px; }
   .diag.ok{ color:var(--ok); } .diag.warn{ color:var(--warn); } .diag.bad{ color:var(--bad); }
-  .bar{ height:6px; border-radius:4px; background:#12202e; margin-top:9px; overflow:hidden; }
-  .bar > i{ display:block; height:100%; background:linear-gradient(90deg,#2b8fd6,#7fd1ff); }
+  .bar{ height:6px; border-radius:4px; background:#dbe4ec; margin-top:9px; overflow:hidden; }
+  .bar > i{ display:block; height:100%; background:linear-gradient(90deg,#5aa9e8,#0b6cc4); }
 
   .kv{ display:grid; grid-template-columns:auto 1fr; gap:3px 14px; font-size:13px;
     line-height:1.65; }
@@ -72,22 +73,22 @@
 
   .det{ margin-top:8px; }
   .det .row{ display:flex; gap:10px; align-items:center; font-size:13px; padding:5px 0;
-    border-top:1px solid #16202b; }
+    border-top:1px solid #e6edf3; }
   .det .row:first-child{ border-top:0; }
   .det .flt{ font-weight:700; color:var(--ink); }
-  .det .src{ font-size:11px; padding:1px 7px; border-radius:6px; background:#122536;
-    color:var(--accent); border:1px solid #1d3346; }
+  .det .src{ font-size:11px; padding:1px 7px; border-radius:6px; background:#e6f0fa;
+    color:var(--accent); border:1px solid #bcd6ef; }
   .det .when{ margin-left:auto; color:var(--ink2); font-variant-numeric:tabular-nums; }
   .empty{ color:var(--dim); font-size:13px; padding:8px 0; }
-  #map{ height:340px; border-radius:10px; margin-top:4px; background:#0b0f14; }
-  .leaflet-container{ background:#0b0f14; font:inherit; }
-  .leaflet-popup-content-wrapper, .leaflet-popup-tip{ background:#0e141b; color:var(--ink); }
+  #map{ height:340px; border-radius:10px; margin-top:4px; background:#e8eef3; }
+  .leaflet-container{ background:#e8eef3; font:inherit; }
+  .leaflet-popup-content-wrapper, .leaflet-popup-tip{ background:#ffffff; color:var(--ink); }
   .leaflet-popup-content{ font-size:13px; line-height:1.5; }
   .leaflet-popup-content b{ color:var(--accent); }
-  .drone-ico{ width:16px; height:16px; border-radius:50%; background:#ff8a3d;
-    border:2px solid #fff; box-shadow:0 0 8px rgba(255,138,61,.9); }
+  .drone-ico{ width:16px; height:16px; border-radius:50%; background:#f2660a;
+    border:2px solid #fff; box-shadow:0 1px 5px rgba(0,0,0,.45); }
   footer{ margin-top:26px; color:var(--dim); font-size:11.5px; line-height:1.6; }
-  code{ background:#101a24; padding:1px 5px; border-radius:5px; color:var(--ink2); }
+  code{ background:#eaf0f5; padding:1px 5px; border-radius:5px; color:var(--ink2); }
 </style>
 </head>
 <body>
@@ -300,8 +301,10 @@ function renderDrones(val){
   list.innerHTML = top.map(d=>{
     const age = d.epoch ? (now - d.epoch) : null;
     const when = (age==null || age<0) ? '—' : ageText(age);
+    const id = d.uasid || d.flight || d.hex || '?';
+    const tag = (d.uasid && d.flight) ? `<span style="color:var(--dim);font-weight:500;font-size:11.5px">&nbsp;${d.flight}</span>` : '';
     return `<div class="row">
-      <span class="flt">${(d.flight||d.hex||'?')}</span>
+      <span class="flt">${id}${tag}</span>
       <span class="src">${d.src||'?'}</span>
       <span style="color:var(--ink2)">ch ${d.ch!=null?d.ch:'?'} · ${d.rssi!=null?d.rssi+' dBm':''}</span>
       <span class="when">${when}</span>
@@ -315,7 +318,7 @@ const RX = [33.186108, -97.111180];   // receiver (Denton) — initial center
 function ensureMap(){
   if(map || !window.L) return;
   map = L.map('map', { zoomControl:true }).setView(RX, 10);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
     { maxZoom:19, attribution:'© OpenStreetMap, © CARTO' }).addTo(map);
   droneLayer = L.layerGroup().addTo(map);
   setTimeout(()=>map.invalidateSize(), 200);
