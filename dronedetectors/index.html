@@ -9,6 +9,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   :root{
     --bg:#06090d; --panel:#0e141b; --panel2:#0b0f14; --edge:#22303f;
@@ -77,6 +79,13 @@
     color:var(--accent); border:1px solid #1d3346; }
   .det .when{ margin-left:auto; color:var(--ink2); font-variant-numeric:tabular-nums; }
   .empty{ color:var(--dim); font-size:13px; padding:8px 0; }
+  #map{ height:340px; border-radius:10px; margin-top:4px; background:#0b0f14; }
+  .leaflet-container{ background:#0b0f14; font:inherit; }
+  .leaflet-popup-content-wrapper, .leaflet-popup-tip{ background:#0e141b; color:var(--ink); }
+  .leaflet-popup-content{ font-size:13px; line-height:1.5; }
+  .leaflet-popup-content b{ color:var(--accent); }
+  .drone-ico{ width:16px; height:16px; border-radius:50%; background:#ff8a3d;
+    border:2px solid #fff; box-shadow:0 0 8px rgba(255,138,61,.9); }
   footer{ margin-top:26px; color:var(--dim); font-size:11.5px; line-height:1.6; }
   code{ background:#101a24; padding:1px 5px; border-radius:5px; color:var(--ink2); }
 </style>
@@ -110,6 +119,16 @@
 
   <!-- Per-channel sniffer tiles (rendered dynamically from the payload's chN keys) -->
   <div class="grid" id="chanGrid"></div>
+
+  <!-- Live map of detected drone positions -->
+  <div class="grid">
+    <div class="card lg">
+      <h2>Detected drones — live map</h2>
+      <div class="role">RID positions from <code>/drones</code>, last 60&nbsp;min · <span id="mapCount">0</span> shown</div>
+      <div id="map"></div>
+      <div id="mapEmpty" class="empty">no drone positions in the last 60&nbsp;min</div>
+    </div>
+  </div>
 
   <!-- Recent detections from /drones -->
   <div class="grid">
@@ -290,6 +309,45 @@ function renderDrones(val){
   }).join('');
 }
 
+// ---------- live map of detected drone positions ----------
+let map = null, droneLayer = null;
+const RX = [33.186108, -97.111180];   // receiver (Denton) — initial center
+function ensureMap(){
+  if(map || !window.L) return;
+  map = L.map('map', { zoomControl:true }).setView(RX, 10);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    { maxZoom:19, attribution:'© OpenStreetMap, © CARTO' }).addTo(map);
+  droneLayer = L.layerGroup().addTo(map);
+  setTimeout(()=>map.invalidateSize(), 200);
+}
+function renderMap(val){
+  ensureMap();
+  if(!map) return;
+  droneLayer.clearLayers();
+  const now = nowEpoch();
+  const pts = [];
+  if(val) for(const d of Object.values(val)){
+    if(!d || typeof d!=='object') continue;
+    const lat=+d.lat, lon=+d.lon, ep=+d.epoch||0;
+    if(!isFinite(lat) || !isFinite(lon)) continue;
+    if(Math.abs(lat)>90 || Math.abs(lon)>180 || (lat===0&&lon===0)) continue;  // drop bad coords
+    if(!ep || (now-ep) > 3600) continue;                                       // last 60 min
+    pts.push({lat,lon,d,age:now-ep});
+  }
+  $('mapCount').textContent = pts.length;
+  $('mapEmpty').style.display = pts.length ? 'none' : 'block';
+  const bounds=[];
+  for(const p of pts){
+    const ico = L.divIcon({ className:'', html:'<div class="drone-ico"></div>', iconSize:[16,16], iconAnchor:[8,8] });
+    L.marker([p.lat,p.lon], {icon:ico}).addTo(droneLayer)
+      .bindPopup('<b>'+(p.d.flight||p.d.hex||'?')+'</b><br>UAS '+(p.d.uasid||'?')+
+        '<br>ch '+(p.d.ch!=null?p.d.ch:'?')+' · '+(p.d.rssi!=null?p.d.rssi+' dBm':'')+
+        '<br>'+ageText(p.age)+' ago · src '+(p.d.src||'?'));
+    bounds.push([p.lat,p.lon]);
+  }
+  if(bounds.length) map.fitBounds(bounds, { padding:[40,40], maxZoom:14 });
+}
+
 // ---------- tick: refresh relative-time labels every second ----------
 setInterval(()=>{
   const el=$('hbAge');
@@ -300,7 +358,7 @@ setInterval(()=>{
 firebase.auth().signInAnonymously().then(()=>{
   db.ref('droneagg').on('value', s=>renderAgg(s.val()),
     e=>{ $('overall').className='pill bad'; $('overall').textContent='read error'; });
-  db.ref('drones').on('value', s=>renderDrones(s.val()),
+  db.ref('drones').on('value', s=>{ renderDrones(s.val()); renderMap(s.val()); },
     ()=>{ /* best-effort */ });
 }).catch(err=>{
   $('overall').className='pill bad';
