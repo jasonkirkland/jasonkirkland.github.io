@@ -80,6 +80,8 @@
     color:var(--accent); border:1px solid #bcd6ef; }
   .det .when{ margin-left:auto; color:var(--ink2); font-variant-numeric:tabular-nums; }
   .empty{ color:var(--dim); font-size:13px; padding:8px 0; }
+  .rangeLabel{ margin:2px 0 8px; font-size:13px; font-weight:700; color:var(--accent);
+    background:#e6f0fa; border:1px solid #bcd6ef; border-radius:8px; padding:4px 10px; }
   #map{ height:340px; border-radius:10px; margin-top:4px; background:#e8eef3; }
   .leaflet-container{ background:#e8eef3; font:inherit; }
   .leaflet-popup-content-wrapper, .leaflet-popup-tip{ background:#ffffff; color:var(--ink); }
@@ -126,6 +128,7 @@
     <div class="card lg">
       <h2>Detected drones — live map</h2>
       <div class="role">live drone positions from <code>/drones</code> · dot moves to the latest fix, then fades to a gray ring as minutes pass since last seen · <span id="mapCount">0</span> drone(s)</div>
+      <div id="rangeLabel" class="rangeLabel" style="display:none"></div>
       <div id="map"></div>
       <div id="mapEmpty" class="empty">no drone positions in the last 60&nbsp;min</div>
     </div>
@@ -205,7 +208,9 @@ function renderAgg(h){
     return;
   }
   lastAggNow = h.now || 0;
+  const prevSsid = currentSsid; currentSsid = h.ssid || '';
   if(h.now){ serverSkew = Math.floor(Date.now()/1000) - h.now; }
+  if(currentSsid !== prevSsid && lastDronesVal) renderMap(lastDronesVal);   // recompute range on SSID change
 
   // detector feeding = BLE connected AND at least one channel heard a heartbeat in the last 20s
   const bleBuild = ('ble' in h);
@@ -314,7 +319,17 @@ function renderDrones(val){
 
 // ---------- live map of detected drone positions ----------
 let map = null, droneLayer = null, mapFitted = false;
+let currentSsid = '';                 // live SSID from /droneagg (set in renderAgg)
+let rangeState = null;                // {ssid, lat, lon, radiusM, mi, n} — session-max range per SSID
+let lastDronesVal = null;             // cache of the last /drones snapshot (re-render on SSID change)
 const RX = [33.186108, -97.111180];   // receiver (Denton) — initial center
+function haversineM(la1, lo1, la2, lo2){
+  const R=6371000, r=Math.PI/180;
+  const dLa=(la2-la1)*r, dLo=(lo2-lo1)*r;
+  const x=Math.sin(dLa/2)**2 + Math.cos(la1*r)*Math.cos(la2*r)*Math.sin(dLo/2)**2;
+  return 2*R*Math.asin(Math.min(1, Math.sqrt(x)));
+}
+function fmtDist(m){ const mi=m/1609.344; return mi < 0.19 ? Math.round(m*3.28084)+' ft' : mi.toFixed(2)+' mi'; }
 function ensureMap(){
   if(map || !window.L) return;
   map = L.map('map', { zoomControl:true }).setView(RX, 10);
@@ -366,6 +381,37 @@ function renderMap(val){
         '<br>last seen '+ageText(now-g.ep)+' ago · src '+(g.d.src||'?'));
     bounds.push([g.lat, g.lon]);
   });
+
+  // ---- max detection distance for the CURRENT network (SSID) ----
+  // anchor = strongest-signal (closest) drone ≈ the detector; radius = distance to the farthest.
+  // Keep a session max per SSID (resets when the aggregator moves to a different network).
+  if(rangeState && rangeState.ssid !== currentSsid) rangeState = null;
+  const drones = ids.map(id => latest[id]);
+  if(currentSsid && drones.length >= 2){
+    const rssi = g => (g.d.rssi!=null ? g.d.rssi : -999);
+    const anchor = drones.reduce((b,g)=> rssi(g) > rssi(b) ? g : b, drones[0]);
+    let far = 0;
+    for(const g of drones){ const d = haversineM(anchor.lat, anchor.lon, g.lat, g.lon); if(d>far) far=d; }
+    if(far > 0 && (!rangeState || far > rangeState.radiusM)){
+      rangeState = { ssid:currentSsid, lat:anchor.lat, lon:anchor.lon, radiusM:far, mi:far/1609.344, n:drones.length };
+    }
+  }
+  const rl = $('rangeLabel');
+  if(rangeState && rangeState.radiusM > 0){
+    const ring = L.circle([rangeState.lat, rangeState.lon], { radius:rangeState.radiusM, color:'#0b6cc4', weight:1.5,
+      opacity:.8, dashArray:'5,5', fill:true, fillColor:'#0b6cc4', fillOpacity:.05 })
+      .addTo(droneLayer)
+      .bindTooltip('max detected range on '+(rangeState.ssid||'network')+': '+fmtDist(rangeState.radiusM));
+    // anchor marker (≈ detector, from the nearest drone)
+    L.circleMarker([rangeState.lat, rangeState.lon], { radius:5, color:'#0b6cc4', weight:2, fillColor:'#ffffff', fillOpacity:1 })
+      .addTo(droneLayer).bindTooltip('anchor ≈ nearest drone (detector)', { direction:'top' });
+    const cb = ring.getBounds();   // ring is on the map, so getBounds() is valid
+    bounds.push([cb.getSouth(), cb.getWest()], [cb.getNorth(), cb.getEast()]);
+    if(rl){ rl.style.display='inline-block'; rl.textContent = 'Max detected range on '+(rangeState.ssid||'network')+': '+fmtDist(rangeState.radiusM); }
+  } else if(rl){
+    rl.style.display = 'none';
+  }
+
   // fit once so the view doesn't yank around every update; after that you can pan/zoom freely
   if(bounds.length && !mapFitted){ map.fitBounds(bounds, { padding:[40,40], maxZoom:15 }); mapFitted = true; }
 }
@@ -380,7 +426,7 @@ setInterval(()=>{
 firebase.auth().signInAnonymously().then(()=>{
   db.ref('droneagg').on('value', s=>renderAgg(s.val()),
     e=>{ $('overall').className='pill bad'; $('overall').textContent='read error'; });
-  db.ref('drones').on('value', s=>{ renderDrones(s.val()); renderMap(s.val()); },
+  db.ref('drones').on('value', s=>{ lastDronesVal = s.val(); renderDrones(lastDronesVal); renderMap(lastDronesVal); },
     ()=>{ /* best-effort */ });
 }).catch(err=>{
   $('overall').className='pill bad';
