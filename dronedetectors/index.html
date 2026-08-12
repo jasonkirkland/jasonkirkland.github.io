@@ -62,6 +62,11 @@
   .metrics b{ color:var(--ink); font-variant-numeric:tabular-nums; }
   .diag{ font-size:12.5px; font-weight:700; margin-bottom:4px; }
   .diag.ok{ color:var(--ok); } .diag.warn{ color:var(--warn); } .diag.bad{ color:var(--bad); }
+  .logtype{ font-size:11px; font-weight:800; padding:1px 8px; border-radius:6px; white-space:nowrap;
+    min-width:118px; text-align:center; }
+  .logtype.ok{ background:var(--okbg); color:var(--ok); border:1px solid var(--okedge); }
+  .logtype.bad{ background:var(--badbg); color:var(--bad); border:1px solid var(--badedge); }
+  .logtype.dim{ background:var(--panel2); color:var(--dim); border:1px solid var(--edge); }
   .bar{ height:6px; border-radius:4px; background:#dbe4ec; margin-top:9px; overflow:hidden; }
   .bar > i{ display:block; height:100%; background:linear-gradient(90deg,#5aa9e8,#0b6cc4); }
 
@@ -140,6 +145,15 @@
       <h2>Recent detections</h2>
       <div class="role">latest records on <code>/drones</code> (all sources)</div>
       <div class="det" id="detList"><div class="empty">waiting…</div></div>
+    </div>
+  </div>
+
+  <!-- Aggregator event log (/dronelog): boot / WiFi / BLE-link timeline -->
+  <div class="grid">
+    <div class="card lg">
+      <h2>Aggregator event log</h2>
+      <div class="role">boot / WiFi / detector-link events from <code>/dronelog</code> · newest first — use this to see if the aggregator dropped BLE or lost WiFi, and when</div>
+      <div class="det" id="logList"><div class="empty">waiting…</div></div>
     </div>
   </div>
 
@@ -416,6 +430,31 @@ function renderMap(val){
   if(bounds.length && !mapFitted){ map.fitBounds(bounds, { padding:[40,40], maxZoom:15 }); mapFitted = true; }
 }
 
+// ---------- aggregator event log (/dronelog) ----------
+const LOG_META = {
+  boot:      { label:'BOOT',            cls:'dim' },
+  wifi_up:   { label:'WIFI UP',         cls:'ok'  },
+  wifi_down: { label:'WIFI DOWN',       cls:'bad' },
+  ble_up:    { label:'DETECTOR LINKED', cls:'ok'  },
+  ble_down:  { label:'DETECTOR LOST',   cls:'bad' },
+};
+function renderLog(val){
+  const list = $('logList');
+  const evs = val ? Object.values(val).filter(e=>e && e.type) : [];
+  evs.sort((a,b)=>(b.epoch||0)-(a.epoch||0));   // newest first
+  if(!evs.length){ list.innerHTML='<div class="empty">no events logged yet</div>'; return; }
+  list.innerHTML = evs.slice(0,50).map(e=>{
+    const m = LOG_META[e.type] || { label:(e.type||'?').toUpperCase(), cls:'dim' };
+    const ep = e.epoch || 0;
+    const when = ep ? new Date(ep*1000).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit'}) : '(no time)';
+    return `<div class="row">
+      <span class="logtype ${m.cls}">${m.label}</span>
+      <span style="color:var(--ink2)">${e.detail||''}</span>
+      <span class="when">${when}</span>
+    </div>`;
+  }).join('');
+}
+
 // ---------- tick: refresh relative-time labels every second ----------
 setInterval(()=>{
   const el=$('hbAge');
@@ -426,6 +465,7 @@ setInterval(()=>{
 firebase.auth().signInAnonymously().then(()=>{
   db.ref('droneagg').on('value', s=>renderAgg(s.val()),
     e=>{ $('overall').className='pill bad'; $('overall').textContent='read error'; });
+  db.ref('dronelog').orderByKey().limitToLast(50).on('value', s=>renderLog(s.val()), ()=>{});
   db.ref('drones').on('value', s=>{ lastDronesVal = s.val(); renderDrones(lastDronesVal); renderMap(lastDronesVal); },
     ()=>{ /* best-effort */ });
 }).catch(err=>{
