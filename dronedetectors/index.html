@@ -229,7 +229,7 @@ function renderAgg(h){
   // detector feeding = BLE connected AND at least one channel heard a heartbeat in the last 20s
   const bleBuild = ('ble' in h);
   const chKeys = Object.keys(h).filter(k=>/^ch\d+$/.test(k));
-  const feeding = (h.ble===1 || h.ble===true) &&
+  const feeding = (h.ble>0) &&
     chKeys.some(k=>{ const a=h[k] && h[k].age_s; return a!=null && a>=0 && a<20; });
 
   const stale = (Math.floor(Date.now()/1000) - (h.now||0)) > 60;
@@ -278,7 +278,7 @@ function renderChannels(h){
 
     // Link diagnosis. BLE build: keyed off the aggregator's top-level `ble` (detector connected).
     const bleBuild = ('ble' in h);
-    const bleUp = (h.ble===1 || h.ble===true);
+    const bleUp = (h.ble>0);   // ble = count of connected detectors (1 or 2); any non-zero = linked
     let diagText, diagCls;
     if (bleBuild && !bleUp){ diagText='✕ detector not linked — BLE disconnected / out of range'; diagCls='bad'; }
     else if (hb>0 && age>=0 && age<15){ diagText='● link healthy — heartbeats arriving'; diagCls='ok'; }
