@@ -120,7 +120,7 @@
         <div class="k">uptime</div><div class="v" id="a_uptime">—</div>
         <div class="k">free heap</div><div class="v" id="a_heap">—</div>
         <div class="k">detections (rid / bcn / skip)</div><div class="v" id="a_counts">—</div>
-        <div class="k">detector link (BLE)</div><div class="v" id="a_cyd">—</div>
+        <div class="k">detector links (BLE)</div><div class="v" id="a_cyd">—</div>
       </div>
     </div>
   </div>
@@ -226,9 +226,10 @@ function renderAgg(h){
   if(h.now){ serverSkew = Math.floor(Date.now()/1000) - h.now; }
   if(currentSsid !== prevSsid && lastDronesVal) renderMap(lastDronesVal);   // recompute range on SSID change
 
-  // detector feeding = BLE connected AND at least one channel heard a heartbeat in the last 20s
+  // detector feeding = BLE connected AND at least one detector heard a heartbeat in the last 20s.
+  // Tile-shape detection (object with age_s) renders ch6 / ch149 / s3c6 / any future detector key.
   const bleBuild = ('ble' in h);
-  const chKeys = Object.keys(h).filter(k=>/^ch\d+$/.test(k));
+  const chKeys = Object.keys(h).filter(k=>h[k] && typeof h[k]==='object' && ('age_s' in h[k]));
   const feeding = (h.ble>0) &&
     chKeys.some(k=>{ const a=h[k] && h[k].age_s; return a!=null && a>=0 && a<20; });
 
@@ -255,16 +256,22 @@ function setAggKV(h, stale){
   set('a_uptime', fmtUptime(h.uptime_s));
   set('a_heap', h.heap!=null ? Math.round(h.heap/1024)+' KB' : '—');
   set('a_counts', (h.rid_count||0)+' / '+(h.bcn_count||0)+' / '+(h.skip_count||0));
-  if('ble' in h) set('a_cyd', h.ble?'connected':'DISCONNECTED', h.ble?'ok':'bad');
+  if('ble' in h) set('a_cyd', h.ble?(h.ble+' linked'):'DISCONNECTED', h.ble?'ok':'bad');
   else if('ble_cyd' in h) set('a_cyd', h.ble_cyd?'linked':'off', h.ble_cyd?'ok':'');
   else set('a_cyd','n/a');
 }
 
-// Render one tile per chN key present in the payload (future-proof: 1 sniffer -> 1 tile).
+// Render one tile per detector key present in the payload (tile = object with age_s). Renders
+// ch6 / ch149 / s3c6 and is future-proof for more detectors. Tiles are labeled by the src+ch the
+// aggregator embeds inside each tile (falls back to the raw key for legacy payloads without them).
 function renderChannels(h){
   const grid = $('chanGrid');
-  const keys = Object.keys(h).filter(k=>/^ch\d+$/.test(k))
-    .sort((a,b)=>parseInt(a.slice(2))-parseInt(b.slice(2)));
+  const keys = Object.keys(h).filter(k=>h[k] && typeof h[k]==='object' && ('age_s' in h[k]))
+    .sort((a,b)=>{
+      const ca=h[a].ch!=null?h[a].ch:0, cb=h[b].ch!=null?h[b].ch:0;
+      if(ca!==cb) return ca-cb;
+      return (h[a].src||a).localeCompare(h[b].src||b);
+    });
   if(!keys.length){ grid.innerHTML=''; return; }
   grid.innerHTML = keys.map(k=>{
     const c = h[k] || {};
@@ -275,6 +282,8 @@ function renderChannels(h){
     const fps   = (c.fps!=null)     ? c.fps     : null;   // sniffer frames/sec
     const pkts  = (c.pkts!=null)    ? c.pkts    : null;   // sniffer cumulative frames
     const b = ageBucket(age);
+    // label by the embedded src + ch (e.g. "c5c6 · ch6", "s3c6 · ch6"); fall back to the key
+    const label = (c.src ? c.src : k) + (c.ch!=null ? ' · ch'+c.ch : '');
 
     // Link diagnosis. BLE build: keyed off the aggregator's top-level `ble` (detector connected).
     const bleBuild = ('ble' in h);
@@ -293,7 +302,7 @@ function renderChannels(h){
                              : (b==='ok'?100:b==='warn'?45:8);
     return `<div class="card">
       <div class="chan-head"><span class="dot ${b}"></span>
-        <span class="ch">${k}</span></div>
+        <span class="ch">${label}</span></div>
       <div class="role">sniffer · promiscuous</div>
       <div class="age ${b}">${ageText(age)}</div>
       <div class="metrics">
