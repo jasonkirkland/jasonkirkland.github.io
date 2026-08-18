@@ -250,7 +250,7 @@ function setAggKV(h, stale){
     e.className='v'+(cls?(' '+cls):''); };
   if(!h){ ['a_status','a_wifi','a_ssid','a_fb','a_ntfy','a_uptime','a_heap','a_counts','a_cyd']
       .forEach(id=>set(id,'—')); return; }
-  set('a_status', stale?'OFFLINE — last push '+ageText(Math.floor(Date.now()/1000)-(h.now||0))+' ago':'live', stale?'bad':'ok');
+  set('a_status', stale?'OFFLINE — last push '+ageText(Math.floor(Date.now()/1000)-(h.now||0)):'live', stale?'bad':'ok');
   set('a_wifi', stale?'offline (stale)':(h.wifi?'connected':'DOWN'), stale?'warn':(h.wifi?'ok':'bad'));
   set('a_ssid', h.ssid || '—');
   set('a_fb', h.fb || '—', (stale||h.fb==='FAIL')?'bad':(h.fb==='OK'?'ok':''));
@@ -296,7 +296,7 @@ function renderChannels(h, stale){
     const bleBuild = ('ble' in h);
     const bleUp = (h.ble>0);   // ble = count of connected detectors (1 or 2); any non-zero = linked
     let diagText, diagCls;
-    if (stale){ diagText='✕ detector offline — last push '+ageText(staleOffset)+' ago'; diagCls='bad'; }
+    if (stale){ diagText='✕ detector offline — last push '+ageText(staleOffset); diagCls='bad'; }
     else if (bleBuild && !bleUp){ diagText='✕ detector not linked — BLE disconnected / out of range'; diagCls='bad'; }
     else if (hb>0 && realAge>=0 && realAge<15){ diagText='● link healthy — heartbeats arriving'; diagCls='ok'; }
     else if (realAge>=0 && realAge<60)        { diagText='● link ok — last frame recent';        diagCls='warn'; }
@@ -337,7 +337,7 @@ function renderDrones(val){
   const now = nowEpoch();
   // If the aggregator is stale, show a banner above the detections list
   const staleBanner = lastAggNow && (Math.floor(Date.now()/1000) - lastAggNow) > 60
-    ? `<div class="diag bad" style="margin-bottom:8px">⚠ detector offline — detections below are historical (last push ${ageText(Math.floor(Date.now()/1000)-lastAggNow)} ago)</div>` : '';
+    ? `<div class="diag bad" style="margin-bottom:8px">⚠ detector offline — detections below are historical (last push ${ageText(Math.floor(Date.now()/1000)-lastAggNow)})</div>` : '';
   list.innerHTML = staleBanner + top.map(d=>{
     const age = d.epoch ? (now - d.epoch) : null;
     const when = (age==null || age<0) ? '—' : ageText(age);
