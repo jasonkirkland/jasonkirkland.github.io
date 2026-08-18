@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Drone Array — board status</title>
+<!-- Same Firebase SDK + config the ADS-B map uses (public web config, NOT a secret;
+     writes are blocked by DB rules; reads require anonymous auth). -->
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root{
+    /* light theme, high-contrast dark text */
+    --bg:#eef2f6; --panel:#ffffff; --panel2:#f4f7fa; --edge:#d3dde6;
+    --ink:#0d1b28;         /* near-black primary text (high contrast) */
+    --ink2:#2b3d4d;        /* dark slate secondary */
+    --dim:#5f7180;         /* medium gray — least important labels, still readable */
+    --accent:#0b6cc4;
+    --ok:#0a7d43; --okbg:#e0f5ea; --okedge:#a7dcc0;
+    --warn:#8a5a00; --warnbg:#fbeecb; --warnedge:#e6cf90;
+    --bad:#bb2418; --badbg:#fbe3e0; --badedge:#eeb3ac;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; height:100%; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased; }
+  a{ color:var(--accent); }
+  .wrap{ max-width:960px; margin:0 auto; padding:18px 16px 60px; }
+
+  header{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:6px; }
+  h1{ font-size:20px; margin:0; letter-spacing:.2px; }
+  h1 .sub{ color:var(--dim); font-weight:500; font-size:13px; margin-left:2px; }
+  .pill{ font-size:12px; font-weight:800; padding:3px 11px; border-radius:999px;
+    border:1px solid var(--edge); white-space:nowrap; }
+  .pill.ok{ background:var(--okbg); color:var(--ok); border-color:var(--okedge); }
+  .pill.warn{ background:var(--warnbg); color:var(--warn); border-color:var(--warnedge); }
+  .pill.bad{ background:var(--badbg); color:var(--bad); border-color:var(--badedge); }
+  .updated{ margin-left:auto; font-size:12.5px; color:var(--ink2); }
+  .updated b{ color:var(--ink); }
+
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:12px; margin-top:14px; }
+  .card{ background:var(--panel); border:1px solid var(--edge); border-radius:14px;
+    padding:14px 15px; box-shadow:0 2px 10px rgba(15,30,50,.08); }
+  .card.lg{ grid-column:1 / -1; }
+  .card h2{ font-size:13px; margin:0 0 2px; color:var(--accent); letter-spacing:.4px;
+    text-transform:uppercase; }
+  .card .role{ font-size:11.5px; color:var(--dim); margin-bottom:10px; }
+
+  .chan-head{ display:flex; align-items:baseline; gap:8px; }
+  .chan-head .ch{ font-size:22px; font-weight:800; }
+  .dot{ width:11px; height:11px; border-radius:50%; display:inline-block; flex:0 0 auto; }
+  .dot.ok{ background:var(--ok); box-shadow:0 0 8px var(--ok); }
+  .dot.warn{ background:var(--warn); box-shadow:0 0 8px var(--warn); }
+  .dot.bad{ background:var(--bad); }
+  .age{ font-size:15px; font-weight:700; margin-top:8px; }
+  .age.ok{ color:var(--ok); } .age.warn{ color:var(--warn); } .age.bad{ color:var(--bad); }
+  .metrics{ margin-top:10px; font-size:13px; line-height:1.7; color:var(--ink2); }
+  .metrics b{ color:var(--ink); font-variant-numeric:tabular-nums; }
+  .diag{ font-size:12.5px; font-weight:700; margin-bottom:4px; }
+  .diag.ok{ color:var(--ok); } .diag.warn{ color:var(--warn); } .diag.bad{ color:var(--bad); }
+  .logtype{ font-size:11px; font-weight:800; padding:1px 8px; border-radius:6px; white-space:nowrap;
+    min-width:118px; text-align:center; }
+  .logtype.ok{ background:var(--okbg); color:var(--ok); border:1px solid var(--okedge); }
+  .logtype.bad{ background:var(--badbg); color:var(--bad); border:1px solid var(--badedge); }
+  .logtype.dim{ background:var(--panel2); color:var(--dim); border:1px solid var(--edge); }
+  .bar{ height:6px; border-radius:4px; background:#dbe4ec; margin-top:9px; overflow:hidden; }
+  .bar > i{ display:block; height:100%; background:linear-gradient(90deg,#5aa9e8,#0b6cc4); }
+
+  .kv{ display:grid; grid-template-columns:auto 1fr; gap:3px 14px; font-size:13px;
+    line-height:1.65; }
+  .kv .k{ color:var(--dim); }
+  .kv .v{ color:var(--ink); text-align:right; font-variant-numeric:tabular-nums; }
+  .kv .v.ok{ color:var(--ok); } .kv .v.bad{ color:var(--bad); } .kv .v.warn{ color:var(--warn); }
+
+  .det{ margin-top:8px; }
+  .det .row{ display:flex; gap:10px; align-items:center; font-size:13px; padding:5px 0;
+    border-top:1px solid #e6edf3; }
+  .det .row:first-child{ border-top:0; }
+  .det .flt{ font-weight:700; color:var(--ink); }
+  .det .src{ font-size:11px; padding:1px 7px; border-radius:6px; background:#e6f0fa;
+    color:var(--accent); border:1px solid #bcd6ef; }
+  .det .when{ margin-left:auto; color:var(--ink2); font-variant-numeric:tabular-nums; }
+  .empty{ color:var(--dim); font-size:13px; padding:8px 0; }
+
+  /* ---- Board comparison section ---- */
+  .cmp-summary{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
+  .cmp-stat{ background:var(--panel2); border:1px solid var(--edge); border-radius:8px;
+    padding:8px 12px; font-size:13px; }
+  .cmp-stat b{ display:block; font-size:20px; font-weight:800; color:var(--ink); font-variant-numeric:tabular-nums; }
+  .cmp-stat span{ font-size:11px; color:var(--dim); text-transform:uppercase; letter-spacing:.3px; }
+  .cmp-stat.both{ border-color:var(--okedge); background:var(--okbg); }
+  .cmp-stat.both b{ color:var(--ok); }
+  .cmp-stat.only1{ border-color:#bcd6ef; background:#e6f0fa; }
+  .cmp-stat.only1 b{ color:var(--accent); }
+  .cmp-stat.only2{ border-color:#e6cf90; background:var(--warnbg); }
+  .cmp-stat.only2 b{ color:var(--warn); }
+  .cmp-tbl{ width:100%; border-collapse:collapse; font-size:12.5px; }
+  .cmp-tbl th{ text-align:left; padding:6px 8px; color:var(--dim); font-size:11px;
+    text-transform:uppercase; letter-spacing:.4px; border-bottom:1px solid var(--edge); }
+  .cmp-tbl td{ padding:6px 8px; border-bottom:1px solid #eef2f6; vertical-align:middle; }
+  .cmp-tbl tr.both{ background:#f0f8f2; }
+  .cmp-tbl tr.only1 td:first-child{ border-left:3px solid var(--accent); }
+  .cmp-tbl tr.only2 td:first-child{ border-left:3px solid var(--warn); }
+  .cmp-tbl tr.both td:first-child{ border-left:3px solid var(--ok); }
+  .cmp-id{ font-weight:700; color:var(--ink); font-size:12px; word-break:break-all; }
+  .cmp-badge{ font-size:10px; font-weight:700; padding:2px 7px; border-radius:5px; white-space:nowrap;
+    display:inline-block; }
+  .cmp-badge.c5{ background:#e6f0fa; color:var(--accent); border:1px solid #bcd6ef; }
+  .cmp-badge.s3{ background:var(--warnbg); color:var(--warn); border:1px solid var(--warnedge); }
+  .cmp-badge.miss{ background:#f0f2f4; color:var(--dim); border:1px solid var(--edge); }
+  .cmp-rssi{ font-variant-numeric:tabular-nums; font-size:12px; }
+  .cmp-rssi b{ color:var(--ink); }
+  .cmp-rssi .range{ color:var(--dim); font-size:10.5px; }
+  .cmp-bar{ display:inline-block; height:5px; border-radius:3px; vertical-align:middle; margin-right:1px; }
+  .cmp-bar.c5{ background:linear-gradient(90deg,#5aa9e8,#0b6cc4); }
+  .cmp-bar.s3{ background:linear-gradient(90deg,#e6cf90,#8a5a00); }
+  .rangeLabel{ margin:2px 0 8px; font-size:13px; font-weight:700; color:var(--accent);
+    background:#e6f0fa; border:1px solid #bcd6ef; border-radius:8px; padding:4px 10px; }
+  #map{ height:340px; border-radius:10px; margin-top:4px; background:#e8eef3; }
+  .leaflet-container{ background:#e8eef3; font:inherit; }
+  .leaflet-popup-content-wrapper, .leaflet-popup-tip{ background:#ffffff; color:var(--ink); }
+  .leaflet-popup-content{ font-size:13px; line-height:1.5; }
+  .leaflet-popup-content b{ color:var(--accent); }
+  .drone-ico{ width:16px; height:16px; border-radius:50%; background:#f2660a;
+    border:2px solid #fff; box-shadow:0 1px 5px rgba(0,0,0,.45); }
+  footer{ margin-top:26px; color:var(--dim); font-size:11.5px; line-height:1.6; }
+  code{ background:#eaf0f5; padding:1px 5px; border-radius:5px; color:var(--ink2); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Drone Array <span class="sub">board status</span></h1>
+    <span id="overall" class="pill warn">connecting…</span>
+    <span class="updated">last heartbeat: <b id="hbAge">—</b></span>
+  </header>
+
+  <!-- Aggregator (internet-connected board) -->
+  <div class="grid">
+    <div class="card lg" id="aggCard">
+      <h2>Aggregator</h2>
+      <div class="role" id="aggRole">the internet-connected board — reports for the whole array</div>
+      <div class="kv" id="aggKV">
+        <div class="k">status</div><div class="v" id="a_status">—</div>
+        <div class="k">Wi-Fi</div><div class="v" id="a_wifi">—</div>
+        <div class="k">SSID</div><div class="v" id="a_ssid">—</div>
+        <div class="k">Firebase</div><div class="v" id="a_fb">—</div>
+        <div class="k">ntfy</div><div class="v" id="a_ntfy">—</div>
+        <div class="k">uptime</div><div class="v" id="a_uptime">—</div>
+        <div class="k">free heap</div><div class="v" id="a_heap">—</div>
+        <div class="k">detections (rid / bcn / skip)</div><div class="v" id="a_counts">—</div>
+        <div class="k">detector links (BLE)</div><div class="v" id="a_cyd">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Per-channel sniffer tiles (rendered dynamically from the payload's chN keys) -->
+  <div class="grid" id="chanGrid"></div>
+
+  <!-- Live map of detected drone positions -->
+  <div class="grid">
+    <div class="card lg">
+      <h2>Detected drones — live map</h2>
+      <div class="role">live drone positions from <code>/drones</code> · dot moves to the latest fix, then fades to a gray ring as minutes pass since last seen · <span id="mapCount">0</span> drone(s)</div>
+      <div id="rangeLabel" class="rangeLabel" style="display:none"></div>
+      <div id="map"></div>
+      <div id="mapEmpty" class="empty">no drone positions in the last 60&nbsp;min</div>
+    </div>
+  </div>
+
+  <!-- Board comparison: which board detected each drone -->
+  <div class="grid">
+    <div class="card lg">
+      <h2>Board comparison</h2>
+      <div class="role">per-board detection overlap for boards listening on the same channel · <span id="cmpBoardNames">—</span></div>
+      <div id="cmpSummary" class="cmp-summary" style="display:none"></div>
+      <div id="cmpTable"><div class="empty">waiting for detection data…</div></div>
+    </div>
+  </div>
+
+  <!-- Recent detections from /drones -->
+  <div class="grid">
+    <div class="card lg">
+      <h2>Recent detections</h2>
+      <div class="role">latest records on <code>/drones</code> (all sources)</div>
+      <div class="det" id="detList"><div class="empty">waiting…</div></div>
+    </div>
+  </div>
+
+  <!-- Aggregator event log (/dronelog): boot / WiFi / BLE-link timeline -->
+  <div class="grid">
+    <div class="card lg">
+      <h2>Aggregator event log</h2>
+      <div class="role">boot / WiFi / detector-link events from <code>/dronelog</code> · newest first — use this to see if the aggregator dropped BLE or lost WiFi, and when</div>
+      <div class="det" id="logList"><div class="empty">waiting…</div></div>
+    </div>
+  </div>
+
+  <footer>
+    Reads <code>/droneagg</code> (array health, pushed by the aggregator ~every 15&nbsp;s) and
+    <code>/drones</code> (detections) from the shared ADS-B Firebase RTDB, using the same public
+    web config and anonymous auth as the ADS-B map.<br>
+    Channel tile colors: <b style="color:var(--ok)">green</b> heard &lt;10&nbsp;s ago ·
+    <b style="color:var(--warn)">yellow</b> &lt;60&nbsp;s ·
+    <b style="color:var(--bad)">red</b> stale / link down.
+    The detector's 5&nbsp;s heartbeat keeps a healthy board green even with an empty sky; on the
+    C5+C5 build the detector→aggregator link is <b>BLE</b> (no wire).
+  </footer>
+</div>
+
+<script>
+// ---- Firebase (same public config as the ADS-B map) ----
+const firebaseConfig = {
+  apiKey: "AIzaSyBSU81g4Y9othSKmWZicY2BqD4ZrzhZe4Y",
+  authDomain: "adsb-feed.firebaseapp.com",
+  databaseURL: "https://adsb-feed-default-rtdb.firebaseio.com",
+  projectId: "adsb-feed",
+  storageBucket: "adsb-feed.firebasestorage.app",
+  messagingSenderId: "926894892498",
+  appId: "1:926894892498:web:79cdf64de69c6ff0c7d40b"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ---------- helpers ----------
+const $ = id => document.getElementById(id);
+function fmtUptime(s){
+  s = Math.max(0, Math.floor(s||0));
+  const d=Math.floor(s/86400), h=Math.floor((s%86400)/3600), m=Math.floor((s%3600)/60);
+  if(d) return d+'d '+h+'h';
+  if(h) return h+'h '+m+'m';
+  const sec=s%60; return m+'m '+sec+'s';
+}
+function ageBucket(age){        // seconds -> 'ok' | 'warn' | 'bad'
+  if(age==null || age<0) return 'bad';
+  if(age<10) return 'ok';
+  if(age<60) return 'warn';
+  return 'bad';
+}
+function ageText(age){
+  if(age==null || age<0) return 'never heard';
+  if(age<60) return age+'s ago';
+  if(age<3600) return Math.round(age/60)+'m ago';
+  return Math.round(age/3600)+'h ago';
+}
+// server-truth clock: prefer the aggregator's own epoch, fall back to the browser.
+let serverSkew = 0;   // (browser_now - aggregator_now) at last update, seconds
+function nowEpoch(){ return Math.floor(Date.now()/1000) - serverSkew; }
+
+// ---------- aggregator health (/droneagg) ----------
+let lastAggNow = 0;
+let lastAggRaw = null;   // last raw /droneagg snapshot (for stale re-render tick)
+function renderAgg(h){
+  const overall = $('overall');
+  const chanGrid = $('chanGrid');
+
+  if(!h){
+    overall.className='pill warn'; overall.textContent='no data';
+    chanGrid.innerHTML = '<div class="card"><div class="empty">No <code>/droneagg</code> data yet. '+
+      'Is an aggregator online and pushing?</div></div>';
+    setAggKV(null);
+    return;
+  }
+  lastAggNow = h.now || 0;
+  lastAggRaw = h;
+  const prevSsid = currentSsid; currentSsid = h.ssid || '';
+  if(h.now){ serverSkew = Math.floor(Date.now()/1000) - h.now; }
+  if(currentSsid !== prevSsid && lastDronesVal) renderMap(lastDronesVal);   // recompute range on SSID change
+
+  // detector feeding = BLE connected AND at least one detector heard a heartbeat in the last 20s.
+  // Tile-shape detection (object with age_s) renders ch6 / ch149 / s3c6 / any future detector key.
+  const bleBuild = ('ble' in h);
+  const chKeys = Object.keys(h).filter(k=>h[k] && typeof h[k]==='object' && ('age_s' in h[k]));
+  const feeding = (h.ble>0) &&
+    chKeys.some(k=>{ const a=h[k] && h[k].age_s; return a!=null && a>=0 && a<20; });
+
+  const stale = (Math.floor(Date.now()/1000) - (h.now||0)) > 60;
+  if(stale){ overall.className='pill bad'; overall.textContent='OFFLINE'; }
+  else if(!h.wifi){ overall.className='pill bad'; overall.textContent='WIFI DOWN'; }
+  else if(h.fb==='FAIL' || h.ntfy==='FAIL'){ overall.className='pill bad'; overall.textContent='FB / NTFY FAIL'; }
+  else if(bleBuild && !feeding){ overall.className='pill bad'; overall.textContent='NO DETECTOR DATA'; }
+  else { overall.className='pill ok'; overall.textContent='OK'; }
+
+  setAggKV(h, stale);
+  renderChannels(h, stale);
+}
+function setAggKV(h, stale){
+  const set=(id,t,cls)=>{ const e=$(id); if(!e) return; e.textContent=t;
+    e.className='v'+(cls?(' '+cls):''); };
+  if(!h){ ['a_status','a_wifi','a_ssid','a_fb','a_ntfy','a_uptime','a_heap','a_counts','a_cyd']
+      .forEach(id=>set(id,'—')); return; }
+  set('a_status', stale?'OFFLINE — last push '+ageText(Math.floor(Date.now()/1000)-(h.now||0)):'live', stale?'bad':'ok');
+  set('a_wifi', stale?'offline (stale)':(h.wifi?'connected':'DOWN'), stale?'warn':(h.wifi?'ok':'bad'));
+  set('a_ssid', h.ssid || '—');
+  set('a_fb', h.fb || '—', (stale||h.fb==='FAIL')?'bad':(h.fb==='OK'?'ok':''));
+  set('a_ntfy', h.ntfy || '—', (stale||h.ntfy==='FAIL')?'bad':(h.ntfy==='OK'?'ok':''));
+  set('a_uptime', fmtUptime(h.uptime_s));
+  set('a_heap', h.heap!=null ? Math.round(h.heap/1024)+' KB' : '—');
+  set('a_counts', (h.rid_count||0)+' / '+(h.bcn_count||0)+' / '+(h.skip_count||0));
+  if('ble' in h) set('a_cyd', stale?'offline (stale)':(h.ble?(h.ble+' linked'):'DISCONNECTED'), stale?'warn':(h.ble?'ok':'bad'));
+  else if('ble_cyd' in h) set('a_cyd', stale?'offline (stale)':(h.ble_cyd?'linked':'off'), stale?'warn':'');
+  else set('a_cyd','n/a');
+}
+
+// Render one tile per detector key present in the payload (tile = object with age_s). Renders
+// ch6 / ch149 / s3c6 and is future-proof for more detectors. Tiles are labeled by the src+ch the
+// aggregator embeds inside each tile (falls back to the raw key for legacy payloads without them).
+function renderChannels(h, stale){
+  const grid = $('chanGrid');
+  const keys = Object.keys(h).filter(k=>h[k] && typeof h[k]==='object' && ('age_s' in h[k]))
+    .sort((a,b)=>{
+      const ca=h[a].ch!=null?h[a].ch:0, cb=h[b].ch!=null?h[b].ch:0;
+      if(ca!==cb) return ca-cb;
+      return (h[a].src||a).localeCompare(h[b].src||b);
+    });
+  if(!keys.length){ grid.innerHTML=''; return; }
+  grid.innerHTML = keys.map(k=>{
+    const c = h[k] || {};
+    const age   = (c.age_s!=null)   ? c.age_s   : -1;     // last valid record (RID/BCN/HB)
+    const bytes = (c.bytes!=null)   ? c.bytes   : 0;      // raw bytes ever seen on this RX
+    const hb    = (c.hb!=null)      ? c.hb      : 0;      // heartbeats received
+    const lines = c.lines||0;                            // detection records
+    const fps   = (c.fps!=null)     ? c.fps     : null;   // sniffer frames/sec
+    const pkts  = (c.pkts!=null)    ? c.pkts    : null;   // sniffer cumulative frames
+    // When stale, the age_s values are frozen from the last push — add the time
+    // since that push to get the true age (how long ago the detector was actually heard).
+    const staleOffset = stale ? (Math.floor(Date.now()/1000) - (h.now||0)) : 0;
+    const realAge = (age>=0) ? (age + staleOffset) : age;
+    const b = stale ? 'bad' : ageBucket(realAge);
+    const displayAge = stale ? realAge : age;
+    // label by the embedded src + ch (e.g. "c5c6 · ch6", "s3c6 · ch6"); fall back to the key
+    const label = (c.src ? c.src : k) + (c.ch!=null ? ' · ch'+c.ch : '');
+
+    // Link diagnosis. BLE build: keyed off the aggregator's top-level `ble` (detector connected).
+    const bleBuild = ('ble' in h);
+    const bleUp = (h.ble>0);   // ble = count of connected detectors (1 or 2); any non-zero = linked
+    let diagText, diagCls;
+    if (stale){ diagText='✕ detector offline — last push '+ageText(staleOffset); diagCls='bad'; }
+    else if (bleBuild && !bleUp){ diagText='✕ detector not linked — BLE disconnected / out of range'; diagCls='bad'; }
+    else if (hb>0 && realAge>=0 && realAge<15){ diagText='● link healthy — heartbeats arriving'; diagCls='ok'; }
+    else if (realAge>=0 && realAge<60)        { diagText='● link ok — last frame recent';        diagCls='warn'; }
+    else if (bleBuild)                { diagText='⚠ linked, awaiting data from detector';  diagCls='warn'; }
+    else if (bytes>0 && hb===0 && lines===0){
+      diagText='⚠ bytes seen but no valid frames — check baud / GND / TX↔RX'; diagCls='bad'; }
+    else if (bytes>0){ diagText='⚠ was receiving, now silent — check wire'; diagCls='bad'; }
+    else             { diagText='✕ no bytes — check wire / GND / pin'; diagCls='bad'; }
+
+    const barPct = stale ? 0 : (fps!=null ? Math.min(100, Math.round(fps/200*100))
+                             : (b==='ok'?100:b==='warn'?45:8));
+    return `<div class="card">
+      <div class="chan-head"><span class="dot ${b}"></span>
+        <span class="ch">${label}</span></div>
+      <div class="role">sniffer · promiscuous</div>
+      <div class="age ${b}">${stale ? ageText(displayAge) : ageText(age)}</div>
+      <div class="metrics">
+        <div class="diag ${diagCls}">${diagText}</div>
+        <div>detections: <b>${lines.toLocaleString()}</b> &nbsp;·&nbsp; heartbeats: <b>${hb.toLocaleString()}</b></div>
+        ${pkts!=null ? `<div>802.11 frames: <b>${pkts.toLocaleString()}</b>${fps!=null?` &nbsp;(<b>${fps}</b>/s)`:''}</div>`
+                     : `<div style="color:var(--dim)">frames: <i>heartbeat pending</i></div>`}
+        <div style="color:var(--dim)">${bleBuild?'BLE':'raw'} bytes rx: ${bytes.toLocaleString()}${c.sniff_heap?` · sniffer heap ${Math.round(c.sniff_heap/1024)}KB`:''}</div>
+      </div>
+      <div class="bar"><i style="width:${barPct}%"></i></div>
+    </div>`;
+  }).join('');
+}
+
+// ---------- board comparison ----------
+// Groups detections by `src` and shows which drones were caught by which board(s).
+// Automatically detects boards on the same channel and compares them side-by-side.
+function renderComparison(val){
+  const tbl = $('cmpTable');
+  const summary = $('cmpSummary');
+  const namesEl = $('cmpBoardNames');
+  if(!val){ tbl.innerHTML = '<div class="empty">no detections on record</div>'; summary.style.display='none'; return; }
+
+  // Group all detections by drone ID, then by source
+  const byDrone = {};       // droneId -> { src -> [detections] }
+  const bySrc = {};          // src -> { total, unique: Set }
+  for(const d of Object.values(val)){
+    if(!d || typeof d!=='object') continue;
+    const id = d.uasid || d.flight || d.hex;
+    const src = d.src || '?';
+    if(!id || !src) continue;
+    if(!byDrone[id]) byDrone[id] = {};
+    if(!byDrone[id][src]) byDrone[id][src] = [];
+    byDrone[id][src].push(d);
+    if(!bySrc[src]) bySrc[src] = { total:0, uniqueIds:new Set() };
+    bySrc[src].total++;
+    bySrc[src].uniqueIds.add(id);
+  }
+
+  // Find all unique sources and group by channel to find boards on the same channel
+  const srcInfo = {};  // src -> { ch, count, uniqueCount }
+  for(const d of Object.values(val)){
+    if(!d || typeof d!=='object') continue;
+    const src = d.src || '?';
+    if(!srcInfo[src]) srcInfo[src] = { ch: d.ch, count: bySrc[src]?.total||0, unique: bySrc[src]?.uniqueIds.size||0 };
+  }
+
+  // Find channels with 2+ boards listening (these are the comparison groups)
+  const channelGroups = {};  // ch -> [src, src, ...]
+  for(const [src, info] of Object.entries(srcInfo)){
+    if(info.ch == null) continue;
+    if(!channelGroups[info.ch]) channelGroups[info.ch] = [];
+    channelGroups[info.ch].push(src);
+  }
+  const compareChs = Object.entries(channelGroups).filter(([ch, srcs])=>srcs.length >= 2);
+  
+  if(compareChs.length === 0){
+    tbl.innerHTML = '<div class="empty">no boards sharing the same channel yet</div>';
+    summary.style.display='none';
+    if(namesEl) namesEl.textContent = 'none';
+    return;
+  }
+
+  // For each comparison group (channel with 2+ boards), show a comparison
+  let html = '';
+  let allBoardNames = [];
+  for(const [ch, srcs] of compareChs){
+    srcs.sort();
+    allBoardNames.push(srcs.join(' vs '));
+    
+    // Collect drones detected by any board on this channel
+    const droneIds = new Set();
+    for(const src of srcs){
+      for(const id of Object.keys(byDrone)){
+        if(byDrone[id][src]) droneIds.add(id);
+      }
+    }
+    
+    // Sort: both-boards first (by total detections desc), then single-board
+    const droneList = Array.from(droneIds).map(id=>{
+      const perSrc = {};
+      let totalDets = 0;
+      for(const src of srcs){
+        const dets = byDrone[id]?.[src] || [];
+        perSrc[src] = dets;
+        totalDets += dets.length;
+      }
+      const boardCount = srcs.filter(s=>perSrc[s].length > 0).length;
+      return { id, perSrc, totalDets, boardCount };
+    }).sort((a,b)=>{
+      // both-boards first, then by total detections
+      if(a.boardCount !== b.boardCount) return b.boardCount - a.boardCount;
+      return b.totalDets - a.totalDets;
+    });
+
+    // Summary stats
+    const bothCount = droneList.filter(d=>d.boardCount === srcs.length).length;
+    const onlyFirst = droneList.filter(d=>d.boardCount === 1 && d.perSrc[srcs[0]].length > 0).length;
+    const onlySecond = droneList.filter(d=>d.boardCount === 1 && d.perSrc[srcs[1]].length > 0).length;
+
+    if(namesEl) namesEl.textContent = srcs.join(' vs ') + ' (ch ' + ch + ')';
+
+    // Build summary tiles
+    const summaryHtml = `
+      <div class="cmp-stat only1">
+        <b>${srcs[0]}</b>
+        <span>${bySrc[srcs[0]]?.uniqueIds.size||0} unique drones</span>
+      </div>
+      <div class="cmp-stat only2">
+        <b>${srcs[1]}</b>
+        <span>${bySrc[srcs[1]]?.uniqueIds.size||0} unique drones</span>
+      </div>
+      <div class="cmp-stat both">
+        <b>${bothCount}</b>
+        <span>detected by both</span>
+      </div>
+      <div class="cmp-stat only1">
+        <b>${onlyFirst}</b>
+        <span>only ${srcs[0]}</span>
+      </div>
+      <div class="cmp-stat only2">
+        <b>${onlySecond}</b>
+        <span>only ${srcs[1]}</span>
+      </div>
+    `;
+    summary.innerHTML = summaryHtml;
+    summary.style.display = 'flex';
+
+    // Helper to compute RSSI stats for a source's detections of a drone
+    const rssiStats = (dets)=>{
+      if(!dets || !dets.length) return null;
+      const vals = dets.map(d=>d.rssi).filter(r=>r!=null && isFinite(r));
+      if(!vals.length) return null;
+      vals.sort((a,b)=>a-b);
+      const min = vals[0], max = vals[vals.length-1], avg = vals.reduce((s,v)=>s+v,0)/vals.length;
+      return { min, max, avg: Math.round(avg), count: dets.length };
+    };
+
+    // Build table
+    html += `<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px">Channel ${ch} — ${srcs.join(' vs ')}</div>`;
+    html += `<table class="cmp-tbl"><thead><tr>
+      <th>Drone ID</th>
+      <th>${srcs[0]}</th>
+      <th>${srcs[1]}</th>
+    </tr></thead><tbody>`;
+
+    for(const dr of droneList){
+      const rowCls = dr.boardCount === 2 ? 'both' : (dr.perSrc[srcs[0]].length > 0 ? 'only1' : 'only2');
+      const rssi0 = rssiStats(dr.perSrc[srcs[0]]);
+      const rssi1 = rssiStats(dr.perSrc[srcs[1]]);
+      
+      const cell = (rssi, src, cls) => {
+        if(!rssi) return `<td><span class="cmp-badge miss">—</span></td>`;
+        const barWidth = Math.max(5, Math.min(100, (rssi.avg + 100) * 1.2)); // map -100..0 to 0..120px
+        return `<td class="cmp-rssi">
+          <span class="cmp-badge ${cls}">${rssi.count} det</span>
+          <span class="cmp-bar ${cls}" style="width:${barWidth}px"></span>
+          <b>${rssi.avg}</b> dBm
+          <span class="range">(${rssi.min} to ${rssi.max})</span>
+        </td>`;
+      };
+      
+      html += `<tr class="${rowCls}">
+        <td class="cmp-id">${dr.id}</td>
+        ${cell(rssi0, srcs[0], 'c5')}
+        ${cell(rssi1, srcs[1], 's3')}
+      </tr>`;
+    }
+    html += '</tbody></table></div>';
+  }
+  tbl.innerHTML = html;
+}
+
+// ---------- recent detections (/drones) ----------
+function renderDrones(val){
+  renderComparison(val);
+  // Recent detections
+  const list = $('detList');
+  if(!val){ list.innerHTML='<div class="empty">no detections on record</div>'; return; }
+  const arr = Object.values(val).filter(d=>d && (d.flight||d.hex));
+  arr.sort((a,b)=>(b.epoch||0)-(a.epoch||0));
+  const top = arr.slice(0,8);
+  if(!top.length){ list.innerHTML='<div class="empty">no detections on record</div>'; return; }
+  const now = nowEpoch();
+  // If the aggregator is stale, show a banner above the detections list
+  const staleBanner = lastAggNow && (Math.floor(Date.now()/1000) - lastAggNow) > 60
+    ? `<div class="diag bad" style="margin-bottom:8px">⚠ detector offline — detections below are historical (last push ${ageText(Math.floor(Date.now()/1000)-lastAggNow)})</div>` : '';
+  list.innerHTML = staleBanner + top.map(d=>{
+    const age = d.epoch ? (now - d.epoch) : null;
+    const when = (age==null || age<0) ? '—' : ageText(age);
+    const id = d.uasid || d.flight || d.hex || '?';
+    const tag = (d.uasid && d.flight) ? `<span style="color:var(--dim);font-weight:500;font-size:11.5px">&nbsp;${d.flight}</span>` : '';
+    return `<div class="row">
+      <span class="flt">${id}${tag}</span>
+      <span class="src">${d.src||'?'}</span>
+      <span style="color:var(--ink2)">ch ${d.ch!=null?d.ch:'?'} · ${d.rssi!=null?d.rssi+' dBm':''}</span>
+      <span class="when">${when}</span>
+    </div>`;
+  }).join('');
+}
+
+// ---------- live map of detected drone positions ----------
+let map = null, droneLayer = null, mapFitted = false;
+let currentSsid = '';                 // live SSID from /droneagg (set in renderAgg)
+let rangeState = null;                // {ssid, lat, lon, radiusM, mi, n} — session-max range per SSID
+let lastDronesVal = null;             // cache of the last /drones snapshot (re-render on SSID change)
+const RX = [33.186108, -97.111180];   // receiver (Denton) — initial center
+function haversineM(la1, lo1, la2, lo2){
+  const R=6371000, r=Math.PI/180;
+  const dLa=(la2-la1)*r, dLo=(lo2-lo1)*r;
+  const x=Math.sin(dLa/2)**2 + Math.cos(la1*r)*Math.cos(la2*r)*Math.sin(dLo/2)**2;
+  return 2*R*Math.asin(Math.min(1, Math.sqrt(x)));
+}
+function fmtDist(m){ const mi=m/1609.344; return mi < 0.19 ? Math.round(m*3.28084)+' ft' : mi.toFixed(2)+' mi'; }
+function ensureMap(){
+  if(map || !window.L) return;
+  map = L.map('map', { zoomControl:true }).setView(RX, 10);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    { maxZoom:19, attribution:'© OpenStreetMap, © CARTO' }).addTo(map);
+  droneLayer = L.layerGroup().addTo(map);
+  setTimeout(()=>map.invalidateSize(), 200);
+}
+const DRONE_COLORS = ['#f2660a','#0b6cc4','#8a2be2','#c0281f','#0a7d43','#b8860b','#d6338a','#008b8b'];
+const FADE_MIN = 10;              // minutes since last detection -> fully faded to a hollow gray ring
+const FADE_GRAY = '#b8c0c8';
+function lerpHex(a,b,t){
+  const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+  const A=p(a),B=p(b);
+  return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('');
+}
+function renderMap(val){
+  ensureMap();
+  if(!map) return;
+  droneLayer.clearLayers();
+  const now = nowEpoch();
+  // keep only each drone's LATEST fix -> one dot per drone, at its most recent lat/lng
+  const latest = {};
+  if(val) for(const d of Object.values(val)){
+    if(!d || typeof d!=='object') continue;
+    const lat=+d.lat, lon=+d.lon, ep=+d.epoch||0;
+    if(!isFinite(lat) || !isFinite(lon)) continue;
+    if(Math.abs(lat)>90 || Math.abs(lon)>180 || (lat===0&&lon===0)) continue;  // drop bad coords
+    if(!ep || (now-ep) > 3600) continue;                                       // last 60 min
+    const key = d.uasid || d.flight || d.hex || '?';
+    const g = latest[key];
+    if(!g || ep >= g.ep){ latest[key] = { id:key, d, ep, lat, lon }; }
+  }
+  const ids = Object.keys(latest);
+  $('mapCount').textContent = ids.length;
+  $('mapEmpty').style.display = ids.length ? 'none' : 'block';
+  const bounds = [];
+  ids.forEach((id, i) => {
+    const g = latest[id];
+    const col = DRONE_COLORS[i % DRONE_COLORS.length];
+    const ageMin = (now - g.ep) / 60;
+    const t = Math.max(0, Math.min(1, ageMin / FADE_MIN));   // 0 = just seen, 1 = fully faded
+    const stroke = lerpHex(col, FADE_GRAY, t);               // outline colored -> light gray
+    const fillOp = 0.9 * (1 - t);                            // fill fades out -> hollow
+    L.circleMarker([g.lat, g.lon], { radius:8, color:stroke, weight:2, opacity:1, fillColor:col, fillOpacity:fillOp })
+      .addTo(droneLayer)
+      .bindTooltip(id, { direction:'top', offset:[0,-10] })
+      .bindPopup('<b>'+id+'</b><br>ch '+(g.d.ch!=null?g.d.ch:'?')+' · '+(g.d.rssi!=null?g.d.rssi+' dBm':'')+
+        '<br>last seen '+ageText(now-g.ep)+' ago · src '+(g.d.src||'?'));
+    bounds.push([g.lat, g.lon]);
+  });
+
+  // ---- max detection distance for the CURRENT network (SSID) ----
+  // anchor = strongest-signal (closest) drone ≈ the detector; radius = distance to the farthest.
+  // Keep a session max per SSID (resets when the aggregator moves to a different network).
+  if(rangeState && rangeState.ssid !== currentSsid) rangeState = null;
+  const drones = ids.map(id => latest[id]);
+  if(currentSsid && drones.length >= 2){
+    const rssi = g => (g.d.rssi!=null ? g.d.rssi : -999);
+    const anchor = drones.reduce((b,g)=> rssi(g) > rssi(b) ? g : b, drones[0]);
+    let far = 0;
+    for(const g of drones){ const d = haversineM(anchor.lat, anchor.lon, g.lat, g.lon); if(d>far) far=d; }
+    if(far > 0 && (!rangeState || far > rangeState.radiusM)){
+      rangeState = { ssid:currentSsid, lat:anchor.lat, lon:anchor.lon, radiusM:far, mi:far/1609.344, n:drones.length };
+    }
+  }
+  const rl = $('rangeLabel');
+  if(rangeState && rangeState.radiusM > 0){
+    const ring = L.circle([rangeState.lat, rangeState.lon], { radius:rangeState.radiusM, color:'#0b6cc4', weight:1.5,
+      opacity:.8, dashArray:'5,5', fill:true, fillColor:'#0b6cc4', fillOpacity:.05 })
+      .addTo(droneLayer)
+      .bindTooltip('max detected range on '+(rangeState.ssid||'network')+': '+fmtDist(rangeState.radiusM));
+    // anchor marker (≈ detector, from the nearest drone)
+    L.circleMarker([rangeState.lat, rangeState.lon], { radius:5, color:'#0b6cc4', weight:2, fillColor:'#ffffff', fillOpacity:1 })
+      .addTo(droneLayer).bindTooltip('anchor ≈ nearest drone (detector)', { direction:'top' });
+    const cb = ring.getBounds();   // ring is on the map, so getBounds() is valid
+    bounds.push([cb.getSouth(), cb.getWest()], [cb.getNorth(), cb.getEast()]);
+    if(rl){ rl.style.display='inline-block'; rl.textContent = 'Max detected range on '+(rangeState.ssid||'network')+': '+fmtDist(rangeState.radiusM); }
+  } else if(rl){
+    rl.style.display = 'none';
+  }
+
+  // fit once so the view doesn't yank around every update; after that you can pan/zoom freely
+  if(bounds.length && !mapFitted){ map.fitBounds(bounds, { padding:[40,40], maxZoom:15 }); mapFitted = true; }
+}
+
+// ---------- aggregator event log (/dronelog) ----------
+const LOG_META = {
+  boot:      { label:'BOOT',            cls:'dim' },
+  wifi_up:   { label:'WIFI UP',         cls:'ok'  },
+  wifi_down: { label:'WIFI DOWN',       cls:'bad' },
+  ble_up:    { label:'DETECTOR LINKED', cls:'ok'  },
+  ble_down:  { label:'DETECTOR LOST',   cls:'bad' },
+};
+function renderLog(val){
+  const list = $('logList');
+  const evs = val ? Object.values(val).filter(e=>e && e.type) : [];
+  evs.sort((a,b)=>(b.epoch||0)-(a.epoch||0));   // newest first
+  if(!evs.length){ list.innerHTML='<div class="empty">no events logged yet</div>'; return; }
+  list.innerHTML = evs.slice(0,50).map(e=>{
+    const m = LOG_META[e.type] || { label:(e.type||'?').toUpperCase(), cls:'dim' };
+    const ep = e.epoch || 0;
+    const when = ep ? new Date(ep*1000).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit'}) : '(no time)';
+    return `<div class="row">
+      <span class="logtype ${m.cls}">${m.label}</span>
+      <span style="color:var(--ink2)">${e.detail||''}</span>
+      <span class="when">${when}</span>
+    </div>`;
+  }).join('');
+}
+
+// ---------- tick: refresh relative-time labels every second ----------
+setInterval(()=>{
+  const el=$('hbAge');
+  if(lastAggNow){ el.textContent = ageText(Math.floor(Date.now()/1000)-lastAggNow); }
+}, 1000);
+
+// ---------- tick: re-render stale status every 10s ----------
+// When the detector is offline, Firebase stops pushing, so renderAgg() never fires.
+// This keeps the aggregator card, channel tiles, and detections banner updating with
+// accurate "Xh ago" ages and red OFFLINE styling without needing a new push.
+setInterval(()=>{
+  if(!lastAggRaw) return;
+  const h = lastAggRaw;
+  const stale = (Math.floor(Date.now()/1000) - (h.now||0)) > 60;
+  if(!stale) return; // only re-render when stale; live data updates via Firebase callbacks
+  renderAgg(h);
+  if(lastDronesVal){ renderDrones(lastDronesVal); renderMap(lastDronesVal); }
+}, 10000);
+
+// ---------- connect ----------
+firebase.auth().signInAnonymously().then(()=>{
+  db.ref('droneagg').on('value', s=>renderAgg(s.val()),
+    e=>{ $('overall').className='pill bad'; $('overall').textContent='read error'; });
+  db.ref('dronelog').orderByKey().limitToLast(50).on('value', s=>renderLog(s.val()), ()=>{});
+  db.ref('drones').on('value', s=>{ lastDronesVal = s.val(); renderDrones(lastDronesVal); renderMap(lastDronesVal); },
+    ()=>{ /* best-effort */ });
+}).catch(err=>{
+  $('overall').className='pill bad';
+  $('overall').textContent='auth error: '+(err.code||err.message||'?');
+});
+</script>
+</body>
+</html>
