@@ -214,8 +214,8 @@
   <!-- ntfy alerts feed (drone detections, beacons, helicopter alerts, system events) -->
   <div class="grid">
     <div class="card lg">
-      <h2>Alerts feed <span style="font-weight:400;text-transform:none;font-size:11px;color:var(--dim)">via ntfy.sh</span> <span id="alertSsid" class="pill ok" style="font-size:11px;text-transform:none;display:none"></span></h2>
-      <div class="role">push notifications sent to your phone — includes WiFi beacons and system events not stored in Firebase · last 24h</div>
+      <h2>Alerts feed <span style="font-weight:400;text-transform:none;font-size:11px;color:var(--dim)">via ntfy.sh</span></h2>
+      <div class="role">push notifications sent to your phone — includes WiFi beacons (not in Firebase) and system events · last 24h</div>
       <div class="alert-list" id="alertList"><div class="empty">loading alerts…</div></div>
     </div>
   </div>
@@ -288,12 +288,6 @@ function renderAgg(h){
   lastAggNow = h.now || 0;
   lastAggRaw = h;
   const prevSsid = currentSsid; currentSsid = h.ssid || '';
-  // Update SSID badge in alerts section
-  const ssidBadge = $('alertSsid');
-  if(ssidBadge){
-    if(currentSsid){ ssidBadge.textContent = '📡 ' + currentSsid; ssidBadge.style.display = 'inline-block'; }
-    else { ssidBadge.style.display = 'none'; }
-  }
   if(h.now){ serverSkew = Math.floor(Date.now()/1000) - h.now; }
   if(currentSsid !== prevSsid && lastDronesVal) renderMap(lastDronesVal);   // recompute range on SSID change
 
