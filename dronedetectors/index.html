@@ -113,6 +113,21 @@
   .h2h-stat.both b{ color:var(--ok); }
   .h2h-stat.only-c5 b{ color:var(--accent); }
   .h2h-stat.only-s3 b{ color:var(--warn); }
+  /* ---- ntfy alerts feed ---- */
+  .alert-list{ margin-top:8px; }
+  .alert-row{ display:flex; gap:10px; align-items:flex-start; font-size:13px; padding:8px 0;
+    border-top:1px solid #e6edf3; }
+  .alert-row:first-child{ border-top:0; }
+  .alert-icon{ font-size:16px; line-height:1.2; flex:0 0 auto; }
+  .alert-body{ flex:1; min-width:0; }
+  .alert-title{ font-weight:700; color:var(--ink); }
+  .alert-msg{ color:var(--ink2); margin-top:1px; }
+  .alert-time{ margin-left:auto; color:var(--ink2); font-variant-numeric:tabular-nums;
+    font-size:12px; white-space:nowrap; flex:0 0 auto; }
+  .alert-row.drone{ border-left:3px solid var(--accent); padding-left:10px; }
+  .alert-row.heli{ border-left:3px solid var(--ok); padding-left:10px; }
+  .alert-row.system{ border-left:3px solid var(--warn); padding-left:10px; }
+
   .rangeLabel{ margin:2px 0 8px; font-size:13px; font-weight:700; color:var(--accent);
     background:#e6f0fa; border:1px solid #bcd6ef; border-radius:8px; padding:4px 10px; }
   #map{ height:340px; border-radius:10px; margin-top:4px; background:#e8eef3; }
@@ -193,6 +208,15 @@
       <h2>Aggregator event log</h2>
       <div class="role">boot / WiFi / detector-link events from <code>/dronelog</code> · newest first — use this to see if the aggregator dropped BLE or lost WiFi, and when</div>
       <div class="det" id="logList"><div class="empty">waiting…</div></div>
+    </div>
+  </div>
+
+  <!-- ntfy alerts feed (drone detections, beacons, helicopter alerts, system events) -->
+  <div class="grid">
+    <div class="card lg">
+      <h2>Alerts feed <span style="font-weight:400;text-transform:none;font-size:11px;color:var(--dim)">via ntfy.sh</span></h2>
+      <div class="role">push notifications sent to your phone — includes WiFi beacons and system events not stored in Firebase · last 24h</div>
+      <div class="alert-list" id="alertList"><div class="empty">loading alerts…</div></div>
     </div>
   </div>
 
@@ -615,6 +639,74 @@ setInterval(()=>{
   renderAgg(h);
   if(lastDronesVal){ renderDrones(lastDronesVal); renderMap(lastDronesVal); }
 }, 10000);
+
+// ---------- ntfy alerts feed ----------
+// Fetches recent notifications from ntfy.sh JSON API (CORS enabled).
+// Shows drone detections, WiFi beacons (not in Firebase), helicopter alerts, and system events.
+const NTFY_TOPIC = 'jason-alerts-5-lions';
+let alertRefreshTimer = null;
+
+function classifyAlert(title, message){
+  const t = (title || '').toLowerCase();
+  const m = (message || '').toLowerCase();
+  if(t.includes('helicopter')) return { kind:'heli',   icon:'🚁' };
+  if(t.includes('drone detected') || t.includes('remote id')) return { kind:'drone', icon:'🛸' };
+  if(t.includes('beacon') || t.includes('drone wifi'))        return { kind:'drone', icon:'📡' };
+  if(t.includes('aggregator') || t.includes('detector') || t.includes('online') || t.includes('linked'))
+    return { kind:'system', icon:'⚙️' };
+  if(t.includes('drone'))                                     return { kind:'drone', icon:'🛸' };
+  return { kind:'system', icon:'🔔' };
+}
+
+function renderAlerts(messages){
+  const list = $('alertList');
+  if(!messages || !messages.length){
+    list.innerHTML = '<div class="empty">no alerts in the last 24h</div>';
+    return;
+  }
+  // Sort newest first
+  messages.sort((a,b) => (b.time||0) - (a.time||0));
+
+  list.innerHTML = messages.map(msg => {
+    const title = msg.title || '';
+    const body  = msg.message || '';
+    const time  = msg.time || 0;
+    const { kind, icon } = classifyAlert(title, body);
+    const when = time ? new Date(time * 1000).toLocaleString([], {
+      month:'short', day:'numeric', hour:'numeric', minute:'2-digit'
+    }) : '—';
+    return `<div class="alert-row ${kind}">
+      <span class="alert-icon">${icon}</span>
+      <div class="alert-body">
+        <div class="alert-title">${title || '(no title)'}</div>
+        ${body ? `<div class="alert-msg">${body}</div>` : ''}
+      </div>
+      <span class="alert-time">${when}</span>
+    </div>`;
+  }).join('');
+}
+
+async function fetchAlerts(){
+  try{
+    const resp = await fetch(`https://ntfy.sh/${NTFY_TOPIC}/json?poll=1&since=24h`);
+    if(!resp.ok) throw new Error('HTTP ' + resp.status);
+    const text = await resp.text();
+    const messages = [];
+    for(const line of text.trim().split('\n')){
+      if(!line) continue;
+      try { messages.push(JSON.parse(line)); } catch(e) { /* skip */ }
+    }
+    // Filter to 'message' events only (skip open/keepalive events)
+    const alerts = messages.filter(m => m.event === 'message');
+    renderAlerts(alerts);
+  } catch(err){
+    $('alertList').innerHTML = '<div class="empty">failed to load alerts: ' + (err.message||err) + '</div>';
+  }
+}
+
+// Fetch on load and refresh every 60s
+fetchAlerts();
+alertRefreshTimer = setInterval(fetchAlerts, 60000);
 
 // ---------- connect ----------
 firebase.auth().signInAnonymously().then(()=>{
