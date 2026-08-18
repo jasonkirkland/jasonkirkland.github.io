@@ -86,38 +86,33 @@
   .det .when{ margin-left:auto; color:var(--ink2); font-variant-numeric:tabular-nums; }
   .empty{ color:var(--dim); font-size:13px; padding:8px 0; }
 
-  /* ---- Board comparison section ---- */
-  .cmp-summary{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
-  .cmp-stat{ background:var(--panel2); border:1px solid var(--edge); border-radius:8px;
-    padding:8px 12px; font-size:13px; }
-  .cmp-stat b{ display:block; font-size:20px; font-weight:800; color:var(--ink); font-variant-numeric:tabular-nums; }
-  .cmp-stat span{ font-size:11px; color:var(--dim); text-transform:uppercase; letter-spacing:.3px; }
-  .cmp-stat.both{ border-color:var(--okedge); background:var(--okbg); }
-  .cmp-stat.both b{ color:var(--ok); }
-  .cmp-stat.only1{ border-color:#bcd6ef; background:#e6f0fa; }
-  .cmp-stat.only1 b{ color:var(--accent); }
-  .cmp-stat.only2{ border-color:#e6cf90; background:var(--warnbg); }
-  .cmp-stat.only2 b{ color:var(--warn); }
-  .cmp-tbl{ width:100%; border-collapse:collapse; font-size:12.5px; }
-  .cmp-tbl th{ text-align:left; padding:6px 8px; color:var(--dim); font-size:11px;
-    text-transform:uppercase; letter-spacing:.4px; border-bottom:1px solid var(--edge); }
-  .cmp-tbl td{ padding:6px 8px; border-bottom:1px solid #eef2f6; vertical-align:middle; }
-  .cmp-tbl tr.both{ background:#f0f8f2; }
-  .cmp-tbl tr.only1 td:first-child{ border-left:3px solid var(--accent); }
-  .cmp-tbl tr.only2 td:first-child{ border-left:3px solid var(--warn); }
-  .cmp-tbl tr.both td:first-child{ border-left:3px solid var(--ok); }
-  .cmp-id{ font-weight:700; color:var(--ink); font-size:12px; word-break:break-all; }
-  .cmp-badge{ font-size:10px; font-weight:700; padding:2px 7px; border-radius:5px; white-space:nowrap;
-    display:inline-block; }
-  .cmp-badge.c5{ background:#e6f0fa; color:var(--accent); border:1px solid #bcd6ef; }
-  .cmp-badge.s3{ background:var(--warnbg); color:var(--warn); border:1px solid var(--warnedge); }
-  .cmp-badge.miss{ background:#f0f2f4; color:var(--dim); border:1px solid var(--edge); }
-  .cmp-rssi{ font-variant-numeric:tabular-nums; font-size:12px; }
-  .cmp-rssi b{ color:var(--ink); }
-  .cmp-rssi .range{ color:var(--dim); font-size:10.5px; }
-  .cmp-bar{ display:inline-block; height:5px; border-radius:3px; vertical-align:middle; margin-right:1px; }
-  .cmp-bar.c5{ background:linear-gradient(90deg,#5aa9e8,#0b6cc4); }
-  .cmp-bar.s3{ background:linear-gradient(90deg,#e6cf90,#8a5a00); }
+  /* ---- Board comparison: C5 vs S3 head-to-head ---- */
+  .h2h{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+  .h2h-card{ border:2px solid var(--edge); border-radius:12px; padding:14px 16px; text-align:center; }
+  .h2h-card.win{ border-color:var(--okedge); background:var(--okbg); }
+  .h2h-card.lose{ border-color:var(--edge); background:var(--panel2); opacity:.85; }
+  .h2h-card .label{ font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; color:var(--dim); }
+  .h2h-card .name{ font-size:18px; font-weight:800; margin:2px 0 8px; }
+  .h2h-card.win .name{ color:var(--ok); }
+  .h2h-card.lose .name{ color:var(--ink2); }
+  .h2h-card .big{ font-size:32px; font-weight:800; font-variant-numeric:tabular-nums; line-height:1; }
+  .h2h-card.win .big{ color:var(--ok); }
+  .h2h-card.lose .big{ color:var(--ink2); }
+  .h2h-card .unit{ font-size:12px; color:var(--dim); font-weight:600; }
+  .h2h-card .sub{ font-size:12px; color:var(--ink2); margin-top:6px; line-height:1.5; }
+  .h2h-banner{ font-size:15px; font-weight:800; text-align:center; padding:8px 14px; border-radius:10px;
+    margin-bottom:14px; }
+  .h2h-banner.win-c5{ background:var(--okbg); color:var(--ok); border:1px solid var(--okedge); }
+  .h2h-banner.win-s3{ background:var(--warnbg); color:var(--warn); border:1px solid var(--warnedge); }
+  .h2h-banner.tie{ background:var(--panel2); color:var(--ink2); border:1px solid var(--edge); }
+  .h2h-breakdown{ display:flex; gap:10px; flex-wrap:wrap; }
+  .h2h-stat{ flex:1; min-width:120px; background:var(--panel2); border:1px solid var(--edge);
+    border-radius:8px; padding:8px 12px; text-align:center; }
+  .h2h-stat b{ display:block; font-size:22px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .h2h-stat span{ font-size:11px; color:var(--dim); text-transform:uppercase; letter-spacing:.3px; }
+  .h2h-stat.both b{ color:var(--ok); }
+  .h2h-stat.only-c5 b{ color:var(--accent); }
+  .h2h-stat.only-s3 b{ color:var(--warn); }
   .rangeLabel{ margin:2px 0 8px; font-size:13px; font-weight:700; color:var(--accent);
     background:#e6f0fa; border:1px solid #bcd6ef; border-radius:8px; padding:4px 10px; }
   #map{ height:340px; border-radius:10px; margin-top:4px; background:#e8eef3; }
@@ -172,13 +167,14 @@
     </div>
   </div>
 
-  <!-- Board comparison: which board detected each drone -->
+  <!-- Board comparison: C5 vs S3 on channel 6 -->
   <div class="grid">
     <div class="card lg">
-      <h2>Board comparison</h2>
-      <div class="role">per-board detection overlap for boards listening on the same channel · <span id="cmpBoardNames">—</span></div>
-      <div id="cmpSummary" class="cmp-summary" style="display:none"></div>
-      <div id="cmpTable"><div class="empty">waiting for detection data…</div></div>
+      <h2>C5 vs S3 — channel 6 showdown</h2>
+      <div class="role">head-to-head: which board detects more drones on ch 6?</div>
+      <div id="cmpBanner" class="h2h-banner tie">loading…</div>
+      <div id="cmpH2H" class="h2h"></div>
+      <div id="cmpBreakdown" class="h2h-breakdown" style="display:none"></div>
     </div>
   </div>
 
@@ -368,163 +364,85 @@ function renderChannels(h, stale){
   }).join('');
 }
 
-// ---------- board comparison ----------
-// Groups detections by `src` and shows which drones were caught by which board(s).
-// Automatically detects boards on the same channel and compares them side-by-side.
+// ---------- board comparison: C5 vs S3 head-to-head ----------
+// Simple: just compares c5c6 vs s3c6 on channel 6 — who detects more?
 function renderComparison(val){
-  const tbl = $('cmpTable');
-  const summary = $('cmpSummary');
-  const namesEl = $('cmpBoardNames');
-  if(!val){ tbl.innerHTML = '<div class="empty">no detections on record</div>'; summary.style.display='none'; return; }
+  const banner = $('cmpBanner');
+  const h2h = $('cmpH2H');
+  const breakdown = $('cmpBreakdown');
+  if(!val){ banner.textContent = 'no detections on record'; banner.className='h2h-banner tie'; return; }
 
-  // Group all detections by drone ID, then by source
-  const byDrone = {};       // droneId -> { src -> [detections] }
-  const bySrc = {};          // src -> { total, unique: Set }
+  // Collect detections per source for c5c6 and s3c6 only
+  const c5 = { total: 0, drones: new Set(), rssiVals: [] };
+  const s3 = { total: 0, drones: new Set(), rssiVals: [] };
   for(const d of Object.values(val)){
-    if(!d || typeof d!=='object') continue;
+    if(!d || typeof d !== 'object') continue;
+    const src = d.src || '';
     const id = d.uasid || d.flight || d.hex;
-    const src = d.src || '?';
-    if(!id || !src) continue;
-    if(!byDrone[id]) byDrone[id] = {};
-    if(!byDrone[id][src]) byDrone[id][src] = [];
-    byDrone[id][src].push(d);
-    if(!bySrc[src]) bySrc[src] = { total:0, uniqueIds:new Set() };
-    bySrc[src].total++;
-    bySrc[src].uniqueIds.add(id);
+    if(!id) continue;
+    if(src === 'c5c6'){ c5.total++; c5.drones.add(id); if(d.rssi!=null) c5.rssiVals.push(d.rssi); }
+    else if(src === 's3c6'){ s3.total++; s3.drones.add(id); if(d.rssi!=null) s3.rssiVals.push(d.rssi); }
   }
 
-  // Find all unique sources and group by channel to find boards on the same channel
-  const srcInfo = {};  // src -> { ch, count, uniqueCount }
-  for(const d of Object.values(val)){
-    if(!d || typeof d!=='object') continue;
-    const src = d.src || '?';
-    if(!srcInfo[src]) srcInfo[src] = { ch: d.ch, count: bySrc[src]?.total||0, unique: bySrc[src]?.uniqueIds.size||0 };
+  const c5Unique = c5.drones.size;
+  const s3Unique = s3.drones.size;
+  const both = [...c5.drones].filter(id => s3.drones.has(id)).length;
+  const onlyC5 = c5Unique - both;
+  const onlyS3 = s3Unique - both;
+  const c5AvgRssi = c5.rssiVals.length ? Math.round(c5.rssiVals.reduce((s,v)=>s+v,0)/c5.rssiVals.length) : null;
+  const s3AvgRssi = s3.rssiVals.length ? Math.round(s3.rssiVals.reduce((s,v)=>s+v,0)/s3.rssiVals.length) : null;
+
+  // Determine winner
+  const winner = c5Unique > s3Unique ? 'c5' : (s3Unique > c5Unique ? 's3' : 'tie');
+  const margin = Math.abs(c5Unique - s3Unique);
+
+  if(winner === 'c5'){
+    banner.textContent = `🏆 C5 wins — ${c5Unique} vs ${s3Unique} unique drones (${margin} more)`;
+    banner.className = 'h2h-banner win-c5';
+  } else if(winner === 's3'){
+    banner.textContent = `🏆 S3 wins — ${s3Unique} vs ${c5Unique} unique drones (${margin} more)`;
+    banner.className = 'h2h-banner win-s3';
+  } else {
+    banner.textContent = `Even — both detected ${c5Unique} unique drones`;
+    banner.className = 'h2h-banner tie';
   }
 
-  // Find channels with 2+ boards listening (these are the comparison groups)
-  const channelGroups = {};  // ch -> [src, src, ...]
-  for(const [src, info] of Object.entries(srcInfo)){
-    if(info.ch == null) continue;
-    if(!channelGroups[info.ch]) channelGroups[info.ch] = [];
-    channelGroups[info.ch].push(src);
-  }
-  const compareChs = Object.entries(channelGroups).filter(([ch, srcs])=>srcs.length >= 2);
-  
-  if(compareChs.length === 0){
-    tbl.innerHTML = '<div class="empty">no boards sharing the same channel yet</div>';
-    summary.style.display='none';
-    if(namesEl) namesEl.textContent = 'none';
-    return;
-  }
+  // Head-to-head cards
+  const c5Win = winner === 'c5';
+  const s3Win = winner === 's3';
+  h2h.innerHTML = `
+    <div class="h2h-card ${c5Win?'win':'lose'}">
+      <div class="label">C5 board</div>
+      <div class="name">c5c6</div>
+      <div class="big">${c5Unique}</div>
+      <div class="unit">unique drones</div>
+      <div class="sub">${c5.total} total detections${c5AvgRssi!=null?` · avg ${c5AvgRssi} dBm`:''}</div>
+    </div>
+    <div class="h2h-card ${s3Win?'win':'lose'}">
+      <div class="label">S3 board (U.FL antenna)</div>
+      <div class="name">s3c6</div>
+      <div class="big">${s3Unique}</div>
+      <div class="unit">unique drones</div>
+      <div class="sub">${s3.total} total detections${s3AvgRssi!=null?` · avg ${s3AvgRssi} dBm`:''}</div>
+    </div>
+  `;
 
-  // For each comparison group (channel with 2+ boards), show a comparison
-  let html = '';
-  let allBoardNames = [];
-  for(const [ch, srcs] of compareChs){
-    srcs.sort();
-    allBoardNames.push(srcs.join(' vs '));
-    
-    // Collect drones detected by any board on this channel
-    const droneIds = new Set();
-    for(const src of srcs){
-      for(const id of Object.keys(byDrone)){
-        if(byDrone[id][src]) droneIds.add(id);
-      }
-    }
-    
-    // Sort: both-boards first (by total detections desc), then single-board
-    const droneList = Array.from(droneIds).map(id=>{
-      const perSrc = {};
-      let totalDets = 0;
-      for(const src of srcs){
-        const dets = byDrone[id]?.[src] || [];
-        perSrc[src] = dets;
-        totalDets += dets.length;
-      }
-      const boardCount = srcs.filter(s=>perSrc[s].length > 0).length;
-      return { id, perSrc, totalDets, boardCount };
-    }).sort((a,b)=>{
-      // both-boards first, then by total detections
-      if(a.boardCount !== b.boardCount) return b.boardCount - a.boardCount;
-      return b.totalDets - a.totalDets;
-    });
-
-    // Summary stats
-    const bothCount = droneList.filter(d=>d.boardCount === srcs.length).length;
-    const onlyFirst = droneList.filter(d=>d.boardCount === 1 && d.perSrc[srcs[0]].length > 0).length;
-    const onlySecond = droneList.filter(d=>d.boardCount === 1 && d.perSrc[srcs[1]].length > 0).length;
-
-    if(namesEl) namesEl.textContent = srcs.join(' vs ') + ' (ch ' + ch + ')';
-
-    // Build summary tiles
-    const summaryHtml = `
-      <div class="cmp-stat only1">
-        <b>${srcs[0]}</b>
-        <span>${bySrc[srcs[0]]?.uniqueIds.size||0} unique drones</span>
-      </div>
-      <div class="cmp-stat only2">
-        <b>${srcs[1]}</b>
-        <span>${bySrc[srcs[1]]?.uniqueIds.size||0} unique drones</span>
-      </div>
-      <div class="cmp-stat both">
-        <b>${bothCount}</b>
-        <span>detected by both</span>
-      </div>
-      <div class="cmp-stat only1">
-        <b>${onlyFirst}</b>
-        <span>only ${srcs[0]}</span>
-      </div>
-      <div class="cmp-stat only2">
-        <b>${onlySecond}</b>
-        <span>only ${srcs[1]}</span>
-      </div>
-    `;
-    summary.innerHTML = summaryHtml;
-    summary.style.display = 'flex';
-
-    // Helper to compute RSSI stats for a source's detections of a drone
-    const rssiStats = (dets)=>{
-      if(!dets || !dets.length) return null;
-      const vals = dets.map(d=>d.rssi).filter(r=>r!=null && isFinite(r));
-      if(!vals.length) return null;
-      vals.sort((a,b)=>a-b);
-      const min = vals[0], max = vals[vals.length-1], avg = vals.reduce((s,v)=>s+v,0)/vals.length;
-      return { min, max, avg: Math.round(avg), count: dets.length };
-    };
-
-    // Build table
-    html += `<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px">Channel ${ch} — ${srcs.join(' vs ')}</div>`;
-    html += `<table class="cmp-tbl"><thead><tr>
-      <th>Drone ID</th>
-      <th>${srcs[0]}</th>
-      <th>${srcs[1]}</th>
-    </tr></thead><tbody>`;
-
-    for(const dr of droneList){
-      const rowCls = dr.boardCount === 2 ? 'both' : (dr.perSrc[srcs[0]].length > 0 ? 'only1' : 'only2');
-      const rssi0 = rssiStats(dr.perSrc[srcs[0]]);
-      const rssi1 = rssiStats(dr.perSrc[srcs[1]]);
-      
-      const cell = (rssi, src, cls) => {
-        if(!rssi) return `<td><span class="cmp-badge miss">—</span></td>`;
-        const barWidth = Math.max(5, Math.min(100, (rssi.avg + 100) * 1.2)); // map -100..0 to 0..120px
-        return `<td class="cmp-rssi">
-          <span class="cmp-badge ${cls}">${rssi.count} det</span>
-          <span class="cmp-bar ${cls}" style="width:${barWidth}px"></span>
-          <b>${rssi.avg}</b> dBm
-          <span class="range">(${rssi.min} to ${rssi.max})</span>
-        </td>`;
-      };
-      
-      html += `<tr class="${rowCls}">
-        <td class="cmp-id">${dr.id}</td>
-        ${cell(rssi0, srcs[0], 'c5')}
-        ${cell(rssi1, srcs[1], 's3')}
-      </tr>`;
-    }
-    html += '</tbody></table></div>';
-  }
-  tbl.innerHTML = html;
+  // Breakdown stats
+  breakdown.innerHTML = `
+    <div class="h2h-stat both">
+      <b>${both}</b>
+      <span>detected by both</span>
+    </div>
+    <div class="h2h-stat only-c5">
+      <b>${onlyC5}</b>
+      <span>only C5</span>
+    </div>
+    <div class="h2h-stat only-s3">
+      <b>${onlyS3}</b>
+      <span>only S3</span>
+    </div>
+  `;
+  breakdown.style.display = 'flex';
 }
 
 // ---------- recent detections (/drones) ----------
