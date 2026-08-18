@@ -210,6 +210,7 @@ function nowEpoch(){ return Math.floor(Date.now()/1000) - serverSkew; }
 
 // ---------- aggregator health (/droneagg) ----------
 let lastAggNow = 0;
+let lastAggRaw = null;   // last raw /droneagg snapshot (for stale re-render tick)
 function renderAgg(h){
   const overall = $('overall');
   const chanGrid = $('chanGrid');
@@ -222,6 +223,7 @@ function renderAgg(h){
     return;
   }
   lastAggNow = h.now || 0;
+  lastAggRaw = h;
   const prevSsid = currentSsid; currentSsid = h.ssid || '';
   if(h.now){ serverSkew = Math.floor(Date.now()/1000) - h.now; }
   if(currentSsid !== prevSsid && lastDronesVal) renderMap(lastDronesVal);   // recompute range on SSID change
@@ -234,37 +236,37 @@ function renderAgg(h){
     chKeys.some(k=>{ const a=h[k] && h[k].age_s; return a!=null && a>=0 && a<20; });
 
   const stale = (Math.floor(Date.now()/1000) - (h.now||0)) > 60;
-  if(stale){ overall.className='pill warn'; overall.textContent='STALE'; }
+  if(stale){ overall.className='pill bad'; overall.textContent='OFFLINE'; }
   else if(!h.wifi){ overall.className='pill bad'; overall.textContent='WIFI DOWN'; }
   else if(h.fb==='FAIL' || h.ntfy==='FAIL'){ overall.className='pill bad'; overall.textContent='FB / NTFY FAIL'; }
   else if(bleBuild && !feeding){ overall.className='pill bad'; overall.textContent='NO DETECTOR DATA'; }
   else { overall.className='pill ok'; overall.textContent='OK'; }
 
   setAggKV(h, stale);
-  renderChannels(h);
+  renderChannels(h, stale);
 }
 function setAggKV(h, stale){
   const set=(id,t,cls)=>{ const e=$(id); if(!e) return; e.textContent=t;
     e.className='v'+(cls?(' '+cls):''); };
   if(!h){ ['a_status','a_wifi','a_ssid','a_fb','a_ntfy','a_uptime','a_heap','a_counts','a_cyd']
       .forEach(id=>set(id,'—')); return; }
-  set('a_status', stale?'stale (no push >60s)':'live', stale?'warn':'ok');
-  set('a_wifi', h.wifi?'connected':'DOWN', h.wifi?'ok':'bad');
+  set('a_status', stale?'OFFLINE — last push '+ageText(Math.floor(Date.now()/1000)-(h.now||0))+' ago':'live', stale?'bad':'ok');
+  set('a_wifi', stale?'offline (stale)':(h.wifi?'connected':'DOWN'), stale?'warn':(h.wifi?'ok':'bad'));
   set('a_ssid', h.ssid || '—');
-  set('a_fb', h.fb || '—', h.fb==='OK'?'ok':(h.fb==='FAIL'?'bad':''));
-  set('a_ntfy', h.ntfy || '—', h.ntfy==='OK'?'ok':(h.ntfy==='FAIL'?'bad':''));
+  set('a_fb', h.fb || '—', (stale||h.fb==='FAIL')?'bad':(h.fb==='OK'?'ok':''));
+  set('a_ntfy', h.ntfy || '—', (stale||h.ntfy==='FAIL')?'bad':(h.ntfy==='OK'?'ok':''));
   set('a_uptime', fmtUptime(h.uptime_s));
   set('a_heap', h.heap!=null ? Math.round(h.heap/1024)+' KB' : '—');
   set('a_counts', (h.rid_count||0)+' / '+(h.bcn_count||0)+' / '+(h.skip_count||0));
-  if('ble' in h) set('a_cyd', h.ble?(h.ble+' linked'):'DISCONNECTED', h.ble?'ok':'bad');
-  else if('ble_cyd' in h) set('a_cyd', h.ble_cyd?'linked':'off', h.ble_cyd?'ok':'');
+  if('ble' in h) set('a_cyd', stale?'offline (stale)':(h.ble?(h.ble+' linked'):'DISCONNECTED'), stale?'warn':(h.ble?'ok':'bad'));
+  else if('ble_cyd' in h) set('a_cyd', stale?'offline (stale)':(h.ble_cyd?'linked':'off'), stale?'warn':'');
   else set('a_cyd','n/a');
 }
 
 // Render one tile per detector key present in the payload (tile = object with age_s). Renders
 // ch6 / ch149 / s3c6 and is future-proof for more detectors. Tiles are labeled by the src+ch the
 // aggregator embeds inside each tile (falls back to the raw key for legacy payloads without them).
-function renderChannels(h){
+function renderChannels(h, stale){
   const grid = $('chanGrid');
   const keys = Object.keys(h).filter(k=>h[k] && typeof h[k]==='object' && ('age_s' in h[k]))
     .sort((a,b)=>{
@@ -281,7 +283,12 @@ function renderChannels(h){
     const lines = c.lines||0;                            // detection records
     const fps   = (c.fps!=null)     ? c.fps     : null;   // sniffer frames/sec
     const pkts  = (c.pkts!=null)    ? c.pkts    : null;   // sniffer cumulative frames
-    const b = ageBucket(age);
+    // When stale, the age_s values are frozen from the last push — add the time
+    // since that push to get the true age (how long ago the detector was actually heard).
+    const staleOffset = stale ? (Math.floor(Date.now()/1000) - (h.now||0)) : 0;
+    const realAge = (age>=0) ? (age + staleOffset) : age;
+    const b = stale ? 'bad' : ageBucket(realAge);
+    const displayAge = stale ? realAge : age;
     // label by the embedded src + ch (e.g. "c5c6 · ch6", "s3c6 · ch6"); fall back to the key
     const label = (c.src ? c.src : k) + (c.ch!=null ? ' · ch'+c.ch : '');
 
@@ -289,22 +296,23 @@ function renderChannels(h){
     const bleBuild = ('ble' in h);
     const bleUp = (h.ble>0);   // ble = count of connected detectors (1 or 2); any non-zero = linked
     let diagText, diagCls;
-    if (bleBuild && !bleUp){ diagText='✕ detector not linked — BLE disconnected / out of range'; diagCls='bad'; }
-    else if (hb>0 && age>=0 && age<15){ diagText='● link healthy — heartbeats arriving'; diagCls='ok'; }
-    else if (age>=0 && age<60)        { diagText='● link ok — last frame recent';        diagCls='warn'; }
+    if (stale){ diagText='✕ detector offline — last push '+ageText(staleOffset)+' ago'; diagCls='bad'; }
+    else if (bleBuild && !bleUp){ diagText='✕ detector not linked — BLE disconnected / out of range'; diagCls='bad'; }
+    else if (hb>0 && realAge>=0 && realAge<15){ diagText='● link healthy — heartbeats arriving'; diagCls='ok'; }
+    else if (realAge>=0 && realAge<60)        { diagText='● link ok — last frame recent';        diagCls='warn'; }
     else if (bleBuild)                { diagText='⚠ linked, awaiting data from detector';  diagCls='warn'; }
     else if (bytes>0 && hb===0 && lines===0){
       diagText='⚠ bytes seen but no valid frames — check baud / GND / TX↔RX'; diagCls='bad'; }
     else if (bytes>0){ diagText='⚠ was receiving, now silent — check wire'; diagCls='bad'; }
     else             { diagText='✕ no bytes — check wire / GND / pin'; diagCls='bad'; }
 
-    const barPct = fps!=null ? Math.min(100, Math.round(fps/200*100))
-                             : (b==='ok'?100:b==='warn'?45:8);
+    const barPct = stale ? 0 : (fps!=null ? Math.min(100, Math.round(fps/200*100))
+                             : (b==='ok'?100:b==='warn'?45:8));
     return `<div class="card">
       <div class="chan-head"><span class="dot ${b}"></span>
         <span class="ch">${label}</span></div>
       <div class="role">sniffer · promiscuous</div>
-      <div class="age ${b}">${ageText(age)}</div>
+      <div class="age ${b}">${stale ? ageText(displayAge) : ageText(age)}</div>
       <div class="metrics">
         <div class="diag ${diagCls}">${diagText}</div>
         <div>detections: <b>${lines.toLocaleString()}</b> &nbsp;·&nbsp; heartbeats: <b>${hb.toLocaleString()}</b></div>
@@ -319,6 +327,7 @@ function renderChannels(h){
 
 // ---------- recent detections (/drones) ----------
 function renderDrones(val){
+  // Recent detections
   const list = $('detList');
   if(!val){ list.innerHTML='<div class="empty">no detections on record</div>'; return; }
   const arr = Object.values(val).filter(d=>d && (d.flight||d.hex));
@@ -326,7 +335,10 @@ function renderDrones(val){
   const top = arr.slice(0,8);
   if(!top.length){ list.innerHTML='<div class="empty">no detections on record</div>'; return; }
   const now = nowEpoch();
-  list.innerHTML = top.map(d=>{
+  // If the aggregator is stale, show a banner above the detections list
+  const staleBanner = lastAggNow && (Math.floor(Date.now()/1000) - lastAggNow) > 60
+    ? `<div class="diag bad" style="margin-bottom:8px">⚠ detector offline — detections below are historical (last push ${ageText(Math.floor(Date.now()/1000)-lastAggNow)} ago)</div>` : '';
+  list.innerHTML = staleBanner + top.map(d=>{
     const age = d.epoch ? (now - d.epoch) : null;
     const when = (age==null || age<0) ? '—' : ageText(age);
     const id = d.uasid || d.flight || d.hex || '?';
@@ -469,6 +481,19 @@ setInterval(()=>{
   const el=$('hbAge');
   if(lastAggNow){ el.textContent = ageText(Math.floor(Date.now()/1000)-lastAggNow); }
 }, 1000);
+
+// ---------- tick: re-render stale status every 10s ----------
+// When the detector is offline, Firebase stops pushing, so renderAgg() never fires.
+// This keeps the aggregator card, channel tiles, and detections banner updating with
+// accurate "Xh ago" ages and red OFFLINE styling without needing a new push.
+setInterval(()=>{
+  if(!lastAggRaw) return;
+  const h = lastAggRaw;
+  const stale = (Math.floor(Date.now()/1000) - (h.now||0)) > 60;
+  if(!stale) return; // only re-render when stale; live data updates via Firebase callbacks
+  renderAgg(h);
+  if(lastDronesVal) renderDrones(lastDronesVal);
+}, 10000);
 
 // ---------- connect ----------
 firebase.auth().signInAnonymously().then(()=>{
