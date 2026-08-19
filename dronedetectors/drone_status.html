@@ -83,6 +83,7 @@
   .det .flt{ font-weight:700; color:var(--ink); }
   .det .src{ font-size:11px; padding:1px 7px; border-radius:6px; background:#e6f0fa;
     color:var(--accent); border:1px solid #bcd6ef; }
+  .det .src.ssid{ background:var(--warnbg); color:var(--warn); border-color:var(--warnedge); }
   .det .when{ margin-left:auto; color:var(--ink2); font-variant-numeric:tabular-nums; }
   .empty{ color:var(--dim); font-size:13px; padding:8px 0; }
 
@@ -206,7 +207,7 @@
   <div class="grid">
     <div class="card lg">
       <h2>Recent detections</h2>
-      <div class="role">latest records on <code>/drones</code> (all sources)</div>
+      <div class="role">RID detections w/ position (<code>/drones</code>) + SSID-only beacon detections (via ntfy, no GPS) · newest first</div>
       <div class="det" id="detList"><div class="empty">waiting…</div></div>
     </div>
   </div>
@@ -217,15 +218,6 @@
       <h2>Aggregator event log</h2>
       <div class="role">boot / WiFi / detector-link events from <code>/dronelog</code> · newest first — use this to see if the aggregator dropped BLE or lost WiFi, and when</div>
       <div class="det" id="logList"><div class="empty">waiting…</div></div>
-    </div>
-  </div>
-
-  <!-- ntfy alerts feed (drone detections, beacons, helicopter alerts, system events) -->
-  <div class="grid">
-    <div class="card lg">
-      <h2>Alerts feed <span style="font-weight:400;text-transform:none;font-size:11px;color:var(--dim)">via ntfy.sh</span></h2>
-      <div class="role">push notifications sent to your phone — includes WiFi beacons (not in Firebase) and system events · last 24h</div>
-      <div class="alert-list" id="alertList"><div class="empty">loading alerts…</div></div>
     </div>
   </div>
 
@@ -497,28 +489,55 @@ function renderComparison(val){
   breakdown.style.display = 'flex';
 }
 
-// ---------- recent detections (/drones) ----------
+// ---------- recent detections (/drones RID-with-position + ntfy SSID-only beacons) ----------
+// SSID-only (drone-associated WiFi beacon) detections are NOT in Firebase — the aggregator sends
+// them ONLY as ntfy pushes. We parse those out of the ntfy feed (fetchBeacons) and merge them here.
+let lastBeacons = [];   // [{epoch, ssid, vendor}] parsed from ntfy "Drone WiFi beacon" messages
+
+function parseBeaconMsg(msg){
+  const title = (msg.title||''), body = (msg.message||'');
+  const t = title.toLowerCase();
+  if(!(t.includes('beacon') || t.includes('drone wifi'))) return null;   // beacons only
+  const ssidM   = body.match(/SSID\s+"([^"]+)"/i);
+  const vendorM = body.match(/^\s*([^,.]+?)\s+nearby/i);
+  return { epoch: msg.time||0, ssid: ssidM?ssidM[1]:null, vendor: vendorM?vendorM[1].trim():'Drone' };
+}
+
 function renderDrones(val){
   renderComparison(val);
-  // Recent detections
   const list = $('detList');
-  if(!val){ list.innerHTML='<div class="empty">no detections on record</div>'; return; }
-  const arr = Object.values(val).filter(d=>d && (d.flight||d.hex));
-  arr.sort((a,b)=>(b.epoch||0)-(a.epoch||0));
-  const top = arr.slice(0,8);
-  if(!top.length){ list.innerHTML='<div class="empty">no detections on record</div>'; return; }
   const now = nowEpoch();
+  // RID detections (with position) from /drones
+  const rid = (val ? Object.values(val).filter(d=>d && (d.flight||d.hex)) : []).map(d=>({
+    kind:'rid', epoch:d.epoch||0,
+    id:(d.uasid||d.flight||d.hex||'?'),
+    flight:(d.uasid&&d.flight)?d.flight:'',
+    src:(d.src||'?'), ch:d.ch, rssi:d.rssi
+  }));
+  // SSID-only (beacon) detections from ntfy
+  const ssid = lastBeacons.map(b=>({
+    kind:'ssid', epoch:b.epoch||0, id:(b.ssid || b.vendor || 'WiFi beacon'), vendor:b.vendor, ssid:b.ssid
+  }));
+  const merged = rid.concat(ssid).sort((a,b)=>(b.epoch||0)-(a.epoch||0)).slice(0,12);
+  if(!merged.length){ list.innerHTML='<div class="empty">no detections on record</div>'; return; }
   // If the aggregator is stale, show a banner above the detections list
   const staleBanner = lastAggNow && (Math.floor(Date.now()/1000) - lastAggNow) > 60
     ? `<div class="diag bad" style="margin-bottom:8px">⚠ detector offline — detections below are historical (last push ${ageText(Math.floor(Date.now()/1000)-lastAggNow)})</div>` : '';
-  list.innerHTML = staleBanner + top.map(d=>{
+  list.innerHTML = staleBanner + merged.map(d=>{
     const age = d.epoch ? (now - d.epoch) : null;
     const when = (age==null || age<0) ? '—' : ageText(age);
-    const id = d.uasid || d.flight || d.hex || '?';
-    const tag = (d.uasid && d.flight) ? `<span style="color:var(--dim);font-weight:500;font-size:11.5px">&nbsp;${d.flight}</span>` : '';
+    if(d.kind==='ssid'){
+      return `<div class="row">
+        <span class="flt">📡 ${d.id}</span>
+        <span class="src ssid">ssid</span>
+        <span style="color:var(--ink2)">${d.vendor?('vendor '+d.vendor+' · '):''}WiFi beacon · no GPS</span>
+        <span class="when">${when}</span>
+      </div>`;
+    }
+    const tag = d.flight ? `<span style="color:var(--dim);font-weight:500;font-size:11.5px">&nbsp;${d.flight}</span>` : '';
     return `<div class="row">
-      <span class="flt">${id}${tag}</span>
-      <span class="src">${d.src||'?'}</span>
+      <span class="flt">${d.id}${tag}</span>
+      <span class="src">${d.src}</span>
       <span style="color:var(--ink2)">ch ${d.ch!=null?d.ch:'?'} · ${d.rssi!=null?d.rssi+' dBm':''}</span>
       <span class="when">${when}</span>
     </div>`;
@@ -683,73 +702,34 @@ setInterval(()=>{
   });
 })();
 
-// ---------- ntfy alerts feed ----------
-// Fetches recent notifications from ntfy.sh JSON API (CORS enabled).
-// Shows drone detections, WiFi beacons (not in Firebase), helicopter alerts, and system events.
+// ---------- ntfy: pull SSID-only (beacon) detections into "Recent detections" ----------
+// The aggregator sends drone-associated WiFi-beacon (SSID) hits ONLY as ntfy pushes — they have no
+// GPS position, so they never reach Firebase /drones. Fetch the ntfy feed, keep just the beacon
+// messages (parseBeaconMsg), and re-render the detections list so they merge with the RID records.
 const NTFY_TOPIC = 'jason-alerts-5-lions';
-let alertRefreshTimer = null;
+let beaconRefreshTimer = null;
 
-function classifyAlert(title, message){
-  const t = (title || '').toLowerCase();
-  const m = (message || '').toLowerCase();
-  if(t.includes('helicopter')) return { kind:'heli',   icon:'🚁' };
-  if(t.includes('drone detected') || t.includes('remote id')) return { kind:'drone', icon:'🛸' };
-  if(t.includes('beacon') || t.includes('drone wifi'))        return { kind:'drone', icon:'📡' };
-  if(t.includes('aggregator') || t.includes('detector') || t.includes('online') || t.includes('linked'))
-    return { kind:'system', icon:'⚙️' };
-  if(t.includes('drone'))                                     return { kind:'drone', icon:'🛸' };
-  return { kind:'system', icon:'🔔' };
-}
-
-function renderAlerts(messages){
-  const list = $('alertList');
-  if(!messages || !messages.length){
-    list.innerHTML = '<div class="empty">no alerts in the last 24h</div>';
-    return;
-  }
-  // Sort newest first
-  messages.sort((a,b) => (b.time||0) - (a.time||0));
-
-  list.innerHTML = messages.map(msg => {
-    const title = msg.title || '';
-    const body  = msg.message || '';
-    const time  = msg.time || 0;
-    const { kind, icon } = classifyAlert(title, body);
-    const when = time ? new Date(time * 1000).toLocaleString([], {
-      month:'short', day:'numeric', hour:'numeric', minute:'2-digit'
-    }) : '—';
-    return `<div class="alert-row ${kind}">
-      <span class="alert-icon">${icon}</span>
-      <div class="alert-body">
-        <div class="alert-title">${title || '(no title)'}</div>
-        ${body ? `<div class="alert-msg">${body}</div>` : ''}
-      </div>
-      <span class="alert-time">${when}</span>
-    </div>`;
-  }).join('');
-}
-
-async function fetchAlerts(){
+async function fetchBeacons(){
   try{
     const resp = await fetch(`https://ntfy.sh/${NTFY_TOPIC}/json?poll=1&since=24h`);
     if(!resp.ok) throw new Error('HTTP ' + resp.status);
     const text = await resp.text();
-    const messages = [];
+    const beacons = [];
     for(const line of text.trim().split('\n')){
       if(!line) continue;
-      try { messages.push(JSON.parse(line)); } catch(e) { /* skip */ }
+      let m; try { m = JSON.parse(line); } catch(e){ continue; }
+      if(m.event !== 'message') continue;
+      const b = parseBeaconMsg(m);
+      if(b) beacons.push(b);
     }
-    // Filter to 'message' events only (skip open/keepalive events)
-    const alerts = messages.filter(m => m.event === 'message');
-    renderAlerts(alerts);
-  } catch(err){
-    $('alertList').innerHTML = '<div class="empty">failed to load alerts: ' + (err.message||err) + '</div>';
-  }
+    lastBeacons = beacons;
+    renderDrones(lastDronesVal);   // re-render the merged (RID + SSID) detections list
+  } catch(err){ /* best-effort; keep the last beacons on a transient failure */ }
 }
 
 // Fetch on load and refresh every 60s
-fetchAlerts();
-alertRefreshTimer = setInterval(fetchAlerts, 60000);
+fetchBeacons();
+beaconRefreshTimer = setInterval(fetchBeacons, 60000);
 
 // ---------- connect ----------
 firebase.auth().signInAnonymously().then(()=>{
