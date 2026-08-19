@@ -655,17 +655,22 @@ setInterval(()=>{
   if(lastAggNow){ el.textContent = ageText(Math.floor(Date.now()/1000)-lastAggNow); }
 }, 1000);
 
-// ---------- tick: re-render stale status every 10s ----------
-// When the detector is offline, Firebase stops pushing, so renderAgg() never fires.
-// This keeps the aggregator card, channel tiles, and detections banner updating with
-// accurate "Xh ago" ages and red OFFLINE styling without needing a new push.
+// ---------- tick: re-render time-based views every 10s ----------
+// Firebase listeners only fire when a NODE CHANGES, so anything computed from "now" —
+// the map's dot-fade + 60-min auto-drop-off, the detection-list "X ago" labels, and the
+// aggregator's stale/OFFLINE styling — would otherwise FREEZE between data pushes. It's most
+// visible on the map when no drones are actively broadcasting: /drones stops changing, so old
+// dots never fade or clear. Re-render from cached data on a timer so those keep advancing.
+// Cheap: redraws from memory, no network. (Live data still updates instantly via the Firebase
+// callbacks below; this only fills the gaps between pushes.)
 setInterval(()=>{
-  if(!lastAggRaw) return;
-  const h = lastAggRaw;
-  const stale = (Math.floor(Date.now()/1000) - (h.now||0)) > 60;
-  if(!stale) return; // only re-render when stale; live data updates via Firebase callbacks
-  renderAgg(h);
-  if(lastDronesVal){ renderDrones(lastDronesVal); renderMap(lastDronesVal); }
+  if(lastAggRaw) renderAgg(lastAggRaw);
+  if(lastDronesVal){
+    renderDrones(lastDronesVal);
+    // skip the map redraw while a popup is open (droneLayer.clearLayers would close it) — the
+    // fade just resumes on the next tick once the user closes the popup.
+    if(!document.querySelector('.leaflet-popup')) renderMap(lastDronesVal);
+  }
 }, 10000);
 
 // ---------- head-to-head "Reset counter" (per-browser baseline via localStorage) ----------
