@@ -86,7 +86,7 @@
   .det .when{ margin-left:auto; color:var(--ink2); font-variant-numeric:tabular-nums; }
   .empty{ color:var(--dim); font-size:13px; padding:8px 0; }
 
-  /* ---- Board comparison: C5 vs S3 head-to-head ---- */
+  /* ---- Board comparison: C5 vs LoBI head-to-head (s3c6 slot = LoBI) ---- */
   .h2h{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
   .h2h-card{ border:2px solid var(--edge); border-radius:12px; padding:14px 16px; text-align:center; }
   .h2h-card.win{ border-color:var(--okedge); background:var(--okbg); }
@@ -113,6 +113,11 @@
   .h2h-stat.both b{ color:var(--ok); }
   .h2h-stat.only-c5 b{ color:var(--accent); }
   .h2h-stat.only-s3 b{ color:var(--warn); }
+  .cmp-reset{ display:flex; align-items:center; gap:12px; margin-top:14px; flex-wrap:wrap; }
+  .cmp-reset button{ font:inherit; font-weight:800; font-size:13px; cursor:pointer; color:var(--ink);
+    background:var(--panel2); border:1px solid var(--edge); border-radius:8px; padding:7px 14px; }
+  .cmp-reset button:hover{ border-color:var(--accent); color:var(--accent); }
+  .cmp-since{ font-size:12px; color:var(--ink2); }
   /* ---- ntfy alerts feed ---- */
   .alert-list{ margin-top:8px; }
   .alert-row{ display:flex; gap:10px; align-items:flex-start; font-size:13px; padding:8px 0;
@@ -182,14 +187,18 @@
     </div>
   </div>
 
-  <!-- Board comparison: C5 vs S3 on channel 6 -->
+  <!-- Board comparison: C5 vs LoBI on channel 6 -->
   <div class="grid">
     <div class="card lg">
-      <h2>C5 vs S3 — channel 6 showdown</h2>
+      <h2>C5 vs LoBI — channel 6 showdown</h2>
       <div class="role">head-to-head: which board detects more drones on ch 6?</div>
       <div id="cmpBanner" class="h2h-banner tie">loading…</div>
       <div id="cmpH2H" class="h2h"></div>
       <div id="cmpBreakdown" class="h2h-breakdown" style="display:none"></div>
+      <div class="cmp-reset">
+        <button id="cmpResetBtn" type="button">Reset counter</button>
+        <span id="cmpSince" class="cmp-since"></span>
+      </div>
     </div>
   </div>
 
@@ -352,8 +361,10 @@ function renderChannels(h, stale){
     const realAge = (age>=0) ? (age + staleOffset) : age;
     const b = stale ? 'bad' : ageBucket(realAge);
     const displayAge = stale ? realAge : age;
-    // label by the embedded src + ch (e.g. "c5c6 · ch6", "s3c6 · ch6"); fall back to the key
-    const label = (c.src ? c.src : k) + (c.ch!=null ? ' · ch'+c.ch : '');
+    // label by the embedded src + ch (e.g. "c5c6 · ch6"); fall back to the key. The s3c6 slot is
+    // now the LoBI board, so display it as "lobi-ch6" (Firebase src stays "s3c6").
+    const rawSrc = c.src ? c.src : k;
+    const label = (rawSrc === 's3c6') ? 'lobi-ch6' : (rawSrc + (c.ch!=null ? ' · ch'+c.ch : ''));
 
     // Link diagnosis. BLE build: keyed off the aggregator's top-level `ble` (detector connected).
     const bleBuild = ('ble' in h);
@@ -388,19 +399,36 @@ function renderChannels(h, stale){
   }).join('');
 }
 
-// ---------- board comparison: C5 vs S3 head-to-head ----------
+// ---------- board comparison: C5 vs LoBI head-to-head (matches src s3c6, shows lobi-ch6) ----------
 // Simple: just compares c5c6 vs s3c6 on channel 6 — who detects more?
+// Reset baseline is stored in localStorage, but guarded: localStorage throws in private mode /
+// data: URLs, so fall back to an in-session variable and never let it break the render.
+let cmpResetMem = 0;
+function getCmpReset(){ try { return +(localStorage.getItem('cmpResetEpoch')||0) || cmpResetMem; } catch(e){ return cmpResetMem; } }
+function setCmpReset(ep){ cmpResetMem = ep; try { localStorage.setItem('cmpResetEpoch', String(ep)); } catch(e){} }
 function renderComparison(val){
   const banner = $('cmpBanner');
   const h2h = $('cmpH2H');
   const breakdown = $('cmpBreakdown');
+
+  // Per-browser "reset" baseline: only count detections at/after this epoch (localStorage).
+  // Lets you zero the head-to-head and watch which ch6 board pulls ahead from now on.
+  const resetEpoch = getCmpReset();
+  const since = $('cmpSince');
+  if(since){
+    since.textContent = resetEpoch
+      ? `counting since ${new Date(resetEpoch*1000).toLocaleString()}`
+      : 'counting all detections on record';
+  }
+
   if(!val){ banner.textContent = 'no detections on record'; banner.className='h2h-banner tie'; return; }
 
-  // Collect detections per source for c5c6 and s3c6 only
+  // Collect detections per source for c5c6 and s3c6 only (s3c6 is now the LoBI board)
   const c5 = { total: 0, drones: new Set(), rssiVals: [] };
   const s3 = { total: 0, drones: new Set(), rssiVals: [] };
   for(const d of Object.values(val)){
     if(!d || typeof d !== 'object') continue;
+    if(resetEpoch && (d.epoch||0) < resetEpoch) continue;   // skip detections before the reset baseline
     const src = d.src || '';
     const id = d.uasid || d.flight || d.hex;
     if(!id) continue;
@@ -424,7 +452,7 @@ function renderComparison(val){
     banner.textContent = `🏆 C5 wins — ${c5Unique} vs ${s3Unique} unique drones (${margin} more)`;
     banner.className = 'h2h-banner win-c5';
   } else if(winner === 's3'){
-    banner.textContent = `🏆 S3 wins — ${s3Unique} vs ${c5Unique} unique drones (${margin} more)`;
+    banner.textContent = `🏆 LoBI wins — ${s3Unique} vs ${c5Unique} unique drones (${margin} more)`;
     banner.className = 'h2h-banner win-s3';
   } else {
     banner.textContent = `Even — both detected ${c5Unique} unique drones`;
@@ -443,8 +471,8 @@ function renderComparison(val){
       <div class="sub">${c5.total} total detections${c5AvgRssi!=null?` · avg ${c5AvgRssi} dBm`:''}</div>
     </div>
     <div class="h2h-card ${s3Win?'win':'lose'}">
-      <div class="label">S3 board (U.FL antenna)</div>
-      <div class="name">s3c6</div>
+      <div class="label">LoBI board (ext. antenna)</div>
+      <div class="name">lobi-ch6</div>
       <div class="big">${s3Unique}</div>
       <div class="unit">unique drones</div>
       <div class="sub">${s3.total} total detections${s3AvgRssi!=null?` · avg ${s3AvgRssi} dBm`:''}</div>
@@ -463,7 +491,7 @@ function renderComparison(val){
     </div>
     <div class="h2h-stat only-s3">
       <b>${onlyS3}</b>
-      <span>only S3</span>
+      <span>only LoBI</span>
     </div>
   `;
   breakdown.style.display = 'flex';
@@ -639,6 +667,16 @@ setInterval(()=>{
   renderAgg(h);
   if(lastDronesVal){ renderDrones(lastDronesVal); renderMap(lastDronesVal); }
 }, 10000);
+
+// ---------- head-to-head "Reset counter" (per-browser baseline via localStorage) ----------
+(function(){
+  const btn = document.getElementById('cmpResetBtn');
+  if(!btn) return;
+  btn.addEventListener('click', ()=>{
+    setCmpReset(Math.floor(Date.now()/1000));
+    renderComparison(lastDronesVal);   // re-tally from now; null-safe inside renderComparison
+  });
+})();
 
 // ---------- ntfy alerts feed ----------
 // Fetches recent notifications from ntfy.sh JSON API (CORS enabled).
