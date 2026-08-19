@@ -290,7 +290,7 @@ function renderAgg(h){
   lastAggRaw = h;
   const prevSsid = currentSsid; currentSsid = h.ssid || '';
   if(h.now){ serverSkew = Math.floor(Date.now()/1000) - h.now; }
-  if(currentSsid !== prevSsid && lastDronesVal) renderMap(lastDronesVal);   // recompute range on SSID change
+  if(currentSsid !== prevSsid){ mapFitted = false; if(lastDronesVal) renderMap(lastDronesVal); }   // re-center + recompute range when the aggregator changes site/network
 
   // detector feeding = BLE connected AND at least one detector heard a heartbeat in the last 20s.
   // Tile-shape detection (object with age_s) renders ch6 / ch149 / s3c6 / any future detector key.
@@ -545,11 +545,19 @@ function renderDrones(val){
 }
 
 // ---------- live map of detected drone positions ----------
-let map = null, droneLayer = null, mapFitted = false;
+let map = null, droneLayer = null, mapFitted = false, lastFitKey = '';
 let currentSsid = '';                 // live SSID from /droneagg (set in renderAgg)
 let rangeState = null;                // {ssid, lat, lon, radiusM, mi, n} — session-max range per SSID
 let lastDronesVal = null;             // cache of the last /drones snapshot (re-render on SSID change)
-const RX = [33.186108, -97.111180];   // receiver (Denton) — initial center
+// Receiver locations keyed by the WiFi SSID the aggregator reports in /droneagg. The array moves
+// between sites, so detection range is measured FROM the matching receiver point (geocoded from the
+// street address), NOT from a drone. Add a row here for any new site/network.
+const RECEIVERS = {
+  'Home Wifi':  { lat: 33.186143, lon: -97.111497, label: 'Home (Denton)' },      // 615 Ridgecrest Cir
+  'COL_Public': { lat: 33.043071, lon: -97.023205, label: 'Work (Lewisville)' },  // 1197 W Main St
+};
+function currentReceiver(){ return RECEIVERS[currentSsid] || null; }   // null = unknown network
+const RX = [33.186143, -97.111497];   // initial map center (Home); the one-time fit re-centers to the live site
 function haversineM(la1, lo1, la2, lo2){
   const R=6371000, r=Math.PI/180;
   const dLa=(la2-la1)*r, dLo=(lo2-lo1)*r;
@@ -609,38 +617,44 @@ function renderMap(val){
     bounds.push([g.lat, g.lon]);
   });
 
-  // ---- max detection distance for the CURRENT network (SSID) ----
-  // anchor = strongest-signal (closest) drone ≈ the detector; radius = distance to the farthest.
-  // Keep a session max per SSID (resets when the aggregator moves to a different network).
+  // ---- receiver + max detection range (measured FROM the actual receiver location) ----
+  // The receiver point comes from the aggregator's SSID (RECEIVERS map), NOT from a drone.
+  // Keep a session-max radius per SSID (resets when the aggregator moves to a different network).
   if(rangeState && rangeState.ssid !== currentSsid) rangeState = null;
+  const rx = currentReceiver();
   const drones = ids.map(id => latest[id]);
-  if(currentSsid && drones.length >= 2){
-    const rssi = g => (g.d.rssi!=null ? g.d.rssi : -999);
-    const anchor = drones.reduce((b,g)=> rssi(g) > rssi(b) ? g : b, drones[0]);
+  if(rx && drones.length){
     let far = 0;
-    for(const g of drones){ const d = haversineM(anchor.lat, anchor.lon, g.lat, g.lon); if(d>far) far=d; }
-    if(far > 0 && (!rangeState || far > rangeState.radiusM)){
-      rangeState = { ssid:currentSsid, lat:anchor.lat, lon:anchor.lon, radiusM:far, mi:far/1609.344, n:drones.length };
-    }
+    for(const g of drones){ const d = haversineM(rx.lat, rx.lon, g.lat, g.lon); if(d>far) far=d; }
+    if(far > 0 && (!rangeState || far > rangeState.radiusM))
+      rangeState = { ssid:currentSsid, radiusM:far, mi:far/1609.344, n:drones.length };
   }
   const rl = $('rangeLabel');
-  if(rangeState && rangeState.radiusM > 0){
-    const ring = L.circle([rangeState.lat, rangeState.lon], { radius:rangeState.radiusM, color:'#0b6cc4', weight:1.5,
-      opacity:.8, dashArray:'5,5', fill:true, fillColor:'#0b6cc4', fillOpacity:.05 })
-      .addTo(droneLayer)
-      .bindTooltip('max detected range on '+(rangeState.ssid||'network')+': '+fmtDist(rangeState.radiusM));
-    // anchor marker (≈ detector, from the nearest drone)
-    L.circleMarker([rangeState.lat, rangeState.lon], { radius:5, color:'#0b6cc4', weight:2, fillColor:'#ffffff', fillOpacity:1 })
-      .addTo(droneLayer).bindTooltip('anchor ≈ nearest drone (detector)', { direction:'top' });
-    const cb = ring.getBounds();   // ring is on the map, so getBounds() is valid
-    bounds.push([cb.getSouth(), cb.getWest()], [cb.getNorth(), cb.getEast()]);
-    if(rl){ rl.style.display='inline-block'; rl.textContent = 'Max detected range on '+(rangeState.ssid||'network')+': '+fmtDist(rangeState.radiusM); }
+  if(rx){
+    // plot the ACTUAL receiver location (white-ringed blue dot, distinct from drone dots)
+    L.circleMarker([rx.lat, rx.lon], { radius:7, color:'#ffffff', weight:3, fillColor:'#0b6cc4', fillOpacity:1 })
+      .addTo(droneLayer).bindTooltip('receiver: '+rx.label, { direction:'top' });
+    bounds.push([rx.lat, rx.lon]);
+    if(rangeState && rangeState.radiusM > 0){
+      const ring = L.circle([rx.lat, rx.lon], { radius:rangeState.radiusM, color:'#0b6cc4', weight:1.5,
+        opacity:.8, dashArray:'5,5', fill:true, fillColor:'#0b6cc4', fillOpacity:.05 })
+        .addTo(droneLayer)
+        .bindTooltip('max detected range from '+rx.label+': '+fmtDist(rangeState.radiusM));
+      const cb = ring.getBounds();   // ring is on the map, so getBounds() is valid
+      bounds.push([cb.getSouth(), cb.getWest()], [cb.getNorth(), cb.getEast()]);
+      if(rl){ rl.style.display='inline-block'; rl.textContent = 'Max detected range ('+rx.label+'): '+fmtDist(rangeState.radiusM); }
+    } else if(rl){ rl.style.display='none'; }
   } else if(rl){
     rl.style.display = 'none';
   }
 
-  // fit once so the view doesn't yank around every update; after that you can pan/zoom freely
-  if(bounds.length && !mapFitted){ map.fitBounds(bounds, { padding:[40,40], maxZoom:15 }); mapFitted = true; }
+  // Fit once per site so the view doesn't yank around every update (pan/zoom freely after) — but
+  // DO re-fit when the receiver site changes (home<->work), so the map recenters on the live site.
+  const fitKey = rx ? rx.label : '';
+  if(bounds.length && (!mapFitted || fitKey !== lastFitKey)){
+    map.fitBounds(bounds, { padding:[40,40], maxZoom:15 });
+    mapFitted = true; lastFitKey = fitKey;
+  }
 }
 
 // ---------- aggregator event log (/dronelog) ----------
