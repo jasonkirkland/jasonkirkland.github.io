@@ -75,9 +75,14 @@
   .slot.drop{border-color:var(--gold);background:rgba(255,215,106,.16);}
   #stockSlot{pointer-events:auto;cursor:pointer;}
   #stockCount{
-    position:absolute;pointer-events:none;font-weight:700;color:#fff;
-    text-shadow:0 1px 3px rgba(0,0,0,.8);z-index:9000;
+    position:absolute;z-index:9000;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;color:#fff;line-height:1;
+    background:rgba(6,44,22,.86);border:1px solid rgba(255,255,255,.5);
+    border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.45);
+    cursor:pointer;
   }
+  #stockCount:active{background:rgba(16,90,46,.95);}
   /* ---------- cards ---------- */
   .card{
     position:absolute;border-radius:6px;overflow:hidden;
@@ -586,6 +591,9 @@ function buildSlots(){
 
   stockCount = document.createElement('div');
   stockCount.id = 'stockCount';
+  stockCount.title = 'Deal a row';
+  stockCount.addEventListener('pointerdown', function(e){ e.stopPropagation(); });
+  stockCount.addEventListener('click', function(e){ e.stopPropagation(); dealRow(); });
   board.appendChild(stockCount);
 
   for(var f=0; f<8; f++){
@@ -664,12 +672,17 @@ function measure(){
   var pad = clamp(BW * 0.008, 4, 14);
   var padY = clamp(BW * 0.004, 3, 8);
   var gap = clamp(BW * 0.007, 3, 12);
-  var cw = (BW - pad*2 - gap*(COLS-1)) / COLS;
+  /* Eleven lanes: ten columns plus one for the stock pile. Giving the pile
+     its own lane costs every card a little width, and buys the rightmost
+     column the full height of the table - it no longer has to stop short
+     of the pile, which was squeezing it far harder than the rest. */
+  var LANES = COLS + 1;
+  var cw = (BW - pad*2 - gap*(LANES-1)) / LANES;
   var ch = cw * 1.42;
   var maxCH = (BH - padY*2) * 0.42;
   if(ch > maxCH){ ch = maxCH; cw = ch / 1.42; }
 
-  var totalW = cw*COLS + gap*(COLS-1);
+  var totalW = cw*LANES + gap*(LANES-1);
   var x0 = (BW - totalW) / 2;
 
   geo.cw = cw; geo.ch = ch; geo.gap = gap; geo.pad = pad;
@@ -679,7 +692,7 @@ function measure(){
   for(var i=0;i<COLS;i++) geo.colX.push(x0 + i*(cw+gap));
 
   geo.stockLift = Math.max(2, cw*0.035);
-  geo.stockX = x0 + totalW - cw - geo.stockLift*4;
+  geo.stockX = x0 + COLS*(cw + gap);
   geo.stockY = BH - ch - pad;
   geo.foundX = x0;
   geo.foundY = BH - ch - pad;
@@ -711,20 +724,21 @@ function styleSlots(){
     s.style.height = geo.ch + 'px';
     s.style.opacity = '0';
   }
-  stockCount.style.fontSize = Math.round(geo.cw*0.30) + 'px';
-  stockCount.style.left = geo.stockX + 'px';
-  stockCount.style.width = geo.cw + 'px';
-  stockCount.style.textAlign = 'center';
-  stockCount.style.left = (geo.stockX + geo.stockLift*4) + 'px';
-  stockCount.style.top = (geo.stockY - geo.stockLift*4 + geo.ch*0.34) + 'px';
+  var chip = Math.round(geo.cw * 0.46);
+  stockCount.style.fontSize = Math.round(chip * 0.62) + 'px';
+  stockCount.style.width = chip + 'px';
+  stockCount.style.height = chip + 'px';
+  /* centred on the pile, so it never runs past the edge of the table */
+  stockCount.style.left = Math.round(geo.stockX + (geo.cw - chip)/2) + 'px';
+  stockCount.style.top = Math.round(geo.stockY - stockFanHeight() + (geo.ch - chip)/2) + 'px';
 }
 
-function styleCard(el){
+function styleCard(el, rankFont){
   var cw = geo.cw, ch = geo.ch;
   el.style.width = cw + 'px';
   el.style.height = ch + 'px';
   var idx = el.querySelector('.idx');
-  if(idx) idx.style.fontSize = geo.rankFont + 'px';
+  if(idx) idx.style.fontSize = (rankFont === undefined ? geo.rankFont : rankFont) + 'px';
   var pip = el.querySelector('.pip');
   if(pip) pip.style.fontSize = Math.round(cw*0.58) + 'px';
 }
@@ -735,7 +749,7 @@ function columnOffsets(col){
   for(var i=0;i<a.length;i++){ if(a[i].up) nu++; else nd++; }
   var prefD = geo.ch * FAN_DOWN, prefU = geo.ch * FAN_UP;
   var need = nd*prefD + Math.max(0, nu-1)*prefU;
-  var avail = columnBottom(col, need) - geo.y0 - geo.ch;
+  var avail = columnBottom() - geo.y0 - geo.ch;
   var k = 1;
   /* a column always fits on screen, even if that means a very tight fan;
      the type size then follows the tightest fan on the table */
@@ -816,17 +830,14 @@ function calibrateInk(){
   }catch(err){}
 }
 
-/* How far down a column may run. Everything reaches the bottom edge except
-   the column over the stock pile, which stops short of it while rows remain
-   to deal - otherwise the pile ends up buried under the cards you tap it
-   with. If the column is too long to fit up there even fully squeezed, the
-   clearance is pointless: give it the whole table rather than cramming it
-   AND overlapping the pile anyway. */
-function columnBottom(col, need){
-  if(S.stock.length && geo.colX[col] + geo.cw*0.5 > geo.stockX){
-    var above = Math.min(geo.hardBottom, geo.stockY - geo.stockLift*4 - geo.gap);
-    if(need * HARD_SQUEEZE <= above - geo.y0 - geo.ch) return above;
-  }
+/* How tall the stock pile draws: it fans up one step per row still to deal. */
+function stockFanHeight(){
+  return Math.min(Math.ceil(S.stock.length / COLS) - 1, 4) * geo.stockLift;
+}
+
+/* Every column runs the full height of the table: the stock pile sits in
+   its own lane, so nothing has to stop short of it. */
+function columnBottom(){
   return geo.hardBottom;
 }
 
@@ -835,19 +846,20 @@ function layout(animate){
   measure();
   styleSlots();
 
-  /* Work out the fan for every column first, then pick one type size that
-     fits the narrowest sliver on the table - so a rank is the same size
-     wherever it appears, and never sliced off by the card below it. */
-  var offs = [], narrowest = Infinity, i, j;
+  /* Work out each column's fan, then size its rank to its own sliver. One
+     size within a stack, so a column reads evenly; sized per column, so a
+     single crowded stack does not drag the whole table down with it. */
+  var maxFont = geo.cw * 0.40;
+  var offs = [], fonts = [], i, j;
   for(i=0;i<COLS;i++){
     offs.push(columnOffsets(i));
-    var c = S.cols[i];
-    for(j=0;j<c.length-1;j++)
-      if(c[j].up && offs[i].u < narrowest) narrowest = offs[i].u;
+    var c = S.cols[i], covered = 0;
+    for(j=0;j<c.length-1;j++) if(c[j].up) covered = 1;
+    fonts.push(Math.round(covered
+      ? clamp(offs[i].u / INK_RATIO, geo.cw*0.20, maxFont)
+      : maxFont));
   }
-  var maxFont = geo.cw * 0.40;
-  geo.rankFont = Math.round(narrowest === Infinity ? maxFont
-                            : clamp(narrowest / INK_RATIO, geo.cw*0.20, maxFont));
+  geo.rankFont = maxFont;        /* stock and finished piles show in full */
 
   var seen = {};
   for(i=0;i<COLS;i++){
@@ -856,7 +868,7 @@ function layout(animate){
     for(j=0;j<col.length;j++){
       var cd = col[j], el = els[cd.id];
       seen[cd.id] = 1;
-      styleCard(el);
+      styleCard(el, fonts[i]);
       el.style.display = '';
       el.style.transform = '';
       el.style.left = geo.colX[i] + 'px';
@@ -874,8 +886,9 @@ function layout(animate){
     styleCard(se);
     se.style.display = '';
     se.style.transform = '';
+    /* the pile fans straight up, so it always stays inside its lane */
     var lift = Math.min(Math.floor(j/COLS), 4) * geo.stockLift;
-    se.style.left = (geo.stockX + lift) + 'px';
+    se.style.left = geo.stockX + 'px';
     se.style.top = (geo.stockY - lift) + 'px';
     se.style.zIndex = 60 + j;
     se.classList.add('down');
@@ -1158,7 +1171,9 @@ function onDown(e){
     hit = locate(parseInt(cardEl.dataset.id, 10));
     if(!hit) return;          /* a card already home on a foundation */
   }
-  if(inStock(p) && (S.stock.length > 0 || !hit)) hit = {type:'stock'};
+  /* Taps land on whatever is drawn on top: a card covering the pile keeps
+     its own tap. The always-on-top counter is the guaranteed way to deal. */
+  if(inStock(p) && !hit) hit = {type:'stock'};
   if(!hit){
     var c = columnAtX(p.x);
     hit = (c >= 0 && p.y >= geo.y0 - geo.gap) ? {type:'col', col:c} : {type:'felt'};
