@@ -152,9 +152,13 @@
     max-width:calc(100% - 12px);
     /* columns run underneath it, so only the buttons take taps */
     pointer-events:none;
-    transition:opacity .16s;
+    transition:opacity .18s, transform .22s cubic-bezier(.3,.7,.3,1);
   }
   #toolbar.ghost{opacity:.22;}
+  /* tapping the felt tucks it off the bottom edge */
+  #toolbar.hidden{
+    opacity:0;transform:translateX(-50%) translateY(140%);pointer-events:none;
+  }
   .tbtn{
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
     min-width:58px;padding:4px 9px;border-radius:8px;
@@ -268,6 +272,7 @@
     <ul class="rules">
       <li>Tap a card to send it to the best open spot.</li>
       <li>Drag it instead to choose the spot yourself.</li>
+      <li>Tap the empty felt to hide the toolbar, and again to bring it back.</li>
       <li>Any card can land on a card one rank higher, of any suit.</li>
       <li>Only cards already in a same&#8209;suit run move together.</li>
       <li>Tap the stock pile (bottom right) to deal a row &mdash; every column must have at least one card first.</li>
@@ -344,6 +349,11 @@ function lsGet(key, dflt){
 }
 function lsSet(key, val){
   try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
+}
+function setPref(k, v){
+  var pref = lsGet(LS_PREF, {});
+  pref[k] = v;
+  lsSet(LS_PREF, pref);
 }
 
 /* A card "code" packs suit and rank: code = suit*13 + (rank-1) */
@@ -1058,9 +1068,8 @@ function onDown(e){
   if(inStock(p) && (S.stock.length > 0 || !hit)) hit = {type:'stock'};
   if(!hit){
     var c = columnAtX(p.x);
-    if(c >= 0 && p.y >= geo.y0 - geo.gap) hit = {type:'col', col:c};
+    hit = (c >= 0 && p.y >= geo.y0 - geo.gap) ? {type:'col', col:c} : {type:'felt'};
   }
-  if(!hit) return;
   e.preventDefault();
 
   if(hit.type === 'card' && S.cols[hit.col][hit.idx].up && isRunStart(hit.col, hit.idx)){
@@ -1143,7 +1152,8 @@ function onUp(e){
 
 function tap(hit){
   if(hit.type === 'stock'){ dealRow(); return; }
-  if(hit.type === 'col') return;              /* bare felt: nothing to do */
+  /* bare felt - anywhere that is not a card, the pile or a button */
+  if(hit.type === 'col' || hit.type === 'felt'){ toggleToolbar(); return; }
   var card = S.cols[hit.col][hit.idx];
   if(!card.up) return;
   autoMove(hit.col, hit.idx);
@@ -1159,6 +1169,16 @@ function autoMove(col, idx){
   }
   if(best) doMove(best.from, best.idx, best.to);
   else nudge(col, idx);
+}
+
+/* Tap the felt to tuck the toolbar away and see the whole table; tap
+   again to bring it back. The menu button in the top bar stays put, so
+   there is always a way back to New Game even while it is hidden. */
+function toggleToolbar(hide){
+  var t = $('toolbar');
+  if(hide === undefined) hide = !t.classList.contains('hidden');
+  t.classList.toggle('hidden', hide);
+  setPref('toolbar', hide ? 'hidden' : 'shown');
 }
 
 /* "That can't go anywhere" - a small shake, no message to dismiss. */
@@ -1229,7 +1249,7 @@ function startGame(diffKey, order, seed){
   if(!order) order = makeOrder(diffKey, seed);
   S = newState(diffKey, seed, order);
   buildCards();
-  lsSet(LS_PREF, {diff: diffKey});
+  setPref('diff', diffKey);
   bumpStat(diffKey, 'played');
   layout(false);
   saveGame();
@@ -1346,6 +1366,7 @@ function loadGame(){
  * Boot
  * ------------------------------------------------------------------ */
 buildSlots();
+if(lsGet(LS_PREF, {}).toolbar === 'hidden') $('toolbar').classList.add('hidden');
 if(!loadGame()){
   var pref = lsGet(LS_PREF, {diff:'master'});
   startGame(DIFFS[pref.diff] ? pref.diff : 'master');
