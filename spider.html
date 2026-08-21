@@ -143,22 +143,32 @@
   /* ---------- bottom toolbar ---------- */
   #toolbar{
     position:absolute;left:50%;transform:translateX(-50%);
-    bottom:6px;z-index:9500;
+    bottom:6px;z-index:8000;
     display:flex;align-items:stretch;gap:2px;
     padding:4px;border-radius:10px;
-    background:rgba(6,44,22,.72);border:1px solid rgba(255,255,255,.22);
-    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
-    box-shadow:0 4px 16px rgba(0,0,0,.38);
+    background:rgba(6,44,22,.40);border:1px solid rgba(255,255,255,.16);
+    backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+    box-shadow:0 4px 14px rgba(0,0,0,.22);
     max-width:calc(100% - 12px);
+    /* columns run underneath it, so only the buttons take taps */
+    pointer-events:none;
+    transition:opacity .16s;
   }
+  #toolbar.ghost{opacity:.22;}
   .tbtn{
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
     min-width:58px;padding:4px 9px;border-radius:8px;
     background:transparent;border:0;color:var(--ink);cursor:pointer;
-    font-family:inherit;font-weight:700;
+    font-family:inherit;font-weight:700;pointer-events:auto;
   }
-  .tbtn .ic{font-size:clamp(14px,2.6vh,20px);line-height:1;color:var(--gold);}
-  .tbtn .lb{font-size:clamp(9px,1.7vh,13px);line-height:1;letter-spacing:.2px;}
+  .tbtn .ic{
+    font-size:clamp(14px,2.6vh,20px);line-height:1;color:var(--gold);
+    text-shadow:0 1px 3px rgba(0,0,0,.9), 0 0 6px rgba(0,0,0,.5);
+  }
+  .tbtn .lb{
+    font-size:clamp(9px,1.7vh,13px);line-height:1;letter-spacing:.2px;
+    text-shadow:0 1px 3px rgba(0,0,0,.9), 0 0 6px rgba(0,0,0,.5);
+  }
   .tbtn:active{background:rgba(255,255,255,.18);}
   .tbtn[disabled]{opacity:.38;cursor:default;}
   .tbtn[disabled] .ic{color:#cfd8d2;}
@@ -654,7 +664,7 @@ function measure(){
   geo.foundStep = Math.min(cw * 0.30, (geo.stockX - x0 - cw) / 8);
   if(geo.foundStep < 4) geo.foundStep = 4;
   /* fanned cards may run down to here before they get squeezed harder */
-  geo.softBottom = BH - ch - pad*2;
+  /* columns run all the way to the bottom edge now */
   geo.hardBottom = BH - pad;
 }
 
@@ -707,14 +717,26 @@ function columnOffsets(col){
   for(var i=0;i<a.length;i++){ if(a[i].up) nu++; else nd++; }
   var prefD = geo.ch * 0.135, prefU = geo.ch * 0.30;
   var need = nd*prefD + Math.max(0, nu-1)*prefU;
-  var soft = geo.softBottom - geo.y0 - geo.ch;
-  var hard = geo.hardBottom - geo.y0 - geo.ch;
+  var avail = columnBottom(col, need) - geo.y0 - geo.ch;
   var k = 1;
-  if(need > soft && need > 0){
-    k = Math.max(soft / need, 0.70);
-    if(need * k > hard) k = Math.max(hard / need, 0.30);
-  }
+  if(need > avail && need > 0) k = Math.max(avail / need, MIN_SQUEEZE);
   return { d: prefD*k, u: prefU*k };
+}
+
+var MIN_SQUEEZE = 0.28;   /* never fan tighter than this, whatever it costs */
+
+/* How far down a column may run. Everything reaches the bottom edge except
+   the column over the stock pile, which stops short of it while rows remain
+   to deal - otherwise the pile ends up buried under the cards you tap it
+   with. If the column is too long to fit up there even fully squeezed, the
+   clearance is pointless: give it the whole table rather than cramming it
+   AND overlapping the pile anyway. */
+function columnBottom(col, need){
+  if(S.stock.length && geo.colX[col] + geo.cw*0.5 > geo.stockX){
+    var above = Math.min(geo.hardBottom, geo.stockY - geo.stockLift*4 - geo.gap);
+    if(need * MIN_SQUEEZE <= above - geo.y0 - geo.ch) return above;
+  }
+  return geo.hardBottom;
 }
 
 function layout(animate){
@@ -1033,7 +1055,7 @@ function onDown(e){
     hit = locate(parseInt(cardEl.dataset.id, 10));
     if(!hit) return;          /* a card already home on a foundation */
   }
-  if(!hit && inStock(p)) hit = {type:'stock'};
+  if(inStock(p) && (S.stock.length > 0 || !hit)) hit = {type:'stock'};
   if(!hit){
     var c = columnAtX(p.x);
     if(c >= 0 && p.y >= geo.y0 - geo.gap) hit = {type:'col', col:c};
@@ -1060,6 +1082,7 @@ function onMove(e){
   if(!drag.moved){
     if(Math.abs(dx) + Math.abs(dy) < 6) return;
     drag.moved = true;
+    $('toolbar').classList.add('ghost');
     for(var i=0;i<drag.group.length;i++){
       drag.group[i].classList.add('drag');
       drag.group[i].style.zIndex = 9000 + i;
@@ -1089,6 +1112,7 @@ function onUp(e){
   if(!drag || e.pointerId !== drag.id) return;
   var d = drag;
   drag = null;
+  $('toolbar').classList.remove('ghost');
   try{ board.releasePointerCapture(e.pointerId); }catch(err){}
   var i;
   if(d.group){
