@@ -86,12 +86,16 @@
   .card.up{cursor:pointer;}
   .card .fc{position:absolute;inset:0;background:#fff;display:block;}
   .card .idx{
-    position:absolute;left:5%;top:1.5%;right:5%;
+    position:absolute;left:5%;top:.5%;right:5%;
     display:flex;align-items:flex-start;justify-content:space-between;
-    font-weight:800;line-height:.98;
+    font-weight:800;line-height:1;
   }
-  .card .idx .rk{letter-spacing:-.05em;}
+  .card .idx .rk{
+    letter-spacing:-.05em;
+    font-family:Arial,"Liberation Sans","Helvetica Neue",Helvetica,sans-serif;
+  }
   .card .idx .rk.ten{font-size:.84em;letter-spacing:-.07em;}
+  .card .idx .rk.q{font-size:.85em;}
   .card .idx .su{font-size:1.04em;line-height:.95;}
   .card .pip{
     position:absolute;left:0;right:0;top:36%;
@@ -627,7 +631,8 @@ function cardMarkup(card){
   var court = card.rank >= 11;
   el.innerHTML =
     '<div class="fc">' +
-      '<div class="idx"><span class="rk' + (card.rank === 10 ? ' ten' : '') + '">' +
+      '<div class="idx"><span class="rk' + (card.rank === 10 ? ' ten' : '') +
+      (card.rank === 12 ? ' q' : '') + '">' +
       RANK_CH[card.rank] + '</span>' +
       '<span class="su">' + SUIT_CH[card.suit] + '</span></div>' +
       (court
@@ -657,6 +662,7 @@ function measure(){
   var ch = cw * 1.42;
   var maxCH = (BH - pad*2) * 0.42;
   if(ch > maxCH){ ch = maxCH; cw = ch / 1.42; }
+
   var totalW = cw*COLS + gap*(COLS-1);
   var x0 = (BW - totalW) / 2;
 
@@ -707,16 +713,12 @@ function styleSlots(){
   stockCount.style.top = (geo.stockY - geo.stockLift*4 + geo.ch*0.34) + 'px';
 }
 
-function styleCard(el, strip){
+function styleCard(el){
   var cw = geo.cw, ch = geo.ch;
   el.style.width = cw + 'px';
   el.style.height = ch + 'px';
   var idx = el.querySelector('.idx');
-  /* the rank/suit fills whatever sliver of the card stays visible, so a
-     stacked column still reads at a glance */
-  var f = cw * 0.40;
-  if(strip !== undefined) f = Math.min(f, Math.max(strip * 0.92, 7));
-  if(idx) idx.style.fontSize = Math.round(f) + 'px';
+  if(idx) idx.style.fontSize = geo.rankFont + 'px';
   var pip = el.querySelector('.pip');
   if(pip) pip.style.fontSize = Math.round(cw*0.58) + 'px';
 }
@@ -725,15 +727,65 @@ function styleCard(el, strip){
 function columnOffsets(col){
   var a = S.cols[col], nd = 0, nu = 0;
   for(var i=0;i<a.length;i++){ if(a[i].up) nu++; else nd++; }
-  var prefD = geo.ch * 0.135, prefU = geo.ch * 0.30;
+  var prefD = geo.ch * FAN_DOWN, prefU = geo.ch * FAN_UP;
   var need = nd*prefD + Math.max(0, nu-1)*prefU;
   var avail = columnBottom(col, need) - geo.y0 - geo.ch;
   var k = 1;
-  if(need > avail && need > 0) k = Math.max(avail / need, MIN_SQUEEZE);
+  /* a column always fits on screen, even if that means a very tight fan;
+     the type size then follows the tightest fan on the table */
+  if(need > avail && need > 0) k = Math.max(avail / need, HARD_SQUEEZE);
   return { d: prefD*k, u: prefU*k };
 }
 
-var MIN_SQUEEZE = 0.28;   /* never fan tighter than this, whatever it costs */
+/* Fan spacing, as fractions of a card height. */
+var FAN_DOWN = 0.135, FAN_UP = 0.30;
+
+/* Every card on the table carries the same size rank and suit, so the type
+   is sized to the tightest column: whatever sliver the most crowded stack
+   leaves visible has to hold a whole glyph. Calibrated below against the
+   font the device actually picked, since a descending J or Q would need
+   more room than plain digits do. */
+var INK_RATIO = 0.90;     /* ink height of a rank, as a multiple of font size */
+var INK_TRIM = 0.94;      /* trimming this little off the glyph is invisible */
+var HARD_SQUEEZE = 0.28;  /* tightest fan allowed, so a column always fits */
+
+function calibrateInk(){
+  try{
+    var card = null, i;
+    for(i=0;i<els.length && !card;i++)
+      if(els[i] && els[i].classList.contains('up') && els[i].style.display !== 'none') card = els[i];
+    if(!card) return;
+    var cardTop = card.getBoundingClientRect().top;
+    var ch = parseFloat(card.style.height);
+    var idx = card.querySelector('.idx');
+    var f = parseFloat(idx.style.fontSize);
+    if(!(ch > 0 && f > 0)) return;
+
+    var cv = document.createElement('canvas').getContext('2d');
+
+    /* a zero-height inline-block sits exactly on the text baseline */
+    function inkBottom(el, text, cls){
+      if(cls !== undefined) el.className = cls;
+      el.innerHTML = text + '<span class="__bl" style="display:inline-block;width:0;height:0"></span>';
+      var base = el.querySelector('.__bl').getBoundingClientRect().bottom - cardTop;
+      var cs = getComputedStyle(el);
+      cv.font = cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+      return base + (cv.measureText(text).actualBoundingBoxDescent || 0);
+    }
+
+    var rk = idx.querySelector('.rk'), su = idx.querySelector('.su');
+    var keepRk = rk.innerHTML, keepRkCls = rk.className, keepSu = su.innerHTML;
+    var need = 0, r;
+    for(r = 1; r <= 13; r++){
+      need = Math.max(need, inkBottom(rk, RANK_CH[r],
+        'rk' + (r === 10 ? ' ten' : '') + (r === 12 ? ' q' : '')));
+    }
+    for(r = 0; r < SUIT_CH.length; r++) need = Math.max(need, inkBottom(su, SUIT_CH[r]));
+    rk.className = keepRkCls; rk.innerHTML = keepRk; su.innerHTML = keepSu;
+
+    INK_RATIO = clamp((need / f) * INK_TRIM, 0.5, 1.6);
+  }catch(err){}
+}
 
 /* How far down a column may run. Everything reaches the bottom edge except
    the column over the stock pile, which stops short of it while rows remain
@@ -744,7 +796,7 @@ var MIN_SQUEEZE = 0.28;   /* never fan tighter than this, whatever it costs */
 function columnBottom(col, need){
   if(S.stock.length && geo.colX[col] + geo.cw*0.5 > geo.stockX){
     var above = Math.min(geo.hardBottom, geo.stockY - geo.stockLift*4 - geo.gap);
-    if(need * MIN_SQUEEZE <= above - geo.y0 - geo.ch) return above;
+    if(need * HARD_SQUEEZE <= above - geo.y0 - geo.ch) return above;
   }
   return geo.hardBottom;
 }
@@ -754,16 +806,28 @@ function layout(animate){
   measure();
   styleSlots();
 
-  var seen = {};
-  var i, j;
+  /* Work out the fan for every column first, then pick one type size that
+     fits the narrowest sliver on the table - so a rank is the same size
+     wherever it appears, and never sliced off by the card below it. */
+  var offs = [], narrowest = Infinity, i, j;
   for(i=0;i<COLS;i++){
-    var off = columnOffsets(i);
+    offs.push(columnOffsets(i));
+    var c = S.cols[i];
+    for(j=0;j<c.length-1;j++)
+      if(c[j].up && offs[i].u < narrowest) narrowest = offs[i].u;
+  }
+  var maxFont = geo.cw * 0.40;
+  geo.rankFont = Math.round(narrowest === Infinity ? maxFont
+                            : clamp(narrowest / INK_RATIO, geo.cw*0.20, maxFont));
+
+  var seen = {};
+  for(i=0;i<COLS;i++){
+    var off = offs[i];
     var y = geo.y0, col = S.cols[i];
     for(j=0;j<col.length;j++){
       var cd = col[j], el = els[cd.id];
-      var strip = (j < col.length-1) ? (cd.up ? off.u : off.d) : geo.ch;
       seen[cd.id] = 1;
-      styleCard(el, strip);
+      styleCard(el);
       el.style.display = '';
       el.style.transform = '';
       el.style.left = geo.colX[i] + 'px';
@@ -1371,6 +1435,10 @@ if(!loadGame()){
   var pref = lsGet(LS_PREF, {diff:'master'});
   startGame(DIFFS[pref.diff] ? pref.diff : 'master');
 }
+/* now that real cards are on the table, find out how much room this
+   device's font needs, then lay out again with the answer */
+calibrateInk();
+layout(false);
 /* test hook: lets a script drive a whole game without touching the DOM */
 window.__spider = {
   state: function(){ return S; },
