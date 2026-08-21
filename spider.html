@@ -7,7 +7,10 @@
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Spider" />
 <title>Spider Solitaire</title>
+<link rel="manifest" href="spider.webmanifest" />
+<link rel="apple-touch-icon" sizes="180x180" href="icons/spider/icon-180.png" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23146a34'/%3E%3Ctext x='16' y='24' font-size='22' text-anchor='middle' fill='%23fff'%3E%E2%99%A0%3C/text%3E%3C/svg%3E" />
 <style>
   :root{
@@ -20,7 +23,7 @@
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{
-    height:100%;margin:0;padding:0;overflow:hidden;
+    height:100%;margin:0;padding:0;overflow:hidden;touch-action:manipulation;
     background:#0d4a22;color:var(--ink);
     font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
     user-select:none;-webkit-user-select:none;overscroll-behavior:none;
@@ -29,12 +32,13 @@
     position:fixed;inset:0;display:flex;flex-direction:column;
     background:
       radial-gradient(120% 90% at 50% -10%, var(--felt1) 0%, var(--felt2) 45%, var(--felt3) 100%);
-    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
   /* ---------- top bar ---------- */
   #topbar{
     flex:0 0 auto;display:flex;align-items:center;gap:10px;
-    padding:5px 10px;background:var(--bar);
+    padding:calc(5px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right))
+            5px calc(10px + env(safe-area-inset-left));
+    background:var(--bar);
     backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
     box-shadow:0 2px 8px rgba(0,0,0,.30);
     font-size:clamp(12px,2.4vh,17px);line-height:1;
@@ -54,6 +58,8 @@
   /* ---------- board ---------- */
   #board{
     position:relative;flex:1 1 auto;overflow:hidden;touch-action:none;
+    /* margin, not padding: the layout measures clientWidth/clientHeight */
+    margin:0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
   .slot{
     position:absolute;border-radius:7px;
@@ -1299,6 +1305,13 @@ window.__spider = {
   undo: undo,
   start: startGame
 };
+
+/* Installed on a Home Screen there is no browser chrome to escape to, so
+   swallow the pinch- and double-tap-zoom gestures that would just smear
+   the table around. */
+['gesturestart','gesturechange','gestureend'].forEach(function(n){
+  document.addEventListener(n, function(e){ e.preventDefault(); }, {passive:false});
+});
 
 /* the table is built for landscape - say so once on a tall narrow screen */
 if(board.clientHeight > board.clientWidth * 1.15 && window.innerWidth < 820){
