@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no" />
+<meta name="theme-color" content="#14622f" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>Spider Solitaire</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23146a34'/%3E%3Ctext x='16' y='24' font-size='22' text-anchor='middle' fill='%23fff'%3E%E2%99%A0%3C/text%3E%3C/svg%3E" />
+<style>
+  :root{
+    --felt1:#2f9152; --felt2:#166a34; --felt3:#0d4a22;
+    --bar:rgba(4,32,16,.62);
+    --ink:#f3f7f4;
+    --gold:#ffd76a;
+    --red:#d21f1f;
+    --black:#1a1a1a;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{
+    height:100%;margin:0;padding:0;overflow:hidden;
+    background:#0d4a22;color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    user-select:none;-webkit-user-select:none;overscroll-behavior:none;
+  }
+  #app{
+    position:fixed;inset:0;display:flex;flex-direction:column;
+    background:
+      radial-gradient(120% 90% at 50% -10%, var(--felt1) 0%, var(--felt2) 45%, var(--felt3) 100%);
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  /* ---------- top bar ---------- */
+  #topbar{
+    flex:0 0 auto;display:flex;align-items:center;gap:10px;
+    padding:5px 10px;background:var(--bar);
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    box-shadow:0 2px 8px rgba(0,0,0,.30);
+    font-size:clamp(12px,2.4vh,17px);line-height:1;
+  }
+  #topbar .grow{flex:1 1 auto;}
+  .tb{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    min-width:40px;height:32px;padding:0 10px;border-radius:7px;
+    background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);
+    color:var(--ink);font-weight:600;cursor:pointer;white-space:nowrap;
+  }
+  .tb:active{background:rgba(255,255,255,.22);}
+  .stat{font-variant-numeric:tabular-nums;font-weight:600;opacity:.97;white-space:nowrap;}
+  .stat b{font-weight:700;}
+  #diffLabel{font-weight:700;letter-spacing:.3px;}
+  #diffLabel .dot{color:var(--gold);}
+  /* ---------- board ---------- */
+  #board{
+    position:relative;flex:1 1 auto;overflow:hidden;touch-action:none;
+  }
+  .slot{
+    position:absolute;border-radius:7px;
+    border:2px solid rgba(255,255,255,.22);
+    background:rgba(0,0,0,.10);
+    box-shadow:inset 0 2px 10px rgba(0,0,0,.18);
+    pointer-events:none;
+  }
+  .slot.drop{border-color:var(--gold);background:rgba(255,215,106,.16);}
+  #stockSlot{pointer-events:auto;cursor:pointer;}
+  #stockCount{
+    position:absolute;pointer-events:none;font-weight:700;color:#fff;
+    text-shadow:0 1px 3px rgba(0,0,0,.8);z-index:9000;
+  }
+  /* ---------- cards ---------- */
+  .card{
+    position:absolute;border-radius:6px;overflow:hidden;
+    background:#fff;color:var(--black);
+    box-shadow:0 1px 2px rgba(0,0,0,.45), 0 3px 7px rgba(0,0,0,.22);
+    transition:left .17s cubic-bezier(.22,.7,.3,1), top .17s cubic-bezier(.22,.7,.3,1);
+    will-change:left,top,transform;cursor:default;
+    border:1px solid rgba(0,0,0,.28);
+  }
+  .card.up{cursor:pointer;}
+  .card .fc{position:absolute;inset:0;background:#fff;display:block;}
+  .card .idx{
+    position:absolute;left:6%;top:2%;right:6%;
+    display:flex;align-items:center;justify-content:space-between;
+    font-weight:700;line-height:1.05;letter-spacing:-.5px;
+  }
+  .card .pip{
+    position:absolute;left:0;right:0;top:34%;
+    text-align:center;line-height:1;
+  }
+  .card .court{
+    position:absolute;left:11%;right:11%;top:31%;bottom:7%;
+    border-radius:4px;
+    background:
+      repeating-linear-gradient(135deg, rgba(0,0,0,.045) 0 2px, rgba(0,0,0,0) 2px 6px),
+      linear-gradient(160deg,#fdf6e2 0%,#f3e2b8 48%,#e5cb8a 100%);
+    border:1px solid rgba(0,0,0,.25);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.6);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2%;
+    font-weight:800;line-height:1;
+  }
+  .card .court .cs{font-size:.68em;opacity:.9;}
+  .card.red{color:var(--red);}
+  .card.blk{color:var(--black);}
+  .card .bk{
+    position:absolute;inset:0;display:none;
+    background:
+      repeating-linear-gradient(45deg, rgba(255,255,255,.16) 0 3px, rgba(255,255,255,0) 3px 8px),
+      repeating-linear-gradient(-45deg, rgba(255,255,255,.16) 0 3px, rgba(255,255,255,0) 3px 8px),
+      radial-gradient(60% 45% at 50% 50%, #3f6fd8 0%, #2450bd 55%, #17398f 100%);
+    border-radius:5px;
+    box-shadow:inset 0 0 0 2px #fff, inset 0 0 0 3px #1b3f9c;
+  }
+  .card .bk::after{
+    content:"";position:absolute;left:22%;right:22%;top:16%;bottom:16%;
+    border:1px solid rgba(255,255,255,.5);border-radius:40% 40% 40% 40%/50% 50% 50% 50%;
+    background:radial-gradient(circle at 50% 50%, rgba(255,255,255,.28) 0 18%, rgba(255,255,255,0) 60%);
+  }
+  .card.down .fc{display:none;}
+  .card.down .bk{display:block;}
+  .card.down{cursor:default;}
+  .card.drag{transition:none;box-shadow:0 6px 14px rgba(0,0,0,.5), 0 14px 30px rgba(0,0,0,.35);}
+  .card.sel{box-shadow:0 0 0 3px var(--gold), 0 6px 14px rgba(0,0,0,.45);}
+  .card.hintf{animation:hintPulse .5s ease-in-out 3;}
+  @keyframes hintPulse{
+    0%,100%{box-shadow:0 1px 2px rgba(0,0,0,.45), 0 3px 7px rgba(0,0,0,.22);}
+    50%{box-shadow:0 0 0 4px #ffe89a, 0 0 22px 6px rgba(255,215,106,.75);}
+  }
+  .card.dealt{animation:none;}
+  /* ---------- bottom toolbar ---------- */
+  #toolbar{
+    position:absolute;left:50%;transform:translateX(-50%);
+    bottom:6px;z-index:9500;
+    display:flex;align-items:stretch;gap:2px;
+    padding:4px;border-radius:10px;
+    background:rgba(6,44,22,.72);border:1px solid rgba(255,255,255,.22);
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    box-shadow:0 4px 16px rgba(0,0,0,.38);
+    max-width:calc(100% - 12px);
+  }
+  .tbtn{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+    min-width:58px;padding:4px 9px;border-radius:8px;
+    background:transparent;border:0;color:var(--ink);cursor:pointer;
+    font-family:inherit;font-weight:700;
+  }
+  .tbtn .ic{font-size:clamp(14px,2.6vh,20px);line-height:1;color:var(--gold);}
+  .tbtn .lb{font-size:clamp(9px,1.7vh,13px);line-height:1;letter-spacing:.2px;}
+  .tbtn:active{background:rgba(255,255,255,.18);}
+  .tbtn[disabled]{opacity:.38;cursor:default;}
+  .tbtn[disabled] .ic{color:#cfd8d2;}
+  /* ---------- toast ---------- */
+  #toast{
+    position:absolute;left:50%;top:14%;transform:translate(-50%,-6px);
+    z-index:9800;padding:9px 16px;border-radius:9px;
+    background:rgba(8,40,22,.92);border:1px solid rgba(255,255,255,.25);
+    color:#fff;font-weight:600;font-size:clamp(12px,2.2vh,16px);
+    opacity:0;pointer-events:none;transition:opacity .18s, transform .18s;
+    box-shadow:0 6px 20px rgba(0,0,0,.4);white-space:nowrap;max-width:92vw;
+  }
+  #toast.on{opacity:1;transform:translate(-50%,0);}
+  /* ---------- modal ---------- */
+  .veil{
+    position:absolute;inset:0;z-index:10000;display:none;
+    align-items:center;justify-content:center;padding:12px;
+    background:rgba(0,0,0,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+  }
+  .veil.on{display:flex;}
+  .sheet{
+    width:min(560px,96vw);max-height:92vh;overflow:auto;
+    background:linear-gradient(180deg,#12572c,#0c3f20);
+    border:1px solid rgba(255,255,255,.25);border-radius:14px;
+    box-shadow:0 18px 50px rgba(0,0,0,.55);
+    padding:14px 16px 16px;
+  }
+  .sheet h2{margin:0 0 2px;font-size:clamp(17px,3.4vh,23px);letter-spacing:.3px;}
+  .sheet p.sub{margin:0 0 12px;font-size:clamp(11px,2vh,14px);opacity:.82;}
+  .sheet h3{margin:14px 0 7px;font-size:clamp(12px,2.1vh,15px);opacity:.85;text-transform:uppercase;letter-spacing:1px;font-weight:700;}
+  .diffs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:7px;}
+  .dbtn{
+    display:flex;align-items:center;gap:9px;text-align:left;
+    padding:9px 11px;border-radius:9px;cursor:pointer;font-family:inherit;
+    background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);color:var(--ink);
+  }
+  .dbtn:active{background:rgba(255,255,255,.2);}
+  .dbtn.cur{border-color:var(--gold);background:rgba(255,215,106,.18);}
+  .dbtn .pips{font-size:16px;line-height:1;letter-spacing:1px;min-width:4.6em;padding-right:4px;flex:0 0 auto;}
+  .dbtn .pips .r{color:#ff6b6b;}
+  .dbtn .nm{font-weight:700;font-size:14px;}
+  .dbtn .ds{font-size:11px;opacity:.8;font-weight:500;}
+  .row{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px;}
+  .row .wide{flex:1 1 140px;}
+  .abtn{
+    padding:10px 13px;border-radius:9px;cursor:pointer;font-family:inherit;font-weight:700;font-size:14px;
+    background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.2);color:var(--ink);text-align:center;
+  }
+  .abtn.pri{background:linear-gradient(180deg,#d9a83a,#b9821c);border-color:#ffd76a;color:#2a1a00;}
+  .abtn:active{filter:brightness(1.15);}
+  table.stats{width:100%;border-collapse:collapse;font-size:13px;}
+  table.stats th,table.stats td{padding:5px 6px;border-bottom:1px solid rgba(255,255,255,.13);text-align:right;}
+  table.stats th:first-child,table.stats td:first-child{text-align:left;}
+  table.stats th{opacity:.75;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.6px;}
+  ul.rules{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.5;opacity:.9;}
+  ul.rules li{margin-bottom:3px;}
+  .winbig{font-size:clamp(26px,6vh,44px);font-weight:800;color:var(--gold);text-shadow:0 3px 12px rgba(0,0,0,.5);margin:0 0 4px;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="topbar">
+    <button class="tb" id="btnMenu" title="Menu">☰</button>
+    <span id="diffLabel">Master</span>
+    <span class="grow"></span>
+    <span class="stat" id="foundStat">Suits: <b>0</b>/8</span>
+    <span class="stat" id="scoreStat">Score: <b>500</b></span>
+    <span class="stat" id="timeStat">0:00</span>
+  </div>
+
+  <div id="board">
+    <div id="toolbar">
+      <button class="tbtn" id="btnNew"><span class="ic">✚</span><span class="lb">New</span></button>
+      <button class="tbtn" id="btnHint"><span class="ic">✦</span><span class="lb">Hint</span></button>
+      <button class="tbtn" id="btnUndoAll"><span class="ic">⏮</span><span class="lb">Undo All</span></button>
+      <button class="tbtn" id="btnUndo"><span class="ic">↶</span><span class="lb">Undo</span></button>
+      <button class="tbtn" id="btnMore"><span class="ic">⋯</span><span class="lb">More</span></button>
+    </div>
+    <div id="toast"></div>
+  </div>
+</div>
+
+<div class="veil" id="menuVeil">
+  <div class="sheet">
+    <h2>Spider Solitaire</h2>
+    <p class="sub">Two decks &middot; ten columns &middot; build a suit from King down to Ace to clear it.</p>
+    <h3>Difficulty</h3>
+    <div class="diffs" id="diffList"></div>
+    <div class="row">
+      <button class="abtn pri wide" id="mNew">New Game</button>
+      <button class="abtn wide" id="mRestart">Restart This Deal</button>
+      <button class="abtn wide" id="mClose">Close</button>
+    </div>
+    <h3>Record</h3>
+    <table class="stats" id="statTable"></table>
+    <h3>How to play</h3>
+    <ul class="rules">
+      <li>Drag a card &mdash; or tap it, then tap where it goes.</li>
+      <li>Any card can land on a card one rank higher, of any suit.</li>
+      <li>Only cards already in a same&#8209;suit run move together.</li>
+      <li>Double&#8209;tap a card to send it to the best spot.</li>
+      <li>Tap the stock pile (bottom right) to deal a row &mdash; every column must have at least one card first.</li>
+      <li>Score starts at 500: &minus;1 per move, +100 per completed suit.</li>
+      <li>Keys: <b>N</b> new &middot; <b>U</b> undo &middot; <b>H</b> hint &middot; <b>Space</b> deal.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="veil" id="winVeil">
+  <div class="sheet" style="text-align:center;">
+    <p class="winbig">You Win!</p>
+    <p class="sub" id="winSub" style="margin-bottom:14px;"></p>
+    <div class="row" style="justify-content:center;">
+      <button class="abtn pri wide" id="wNew">New Game</button>
+      <button class="abtn wide" id="wClose">Look at Board</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Spider Solitaire - single file, no audio, no external assets.
+   Layout and feel modeled on the Microsoft Solitaire Collection Spider game. */
+(function(){
+'use strict';
+
+/* ------------------------------------------------------------------ *
+ * Constants
+ * ------------------------------------------------------------------ */
+var SUIT_CH = ['♠','♥','♦','♣'];      // spade heart diamond club
+var SUIT_RED = [false,true,true,false];
+var RANK_CH = [null,'A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+var COLS = 10;
+var DEAL_ROWS = 5;
+
+var DIFFS = {
+  easy:   {name:'Easy',   suits:1, search:0,   budget:0,   blurb:'One suit'},
+  medium: {name:'Medium', suits:2, search:0,   budget:0,   blurb:'Two suits'},
+  hard:   {name:'Hard',   suits:4, search:0,   budget:0,   blurb:'Four suits'},
+  expert: {name:'Expert', suits:4, search:70,  budget:220, blurb:'Four suits, tough deal'},
+  master: {name:'Master', suits:4, search:300, budget:520, blurb:'Four suits, hardest deal'}
+};
+var DIFF_ORDER = ['easy','medium','hard','expert','master'];
+
+var LS_SAVE = 'spider.save.v1';
+var LS_PREF = 'spider.pref.v1';
+var LS_STAT = 'spider.stats.v1';
+
+/* ------------------------------------------------------------------ *
+ * Small helpers
+ * ------------------------------------------------------------------ */
+function $(id){ return document.getElementById(id); }
+function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+
+function mulberry32(a){
+  return function(){
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    var t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function shuffled(codes, rnd){
+  var a = codes.slice();
+  for(var i=a.length-1;i>0;i--){
+    var j = (rnd()*(i+1))|0;
+    var t=a[i]; a[i]=a[j]; a[j]=t;
+  }
+  return a;
+}
+function lsGet(key, dflt){
+  try{ var v = localStorage.getItem(key); return v ? JSON.parse(v) : dflt; }
+  catch(e){ return dflt; }
+}
+function lsSet(key, val){
+  try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
+}
+
+/* A card "code" packs suit and rank: code = suit*13 + (rank-1) */
+function codeSuit(c){ return (c/13)|0; }
+function codeRank(c){ return (c%13)+1; }
+
+/* Build the 104 card codes for a suit count (1, 2 or 4 suits). */
+function buildCodes(suitCount){
+  var suits = suitCount === 1 ? [0] : (suitCount === 2 ? [0,1] : [0,1,2,3]);
+  var copies = 8 / suits.length;
+  var out = [];
+  for(var c=0;c<copies;c++)
+    for(var s=0;s<suits.length;s++)
+      for(var r=1;r<=13;r++) out.push(suits[s]*13 + (r-1));
+  return out;
+}
+
+/* ------------------------------------------------------------------ *
+ * Deal generation
+ * A deal is just the 104 codes in order: the first 54 fill the tableau,
+ * the remaining 50 are the five stock rows.
+ * Expert and Master search many random deals and keep the meanest one.
+ * ------------------------------------------------------------------ */
+function tableauFromOrder(order){
+  var cols = [], k = 0;
+  for(var i=0;i<COLS;i++){
+    var n = i < 4 ? 6 : 5, col = [];
+    for(var j=0;j<n;j++){
+      col.push({ c: order[k++], up: (j === n-1) });
+    }
+    cols.push(col);
+  }
+  return cols;
+}
+
+/* Greedy playout of the opening tableau plus the first couple of stock rows.
+   The bigger the number, the friendlier the deal. Expert and Master search
+   for the least friendly deal they can find inside a small time budget. */
+function dealFriendliness(order){
+  var cols = tableauFromOrder(order);
+  var stock = order.slice(54);
+  var flips = 0, emptied = 0, suited = 0, steps = 0, openMoves = 0;
+
+  function runStartsOf(col){
+    var a = cols[col], out = [], i;
+    for(i=a.length-1;i>=0;i--){
+      if(!a[i].up) break;
+      if(i < a.length-1){
+        var b = a[i+1];
+        if(!(codeSuit(b.c) === codeSuit(a[i].c) && codeRank(b.c) === codeRank(a[i].c)-1)) break;
+      }
+      out.push(i);
+    }
+    return out;
+  }
+  function harvest(t){
+    var d = cols[t];
+    if(d.length < 13) return;
+    var top = d.length-13;
+    if(codeRank(d[top].c) !== 13) return;
+    for(var q=top; q<d.length; q++){
+      if(!d[q].up || codeSuit(d[q].c) !== codeSuit(d[top].c) || codeRank(d[q].c) !== 13-(q-top)) return;
+    }
+    d.splice(top); suited++;
+  }
+  function hasEmpty(){
+    for(var i=0;i<COLS;i++) if(cols[i].length === 0) return true;
+    return false;
+  }
+
+  for(var round=0; round<3; round++){
+    var first = (round === 0);
+    for(var pass=0; pass<40; pass++){
+      var best = null;
+      for(var f=0; f<COLS; f++){
+        var starts = runStartsOf(f);
+        for(var si=0; si<starts.length; si++){
+          var idx = starts[si], card = cols[f][idx];
+          for(var t=0; t<COLS; t++){
+            if(t === f) continue;
+            var dst = cols[t], ok;
+            if(dst.length === 0) ok = (idx > 0);
+            else ok = (codeRank(dst[dst.length-1].c) === codeRank(card.c) + 1);
+            if(!ok) continue;
+            if(first && pass === 0) openMoves++;
+            var sc = 0;
+            if(dst.length && codeSuit(dst[dst.length-1].c) === codeSuit(card.c)) sc += 14;
+            if(idx > 0 && !cols[f][idx-1].up) sc += 100;
+            if(idx === 0) sc += 60;
+            if(dst.length === 0) sc -= 45;
+            if(idx > 0 && cols[f][idx-1].up &&
+               codeSuit(cols[f][idx-1].c) === codeSuit(card.c) &&
+               codeRank(cols[f][idx-1].c) === codeRank(card.c)+1) sc -= 70;
+            sc += (cols[f].length - idx);
+            if(!best || sc > best.sc) best = {f:f, idx:idx, t:t, sc:sc};
+          }
+        }
+      }
+      if(!best || best.sc <= -40) break;
+      var moving = cols[best.f].splice(best.idx);
+      for(var m=0;m<moving.length;m++) cols[best.t].push(moving[m]);
+      steps++;
+      var src = cols[best.f];
+      if(src.length === 0) emptied++;
+      else if(!src[src.length-1].up){ src[src.length-1].up = true; flips++; }
+      harvest(best.t);
+    }
+    if(stock.length < COLS || hasEmpty()) break;
+    for(var k=0;k<COLS;k++) cols[k].push({ c: stock.pop(), up: true });
+    for(var h=0;h<COLS;h++) harvest(h);
+  }
+  /* a deal with no legal opening move at all is no fun - never pick one */
+  if(openMoves === 0) return 1000;
+  return flips*10 + emptied*20 + suited*140 + openMoves*3 + steps;
+}
+
+/* Pick a deal for the requested difficulty. */
+function makeOrder(diffKey, seed){
+  var d = DIFFS[diffKey];
+  var codes = buildCodes(d.suits);
+  var rnd = mulberry32(seed);
+  if(!d.search) return shuffled(codes, rnd);
+
+  var t0 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+  function now(){ return (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now(); }
+  var best = null, bestScore = Infinity;
+  for(var i=0;i<d.search;i++){
+    var cand = shuffled(codes, rnd);
+    var sc = dealFriendliness(cand);
+    if(sc < bestScore){ bestScore = sc; best = cand; }
+    if(i % 10 === 9 && now() - t0 > d.budget) break;
+  }
+  return best;
+}
+
+/* ------------------------------------------------------------------ *
+ * Game state
+ * ------------------------------------------------------------------ */
+var S = null;   /* live game */
+var els = [];   /* card id -> DOM element */
+
+function newState(diffKey, seed, order){
+  var deck = order.map(function(code, i){
+    return { id:i, code:code, suit:codeSuit(code), rank:codeRank(code), up:false };
+  });
+  var st = {
+    diff: diffKey,
+    seed: seed,
+    order: order,
+    deck: deck,
+    cols: [],
+    stock: [],
+    found: [],          /* [{suit:s, ids:[13 card ids, King first]}] */
+    score: 500,
+    moves: 0,
+    elapsed: 0,
+    started: false,
+    won: false,
+    history: []
+  };
+  var k = 0;
+  for(var i=0;i<COLS;i++){
+    var n = i < 4 ? 6 : 5, col = [];
+    for(var j=0;j<n;j++){
+      var card = deck[k++];
+      card.up = (j === n-1);
+      col.push(card);
+    }
+    st.cols.push(col);
+  }
+  st.stock = deck.slice(k);   /* 50 cards = 5 rows of 10 */
+  return st;
+}
+
+function snapshot(){
+  return {
+    c: S.cols.map(function(col){ return col.map(function(cd){ return cd.id*2 + (cd.up?1:0); }); }),
+    s: S.stock.map(function(cd){ return cd.id; }),
+    f: S.found.map(function(f){ return { s:f.suit, i:f.ids.slice() }; }),
+    sc: S.score,
+    mv: S.moves
+  };
+}
+function restoreSnap(sn){
+  S.cols = sn.c.map(function(col){
+    return col.map(function(v){
+      var cd = S.deck[v>>1];
+      cd.up = !!(v & 1);
+      return cd;
+    });
+  });
+  S.stock = sn.s.map(function(i){ return S.deck[i]; });
+  S.found = sn.f.map(function(f){ return { suit:f.s, ids:f.i.slice() }; });
+  S.score = sn.sc;
+  S.moves = sn.mv;
+}
+function pushHistory(){
+  S.history.push(snapshot());
+  if(S.history.length > 400) S.history.shift();
+}
+
+/* ------------------------------------------------------------------ *
+ * Rendering
+ * ------------------------------------------------------------------ */
+var board = $('board');
+var geo = { cw:60, ch:85, gap:6, pad:8, x0:0, y0:8, colX:[], stockX:0, stockY:0, foundX:0, foundY:0, foundStep:18 };
+var slots = [], stockSlot = null, stockCount = null;
+
+function buildSlots(){
+  for(var i=0;i<COLS;i++){
+    var d = document.createElement('div');
+    d.className = 'slot';
+    d.dataset.col = i;
+    board.appendChild(d);
+    slots.push(d);
+  }
+  stockSlot = document.createElement('div');
+  stockSlot.className = 'slot';
+  stockSlot.id = 'stockSlot';
+  board.appendChild(stockSlot);
+
+  stockCount = document.createElement('div');
+  stockCount.id = 'stockCount';
+  board.appendChild(stockCount);
+
+  for(var f=0; f<8; f++){
+    var g = document.createElement('div');
+    g.className = 'slot';
+    g.dataset.found = f;
+    board.appendChild(g);
+    slots.push(g);   /* kept only for sizing; drop targets come from dataset.col */
+  }
+}
+
+function cardMarkup(card){
+  var red = SUIT_RED[card.suit];
+  var el = document.createElement('div');
+  el.className = 'card ' + (red ? 'red' : 'blk');
+  el.dataset.id = card.id;
+  var court = card.rank >= 11;
+  el.innerHTML =
+    '<div class="fc">' +
+      '<div class="idx"><span class="rk">' + RANK_CH[card.rank] + '</span>' +
+      '<span class="su">' + SUIT_CH[card.suit] + '</span></div>' +
+      (court
+        ? '<div class="court"><span class="cr">' + RANK_CH[card.rank] + '</span><span class="cs">' + SUIT_CH[card.suit] + '</span></div>'
+        : '<div class="pip">' + SUIT_CH[card.suit] + '</div>') +
+    '</div>' +
+    '<div class="bk"></div>';
+  return el;
+}
+
+function buildCards(){
+  for(var i=0;i<els.length;i++) if(els[i] && els[i].parentNode) els[i].parentNode.removeChild(els[i]);
+  els = [];
+  for(var k=0;k<S.deck.length;k++){
+    var el = cardMarkup(S.deck[k]);
+    board.appendChild(el);
+    els[S.deck[k].id] = el;
+  }
+}
+
+/* Work out card size, column x positions and pile anchors. */
+function measure(){
+  var BW = board.clientWidth, BH = board.clientHeight;
+  var pad = clamp(BW * 0.008, 4, 14);
+  var gap = clamp(BW * 0.007, 3, 12);
+  var cw = (BW - pad*2 - gap*(COLS-1)) / COLS;
+  var ch = cw * 1.42;
+  var maxCH = (BH - pad*2) * 0.42;
+  if(ch > maxCH){ ch = maxCH; cw = ch / 1.42; }
+  var totalW = cw*COLS + gap*(COLS-1);
+  var x0 = (BW - totalW) / 2;
+
+  geo.cw = cw; geo.ch = ch; geo.gap = gap; geo.pad = pad;
+  geo.BW = BW; geo.BH = BH;
+  geo.x0 = x0; geo.y0 = pad;
+  geo.colX = [];
+  for(var i=0;i<COLS;i++) geo.colX.push(x0 + i*(cw+gap));
+
+  geo.stockLift = Math.max(2, cw*0.035);
+  geo.stockX = x0 + totalW - cw - geo.stockLift*4;
+  geo.stockY = BH - ch - pad;
+  geo.foundX = x0;
+  geo.foundY = BH - ch - pad;
+  geo.foundStep = Math.min(cw * 0.30, (geo.stockX - x0 - cw) / 8);
+  if(geo.foundStep < 4) geo.foundStep = 4;
+  /* fanned cards may run down to here before they get squeezed harder */
+  geo.softBottom = BH - ch - pad*2;
+  geo.hardBottom = BH - pad;
+}
+
+function styleSlots(){
+  var i, s;
+  for(i=0;i<COLS;i++){
+    s = slots[i];
+    s.style.left = geo.colX[i] + 'px';
+    s.style.top = geo.y0 + 'px';
+    s.style.width = geo.cw + 'px';
+    s.style.height = geo.ch + 'px';
+  }
+  stockSlot.style.left = geo.stockX + 'px';
+  stockSlot.style.top = geo.stockY + 'px';
+  stockSlot.style.width = geo.cw + 'px';
+  stockSlot.style.height = geo.ch + 'px';
+  for(var f=0; f<8; f++){
+    s = slots[COLS + f];
+    s.style.left = (geo.foundX + f*geo.foundStep) + 'px';
+    s.style.top = geo.foundY + 'px';
+    s.style.width = geo.cw + 'px';
+    s.style.height = geo.ch + 'px';
+    s.style.opacity = '0';
+  }
+  stockCount.style.fontSize = Math.round(geo.cw*0.30) + 'px';
+  stockCount.style.left = geo.stockX + 'px';
+  stockCount.style.width = geo.cw + 'px';
+  stockCount.style.textAlign = 'center';
+  stockCount.style.left = (geo.stockX + geo.stockLift*4) + 'px';
+  stockCount.style.top = (geo.stockY - geo.stockLift*4 + geo.ch*0.34) + 'px';
+}
+
+function styleCard(el, strip){
+  var cw = geo.cw, ch = geo.ch;
+  el.style.width = cw + 'px';
+  el.style.height = ch + 'px';
+  var idx = el.querySelector('.idx');
+  /* the rank/suit strip shrinks to whatever sliver of the card stays visible */
+  var f = cw * 0.32;
+  if(strip !== undefined) f = Math.min(f, Math.max(strip * 0.80, 7));
+  if(idx) idx.style.fontSize = Math.round(f) + 'px';
+  var pip = el.querySelector('.pip');
+  if(pip) pip.style.fontSize = Math.round(cw*0.52) + 'px';
+  var court = el.querySelector('.court');
+  if(court) court.style.fontSize = Math.round(cw*0.42) + 'px';
+}
+
+/* Vertical offsets for one column, squeezed to fit the table. */
+function columnOffsets(col){
+  var a = S.cols[col], nd = 0, nu = 0;
+  for(var i=0;i<a.length;i++){ if(a[i].up) nu++; else nd++; }
+  var prefD = geo.ch * 0.135, prefU = geo.ch * 0.285;
+  var need = nd*prefD + Math.max(0, nu-1)*prefU;
+  var soft = geo.softBottom - geo.y0 - geo.ch;
+  var hard = geo.hardBottom - geo.y0 - geo.ch;
+  var k = 1;
+  if(need > soft && need > 0){
+    k = Math.max(soft / need, 0.56);
+    if(need * k > hard) k = Math.max(hard / need, 0.30);
+  }
+  return { d: prefD*k, u: prefU*k };
+}
+
+function layout(animate){
+  if(!S) return;
+  measure();
+  styleSlots();
+
+  var seen = {};
+  var i, j;
+  for(i=0;i<COLS;i++){
+    var off = columnOffsets(i);
+    var y = geo.y0, col = S.cols[i];
+    for(j=0;j<col.length;j++){
+      var cd = col[j], el = els[cd.id];
+      var strip = (j < col.length-1) ? (cd.up ? off.u : off.d) : geo.ch;
+      seen[cd.id] = 1;
+      styleCard(el, strip);
+      el.style.display = '';
+      el.style.transform = '';
+      el.style.left = geo.colX[i] + 'px';
+      el.style.top = y + 'px';
+      el.style.zIndex = 100 + i*120 + j;
+      el.classList.toggle('down', !cd.up);
+      el.classList.toggle('up', cd.up);
+      if(j < col.length-1) y += (cd.up ? off.u : off.d);
+    }
+  }
+  /* stock */
+  for(j=0;j<S.stock.length;j++){
+    var sc = S.stock[j], se = els[sc.id];
+    seen[sc.id] = 1;
+    styleCard(se);
+    se.style.display = '';
+    se.style.transform = '';
+    var lift = Math.min(Math.floor(j/COLS), 4) * geo.stockLift;
+    se.style.left = (geo.stockX + lift) + 'px';
+    se.style.top = (geo.stockY - lift) + 'px';
+    se.style.zIndex = 60 + j;
+    se.classList.add('down');
+    se.classList.remove('up');
+  }
+  stockCount.textContent = S.stock.length ? (S.stock.length/COLS | 0) + '' : '';
+  stockCount.style.display = S.stock.length ? '' : 'none';
+  stockSlot.style.opacity = S.stock.length ? '0' : '.5';
+
+  /* foundations */
+  for(i=0;i<S.found.length;i++){
+    var f = S.found[i];
+    for(j=0;j<f.ids.length;j++){
+      var fe = els[f.ids[j]];
+      seen[f.ids[j]] = 1;
+      styleCard(fe);
+      fe.style.display = '';
+      fe.style.transform = '';
+      fe.style.left = (geo.foundX + i*geo.foundStep) + 'px';
+      fe.style.top = geo.foundY + 'px';
+      fe.style.zIndex = 20 + i*20 + (f.ids.length - j);
+      fe.classList.remove('down');
+      fe.classList.add('up');
+    }
+  }
+  for(i=0;i<els.length;i++) if(els[i] && !seen[i]) els[i].style.display = 'none';
+  updateHUD();
+}
+
+/* ------------------------------------------------------------------ *
+ * Rules
+ * ------------------------------------------------------------------ */
+/* Indices in a column that head a legal (same-suit, descending) run,
+   nearest the top of the pile first. */
+function runStarts(col){
+  var a = S.cols[col], out = [];
+  for(var i=a.length-1;i>=0;i--){
+    if(!a[i].up) break;
+    if(i < a.length-1){
+      var b = a[i+1];
+      if(!(b.suit === a[i].suit && b.rank === a[i].rank-1)) break;
+    }
+    out.push(i);
+  }
+  return out;
+}
+function isRunStart(col, idx){
+  var a = S.cols[col];
+  if(idx < 0 || idx >= a.length || !a[idx].up) return false;
+  for(var i=idx;i<a.length-1;i++){
+    if(!a[i+1].up || a[i+1].suit !== a[i].suit || a[i+1].rank !== a[i].rank-1) return false;
+  }
+  return true;
+}
+function canDrop(card, toCol){
+  var d = S.cols[toCol];
+  if(d.length === 0) return true;
+  var t = d[d.length-1];
+  return t.up && t.rank === card.rank + 1;
+}
+function anyEmptyColumn(){
+  for(var i=0;i<COLS;i++) if(S.cols[i].length === 0) return true;
+  return false;
+}
+function canDeal(){ return S.stock.length > 0 && !anyEmptyColumn(); }
+
+/* Rank a candidate move so hints and double-tap pick something sensible. */
+function scoreMove(from, idx, to){
+  var src = S.cols[from], dst = S.cols[to], card = src[idx];
+  var sc = 0;
+  var runLen = src.length - idx;
+  if(dst.length && dst[dst.length-1].suit === card.suit) sc += 55;
+  if(idx > 0 && !src[idx-1].up) sc += 40;          /* uncovers a face-down card */
+  if(idx === 0) sc += 45;                           /* empties a column */
+  if(dst.length === 0) sc -= 30;                    /* spending an empty column */
+  if(idx === 0 && dst.length === 0) sc -= 500;      /* pure shuffling */
+  if(idx > 0 && src[idx-1].up && src[idx-1].suit === card.suit && src[idx-1].rank === card.rank+1) sc -= 80;
+  if(card.rank === 13 && dst.length === 0) sc += 12;
+  sc += runLen;
+  if(wouldComplete(from, idx, to)) sc += 900;   /* finishing a suit beats everything */
+  return sc;
+}
+
+/* Would this move leave a King-to-Ace run of one suit on the destination? */
+function wouldComplete(from, idx, to){
+  var src = S.cols[from], dst = S.cols[to];
+  var tail = src.slice(idx);
+  var need = 13 - tail.length;
+  if(need < 0 || need > dst.length) return false;
+  var seq = dst.slice(dst.length - need).concat(tail);
+  var suit = seq[0].suit;
+  for(var i=0;i<13;i++){
+    if(!seq[i].up || seq[i].suit !== suit || seq[i].rank !== 13-i) return false;
+  }
+  return true;
+}
+function allMoves(){
+  var out = [];
+  for(var f=0;f<COLS;f++){
+    var starts = runStarts(f);
+    for(var si=0;si<starts.length;si++){
+      var idx = starts[si];
+      for(var t=0;t<COLS;t++){
+        if(t === f) continue;
+        if(!canDrop(S.cols[f][idx], t)) continue;
+        if(idx === 0 && S.cols[t].length === 0) continue;
+        out.push({from:f, idx:idx, to:t, sc:scoreMove(f, idx, t)});
+      }
+    }
+  }
+  out.sort(function(a,b){ return b.sc - a.sc; });
+  return out;
+}
+
+/* Pull a finished King-to-Ace suit off a column. Returns true if one went. */
+function collectRun(col){
+  var a = S.cols[col];
+  if(a.length < 13) return false;
+  var top = a.length - 13, s = a[top].suit;
+  if(a[top].rank !== 13) return false;
+  for(var i=0;i<13;i++){
+    var cd = a[top+i];
+    if(!cd.up || cd.suit !== s || cd.rank !== 13-i) return false;
+  }
+  var run = a.splice(top, 13);
+  S.found.push({ suit:s, ids: run.map(function(c){ return c.id; }) });
+  S.score += 100;
+  if(a.length && !a[a.length-1].up) a[a.length-1].up = true;
+  return true;
+}
+
+function applyMove(from, idx, to){
+  var moving = S.cols[from].splice(idx);
+  for(var i=0;i<moving.length;i++) S.cols[to].push(moving[i]);
+  var src = S.cols[from];
+  if(src.length && !src[src.length-1].up) src[src.length-1].up = true;
+  S.moves++;
+  S.score = Math.max(0, S.score - 1);
+  collectRun(to);
+}
+
+function doMove(from, idx, to){
+  if(from === to || !isRunStart(from, idx) || !canDrop(S.cols[from][idx], to)) return false;
+  pushHistory();
+  applyMove(from, idx, to);
+  S.started = true;
+  afterChange();
+  return true;
+}
+
+function dealRow(){
+  if(S.stock.length === 0){ toast('The stock pile is empty.'); return false; }
+  if(anyEmptyColumn()){ toast('Fill every empty column before dealing.'); return false; }
+  pushHistory();
+  for(var i=0;i<COLS;i++){
+    var cd = S.stock.pop();
+    cd.up = true;
+    S.cols[i].push(cd);
+  }
+  S.moves++;
+  S.score = Math.max(0, S.score - 1);
+  for(var j=0;j<COLS;j++) collectRun(j);
+  S.started = true;
+  afterChange();
+  return true;
+}
+
+function afterChange(){
+  selection = null;
+  layout(true);
+  if(S.found.length === 8 && !S.won){
+    S.won = true;
+    bumpStat(S.diff, 'won');
+    setTimeout(showWin, 520);
+  }
+  saveGame();
+}
+
+/* ------------------------------------------------------------------ *
+ * HUD, toast, timer
+ * ------------------------------------------------------------------ */
+function fmtTime(sec){
+  sec = Math.floor(sec);
+  var m = Math.floor(sec/60), s = sec % 60;
+  if(m >= 60){
+    var h = Math.floor(m/60); m = m % 60;
+    return h + ':' + (m<10?'0':'') + m + ':' + (s<10?'0':'') + s;
+  }
+  return m + ':' + (s<10?'0':'') + s;
+}
+function updateHUD(){
+  $('diffLabel').textContent = DIFFS[S.diff].name;
+  $('foundStat').innerHTML = 'Suits: <b>' + S.found.length + '</b>/8';
+  $('scoreStat').innerHTML = 'Score: <b>' + S.score + '</b>';
+  $('timeStat').textContent = fmtTime(S.elapsed);
+  $('btnUndo').disabled = S.history.length === 0;
+  $('btnUndoAll').disabled = S.history.length === 0;
+}
+var toastTimer = null;
+function toast(msg){
+  var t = $('toast');
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove('on'); }, 1900);
+}
+setInterval(function(){
+  if(!S || S.won || !S.started) return;
+  S.elapsed += 1;
+  $('timeStat').textContent = fmtTime(S.elapsed);
+  if(S.elapsed % 10 === 0) saveGame();
+}, 1000);
+
+/* ------------------------------------------------------------------ *
+ * Stats
+ * ------------------------------------------------------------------ */
+function getStats(){ return lsGet(LS_STAT, {}); }
+function bumpStat(diff, what){
+  var st = getStats();
+  if(!st[diff]) st[diff] = {played:0, won:0, best:0, bestTime:0};
+  st[diff][what] = (st[diff][what] || 0) + 1;
+  if(what === 'won'){
+    if(S.score > (st[diff].best || 0)) st[diff].best = S.score;
+    if(!st[diff].bestTime || S.elapsed < st[diff].bestTime) st[diff].bestTime = S.elapsed;
+  }
+  lsSet(LS_STAT, st);
+}
+function renderStats(){
+  var st = getStats(), rows = '<tr><th>Level</th><th>Played</th><th>Won</th><th>Best score</th><th>Best time</th></tr>';
+  for(var i=0;i<DIFF_ORDER.length;i++){
+    var k = DIFF_ORDER[i], d = st[k] || {played:0, won:0, best:0, bestTime:0};
+    rows += '<tr><td>' + DIFFS[k].name + '</td><td>' + (d.played||0) + '</td><td>' + (d.won||0) +
+            '</td><td>' + (d.best||'&mdash;') + '</td><td>' + (d.bestTime ? fmtTime(d.bestTime) : '&mdash;') + '</td></tr>';
+  }
+  $('statTable').innerHTML = rows;
+}
+
+/* ------------------------------------------------------------------ *
+ * Pointer input: drag a run, or tap to pick up and tap to drop
+ * ------------------------------------------------------------------ */
+var drag = null, selection = null, lastTap = {id:-1, t:0};
+
+function locate(id){
+  var card = S.deck[id];
+  for(var i=0;i<COLS;i++){
+    var j = S.cols[i].indexOf(card);
+    if(j >= 0) return {type:'card', col:i, idx:j};
+  }
+  if(S.stock.indexOf(card) >= 0) return {type:'stock'};
+  return null;
+}
+function columnAtX(x){
+  var best = -1, bd = 1e9;
+  for(var i=0;i<COLS;i++){
+    var d = Math.abs(x - (geo.colX[i] + geo.cw/2));
+    if(d < bd){ bd = d; best = i; }
+  }
+  return bd <= geo.cw * 0.95 ? best : -1;
+}
+function pointAt(e){
+  var r = board.getBoundingClientRect();
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+function inStock(p){
+  return p.x >= geo.stockX - geo.gap && p.x <= geo.stockX + geo.cw + geo.gap &&
+         p.y >= geo.stockY - geo.gap && p.y <= geo.stockY + geo.ch + geo.gap;
+}
+function clearSel(){
+  if(selection){
+    var a = S.cols[selection.col];
+    for(var i=selection.idx;i<a.length;i++) els[a[i].id].classList.remove('sel');
+  }
+  selection = null;
+}
+function setSel(col, idx){
+  clearSel();
+  selection = {col:col, idx:idx};
+  var a = S.cols[col];
+  for(var i=idx;i<a.length;i++) els[a[i].id].classList.add('sel');
+}
+function clearTarget(){
+  if(drag && drag.tgtEl){ drag.tgtEl.classList.remove('sel'); drag.tgtEl = null; }
+  for(var i=0;i<COLS;i++) slots[i].classList.remove('drop');
+}
+
+function onDown(e){
+  if(!S || (e.button !== undefined && e.button > 0)) return;
+  if(e.target.closest && e.target.closest('#toolbar')) return;
+  var p = pointAt(e);
+  var cardEl = e.target.closest ? e.target.closest('.card') : null;
+  var hit = null;
+
+  if(cardEl){
+    hit = locate(parseInt(cardEl.dataset.id, 10));
+    if(!hit) return;          /* a card already home on a foundation */
+  }
+  if(!hit && inStock(p)) hit = {type:'stock'};
+  if(!hit){
+    var c = columnAtX(p.x);
+    if(c >= 0 && p.y >= geo.y0 - geo.gap) hit = {type:'col', col:c};
+  }
+  if(!hit) return;
+  e.preventDefault();
+
+  if(hit.type === 'card' && S.cols[hit.col][hit.idx].up && isRunStart(hit.col, hit.idx)){
+    var a = S.cols[hit.col], group = [];
+    for(var i=hit.idx;i<a.length;i++) group.push(els[a[i].id]);
+    drag = {
+      id: e.pointerId, hit: hit, group: group, moved: false,
+      sx: e.clientX, sy: e.clientY, tgtEl: null
+    };
+  }else{
+    drag = { id: e.pointerId, hit: hit, group: null, moved: false, sx: e.clientX, sy: e.clientY, tgtEl: null };
+  }
+  try{ board.setPointerCapture(e.pointerId); }catch(err){}
+}
+
+function onMove(e){
+  if(!drag || e.pointerId !== drag.id || !drag.group) return;
+  var dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+  if(!drag.moved){
+    if(Math.abs(dx) + Math.abs(dy) < 6) return;
+    drag.moved = true;
+    clearSel();
+    for(var i=0;i<drag.group.length;i++){
+      drag.group[i].classList.add('drag');
+      drag.group[i].style.zIndex = 9000 + i;
+    }
+  }
+  var tf = 'translate(' + dx + 'px,' + dy + 'px)';
+  for(var j=0;j<drag.group.length;j++) drag.group[j].style.transform = tf;
+
+  /* highlight a legal target */
+  var lead = drag.group[0].getBoundingClientRect();
+  var br = board.getBoundingClientRect();
+  var cx = lead.left + lead.width/2 - br.left;
+  var col = columnAtX(cx);
+  clearTarget();
+  if(col >= 0 && col !== drag.hit.col && canDrop(S.cols[drag.hit.col][drag.hit.idx], col)){
+    var dst = S.cols[col];
+    if(dst.length){
+      drag.tgtEl = els[dst[dst.length-1].id];
+      drag.tgtEl.classList.add('sel');
+    }else{
+      slots[col].classList.add('drop');
+    }
+  }
+}
+
+function onUp(e){
+  if(!drag || e.pointerId !== drag.id) return;
+  var d = drag;
+  drag = null;
+  try{ board.releasePointerCapture(e.pointerId); }catch(err){}
+  var i;
+  if(d.group){
+    for(i=0;i<d.group.length;i++) d.group[i].classList.remove('drag');
+  }
+  if(d.tgtEl) d.tgtEl.classList.remove('sel');
+  for(i=0;i<COLS;i++) slots[i].classList.remove('drop');
+
+  if(d.moved && d.group){
+    var lead = d.group[0].getBoundingClientRect();
+    var br = board.getBoundingClientRect();
+    var cx = lead.left + lead.width/2 - br.left;
+    var col = columnAtX(cx);
+    var ok = false;
+    if(col >= 0 && col !== d.hit.col) ok = doMove(d.hit.col, d.hit.idx, col);
+    if(!ok) layout(true);   /* snap back */
+    return;
+  }
+  /* --- tap --- */
+  tap(d.hit);
+}
+
+function tap(hit){
+  if(hit.type === 'stock'){ clearSel(); dealRow(); return; }
+  if(hit.type === 'col'){
+    if(selection && selection.col !== hit.col){
+      var from = selection, moved = doMove(from.col, from.idx, hit.col);
+      if(!moved){ clearSel(); }
+    }else clearSel();
+    return;
+  }
+  var card = S.cols[hit.col][hit.idx];
+  if(!card.up){ clearSel(); return; }
+
+  var now = Date.now();
+  var dbl = (lastTap.id === card.id && now - lastTap.t < 340);
+  lastTap = {id:card.id, t:now};
+  if(dbl){ clearSel(); autoMove(hit.col, hit.idx); return; }
+
+  if(selection){
+    if(selection.col === hit.col && selection.idx === hit.idx){ clearSel(); return; }
+    if(selection.col !== hit.col){
+      var src = selection;
+      clearSel();
+      if(doMove(src.col, src.idx, hit.col)) return;
+    }
+  }
+  if(isRunStart(hit.col, hit.idx)) setSel(hit.col, hit.idx);
+  else clearSel();
+}
+
+function autoMove(col, idx){
+  if(!isRunStart(col, idx)) return;
+  var ms = allMoves(), best = null;
+  for(var i=0;i<ms.length;i++){
+    if(ms[i].from === col && ms[i].idx === idx){ best = ms[i]; break; }
+  }
+  if(best) doMove(best.from, best.idx, best.to);
+  else toast('No place for that card.');
+}
+
+board.addEventListener('pointerdown', onDown);
+board.addEventListener('pointermove', onMove);
+board.addEventListener('pointerup', onUp);
+board.addEventListener('pointercancel', onUp);
+board.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+
+/* ------------------------------------------------------------------ *
+ * Buttons
+ * ------------------------------------------------------------------ */
+function undo(){
+  if(!S.history.length) return;
+  clearSel();
+  restoreSnap(S.history.pop());
+  S.won = false;
+  layout(true);
+  saveGame();
+}
+function undoAll(){
+  if(!S.history.length) return;
+  clearSel();
+  restoreSnap(S.history[0]);
+  S.history = [];
+  S.won = false;
+  layout(true);
+  saveGame();
+}
+function hint(){
+  clearSel();
+  var ms = allMoves();
+  var best = null;
+  for(var i=0;i<ms.length;i++){ if(ms[i].sc > -100){ best = ms[i]; break; } }
+  if(!best){
+    if(canDeal()){
+      flash([els[S.stock[S.stock.length-1].id]]);
+      toast('Nothing to move — deal a new row.');
+    }
+    else if(S.stock.length) toast('No moves. Fill every empty column, then deal.');
+    else toast('No moves left. Undo, or start a new game.');
+    return;
+  }
+  var a = S.cols[best.from], group = [];
+  for(var j=best.idx;j<a.length;j++) group.push(els[a[j].id]);
+  var dst = S.cols[best.to];
+  group.push(dst.length ? els[dst[dst.length-1].id] : slots[best.to]);
+  flash(group);
+}
+function flash(group){
+  group.forEach(function(el){ el.classList.remove('hintf'); void el.offsetWidth; el.classList.add('hintf'); });
+  setTimeout(function(){ group.forEach(function(el){ el.classList.remove('hintf'); }); }, 1700);
+}
+
+function startGame(diffKey, order, seed){
+  if(!DIFFS[diffKey]) diffKey = 'master';
+  seed = (seed === undefined) ? ((Math.random()*0x7fffffff)|0) : seed;
+  if(!order) order = makeOrder(diffKey, seed);
+  S = newState(diffKey, seed, order);
+  buildCards();
+  clearSel();
+  lsSet(LS_PREF, {diff: diffKey});
+  bumpStat(diffKey, 'played');
+  layout(false);
+  saveGame();
+}
+function newGame(diffKey){
+  diffKey = diffKey || S.diff;
+  closeMenus();
+  var d = DIFFS[diffKey];
+  if(d.search){
+    toast('Dealing a ' + d.name.toLowerCase() + ' hand…');
+    setTimeout(function(){ startGame(diffKey); }, 40);
+  }else{
+    startGame(diffKey);
+  }
+}
+function restartDeal(){
+  closeMenus();
+  startGame(S.diff, S.order.slice(), S.seed);
+}
+
+$('btnNew').onclick = function(){ newGame(); };
+$('btnHint').onclick = hint;
+$('btnUndo').onclick = undo;
+$('btnUndoAll').onclick = undoAll;
+$('btnMore').onclick = openMenu;
+$('btnMenu').onclick = openMenu;
+$('mNew').onclick = function(){ newGame(); };
+$('mRestart').onclick = restartDeal;
+$('mClose').onclick = closeMenus;
+$('wNew').onclick = function(){ newGame(); };
+$('wClose').onclick = closeMenus;
+$('menuVeil').onclick = function(e){ if(e.target === this) closeMenus(); };
+$('winVeil').onclick = function(e){ if(e.target === this) closeMenus(); };
+
+function openMenu(){
+  renderDiffs();
+  renderStats();
+  $('menuVeil').classList.add('on');
+}
+function closeMenus(){
+  $('menuVeil').classList.remove('on');
+  $('winVeil').classList.remove('on');
+}
+function renderDiffs(){
+  var host = $('diffList');
+  host.innerHTML = '';
+  DIFF_ORDER.forEach(function(k){
+    var d = DIFFS[k];
+    var b = document.createElement('button');
+    b.className = 'dbtn' + (S && S.diff === k ? ' cur' : '');
+    var pips = '';
+    var use = d.suits === 1 ? [0] : (d.suits === 2 ? [0,1] : [0,1,2,3]);
+    use.forEach(function(s){
+      pips += '<span class="' + (SUIT_RED[s] ? 'r' : '') + '">' + SUIT_CH[s] + '</span>';
+    });
+    b.innerHTML = '<span class="pips">' + pips + '</span><span><span class="nm">' + d.name +
+                  '</span><br><span class="ds">' + d.blurb + '</span></span>';
+    b.onclick = function(){ newGame(k); };
+    host.appendChild(b);
+  });
+}
+function showWin(){
+  $('winSub').innerHTML = DIFFS[S.diff].name + ' &middot; score <b>' + S.score + '</b> &middot; ' +
+                          S.moves + ' moves &middot; ' + fmtTime(S.elapsed);
+  $('winVeil').classList.add('on');
+}
+
+document.addEventListener('keydown', function(e){
+  if($('menuVeil').classList.contains('on') || $('winVeil').classList.contains('on')){
+    if(e.key === 'Escape') closeMenus();
+    return;
+  }
+  var k = e.key.toLowerCase();
+  if(k === 'n'){ newGame(); }
+  else if(k === 'u'){ e.shiftKey ? undoAll() : undo(); }
+  else if(k === 'h'){ hint(); }
+  else if(e.key === ' '){ e.preventDefault(); clearSel(); dealRow(); }
+  else if(e.key === 'Escape'){ clearSel(); }
+  else if(k === 'm'){ openMenu(); }
+});
+
+/* ------------------------------------------------------------------ *
+ * Save / restore
+ * ------------------------------------------------------------------ */
+var saveTimer = null;
+function saveGame(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    if(!S) return;
+    lsSet(LS_SAVE, {
+      diff: S.diff, seed: S.seed, order: S.order,
+      state: snapshot(),
+      history: S.history.slice(-120),
+      elapsed: S.elapsed, started: S.started, won: S.won
+    });
+  }, 250);
+}
+function loadGame(){
+  var sv = lsGet(LS_SAVE, null);
+  if(!sv || !sv.order || sv.order.length !== 104 || !DIFFS[sv.diff]) return false;
+  try{
+    S = newState(sv.diff, sv.seed, sv.order);
+    restoreSnap(sv.state);
+    S.history = sv.history || [];
+    S.elapsed = sv.elapsed || 0;
+    S.started = !!sv.started;
+    S.won = !!sv.won;
+    buildCards();
+    layout(false);
+    return true;
+  }catch(err){ return false; }
+}
+
+/* ------------------------------------------------------------------ *
+ * Boot
+ * ------------------------------------------------------------------ */
+buildSlots();
+if(!loadGame()){
+  var pref = lsGet(LS_PREF, {diff:'master'});
+  startGame(DIFFS[pref.diff] ? pref.diff : 'master');
+}
+/* test hook: lets a script drive a whole game without touching the DOM */
+window.__spider = {
+  state: function(){ return S; },
+  moves: allMoves,
+  move: doMove,
+  deal: dealRow,
+  canDeal: canDeal,
+  undo: undo,
+  start: startGame
+};
+
+/* the table is built for landscape - say so once on a tall narrow screen */
+if(board.clientHeight > board.clientWidth * 1.15 && window.innerWidth < 820){
+  setTimeout(function(){ toast('Turn your device sideways for full-size cards.'); }, 700);
+}
+
+window.addEventListener('resize', function(){ layout(false); });
+window.addEventListener('orientationchange', function(){ setTimeout(function(){ layout(false); }, 220); });
+if(window.visualViewport) window.visualViewport.addEventListener('resize', function(){ layout(false); });
+window.addEventListener('beforeunload', function(){
+  clearTimeout(saveTimer);
+  if(S) lsSet(LS_SAVE, {
+    diff:S.diff, seed:S.seed, order:S.order, state:snapshot(),
+    history:S.history.slice(-120), elapsed:S.elapsed, started:S.started, won:S.won
+  });
+});
+
+})();
+</script>
+</body>
+</html>
