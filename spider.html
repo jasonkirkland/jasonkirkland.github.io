@@ -122,6 +122,13 @@
   .card.drag{transition:none;box-shadow:0 6px 14px rgba(0,0,0,.5), 0 14px 30px rgba(0,0,0,.35);}
   .card.sel{box-shadow:0 0 0 3px var(--gold), 0 6px 14px rgba(0,0,0,.45);}
   .card.hintf{animation:hintPulse .5s ease-in-out 3;}
+  .card.nudge{animation:nudge .3s ease-in-out;}
+  @keyframes nudge{
+    0%,100%{transform:translateX(0);}
+    20%{transform:translateX(-3.5%);}
+    55%{transform:translateX(3.5%);}
+    80%{transform:translateX(-1.5%);}
+  }
   @keyframes hintPulse{
     0%,100%{box-shadow:0 1px 2px rgba(0,0,0,.45), 0 3px 7px rgba(0,0,0,.22);}
     50%{box-shadow:0 0 0 4px #ffe89a, 0 0 22px 6px rgba(255,215,106,.75);}
@@ -243,10 +250,10 @@
     <table class="stats" id="statTable"></table>
     <h3>How to play</h3>
     <ul class="rules">
-      <li>Drag a card &mdash; or tap it, then tap where it goes.</li>
+      <li>Tap a card to send it to the best open spot.</li>
+      <li>Drag it instead to choose the spot yourself.</li>
       <li>Any card can land on a card one rank higher, of any suit.</li>
       <li>Only cards already in a same&#8209;suit run move together.</li>
-      <li>Double&#8209;tap a card to send it to the best spot.</li>
       <li>Tap the stock pile (bottom right) to deal a row &mdash; every column must have at least one card first.</li>
       <li>Score starts at 500: &minus;1 per move, +100 per completed suit.</li>
       <li>Keys: <b>N</b> new &middot; <b>U</b> undo &middot; <b>H</b> hint &middot; <b>Space</b> deal.</li>
@@ -875,7 +882,6 @@ function dealRow(){
 }
 
 function afterChange(){
-  selection = null;
   layout(true);
   if(S.found.length === 8 && !S.won){
     S.won = true;
@@ -947,7 +953,7 @@ function renderStats(){
 /* ------------------------------------------------------------------ *
  * Pointer input: drag a run, or tap to pick up and tap to drop
  * ------------------------------------------------------------------ */
-var drag = null, selection = null, lastTap = {id:-1, t:0};
+var drag = null, lastTapAt = 0, lastTapX = 0, lastTapY = 0;
 
 function locate(id){
   var card = S.deck[id];
@@ -973,19 +979,6 @@ function pointAt(e){
 function inStock(p){
   return p.x >= geo.stockX - geo.gap && p.x <= geo.stockX + geo.cw + geo.gap &&
          p.y >= geo.stockY - geo.gap && p.y <= geo.stockY + geo.ch + geo.gap;
-}
-function clearSel(){
-  if(selection){
-    var a = S.cols[selection.col];
-    for(var i=selection.idx;i<a.length;i++) els[a[i].id].classList.remove('sel');
-  }
-  selection = null;
-}
-function setSel(col, idx){
-  clearSel();
-  selection = {col:col, idx:idx};
-  var a = S.cols[col];
-  for(var i=idx;i<a.length;i++) els[a[i].id].classList.add('sel');
 }
 function clearTarget(){
   if(drag && drag.tgtEl){ drag.tgtEl.classList.remove('sel'); drag.tgtEl = null; }
@@ -1030,7 +1023,6 @@ function onMove(e){
   if(!drag.moved){
     if(Math.abs(dx) + Math.abs(dy) < 6) return;
     drag.moved = true;
-    clearSel();
     for(var i=0;i<drag.group.length;i++){
       drag.group[i].classList.add('drag');
       drag.group[i].style.zIndex = 9000 + i;
@@ -1079,46 +1071,47 @@ function onUp(e){
     return;
   }
   /* --- tap --- */
+  /* a move re-shuffles the board under the finger, so ignore an immediate
+     repeat tap in the same spot rather than firing a second move */
+  var t = Date.now();
+  if(t - lastTapAt < 260 &&
+     Math.abs(e.clientX - lastTapX) < 24 && Math.abs(e.clientY - lastTapY) < 24) return;
+  lastTapAt = t; lastTapX = e.clientX; lastTapY = e.clientY;
   tap(d.hit);
 }
 
 function tap(hit){
-  if(hit.type === 'stock'){ clearSel(); dealRow(); return; }
-  if(hit.type === 'col'){
-    if(selection && selection.col !== hit.col){
-      var from = selection, moved = doMove(from.col, from.idx, hit.col);
-      if(!moved){ clearSel(); }
-    }else clearSel();
-    return;
-  }
+  if(hit.type === 'stock'){ dealRow(); return; }
+  if(hit.type === 'col') return;              /* bare felt: nothing to do */
   var card = S.cols[hit.col][hit.idx];
-  if(!card.up){ clearSel(); return; }
-
-  var now = Date.now();
-  var dbl = (lastTap.id === card.id && now - lastTap.t < 340);
-  lastTap = {id:card.id, t:now};
-  if(dbl){ clearSel(); autoMove(hit.col, hit.idx); return; }
-
-  if(selection){
-    if(selection.col === hit.col && selection.idx === hit.idx){ clearSel(); return; }
-    if(selection.col !== hit.col){
-      var src = selection;
-      clearSel();
-      if(doMove(src.col, src.idx, hit.col)) return;
-    }
-  }
-  if(isRunStart(hit.col, hit.idx)) setSel(hit.col, hit.idx);
-  else clearSel();
+  if(!card.up) return;
+  autoMove(hit.col, hit.idx);
 }
 
+/* One tap sends the card (and anything riding on it) to the best legal
+   landing spot. Nothing legal to do -> the card stays put and wiggles. */
 function autoMove(col, idx){
-  if(!isRunStart(col, idx)) return;
+  if(!isRunStart(col, idx)){ nudge(col, idx); return; }
   var ms = allMoves(), best = null;
   for(var i=0;i<ms.length;i++){
     if(ms[i].from === col && ms[i].idx === idx){ best = ms[i]; break; }
   }
   if(best) doMove(best.from, best.idx, best.to);
-  else toast('No place for that card.');
+  else nudge(col, idx);
+}
+
+/* "That can't go anywhere" - a small shake, no message to dismiss. */
+function nudge(col, idx){
+  var a = S.cols[col], group = [], i;
+  for(i=idx;i<a.length;i++) group.push(els[a[i].id]);
+  for(i=0;i<group.length;i++){
+    group[i].classList.remove('nudge');
+    void group[i].offsetWidth;
+    group[i].classList.add('nudge');
+  }
+  setTimeout(function(){
+    for(var j=0;j<group.length;j++) group[j].classList.remove('nudge');
+  }, 340);
 }
 
 board.addEventListener('pointerdown', onDown);
@@ -1132,7 +1125,6 @@ board.addEventListener('contextmenu', function(e){ e.preventDefault(); });
  * ------------------------------------------------------------------ */
 function undo(){
   if(!S.history.length) return;
-  clearSel();
   restoreSnap(S.history.pop());
   S.won = false;
   layout(true);
@@ -1140,7 +1132,6 @@ function undo(){
 }
 function undoAll(){
   if(!S.history.length) return;
-  clearSel();
   restoreSnap(S.history[0]);
   S.history = [];
   S.won = false;
@@ -1148,7 +1139,6 @@ function undoAll(){
   saveGame();
 }
 function hint(){
-  clearSel();
   var ms = allMoves();
   var best = null;
   for(var i=0;i<ms.length;i++){ if(ms[i].sc > -100){ best = ms[i]; break; } }
@@ -1178,7 +1168,6 @@ function startGame(diffKey, order, seed){
   if(!order) order = makeOrder(diffKey, seed);
   S = newState(diffKey, seed, order);
   buildCards();
-  clearSel();
   lsSet(LS_PREF, {diff: diffKey});
   bumpStat(diffKey, 'played');
   layout(false);
@@ -1256,8 +1245,7 @@ document.addEventListener('keydown', function(e){
   if(k === 'n'){ newGame(); }
   else if(k === 'u'){ e.shiftKey ? undoAll() : undo(); }
   else if(k === 'h'){ hint(); }
-  else if(e.key === ' '){ e.preventDefault(); clearSel(); dealRow(); }
-  else if(e.key === 'Escape'){ clearSel(); }
+  else if(e.key === ' '){ e.preventDefault(); dealRow(); }
   else if(k === 'm'){ openMenu(); }
 });
 
