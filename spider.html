@@ -80,9 +80,8 @@
     font-weight:800;color:#fff;line-height:1;
     background:rgba(6,44,22,.86);border:1px solid rgba(255,255,255,.5);
     border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.45);
-    cursor:pointer;
+    pointer-events:none;          /* a label - the pile underneath takes the tap */
   }
-  #stockCount:active{background:rgba(16,90,46,.95);}
   /* ---------- cards ---------- */
   .card{
     position:absolute;border-radius:6px;overflow:hidden;
@@ -332,7 +331,7 @@ var DIFFS = {
 };
 var DIFF_ORDER = ['easy','medium','hard','expert','master'];
 
-var BUILD = '2026-08-22c';   /* shown in the menu, so a stale cache is obvious */
+var BUILD = '2026-08-22d';   /* shown in the menu, so a stale cache is obvious */
 var LS_SAVE = 'spider.save.v1';
 var LS_PREF = 'spider.pref.v1';
 var LS_STAT = 'spider.stats.v1';
@@ -593,10 +592,6 @@ function buildSlots(){
 
   stockCount = document.createElement('div');
   stockCount.id = 'stockCount';
-  stockCount.title = 'Deal a row';
-  stockCount.addEventListener('pointerdown', function(e){ e.stopPropagation(); });
-  stockCount.addEventListener('pointerup', function(e){ e.stopPropagation(); });
-  stockCount.addEventListener('click', function(e){ e.stopPropagation(); dealRow(); });
   board.appendChild(stockCount);
 
   for(var f=0; f<8; f++){
@@ -1042,7 +1037,12 @@ function doMove(from, idx, to){
   return true;
 }
 
+var lastDealAt = 0;
 function dealRow(){
+  /* a single tap can reach here more than once on some platforms; a second
+     deal landing within a few frames was never a second tap */
+  var now = Date.now();
+  if(now - lastDealAt < 250) return false;
   if(S.stock.length === 0){ toast('The stock pile is empty.'); return false; }
   if(anyEmptyColumn()){
     /* say why, and point at the columns holding the deal up */
@@ -1062,6 +1062,7 @@ function dealRow(){
   S.score = Math.max(0, S.score - 1);
   for(var j=0;j<COLS;j++) collectRun(j);
   S.started = true;
+  lastDealAt = now;
   afterChange();
   return true;
 }
