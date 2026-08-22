@@ -593,6 +593,7 @@ function buildSlots(){
   stockCount.id = 'stockCount';
   stockCount.title = 'Deal a row';
   stockCount.addEventListener('pointerdown', function(e){ e.stopPropagation(); });
+  stockCount.addEventListener('pointerup', function(e){ e.stopPropagation(); });
   stockCount.addEventListener('click', function(e){ e.stopPropagation(); dealRow(); });
   board.appendChild(stockCount);
 
@@ -1162,6 +1163,7 @@ function clearTarget(){
 
 function onDown(e){
   if(!S || (e.button !== undefined && e.button > 0)) return;
+  drag = null;      /* discard any gesture that never finished */
   if(e.target.closest && e.target.closest('#toolbar')) return;
   var p = pointAt(e);
   var cardEl = e.target.closest ? e.target.closest('.card') : null;
