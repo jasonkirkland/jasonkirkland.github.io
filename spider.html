@@ -252,6 +252,7 @@
     <button class="tb" id="btnMenu" title="Menu">☰</button>
     <span id="diffLabel">Master</span>
     <span class="grow"></span>
+    <span class="stat" id="dealStat">Deals: <b>5</b></span>
     <span class="stat" id="foundStat">Suits: <b>0</b>/8</span>
     <span class="stat" id="scoreStat">Score: <b>500</b></span>
     <span class="stat" id="timeStat">0:00</span>
@@ -280,7 +281,7 @@
       <button class="abtn wide" id="mRestart">Restart This Deal</button>
       <button class="abtn wide" id="mClose">Close</button>
     </div>
-    <h3>Record</h3>
+    <h3>Record <span id="buildStamp" style="float:right;opacity:.55;font-size:11px;letter-spacing:0;text-transform:none;font-weight:500;"></span></h3>
     <table class="stats" id="statTable"></table>
     <h3>How to play</h3>
     <ul class="rules">
@@ -331,6 +332,7 @@ var DIFFS = {
 };
 var DIFF_ORDER = ['easy','medium','hard','expert','master'];
 
+var BUILD = '2026-08-22c';   /* shown in the menu, so a stale cache is obvious */
 var LS_SAVE = 'spider.save.v1';
 var LS_PREF = 'spider.pref.v1';
 var LS_STAT = 'spider.stats.v1';
@@ -1042,7 +1044,14 @@ function doMove(from, idx, to){
 
 function dealRow(){
   if(S.stock.length === 0){ toast('The stock pile is empty.'); return false; }
-  if(anyEmptyColumn()){ toast('Fill every empty column before dealing.'); return false; }
+  if(anyEmptyColumn()){
+    /* say why, and point at the columns holding the deal up */
+    toast('Fill every empty column before dealing.');
+    var gaps = [];
+    for(var e=0;e<COLS;e++) if(S.cols[e].length === 0) gaps.push(slots[e]);
+    flash(gaps);
+    return false;
+  }
   pushHistory();
   for(var i=0;i<COLS;i++){
     var cd = S.stock.pop();
@@ -1081,6 +1090,7 @@ function fmtTime(sec){
 }
 function updateHUD(){
   $('diffLabel').textContent = DIFFS[S.diff].name;
+  $('dealStat').innerHTML = 'Deals: <b>' + Math.ceil(S.stock.length / COLS) + '</b>';
   $('foundStat').innerHTML = 'Suits: <b>' + S.found.length + '</b>/8';
   $('scoreStat').innerHTML = 'Score: <b>' + S.score + '</b>';
   $('timeStat').textContent = fmtTime(S.elapsed);
@@ -1395,6 +1405,7 @@ $('menuVeil').onclick = function(e){ if(e.target === this) closeMenus(); };
 $('winVeil').onclick = function(e){ if(e.target === this) closeMenus(); };
 
 function openMenu(){
+  $('buildStamp').textContent = 'build ' + BUILD;
   renderDiffs();
   renderStats();
   $('menuVeil').classList.add('on');
