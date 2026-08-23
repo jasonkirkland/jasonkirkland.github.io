@@ -385,6 +385,11 @@ function renderChannels(h, stale){
         ${pkts!=null ? `<div>802.11 frames: <b>${pkts.toLocaleString()}</b>${fps!=null?` &nbsp;(<b>${fps}</b>/s)`:''}</div>`
                      : `<div style="color:var(--dim)">frames: <i>heartbeat pending</i></div>`}
         <div style="color:var(--dim)">${bleBuild?'BLE':'raw'} bytes rx: ${bytes.toLocaleString()}${c.sniff_heap?` · sniffer heap ${Math.round(c.sniff_heap/1024)}KB`:''}</div>
+        ${(c.temp!=null||c.cpu!=null||c.minheap!=null) ? `<div style="color:var(--ink2)">${
+            c.temp!=null?`🌡 ${c.temp}°C${c.tempok===0?'<span style="color:var(--dim)"> (approx)</span>':''}`:''}${
+            c.cpu!=null?` · ${c.cpu} MHz`:''}${
+            c.minheap!=null?` · min-heap ${Math.round(c.minheap/1024)}KB`:''}</div>` : ''}
+        ${c.rst!=null ? `<div style="font-size:12px${rstBad(c.rst)?';font-weight:700;color:var(--bad)':';color:var(--dim)'}">last reset: ${rstName(c.rst)}${rstBad(c.rst)?' ⚠':''}</div>` : ''}
       </div>
       <div class="bar"><i style="width:${barPct}%"></i></div>
     </div>`;
@@ -489,6 +494,28 @@ function renderComparison(val){
   breakdown.style.display = 'flex';
 }
 
+// ---------- rich telemetry formatting (the extensible detector fields) ----------
+const RST_NAMES = {0:'unknown',1:'power-on',2:'external',3:'software',4:'panic',5:'int-wdt',6:'task-wdt',7:'wdt',8:'deep-sleep',9:'BROWNOUT',10:'sdio',11:'usb',12:'jtag',16:'cpu-lockup'};
+function rstName(n){ return RST_NAMES[n] || ('code '+n); }
+function rstBad(n){ return [4,5,6,7,9,16].indexOf(+n)>=0; }   // panic / watchdog / BROWNOUT = concerning
+const UA_TYPES = {1:'aeroplane',2:'multirotor',3:'gyroplane',4:'VTOL',5:'ornithopter',6:'glider',7:'kite',8:'free balloon',9:'captive balloon',10:'airship',11:'parachute',12:'rocket',13:'tethered',14:'ground obstacle',15:'other'};
+const RID_STATUS = {1:'on ground',2:'airborne',3:'EMERGENCY',4:'RID system failure'};
+const M2FT = 3.28084;
+// Human-readable list of whatever rich fields are present on a /drones record.
+function detExtras(d){
+  const bits=[];
+  if(d.band!=null) bits.push((d.band==5)?'5GHz':'2.4GHz');
+  if(d.status!=null && RID_STATUS[d.status]) bits.push(RID_STATUS[d.status]);
+  if(d.uatype!=null && UA_TYPES[d.uatype]) bits.push(UA_TYPES[d.uatype]);
+  if(d.hspd!=null) bits.push(d.hspd+' m/s'+(d.hdg!=null?' @'+d.hdg+'°':''));
+  else if(d.hdg!=null) bits.push('hdg '+d.hdg+'°');
+  if(d.vspd!=null && +d.vspd!==0) bits.push((+d.vspd>0?'▲':'▼')+Math.abs(d.vspd)+' m/s');
+  if(d.altb!=null) bits.push('baro '+Math.round(d.altb*M2FT)+'ft');
+  if(d.hagl!=null) bits.push('AGL '+Math.round(d.hagl*M2FT)+'ft');
+  if(d.op) bits.push('op '+d.op);
+  return bits;
+}
+
 // ---------- recent detections (/drones RID-with-position + ntfy SSID-only beacons) ----------
 // SSID-only (drone-associated WiFi beacon) detections are NOT in Firebase — the aggregator sends
 // them ONLY as ntfy pushes. We parse those out of the ntfy feed (fetchBeacons) and merge them here.
@@ -512,7 +539,7 @@ function renderDrones(val){
     kind:'rid', epoch:d.epoch||0,
     id:(d.uasid||d.flight||d.hex||'?'),
     flight:(d.uasid&&d.flight)?d.flight:'',
-    src:(d.src||'?'), ch:d.ch, rssi:d.rssi
+    src:(d.src||'?'), ch:d.ch, rssi:d.rssi, rec:d
   }));
   // SSID-only (beacon) detections from ntfy
   const ssid = lastBeacons.map(b=>({
@@ -535,11 +562,15 @@ function renderDrones(val){
       </div>`;
     }
     const tag = d.flight ? `<span style="color:var(--dim);font-weight:500;font-size:11.5px">&nbsp;${d.flight}</span>` : '';
-    return `<div class="row">
+    const ex = detExtras(d.rec);
+    const hasOp = d.rec.oplat!=null && d.rec.oplon!=null && !(+d.rec.oplat===0 && +d.rec.oplon===0);
+    const exLine = (ex.length || hasOp) ? `<div style="flex-basis:100%;color:var(--dim);font-size:12px;margin-top:2px">${ex.join(' · ')}${hasOp?`${ex.length?' · ':''}📍 operator ${(+d.rec.oplat).toFixed(4)}, ${(+d.rec.oplon).toFixed(4)}`:''}</div>` : '';
+    return `<div class="row" style="flex-wrap:wrap">
       <span class="flt">${d.id}${tag}</span>
       <span class="src">${d.src}</span>
       <span style="color:var(--ink2)">ch ${d.ch!=null?d.ch:'?'} · ${d.rssi!=null?d.rssi+' dBm':''}</span>
       <span class="when">${when}</span>
+      ${exLine}
     </div>`;
   }).join('');
 }
@@ -620,12 +651,27 @@ function renderMap(val){
     const t = Math.max(0, Math.min(1, ageMin / FADE_MIN));   // 0 = just seen, 1 = fully faded
     const stroke = lerpHex(col, FADE_GRAY, t);               // outline colored -> light gray
     const fillOp = 0.9 * (1 - t);                            // fill fades out -> hollow
+    const rec = g.d;
+    const ex = detExtras(rec);
+    const popup = '<b>'+id+'</b><br>ch '+(rec.ch!=null?rec.ch:'?')+' · '+(rec.rssi!=null?rec.rssi+' dBm':'')+
+        (rec.alt_baro!=null?' · '+Math.round(rec.alt_baro)+'ft':'')+
+        (ex.length?'<br>'+ex.join(' · '):'')+
+        '<br>last seen '+ageText(now-g.ep)+' ago · src '+(rec.src||'?');
     L.circleMarker([g.lat, g.lon], { radius:8, color:stroke, weight:2, opacity:1, fillColor:col, fillOpacity:fillOp })
       .addTo(droneLayer)
       .bindTooltip(id, { direction:'top', offset:[0,-10] })
-      .bindPopup('<b>'+id+'</b><br>ch '+(g.d.ch!=null?g.d.ch:'?')+' · '+(g.d.rssi!=null?g.d.rssi+' dBm':'')+
-        '<br>last seen '+ageText(now-g.ep)+' ago · src '+(g.d.src||'?'));
+      .bindPopup(popup);
     bounds.push([g.lat, g.lon]);
+    // operator (pilot) location -> distinct marker + dashed line to the drone (huge for the Skydio)
+    const oplat=+rec.oplat, oplon=+rec.oplon;
+    if(isFinite(oplat)&&isFinite(oplon)&&!(oplat===0&&oplon===0)&&Math.abs(oplat)<=90&&Math.abs(oplon)<=180){
+      L.polyline([[g.lat,g.lon],[oplat,oplon]], { color:col, weight:1.5, opacity:.55, dashArray:'4,5' }).addTo(droneLayer);
+      L.marker([oplat,oplon], { icon: L.divIcon({ className:'op-pin', html:'<div style="font-size:18px;line-height:1;filter:drop-shadow(0 0 1px #fff)">🧍</div>', iconSize:[18,18], iconAnchor:[9,16] }) })
+        .addTo(droneLayer)
+        .bindTooltip('operator of '+id, { direction:'top' })
+        .bindPopup('<b>Operator</b> of '+id+(rec.op?'<br>ID '+rec.op:'')+'<br>'+oplat.toFixed(5)+', '+oplon.toFixed(5));
+      bounds.push([oplat,oplon]);
+    }
   });
 
   // ---- receiver + max detection range (measured FROM the actual receiver location) ----
