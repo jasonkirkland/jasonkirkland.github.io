@@ -20,6 +20,13 @@
     --gold:#ffd76a;
     --red:#d21f1f;
     --black:#1a1a1a;
+    /* One colour per suit. Spades and clubs share a silhouette, and so do
+       hearts and diamonds - which is exactly the pair you must tell apart
+       to build a run. Colour carries that load far better than shape. */
+    --suit-spade:#16181a;
+    --suit-heart:#cc1f2a;
+    --suit-diamond:#1565c0;
+    --suit-club:#10793f;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{
@@ -119,8 +126,13 @@
     overflow:hidden;
   }
   .card .court svg{display:block;width:100%;height:100%;}
-  .card.red{color:var(--red);}
-  .card.blk{color:var(--black);}
+  .card.s0{color:var(--suit-spade);}
+  .card.s1{color:var(--suit-heart);}
+  .card.s2{color:var(--suit-diamond);}
+  .card.s3{color:var(--suit-club);}
+  /* the traditional two-colour deck, for anyone who prefers it */
+  body.two-colour .card.s2{color:var(--suit-heart);}
+  body.two-colour .card.s3{color:var(--suit-spade);}
   .card .bk{
     position:absolute;inset:0;display:none;
     background:
@@ -225,7 +237,12 @@
   .dbtn:active{background:rgba(255,255,255,.2);}
   .dbtn.cur{border-color:var(--gold);background:rgba(255,215,106,.18);}
   .dbtn .pips{font-size:16px;line-height:1;letter-spacing:1px;min-width:4.6em;padding-right:4px;flex:0 0 auto;}
-  .dbtn .pips .r{color:#ff6b6b;}
+  .dbtn .pips .s0{color:#e8eae8;}
+  .dbtn .pips .s1{color:#ff6b6b;}
+  .dbtn .pips .s2{color:#7ab6ff;}
+  .dbtn .pips .s3{color:#5fd08a;}
+  body.two-colour .dbtn .pips .s2{color:#ff6b6b;}
+  body.two-colour .dbtn .pips .s3{color:#e8eae8;}
   .dbtn .nm{font-weight:700;font-size:14px;}
   .dbtn .ds{font-size:11px;opacity:.8;font-weight:500;}
   .row{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px;}
@@ -278,6 +295,7 @@
     <div class="row">
       <button class="abtn pri wide" id="mNew">New Game</button>
       <button class="abtn wide" id="mRestart">Restart This Deal</button>
+      <button class="abtn wide" id="mColours">Card Colours</button>
       <button class="abtn wide" id="mClose">Close</button>
     </div>
     <h3>Record <span id="buildStamp" style="float:right;opacity:.55;font-size:11px;letter-spacing:0;text-transform:none;font-weight:500;"></span></h3>
@@ -317,7 +335,6 @@
  * Constants
  * ------------------------------------------------------------------ */
 var SUIT_CH = ['♠','♥','♦','♣'];      // spade heart diamond club
-var SUIT_RED = [false,true,true,false];
 var RANK_CH = [null,'A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 var COLS = 10;
 var DEAL_ROWS = 5;
@@ -331,7 +348,7 @@ var DIFFS = {
 };
 var DIFF_ORDER = ['easy','medium','hard','expert','master'];
 
-var BUILD = '2026-08-22d';   /* shown in the menu, so a stale cache is obvious */
+var BUILD = '2026-08-22e';   /* shown in the menu, so a stale cache is obvious */
 var LS_SAVE = 'spider.save.v1';
 var LS_PREF = 'spider.pref.v1';
 var LS_STAT = 'spider.stats.v1';
@@ -605,8 +622,8 @@ function buildSlots(){
 
 /* A simple drawn court figure: crowned head over a robe in the suit colour.
    Cheap to render and still reads at thumbnail size. */
-function courtArt(rank, red){
-  var robe = red ? '#c0392b' : '#2b3a42';
+function courtArt(rank){
+  var robe = 'currentColor';    /* the figure wears its suit's colour */
   var gold = '#d9a72c', skin = '#f7ddc2', ink = 'rgba(0,0,0,.30)';
   var body =
     '<path d="M50 58 C26 63 14 78 10 108 L90 108 C86 78 74 63 50 58 Z" fill="' + robe + '"/>' +
@@ -635,9 +652,8 @@ function courtArt(rank, red){
 }
 
 function cardMarkup(card){
-  var red = SUIT_RED[card.suit];
   var el = document.createElement('div');
-  el.className = 'card ' + (red ? 'red' : 'blk');
+  el.className = 'card s' + card.suit;
   el.dataset.id = card.id;
   var court = card.rank >= 11;
   el.innerHTML =
@@ -647,7 +663,7 @@ function cardMarkup(card){
       RANK_CH[card.rank] + '</span>' +
       '<span class="su">' + SUIT_CH[card.suit] + '</span></div>' +
       (court
-        ? '<div class="court">' + courtArt(card.rank, red) + '</div>'
+        ? '<div class="court">' + courtArt(card.rank) + '</div>'
         : '<div class="pip">' + SUIT_CH[card.suit] + '</div>') +
     '</div>' +
     '<div class="bk"></div>';
@@ -817,7 +833,7 @@ function calibrateInk(){
        dead sliver on every stacked card. The second drops the suit onto
        the same line, since the symbols draw higher in their box than
        digits do, and that mismatch wasted the gain. */
-    var target = f * 0.04;
+    var target = f * 0.13;      /* a little breathing room above the rank */
     var lift = target - rk.top;
     var drop = rk.top - su.top;
     root.setProperty('--idx-shift', (lift / f).toFixed(4) + 'em');
@@ -1399,14 +1415,26 @@ $('btnMore').onclick = openMenu;
 $('btnMenu').onclick = openMenu;
 $('mNew').onclick = function(){ newGame(); };
 $('mRestart').onclick = restartDeal;
+$('mColours').onclick = function(){
+  setColourMode(document.body.classList.contains('two-colour') ? 'four' : 'two');
+};
 $('mClose').onclick = closeMenus;
 $('wNew').onclick = function(){ newGame(); };
 $('wClose').onclick = closeMenus;
 $('menuVeil').onclick = function(e){ if(e.target === this) closeMenus(); };
 $('winVeil').onclick = function(e){ if(e.target === this) closeMenus(); };
 
+function setColourMode(mode){
+  document.body.classList.toggle('two-colour', mode === 'two');
+  setPref('colours', mode);
+  var btn = $('mColours');
+  if(btn) btn.textContent = mode === 'two' ? 'Colours: Two' : 'Colours: Four';
+  renderDiffs();
+}
+
 function openMenu(){
   $('buildStamp').textContent = 'build ' + BUILD;
+  setColourMode(lsGet(LS_PREF, {}).colours === 'two' ? 'two' : 'four');
   renderDiffs();
   renderStats();
   $('menuVeil').classList.add('on');
@@ -1425,7 +1453,7 @@ function renderDiffs(){
     var pips = '';
     var use = d.suits === 1 ? [0] : (d.suits === 2 ? [0,1] : [0,1,2,3]);
     use.forEach(function(s){
-      pips += '<span class="' + (SUIT_RED[s] ? 'r' : '') + '">' + SUIT_CH[s] + '</span>';
+      pips += '<span class="s' + s + '">' + SUIT_CH[s] + '</span>';
     });
     b.innerHTML = '<span class="pips">' + pips + '</span><span><span class="nm">' + d.name +
                   '</span><br><span class="ds">' + d.blurb + '</span></span>';
@@ -1489,6 +1517,7 @@ function loadGame(){
  * ------------------------------------------------------------------ */
 buildSlots();
 if(lsGet(LS_PREF, {}).toolbar === 'hidden') $('toolbar').classList.add('hidden');
+if(lsGet(LS_PREF, {}).colours === 'two') document.body.classList.add('two-colour');
 if(!loadGame()){
   var pref = lsGet(LS_PREF, {diff:'master'});
   startGame(DIFFS[pref.diff] ? pref.diff : 'master');
