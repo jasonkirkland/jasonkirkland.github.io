@@ -4,11 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Drone Array — board status</title>
-<!-- Same Firebase SDK + config the ADS-B map uses (public web config, NOT a secret;
-     writes are blocked by DB rules; reads require anonymous auth). -->
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<!-- Firebase RTDB accessed via REST API (public read, no auth needed). -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -234,18 +230,7 @@
 </div>
 
 <script>
-// ---- Firebase (same public config as the ADS-B map) ----
-const firebaseConfig = {
-  apiKey: "AIzaSyBSU81g4Y9othSKmWZicY2BqD4ZrzhZe4Y",
-  authDomain: "adsb-feed.firebaseapp.com",
-  databaseURL: "https://adsb-feed-default-rtdb.firebaseio.com",
-  projectId: "adsb-feed",
-  storageBucket: "adsb-feed.firebasestorage.app",
-  messagingSenderId: "926894892498",
-  appId: "1:926894892498:web:79cdf64de69c6ff0c7d40b"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+// ---- Firebase RTDB (REST API, public read) ----
 
 // ---------- helpers ----------
 const $ = id => document.getElementById(id);
@@ -791,17 +776,39 @@ async function fetchBeacons(){
 fetchBeacons();
 beaconRefreshTimer = setInterval(fetchBeacons, 60000);
 
-// ---------- connect ----------
-firebase.auth().signInAnonymously().then(()=>{
-  db.ref('droneagg').on('value', s=>renderAgg(s.val()),
-    e=>{ $('overall').className='pill bad'; $('overall').textContent='read error'; });
-  db.ref('dronelog').orderByKey().limitToLast(50).on('value', s=>renderLog(s.val()), ()=>{});
-  db.ref('drones').on('value', s=>{ lastDronesVal = s.val(); renderDrones(lastDronesVal); renderMap(lastDronesVal); },
-    ()=>{ /* best-effort */ });
-}).catch(err=>{
-  $('overall').className='pill bad';
-  $('overall').textContent='auth error: '+(err.code||err.message||'?');
-});
+// ---------- connect (REST API polling, no auth needed) ----------
+const FB_BASE = 'https://adsb-feed-default-rtdb.firebaseio.com';
+let fbTimer = null;
+
+async function fbFetch(){
+  try {
+    const [aggRes, logRes, dronesRes] = await Promise.all([
+      fetch(FB_BASE + '/droneagg.json'),
+      fetch(FB_BASE + '/dronelog.json?orderBy=%22%24key%22&limitToLast=50'),
+      fetch(FB_BASE + '/drones.json')
+    ]);
+    if(!aggRes.ok) throw new Error('droneagg ' + aggRes.status);
+    const agg = await aggRes.json();
+    renderAgg(agg);
+
+    const log = await logRes.json();
+    renderLog(log);
+
+    const drones = await dronesRes.json();
+    lastDronesVal = drones;
+    renderDrones(drones);
+    renderMap(drones);
+
+    const pill = $('overall');
+    if(pill){ pill.className = 'pill ok'; pill.textContent = 'live'; }
+  } catch(err) {
+    const pill = $('overall');
+    if(pill){ pill.className = 'pill bad'; pill.textContent = 'fetch error'; }
+    console.error('Firebase fetch error:', err);
+  }
+}
+fbFetch();
+fbTimer = setInterval(fbFetch, 5000);
 </script>
 </body>
 </html>
