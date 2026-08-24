@@ -169,8 +169,8 @@
   #toolbar{
     position:absolute;left:50%;transform:translateX(-50%);
     bottom:6px;z-index:8000;
-    display:flex;align-items:stretch;gap:2px;
-    padding:4px;border-radius:10px;
+    display:flex;align-items:stretch;gap:3px;
+    padding:6px;border-radius:13px;
     background:rgba(6,44,22,.40);border:1px solid rgba(255,255,255,.16);
     backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
     box-shadow:0 4px 14px rgba(0,0,0,.22);
@@ -185,17 +185,17 @@
     opacity:0;transform:translateX(-50%) translateY(140%);pointer-events:none;
   }
   .tbtn{
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
-    min-width:58px;padding:4px 9px;border-radius:8px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    min-width:68px;padding:8px 11px;border-radius:9px;
     background:transparent;border:0;color:var(--ink);cursor:pointer;
     font-family:inherit;font-weight:700;pointer-events:auto;
   }
   .tbtn .ic{
-    font-size:clamp(14px,2.6vh,20px);line-height:1;color:var(--gold);
+    font-size:clamp(19px,3.4vh,26px);line-height:1;color:var(--gold);
     text-shadow:0 1px 3px rgba(0,0,0,.9), 0 0 6px rgba(0,0,0,.5);
   }
   .tbtn .lb{
-    font-size:clamp(9px,1.7vh,13px);line-height:1;letter-spacing:.2px;
+    font-size:clamp(12px,2.1vh,16px);line-height:1;letter-spacing:.2px;
     text-shadow:0 1px 3px rgba(0,0,0,.9), 0 0 6px rgba(0,0,0,.5);
   }
   .tbtn:active{background:rgba(255,255,255,.18);}
@@ -218,6 +218,7 @@
     background:rgba(0,0,0,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
   }
   .veil.on{display:flex;}
+  #askVeil{z-index:10001;}     /* sits above the menu it can be opened from */
   .sheet{
     width:min(560px,96vw);max-height:92vh;overflow:auto;
     background:linear-gradient(180deg,#12572c,#0c3f20);
@@ -314,6 +315,17 @@
   </div>
 </div>
 
+<div class="veil" id="askVeil">
+  <div class="sheet" style="text-align:center;max-width:430px;">
+    <h2>Start a new game?</h2>
+    <p class="sub" id="askBody" style="margin-bottom:14px;">The hand you are playing will be lost.</p>
+    <div class="row" style="justify-content:center;">
+      <button class="abtn pri wide" id="askYes">New Game</button>
+      <button class="abtn wide" id="askNo">Keep Playing</button>
+    </div>
+  </div>
+</div>
+
 <div class="veil" id="winVeil">
   <div class="sheet" style="text-align:center;">
     <p class="winbig">You Win!</p>
@@ -348,7 +360,7 @@ var DIFFS = {
 };
 var DIFF_ORDER = ['easy','medium','hard','expert','master'];
 
-var BUILD = '2026-08-22e';   /* shown in the menu, so a stale cache is obvious */
+var BUILD = '2026-08-22f';   /* shown in the menu, so a stale cache is obvious */
 var LS_SAVE = 'spider.save.v1';
 var LS_PREF = 'spider.pref.v1';
 var LS_STAT = 'spider.stats.v1';
@@ -1407,13 +1419,13 @@ function restartDeal(){
   startGame(S.diff, S.order.slice(), S.seed);
 }
 
-$('btnNew').onclick = function(){ newGame(); };
+$('btnNew').onclick = function(){ askNewGame(); };
 $('btnHint').onclick = hint;
 $('btnUndo').onclick = undo;
 $('btnUndoAll').onclick = undoAll;
 $('btnMore').onclick = openMenu;
 $('btnMenu').onclick = openMenu;
-$('mNew').onclick = function(){ newGame(); };
+$('mNew').onclick = function(){ askNewGame(); };
 $('mRestart').onclick = restartDeal;
 $('mColours').onclick = function(){
   setColourMode(document.body.classList.contains('two-colour') ? 'four' : 'two');
@@ -1439,9 +1451,32 @@ function openMenu(){
   renderStats();
   $('menuVeil').classList.add('on');
 }
+/* Only worth asking when there is something to lose: a hand that has been
+   played and is not already won. */
+var pendingNewGame = null;
+function askNewGame(diffKey){
+  if(!S || !S.started || S.won || S.moves === 0){ newGame(diffKey); return; }
+  pendingNewGame = diffKey;
+  $('askBody').textContent = 'The hand you are playing will be lost' +
+    (S.moves ? ' (' + S.moves + ' move' + (S.moves === 1 ? '' : 's') + ' so far).' : '.');
+  $('askVeil').classList.add('on');
+}
+function closeAsk(){
+  $('askVeil').classList.remove('on');
+  pendingNewGame = null;
+}
+$('askYes').onclick = function(){
+  var d = pendingNewGame;
+  closeAsk();
+  newGame(d);
+};
+$('askNo').onclick = closeAsk;
+$('askVeil').onclick = function(e){ if(e.target === this) closeAsk(); };
+
 function closeMenus(){
   $('menuVeil').classList.remove('on');
   $('winVeil').classList.remove('on');
+  closeAsk();
 }
 function renderDiffs(){
   var host = $('diffList');
@@ -1457,7 +1492,7 @@ function renderDiffs(){
     });
     b.innerHTML = '<span class="pips">' + pips + '</span><span><span class="nm">' + d.name +
                   '</span><br><span class="ds">' + d.blurb + '</span></span>';
-    b.onclick = function(){ newGame(k); };
+    b.onclick = function(){ askNewGame(k); };
     host.appendChild(b);
   });
 }
@@ -1468,12 +1503,16 @@ function showWin(){
 }
 
 document.addEventListener('keydown', function(e){
+  if($('askVeil').classList.contains('on')){
+    if(e.key === 'Escape') closeAsk();
+    return;
+  }
   if($('menuVeil').classList.contains('on') || $('winVeil').classList.contains('on')){
     if(e.key === 'Escape') closeMenus();
     return;
   }
   var k = e.key.toLowerCase();
-  if(k === 'n'){ newGame(); }
+  if(k === 'n'){ askNewGame(); }
   else if(k === 'u'){ e.shiftKey ? undoAll() : undo(); }
   else if(k === 'h'){ hint(); }
   else if(e.key === ' '){ e.preventDefault(); dealRow(); }
