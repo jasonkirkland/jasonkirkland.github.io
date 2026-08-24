@@ -386,7 +386,7 @@ function renderChannels(h, stale){
                      : `<div style="color:var(--dim)">frames: <i>heartbeat pending</i></div>`}
         <div style="color:var(--dim)">${bleBuild?'BLE':'raw'} bytes rx: ${bytes.toLocaleString()}${c.sniff_heap?` · sniffer heap ${Math.round(c.sniff_heap/1024)}KB`:''}</div>
         ${(c.temp!=null||c.cpu!=null||c.minheap!=null) ? `<div style="color:var(--ink2)">${
-            c.temp!=null?`🌡 ${c.temp}°C${c.tempok===0?'<span style="color:var(--dim)"> (approx)</span>':''}`:''}${
+            c.temp!=null?`🌡 ${Math.round((c.temp*9/5+32)*10)/10}°F${c.tempok===0?'<span style="color:var(--dim)"> (approx)</span>':''}`:''}${
             c.cpu!=null?` · ${c.cpu} MHz`:''}${
             c.minheap!=null?` · min-heap ${Math.round(c.minheap/1024)}KB`:''}</div>` : ''}
         ${c.rst!=null ? `<div style="font-size:12px${rstBad(c.rst)?';font-weight:700;color:var(--bad)':';color:var(--dim)'}">last reset: ${rstName(c.rst)}${rstBad(c.rst)?' ⚠':''}</div>` : ''}
