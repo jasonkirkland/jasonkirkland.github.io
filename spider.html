@@ -164,7 +164,48 @@
     0%,100%{box-shadow:0 1px 2px rgba(0,0,0,.45), 0 3px 7px rgba(0,0,0,.22);}
     50%{box-shadow:0 0 0 4px #ffe89a, 0 0 22px 6px rgba(255,215,106,.75);}
   }
-  .card.dealt{animation:none;}
+  /* A card flying out of the stock: it takes a moment longer than an
+     ordinary move and settles rather than snapping into place. */
+  .card.deal-in{
+    transition-duration:.30s;
+    animation:dealIn .34s cubic-bezier(.2,.85,.3,1) both;
+    z-index:7000 !important;
+    /* a card in flight crosses the whole table - it must not swallow a tap
+       meant for whatever it happens to be passing over */
+    pointer-events:none;
+  }
+  @keyframes dealIn{
+    0%{transform:scale(1.10) rotate(-2.5deg);}
+    62%{transform:scale(1.02) rotate(.4deg);}
+    100%{transform:scale(1) rotate(0);}
+  }
+
+  /* A finished suit lifting off the table and flying home, lit up on the way. */
+  .card.suit-home{
+    transition-duration:.46s;
+    transition-timing-function:cubic-bezier(.45,0,.25,1);
+    animation:suitHome .52s ease-out both;
+    z-index:7500 !important;
+    pointer-events:none;
+  }
+  @keyframes suitHome{
+    0%{
+      transform:scale(1.06);
+      box-shadow:0 0 0 3px rgba(255,222,120,.95), 0 0 22px 9px rgba(255,215,106,.75);
+    }
+    65%{
+      transform:scale(1.02);
+      box-shadow:0 0 0 2px rgba(255,222,120,.45), 0 0 15px 6px rgba(255,215,106,.32);
+    }
+    100%{
+      transform:scale(1);
+      box-shadow:0 1px 2px rgba(0,0,0,.45), 0 3px 7px rgba(0,0,0,.22);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .card.deal-in, .card.suit-home{animation:none;transition-duration:.12s;}
+  }
   /* ---------- bottom toolbar ---------- */
   #toolbar{
     position:absolute;left:50%;transform:translateX(-50%);
@@ -360,7 +401,7 @@ var DIFFS = {
 };
 var DIFF_ORDER = ['easy','medium','hard','expert','master'];
 
-var BUILD = '2026-08-22g';   /* shown in the menu, so a stale cache is obvious */
+var BUILD = '2026-08-22i';   /* shown in the menu, so a stale cache is obvious */
 var LS_SAVE = 'spider.save.v1';
 var LS_PREF = 'spider.pref.v1';
 var LS_STAT = 'spider.stats.v1';
@@ -1044,7 +1085,9 @@ function collectRun(col){
     if(!cd.up || cd.suit !== s || cd.rank !== 13-i) return false;
   }
   var run = a.splice(top, 13);
-  S.found.push({ suit:s, ids: run.map(function(c){ return c.id; }) });
+  var ids = run.map(function(c){ return c.id; });
+  S.found.push({ suit:s, ids: ids });
+  fxPending.suits.push(ids);
   S.score += 100;
   if(a.length && !a[a.length-1].up) a[a.length-1].up = true;
   return true;
@@ -1062,6 +1105,7 @@ function applyMove(from, idx, to){
 
 function doMove(from, idx, to){
   if(from === to || !isRunStart(from, idx) || !canDrop(S.cols[from][idx], to)) return false;
+  fxClearAll();
   pushHistory();
   applyMove(from, idx, to);
   S.started = true;
@@ -1075,6 +1119,7 @@ function dealRow(){
      deal landing within a few frames was never a second tap */
   var now = Date.now();
   if(now - lastDealAt < 250) return false;
+  fxClearAll();
   if(S.stock.length === 0){ toast('The stock pile is empty.'); return false; }
   if(anyEmptyColumn()){
     /* say why, and point at the columns holding the deal up */
@@ -1085,10 +1130,12 @@ function dealRow(){
     return false;
   }
   pushHistory();
+  fxPending.deal = [];
   for(var i=0;i<COLS;i++){
     var cd = S.stock.pop();
     cd.up = true;
     S.cols[i].push(cd);
+    fxPending.deal.push(cd.id);
   }
   S.moves++;
   S.score = Math.max(0, S.score - 1);
@@ -1101,12 +1148,74 @@ function dealRow(){
 
 function afterChange(){
   layout(true);
+  playFx();
   if(S.found.length === 8 && !S.won){
     S.won = true;
     bumpStat(S.diff, 'won');
-    setTimeout(showWin, 520);
+    /* let the last suit finish flying home before the win screen covers it */
+    setTimeout(showWin, 1150);
   }
   saveGame();
+}
+
+/* ------------------------------------------------------------------ *
+ * Dealing and finishing a suit, animated
+ * ------------------------------------------------------------------ *
+ * layout() has already given every card its new home, which starts the
+ * usual position transition. These only add the timing: a stagger so the
+ * cards travel one after another instead of in a single block, plus a
+ * class carrying the flourish for that kind of move.
+ */
+var DEAL_STAGGER = 42, SUIT_STAGGER = 26;
+var fxPending = { deal: null, suits: [] };
+var fxActive = [];
+
+function fxApply(el, delay, cls, life){
+  if(!el) return;
+  /* No reflow here: layout() has just moved this card but the browser has
+     not recomputed styles yet. Forcing it now would start the position
+     transition before the delay and duration below were set, and the
+     stagger would collapse into a single jump. */
+  el.style.transitionDelay = delay + 'ms';
+  el.style.animationDelay = delay + 'ms';
+  el.classList.add(cls);
+  var entry = { el: el, cls: cls };
+  entry.timer = setTimeout(function(){ fxClearOne(entry); }, delay + life);
+  fxActive.push(entry);
+}
+
+function fxClearOne(entry){
+  clearTimeout(entry.timer);
+  entry.el.classList.remove(entry.cls);
+  entry.el.style.transitionDelay = '';
+  entry.el.style.animationDelay = '';
+  var i = fxActive.indexOf(entry);
+  if(i >= 0) fxActive.splice(i, 1);
+}
+
+/* Anything still in flight is finished immediately, so a leftover delay
+   can never make the player's next move feel sluggish. */
+function fxClearAll(){
+  if(!fxActive.length) return;
+  while(fxActive.length) fxClearOne(fxActive[0]);
+  /* Commit the class removals now, while nothing has moved yet, so the
+     same animation can be started again cleanly on the next action. */
+  void board.offsetWidth;
+}
+
+function playFx(){
+  var i, j;
+  if(fxPending.deal){
+    for(i=0;i<fxPending.deal.length;i++)
+      fxApply(els[fxPending.deal[i]], i*DEAL_STAGGER, 'deal-in', 380);
+    fxPending.deal = null;
+  }
+  for(i=0;i<fxPending.suits.length;i++){
+    var ids = fxPending.suits[i];
+    for(j=0;j<ids.length;j++)
+      fxApply(els[ids[j]], j*SUIT_STAGGER, 'suit-home', 560);
+  }
+  fxPending.suits.length = 0;
 }
 
 /* ------------------------------------------------------------------ *
@@ -1359,6 +1468,7 @@ board.addEventListener('contextmenu', function(e){ e.preventDefault(); });
  * ------------------------------------------------------------------ */
 function undo(){
   if(!S.history.length) return;
+  fxClearAll();
   restoreSnap(S.history.pop());
   S.won = false;
   layout(true);
@@ -1397,6 +1507,9 @@ function flash(group){
 }
 
 function startGame(diffKey, order, seed){
+  fxClearAll();
+  fxPending.deal = null;
+  fxPending.suits.length = 0;
   if(!DIFFS[diffKey]) diffKey = 'master';
   seed = (seed === undefined) ? ((Math.random()*0x7fffffff)|0) : seed;
   if(!order) order = makeOrder(diffKey, seed);
