@@ -360,7 +360,7 @@ var DIFFS = {
 };
 var DIFF_ORDER = ['easy','medium','hard','expert','master'];
 
-var BUILD = '2026-08-22f';   /* shown in the menu, so a stale cache is obvious */
+var BUILD = '2026-08-22g';   /* shown in the menu, so a stale cache is obvious */
 var LS_SAVE = 'spider.save.v1';
 var LS_PREF = 'spider.pref.v1';
 var LS_STAT = 'spider.stats.v1';
@@ -720,11 +720,14 @@ function measure(){
   geo.stockLift = Math.max(2, cw*0.035);
   geo.stockX = x0 + COLS*(cw + gap);
   geo.stockY = BH - ch - pad;
-  geo.foundX = x0;
-  geo.foundY = BH - ch - pad;
-  geo.foundStep = Math.min(cw * 0.30, (geo.stockX - x0 - cw) / 8);
-  if(geo.foundStep < 4) geo.foundStep = 4;
-  /* fanned cards may run down to here before they get squeezed harder */
+  /* Finished suits stack at the top of the stock's lane and fan downward,
+     clear of the columns and of the pile at the foot of the same lane. */
+  geo.foundX = geo.stockX;
+  geo.foundY = padY;
+  var pileTop = S && S.stock.length ? geo.stockY - stockFanHeight() - gap : BH - padY;
+  var foundRoom = pileTop - padY - ch;
+  geo.foundStep = Math.max(3, Math.min(ch * 0.28, foundRoom / 7));
+
   /* columns run all the way to the bottom edge now */
   geo.hardBottom = BH - padY;
 }
@@ -744,8 +747,8 @@ function styleSlots(){
   stockSlot.style.height = geo.ch + 'px';
   for(var f=0; f<8; f++){
     s = slots[COLS + f];
-    s.style.left = (geo.foundX + f*geo.foundStep) + 'px';
-    s.style.top = geo.foundY + 'px';
+    s.style.left = geo.foundX + 'px';
+    s.style.top = (geo.foundY + f*geo.foundStep) + 'px';
     s.style.width = geo.cw + 'px';
     s.style.height = geo.ch + 'px';
     s.style.opacity = '0';
@@ -885,7 +888,8 @@ function layout(animate){
       ? clamp(offs[i].u / INK_RATIO, geo.cw*0.20, maxFont)
       : maxFont));
   }
-  geo.rankFont = maxFont;        /* stock and finished piles show in full */
+  geo.rankFont = maxFont;                       /* the stock shows in full */
+  geo.foundFont = Math.round(clamp(geo.foundStep / INK_RATIO, geo.cw*0.20, maxFont));
 
   var seen = {};
   for(i=0;i<COLS;i++){
@@ -930,11 +934,11 @@ function layout(animate){
     for(j=0;j<f.ids.length;j++){
       var fe = els[f.ids[j]];
       seen[f.ids[j]] = 1;
-      styleCard(fe);
+      styleCard(fe, geo.foundFont);
       fe.style.display = '';
       fe.style.transform = '';
-      fe.style.left = (geo.foundX + i*geo.foundStep) + 'px';
-      fe.style.top = geo.foundY + 'px';
+      fe.style.left = geo.foundX + 'px';
+      fe.style.top = (geo.foundY + i*geo.foundStep) + 'px';
       fe.style.zIndex = 20 + i*20 + (f.ids.length - j);
       fe.classList.remove('down');
       fe.classList.add('up');
