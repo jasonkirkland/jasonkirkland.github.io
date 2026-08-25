@@ -341,7 +341,10 @@ function renderChannels(h, stale){
     // label by the embedded src + ch (e.g. "c5c6 · ch6"); fall back to the key. The s3c6 slot is
     // now the LoBI board, so display it as "lobi-ch6" (Firebase src stays "s3c6").
     const rawSrc = c.src ? c.src : k;
-    const label = (rawSrc === 's3c6') ? 'lobi-ch6' : (rawSrc + (c.ch!=null ? ' · ch'+c.ch : ''));
+    const isBle = (rawSrc === 'blec');
+    const label = (rawSrc === 's3c6') ? 'lobi-ch6'
+                : isBle               ? '📶 bluetooth'
+                : (rawSrc + (c.ch!=null ? ' · ch'+c.ch : ''));
 
     // Link diagnosis. BLE build: keyed off the aggregator's top-level `ble` (detector connected).
     const bleBuild = ('ble' in h);
@@ -362,13 +365,14 @@ function renderChannels(h, stale){
     return `<div class="card">
       <div class="chan-head"><span class="dot ${b}"></span>
         <span class="ch">${label}</span></div>
-      <div class="role">sniffer · promiscuous</div>
+      <div class="role">${isBle ? 'BLE Remote-ID scanner · u.fl antenna' : 'sniffer · promiscuous'}</div>
       <div class="age ${b}">${stale ? ageText(displayAge) : ageText(age)}</div>
       <div class="metrics">
         <div class="diag ${diagCls}">${diagText}</div>
         <div>detections: <b>${lines.toLocaleString()}</b> &nbsp;·&nbsp; heartbeats: <b>${hb.toLocaleString()}</b></div>
-        ${pkts!=null ? `<div>802.11 frames: <b>${pkts.toLocaleString()}</b>${fps!=null?` &nbsp;(<b>${fps}</b>/s)`:''}</div>`
-                     : `<div style="color:var(--dim)">frames: <i>heartbeat pending</i></div>`}
+        ${isBle ? `<div style="color:var(--dim)">scanning BLE for <code>0xFFFA</code> Remote-ID <i>(BT-Legacy)</i></div>`
+         : pkts!=null ? `<div>802.11 frames: <b>${pkts.toLocaleString()}</b>${fps!=null?` &nbsp;(<b>${fps}</b>/s)`:''}</div>`
+                      : `<div style="color:var(--dim)">frames: <i>heartbeat pending</i></div>`}
         <div style="color:var(--dim)">${bleBuild?'BLE':'raw'} bytes rx: ${bytes.toLocaleString()}${c.sniff_heap?` · sniffer heap ${Math.round(c.sniff_heap/1024)}KB`:''}</div>
         ${(c.temp!=null||c.cpu!=null||c.minheap!=null) ? `<div style="color:var(--ink2)">${
             c.temp!=null?`🌡 ${Math.round((c.temp*9/5+32)*10)/10}°F${c.tempok===0?'<span style="color:var(--dim)"> (approx)</span>':''}`:''}${
@@ -489,7 +493,7 @@ const M2FT = 3.28084;
 // Human-readable list of whatever rich fields are present on a /drones record.
 function detExtras(d){
   const bits=[];
-  if(d.band!=null) bits.push((d.band==5)?'5GHz':'2.4GHz');
+  if(d.band!=null) bits.push(d.band=='ble'?'📶 Bluetooth':(d.band==5)?'5GHz':'2.4GHz');
   if(d.status!=null && RID_STATUS[d.status]) bits.push(RID_STATUS[d.status]);
   if(d.uatype!=null && UA_TYPES[d.uatype]) bits.push(UA_TYPES[d.uatype]);
   if(d.hspd!=null) bits.push(d.hspd+' m/s'+(d.hdg!=null?' @'+d.hdg+'°':''));
@@ -572,9 +576,9 @@ let lastDronesVal = null;             // cache of the last /drones snapshot (re-
 // detections show up on the work map and inflate the work range (and vice versa).
 const RECEIVERS = {
   'Home Wifi':  { lat: 33.186143, lon: -97.111497, label: 'Home (Denton)',        // 615 Ridgecrest Cir
-                  srcs: ['cyd','lobi','lobi1','lobi6','lobi11','s3'] },            //   home CYD (+ legacy home boards)
+                  srcs: ['cyd','lobi','lobi1','lobi6','lobi11','s3','blec'] },      //   home CYD (+ legacy home boards; blec=BLE detector travels with the array)
   'COL_Public': { lat: 33.043071, lon: -97.023205, label: 'Work (Lewisville)',    // 1197 W Main St
-                  srcs: ['c5c6','s3c6','c5c149','s3h'] },                          //   C5 aggregator array
+                  srcs: ['c5c6','s3c6','c5c149','s3h','blec'] },                    //   C5 aggregator array (+ blec BLE detector)
 };
 function currentReceiver(){ return RECEIVERS[currentSsid] || null; }   // null = unknown network → no filter
 const RX = [33.186143, -97.111497];   // initial map center (Home); the one-time fit re-centers to the live site
