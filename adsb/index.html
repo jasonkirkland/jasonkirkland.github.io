@@ -458,11 +458,9 @@ function ringCoords(lng,lat,radiusM,n=72){
 
 const style = {
   version:8,
-  sources:{ base:{ type:'raster', tileSize:256,
-    tiles:['https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-           'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-           'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png'],
-    attribution:'© OpenStreetMap © CARTO' } },
+  sources:{ base:{ type:'raster', tileSize:256, maxzoom:16,
+    tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'],
+    attribution:'Tiles © Esri' } },
   layers:[{ id:'base', type:'raster', source:'base' }]
 };
 const map = new maplibregl.Map({ container:'map', style, center:RX, zoom:10.3, pitch:62, bearing:0, maxPitch:80 });
