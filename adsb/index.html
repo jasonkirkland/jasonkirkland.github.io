@@ -630,6 +630,8 @@ map.on('load', () => {
 // hide / show the control panel + swipe-left-to-close on docked panels
 (function(){
   const hud=document.getElementById('hud'), show=document.getElementById('hud-show');
+  // on a phone-sized screen the panel covers most of the map — start hidden instead
+  if(window.innerWidth < 640){ hud.style.display='none'; show.style.display='block'; }
   document.getElementById('hud-hide').addEventListener('click', ()=>{ hud.style.display='none'; show.style.display='block'; });
   show.addEventListener('click', ()=>{ hud.style.display='block'; show.style.display='none'; });
   // swipe left to dismiss a left-docked panel (mostly-horizontal, >55px)
