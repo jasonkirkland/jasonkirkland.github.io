@@ -250,12 +250,19 @@ function compose(){
   let ac = Array.isArray(base.aircraft) ? base.aircraft.slice() : [];
   if (latestDrones) {
     const cutoff = Date.now()/1000 - 60;        // keep drone detections from the last 60 s
+    // The CYD appends a NEW push-keyed entry per detection (the node is an append-only
+    // log, never keyed by drone id), so one flying drone has an entry every ~4 s — a dozen
+    // entries inside the 60 s window. Keep only the NEWEST entry per drone (by hex, which
+    // is stable per drone) so we render one icon/label per drone, not one per detection.
+    const newest = {};
     for (const k in latestDrones) {
       const d = latestDrones[k];
       if (!d || typeof d.lat!=='number' || typeof d.lon!=='number') continue;
       if (typeof d.epoch==='number' && d.epoch < cutoff) continue;   // aged out -> drop
-      ac.push(d);
+      const key = d.hex || d.uasid || k;
+      if (!newest[key] || (d.epoch||0) > (newest[key].epoch||0)) newest[key] = d;
     }
+    for (const key in newest) ac.push(newest[key]);
   }
   latest = Object.assign({}, base, { aircraft: ac });
   if (mapReady) render(latest);
