@@ -288,7 +288,7 @@ const IC_GA  ={id:'ga',  url:GA_SVG,   width:64,height:64,anchorX:32,anchorY:32,
 const IC_HELI={id:'heli',url:HELI_SVG, width:64,height:64,anchorX:32,anchorY:32,mask:true};
 // Remote ID drone: quad silhouette (distinct from manned aircraft so drones read on the map)
 const DRONE_SVG=SVG("<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 24 24'><g fill='white'><circle cx='5' cy='5' r='2.1'/><circle cx='19' cy='5' r='2.1'/><circle cx='5' cy='19' r='2.1'/><circle cx='19' cy='19' r='2.1'/><rect x='7' y='10.6' width='10' height='2.8' rx='1.4'/><rect x='10.6' y='7' width='2.8' height='10' rx='1.4'/></g></svg>");
-const IC_DRONE={id:'drone',url:DRONE_SVG,width:14,height:14,anchorX:7,anchorY:7,mask:true};
+const IC_DRONE={id:'drone',url:DRONE_SVG,width:64,height:64,anchorX:32,anchorY:32,mask:true};
 // ADS-B emitter category -> icon: RID drone, A7 rotorcraft, A1 light GA, else jet/airliner
 function iconFor(c){ return c==='RID' ? IC_DRONE : c==='A7' ? IC_HELI : c==='A1' ? IC_GA : IC_JET; }
 
@@ -444,7 +444,10 @@ function buildLayers(){
   const bearing = map.getBearing();
   const icons = new deck.IconLayer({
     id:'planes', data:planeData, pickable:true, billboard:!mode2d,
-    sizeUnits:'pixels', getSize: 36, sizeScale:1,
+    // NOTE: with deck.gl auto-packing, an icon's width/height fields only affect atlas
+    // packing — rendered size is getSize px for every icon. So drones are sized here,
+    // at half the aircraft size, not via the icon definition.
+    sizeUnits:'pixels', getSize: d => d.category==='RID' ? 18 : 36, sizeScale:1,
     getPosition: d => [d.lon, d.lat, mode2d?0:towerH(d.alt_baro)],
     getIcon: d => iconFor(d.category),
     getColor: d => { const c=altRGB(d.alt_baro); const al=droneAlpha(d);
