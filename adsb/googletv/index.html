@@ -483,7 +483,8 @@ function buildLayers(){
   const bearing = map.getBearing();
   const icons = new deck.IconLayer({
     id:'planes', data:planeData, pickable:true, billboard:!mode2d,
-    sizeUnits:'pixels', getSize: 20, sizeScale:1,   // TV: smaller icons so they cover less map
+    // TV: smaller icons so they cover less map. Drones render half the aircraft size.
+    sizeUnits:'pixels', getSize: d => d.category==='RID' ? 10 : 20, sizeScale:1,
     getPosition: d => [d.lon, d.lat, mode2d?0:towerH(d.alt_baro)],
     getIcon: d => iconFor(d.category),
     getColor: d => altRGB(d.alt_baro),
