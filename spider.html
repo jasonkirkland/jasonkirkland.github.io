@@ -419,7 +419,7 @@ var DIFFS = {
 };
 var DIFF_ORDER = ['easy','medium','hard','expert','master'];
 
-var BUILD = '2026-09-05a';   /* shown in the menu, so a stale cache is obvious */
+var BUILD = '2026-09-05b';   /* shown in the menu, so a stale cache is obvious */
 var LS_SAVE = 'spider.save.v1';
 var LS_PREF = 'spider.pref.v1';
 var LS_STAT = 'spider.stats.v1';
@@ -1724,51 +1724,76 @@ document.addEventListener('touchmove', function(e){
   if(e.touches.length > 1 && e.target.closest && e.target.closest('#app')) e.preventDefault();
 }, {passive:false});
 
-/* If the page ends up zoomed anyway, offer the way back. Reloading is the one
-   thing that reliably clears Safari's pinch zoom, and the game is written to
-   storage first, so the hand survives it. */
-var SS_UNZOOM = 'spider.unzoom';
+/* Getting back out of a zoom.
+
+   Two things had to be unlearned here. Reloading does not help: iPad Safari
+   restores the tab's zoom along with its scroll position, so the page comes
+   back exactly as scaled as it left. And re-writing the viewport meta with the
+   same string it already had is a no-op - the tag already carried
+   maximum-scale=1, so appending it again asked Safari to change nothing.
+
+   What does work is a real change to the limit: drop the clamp for a frame,
+   then put it back. Safari re-applies it and the scale snaps to 1. */
+var vpMeta = document.querySelector('meta[name=viewport]');
+var VP_FREE = 'width=device-width, initial-scale=1, viewport-fit=cover';
+var VP_LOCK = VP_FREE + ', maximum-scale=1, user-scalable=no';
+function unzoom(){
+  if(!vpMeta) return;
+  vpMeta.setAttribute('content', VP_FREE);
+  setTimeout(function(){ vpMeta.setAttribute('content', VP_LOCK); }, 50);
+}
+
 var zoomBtn = $('zoomReset');
+var zoomTries = 0, snapTimer = 0;
+
+/* While the page is scaled, anything positioned against the layout viewport is
+   half off screen - that is why the toast came back clipped. Pin the two
+   floating pieces to the part the player can actually see, at their own size. */
+function pinToVisual(el, vv, top){
+  var k = 1 / vv.scale;
+  el.style.position = 'fixed';
+  el.style.left = (vv.offsetLeft + vv.width / 2) + 'px';
+  el.style.top = (vv.offsetTop + top * k) + 'px';
+  el.style.transform = 'translateX(-50%) scale(' + k + ')';
+  el.style.transformOrigin = 'top center';
+}
+function unpin(el){
+  el.style.position = el.style.left = el.style.top = '';
+  el.style.transform = el.style.transformOrigin = '';
+}
+
 function watchZoom(){
   var vv = window.visualViewport;
   if(!vv) return;
   var zoomed = vv.scale > 1.05;
+  var t = $('toast');
   zoomBtn.hidden = !zoomed;
-  if(zoomed){
-    var k = 1 / vv.scale;
-    zoomBtn.style.left = (vv.offsetLeft + vv.width / 2) + 'px';
-    zoomBtn.style.top = (vv.offsetTop + 10 * k) + 'px';
-    zoomBtn.style.transform = 'translateX(-50%) scale(' + k + ')';
-  }
+  /* the toast sits below the button so the two do not stack on each other */
+  if(zoomed){ pinToVisual(zoomBtn, vv, 12); pinToVisual(t, vv, 66); }
+  else { unpin(t); }
+
+  clearTimeout(snapTimer);
+  if(!zoomed){ zoomTries = 0; return; }
+  /* Wait for the pinch to finish before pulling the board back, or we would be
+     fighting the finger that is still on the glass. Give up after a few goes so
+     a browser that refuses to be clamped is left alone with the button. */
+  snapTimer = setTimeout(function(){
+    if(window.visualViewport.scale > 1.05 && zoomTries < 3){ zoomTries++; unzoom(); }
+  }, 550);
 }
+
 zoomBtn.addEventListener('click', function(){
-  writeSave();                       /* the hand is stored before anything else */
-  /* Nudge the viewport meta first - that alone clears the zoom on some Safari
-     versions - and reload if the page is still scaled a moment later. */
-  var vp = document.querySelector('meta[name=viewport]');
-  if(vp){
-    var keep = vp.getAttribute('content');
-    vp.setAttribute('content', keep + ', maximum-scale=1.0');
-    setTimeout(function(){ vp.setAttribute('content', keep); }, 30);
-  }
+  zoomTries = 0;
+  unzoom();
   setTimeout(function(){
     var vv = window.visualViewport;
-    if(!vv || vv.scale > 1.05){
-      try{ sessionStorage.setItem(SS_UNZOOM, '1'); }catch(err){}
-      location.reload();
-    } else watchZoom();
-  }, 260);
+    if(vv && vv.scale > 1.05) toast('Pinch outward with two fingers to reset.');
+  }, 700);
 });
-/* If even the reload came back scaled, stop pretending and say what works. */
-try{
-  if(sessionStorage.getItem(SS_UNZOOM)){
-    sessionStorage.removeItem(SS_UNZOOM);
-    setTimeout(function(){
-      var vv = window.visualViewport;
-      if(vv && vv.scale > 1.05) toast('Still zoomed - pinch outward with two fingers.');
-    }, 400);
-  }
-}catch(err){}
+
+/* A pinch that has just ended is the common way in, so undo it right there. */
+document.addEventListener('gestureend', function(){ zoomTries = 0; unzoom(); });
+
 if(window.visualViewport){
   window.visualViewport.addEventListener('resize', watchZoom);
   window.visualViewport.addEventListener('scroll', watchZoom);
