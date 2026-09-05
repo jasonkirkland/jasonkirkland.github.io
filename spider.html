@@ -37,6 +37,9 @@
   }
   #app{
     position:fixed;inset:0;display:flex;flex-direction:column;
+    /* the whole playing surface, not just the table: a pinch that started on
+       the top bar used to zoom the page */
+    touch-action:none;
     background:
       radial-gradient(120% 90% at 50% -10%, var(--felt1) 0%, var(--felt2) 45%, var(--felt3) 100%);
   }
@@ -253,6 +256,19 @@
   }
   #toast.on{opacity:1;transform:translate(-50%,0);}
   /* ---------- modal ---------- */
+  /* Only shown when the page really is zoomed. iOS ignores user-scalable=no,
+     so a stray pinch can still get through, and there is no obvious way back. */
+  #zoomReset{
+    position:fixed;left:0;top:0;z-index:10050;
+    display:flex;align-items:center;justify-content:center;
+    padding:11px 18px;border-radius:999px;
+    background:rgba(6,44,22,.96);border:1px solid rgba(255,255,255,.5);
+    color:var(--ink);font-family:inherit;font-weight:700;font-size:15px;
+    box-shadow:0 6px 22px rgba(0,0,0,.55);cursor:pointer;
+    transform-origin:top center;white-space:nowrap;
+  }
+  #zoomReset[hidden]{display:none;}
+
   .veil{
     position:absolute;inset:0;z-index:10000;display:none;
     align-items:center;justify-content:center;padding:12px;
@@ -356,6 +372,8 @@
   </div>
 </div>
 
+<button id="zoomReset" hidden>Zoomed in &mdash; tap to reset</button>
+
 <div class="veil" id="askVeil">
   <div class="sheet" style="text-align:center;max-width:430px;">
     <h2>Start a new game?</h2>
@@ -401,7 +419,7 @@ var DIFFS = {
 };
 var DIFF_ORDER = ['easy','medium','hard','expert','master'];
 
-var BUILD = '2026-08-22i';   /* shown in the menu, so a stale cache is obvious */
+var BUILD = '2026-09-05a';   /* shown in the menu, so a stale cache is obvious */
 var LS_SAVE = 'spider.save.v1';
 var LS_PREF = 'spider.pref.v1';
 var LS_STAT = 'spider.stats.v1';
@@ -1640,17 +1658,18 @@ document.addEventListener('keydown', function(e){
  * Save / restore
  * ------------------------------------------------------------------ */
 var saveTimer = null;
+function writeSave(){
+  if(!S) return;
+  lsSet(LS_SAVE, {
+    diff: S.diff, seed: S.seed, order: S.order,
+    state: snapshot(),
+    history: S.history.slice(-120),
+    elapsed: S.elapsed, started: S.started, won: S.won
+  });
+}
 function saveGame(){
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(function(){
-    if(!S) return;
-    lsSet(LS_SAVE, {
-      diff: S.diff, seed: S.seed, order: S.order,
-      state: snapshot(),
-      history: S.history.slice(-120),
-      elapsed: S.elapsed, started: S.started, won: S.won
-    });
-  }, 250);
+  saveTimer = setTimeout(writeSave, 250);
 }
 function loadGame(){
   var sv = lsGet(LS_SAVE, null);
@@ -1694,12 +1713,67 @@ window.__spider = {
   start: startGame
 };
 
-/* Installed on a Home Screen there is no browser chrome to escape to, so
-   swallow the pinch- and double-tap-zoom gestures that would just smear
-   the table around. */
+/* Swallow the pinch- and double-tap-zoom gestures that would just smear the
+   table around. Safari ignores user-scalable=no, so this is the only thing
+   standing between a stray two-finger touch and a zoomed board. */
 ['gesturestart','gesturechange','gestureend'].forEach(function(n){
   document.addEventListener(n, function(e){ e.preventDefault(); }, {passive:false});
 });
+document.addEventListener('touchmove', function(e){
+  /* a second finger on the table is never a game gesture */
+  if(e.touches.length > 1 && e.target.closest && e.target.closest('#app')) e.preventDefault();
+}, {passive:false});
+
+/* If the page ends up zoomed anyway, offer the way back. Reloading is the one
+   thing that reliably clears Safari's pinch zoom, and the game is written to
+   storage first, so the hand survives it. */
+var SS_UNZOOM = 'spider.unzoom';
+var zoomBtn = $('zoomReset');
+function watchZoom(){
+  var vv = window.visualViewport;
+  if(!vv) return;
+  var zoomed = vv.scale > 1.05;
+  zoomBtn.hidden = !zoomed;
+  if(zoomed){
+    var k = 1 / vv.scale;
+    zoomBtn.style.left = (vv.offsetLeft + vv.width / 2) + 'px';
+    zoomBtn.style.top = (vv.offsetTop + 10 * k) + 'px';
+    zoomBtn.style.transform = 'translateX(-50%) scale(' + k + ')';
+  }
+}
+zoomBtn.addEventListener('click', function(){
+  writeSave();                       /* the hand is stored before anything else */
+  /* Nudge the viewport meta first - that alone clears the zoom on some Safari
+     versions - and reload if the page is still scaled a moment later. */
+  var vp = document.querySelector('meta[name=viewport]');
+  if(vp){
+    var keep = vp.getAttribute('content');
+    vp.setAttribute('content', keep + ', maximum-scale=1.0');
+    setTimeout(function(){ vp.setAttribute('content', keep); }, 30);
+  }
+  setTimeout(function(){
+    var vv = window.visualViewport;
+    if(!vv || vv.scale > 1.05){
+      try{ sessionStorage.setItem(SS_UNZOOM, '1'); }catch(err){}
+      location.reload();
+    } else watchZoom();
+  }, 260);
+});
+/* If even the reload came back scaled, stop pretending and say what works. */
+try{
+  if(sessionStorage.getItem(SS_UNZOOM)){
+    sessionStorage.removeItem(SS_UNZOOM);
+    setTimeout(function(){
+      var vv = window.visualViewport;
+      if(vv && vv.scale > 1.05) toast('Still zoomed - pinch outward with two fingers.');
+    }, 400);
+  }
+}catch(err){}
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize', watchZoom);
+  window.visualViewport.addEventListener('scroll', watchZoom);
+  watchZoom();
+}
 
 /* the table is built for landscape - say so once on a tall narrow screen */
 if(board.clientHeight > board.clientWidth * 1.15 && window.innerWidth < 820){
@@ -1711,10 +1785,7 @@ window.addEventListener('orientationchange', function(){ setTimeout(function(){ 
 if(window.visualViewport) window.visualViewport.addEventListener('resize', function(){ layout(false); });
 window.addEventListener('beforeunload', function(){
   clearTimeout(saveTimer);
-  if(S) lsSet(LS_SAVE, {
-    diff:S.diff, seed:S.seed, order:S.order, state:snapshot(),
-    history:S.history.slice(-120), elapsed:S.elapsed, started:S.started, won:S.won
-  });
+  writeSave();
 });
 
 })();
