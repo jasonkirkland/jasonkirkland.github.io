@@ -514,7 +514,11 @@ function animFrame(){
     const color=altColor(a.alt_baro);
     const op=droneAlpha(a);   // 1 for manned; RID drones fade 1→0 over 60 s since d.epoch
     pd.push({hex:a.hex,flight:a.flight,alt_baro:a.alt_baro,category:a.category,baro_rate:a.baro_rate,epoch:a.epoch,lon,lat,track:trk});
-    towerFeats.push({type:'Feature',properties:{color,height:towerH(a.alt_baro),opacity:op},geometry:{type:'Polygon',coordinates:squareAround(lon,lat)}});
+    // fill-extrusion-opacity is NOT a data-driven property (MapLibre rejects the layer and
+    // the poles vanish), so the fade — and the lighter pole color — live in the color's alpha.
+    const [tr_,tg_,tb_]=altRGB(a.alt_baro);
+    const twCol='rgba('+tr_+','+tg_+','+tb_+','+Math.round(0.22*op*1000)/1000+')';
+    towerFeats.push({type:'Feature',properties:{color:twCol,height:towerH(a.alt_baro)},geometry:{type:'Polygon',coordinates:squareAround(lon,lat)}});
     dotFeats.push({type:'Feature',properties:{color,opacity:op},geometry:{type:'Point',coordinates:[lon,lat]}});
     const tr=trails[a.hex];   // trail tip = the gliding icon, so the path never leads the plane
     if(tr && tr.length>=2){ const line=tr.slice(0,-1); line.push([lon,lat]);
@@ -625,7 +629,9 @@ map.on('load', () => {
 
   map.addSource('towers',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
   map.addLayer({id:'towers',type:'fill-extrusion',source:'towers',
-    paint:{'fill-extrusion-color':['get','color'],'fill-extrusion-base':0,'fill-extrusion-height':['get','height'],'fill-extrusion-opacity':['interpolate',['linear'],['get','opacity'],0,0,1,0.45]}});
+    // pole lightness (0.22 alpha) and drone fade are baked into each feature's rgba color;
+    // fill-extrusion-opacity must stay a constant or MapLibre rejects the layer
+    paint:{'fill-extrusion-color':['get','color'],'fill-extrusion-base':0,'fill-extrusion-height':['get','height'],'fill-extrusion-opacity':1}});
 
   overlay = new deck.MapboxOverlay({interleaved:false, pickingRadius:18, layers:[]});
   map.addControl(overlay);
