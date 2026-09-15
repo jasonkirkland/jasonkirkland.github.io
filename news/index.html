@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tech News Digest</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --card: #161b22;
+  --border: #30363d;
+  --text: #c9d1d9;
+  --text-bright: #f0f6fc;
+  --link: #58a6ff;
+  --muted: #8b949e;
+  --accent: #f78166;
+  --green: #3fb950;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  padding: 20px;
+  max-width: 820px;
+  margin: 0 auto;
+}
+h1 {
+  color: var(--text-bright);
+  font-size: 1.6rem;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+h1 .icon { font-size: 1.4rem; }
+.subtitle {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-bottom: 24px;
+}
+.updated {
+  color: var(--green);
+  font-size: 0.8rem;
+  margin-bottom: 20px;
+}
+.day-section {
+  margin-bottom: 28px;
+}
+.day-header {
+  color: var(--accent);
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+  margin-bottom: 14px;
+}
+.digest-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+}
+.digest-time {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-bottom: 12px;
+}
+.digest-time .badge {
+  display: inline-block;
+  background: var(--border);
+  color: var(--text-bright);
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 0.72rem;
+  margin-left: 6px;
+}
+.story {
+  margin-bottom: 10px;
+}
+.story:last-child { margin-bottom: 0; }
+.story a {
+  color: var(--link);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.story a:hover { text-decoration: underline; }
+.sources {
+  color: var(--muted);
+  font-size: 0.75rem;
+  margin-top: 2px;
+}
+.empty-day {
+  color: var(--muted);
+  font-style: italic;
+  padding: 8px 0;
+}
+.loading {
+  text-align: center;
+  color: var(--muted);
+  padding: 40px 0;
+}
+footer {
+  margin-top: 30px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+</style>
+</head>
+<body>
+<h1><span class="icon">📰</span> Tech News Digest</h1>
+<div class="subtitle">Major tech news — deduplicated, importance-filtered, updated twice daily</div>
+<div id="updated" class="updated"></div>
+<div id="content"><div class="loading">Loading digest…</div></div>
+<footer>Auto-generated from 400+ RSS feeds · <a href="https://jasonkirkland.github.io" style="color:var(--muted)">jasonkirkland.github.io</a></footer>
+
+<script>
+const HISTORY_URL = 'history.json';
+const DAYS_TO_SHOW = 3;
+
+function formatDateKey(dt) {
+  // Returns YYYY-MM-DD in local timezone
+  const d = new Date(dt);
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+}
+
+function formatDayLabel(dateKey) {
+  const d = new Date(dateKey + 'T12:00:00');
+  const today = new Date();
+  today.setHours(12, 0, 0, 0);
+  const diff = Math.round((today - d) / (1000 * 60 * 60 * 24));
+  if (diff === 0) return 'Today';
+  if (diff === 1) return 'Yesterday';
+  return d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+}
+
+function formatTime(dt) {
+  const d = new Date(dt);
+  let h = d.getHours();
+  const m = String(d.getMinutes()).padStart(2, '0');
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return h + ':' + m + ' ' + ampm;
+}
+
+function escapeHtml(s) {
+  const div = document.createElement('div');
+  div.textContent = s;
+  return div.innerHTML;
+}
+
+function renderDigest(digest) {
+  let html = '<div class="digest-card">';
+  html += '<div class="digest-time">' + escapeHtml(formatTime(digest.timestamp));
+  html += ' <span class="badge">' + digest.items.length + ' stor' + (digest.items.length === 1 ? 'y' : 'ies') + '</span></div>';
+  for (const item of digest.items) {
+    html += '<div class="story">';
+    html += '<a href="' + escapeHtml(item.link) + '" target="_blank" rel="noopener">' + escapeHtml(item.title) + '</a>';
+    if (item.sources && item.sources.length > 1) {
+      html += '<div class="sources">' + item.sources.length + ' sources: ' + escapeHtml(item.sources.join(', ')) + '</div>';
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+async function load() {
+  try {
+    const resp = await fetch(HISTORY_URL + '?t=' + Date.now());
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const history = await resp.json();
+
+    // history is an array of digest objects, newest first
+    // Each: { timestamp, items: [{title, link, sources?}] }
+
+    // Group by day
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - (DAYS_TO_SHOW - 1));
+    cutoff.setHours(0, 0, 0, 0);
+
+    const byDay = {};
+    for (const digest of history) {
+      const dt = new Date(digest.timestamp);
+      if (dt < cutoff) continue;
+      const key = formatDateKey(digest.timestamp);
+      if (!byDay[key]) byDay[key] = [];
+      byDay[key].push(digest);
+    }
+
+    // Sort days newest first
+    const dayKeys = Object.keys(byDay).sort().reverse();
+
+    let html = '';
+    if (dayKeys.length === 0) {
+      html = '<div class="empty-day">No digests in the last 3 days. Check back after the next scheduled run.</div>';
+    } else {
+      for (const key of dayKeys) {
+        const digests = byDay[key].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        html += '<div class="day-section">';
+        html += '<div class="day-header">' + escapeHtml(formatDayLabel(key)) + '</div>';
+        for (const d of digests) {
+          html += renderDigest(d);
+        }
+        html += '</div>';
+      }
+    }
+
+    document.getElementById('content').innerHTML = html;
+
+    // Last updated
+    if (history.length > 0) {
+      const latest = history[0].timestamp;
+      document.getElementById('updated').textContent = 'Last updated: ' + new Date(latest).toLocaleString('en-US', {
+        weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true
+      });
+    }
+  } catch (e) {
+    document.getElementById('content').innerHTML =
+      '<div class="empty-day">Failed to load digest history: ' + escapeHtml(e.message) + '</div>' +
+      '<div class="empty-day" style="margin-top:12px">The page may not have any digests yet. ' +
+      'Digests are generated twice daily (5 AM and 3 PM).</div>';
+  }
+}
+
+load();
+// Auto-refresh every 5 minutes
+setInterval(load, 5 * 60 * 1000);
+</script>
+</body>
+</html>
