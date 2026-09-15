@@ -1,5 +1,30 @@
 [
   {
+    "timestamp": "2026-09-15T10:55:55.642350+00:00",
+    "items": [
+      {
+        "title": "Big Tech leaders agree to slow AI development pace",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/995186/is-big-techs-ai-slowdown-a-safety-pact-or-a-cartel"
+      },
+      {
+        "title": "Anthropic researcher resignation sparks AI safety reckoning",
+        "link": "https://www.theguardian.com/technology/2026/sep/15/ai-doomsday-warnings"
+      },
+      {
+        "title": "Microsoft issues emergency Windows 11 update for patch bugs",
+        "link": "https://www.theverge.com/news/995302/microsoft-out-of-band-windows-11-update-fix-issues"
+      },
+      {
+        "title": "Apple Intelligence arrives in Home with iOS 27 and tvOS 27",
+        "link": "https://www.theverge.com/tech/994949/apple-intelligence-apple-home-icloud-plus-cost-subscription"
+      },
+      {
+        "title": "Sanders and Bannon unite on stage to push Congress on AI curbs",
+        "link": "https://www.npr.org/2026/09/15/nx-s1-5968678/bernie-sanders-and-steve-bannon-to-share-a-stage-to-promote-curbs-on-ai"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-15T10:52:07.792763+00:00",
     "items": [
       {
