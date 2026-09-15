@@ -1,0 +1,91 @@
+[
+  {
+    "timestamp": "2026-09-15T10:52:07.792763+00:00",
+    "items": [
+      {
+        "title": "Apple announces iPhone 17 Pro with A19 chip",
+        "link": "https://example.com/iphone17",
+        "sources": [
+          "9to5Google",
+          "The Verge",
+          "Engadget"
+        ]
+      },
+      {
+        "title": "OpenAI raises $40B at $300B valuation",
+        "link": "https://example.com/openai-funding",
+        "sources": [
+          "TechCrunch",
+          "Bloomberg",
+          "Reuters"
+        ]
+      },
+      {
+        "title": "Google launches Gemini 3 with multimodal reasoning",
+        "link": "https://example.com/gemini3",
+        "sources": [
+          "9to5Google",
+          "The Verge"
+        ]
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-09-15T04:52:07.792763+00:00",
+    "items": [
+      {
+        "title": "Microsoft unveils new Copilot features for Office",
+        "link": "https://example.com/copilot",
+        "sources": [
+          "The Verge",
+          "TechCrunch"
+        ]
+      },
+      {
+        "title": "Nvidia hits $4T market cap",
+        "link": "https://example.com/nvidia-4t",
+        "sources": [
+          "Bloomberg",
+          "CNBC",
+          "Reuters",
+          "The Verge"
+        ]
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-09-14T07:52:07.792763+00:00",
+    "items": [
+      {
+        "title": "Anthropic releases Claude 4 with 1M token context",
+        "link": "https://example.com/claude4",
+        "sources": [
+          "Anthropic Blog",
+          "TechCrunch"
+        ]
+      },
+      {
+        "title": "Meta open-sources Llama 4",
+        "link": "https://example.com/llama4",
+        "sources": [
+          "Meta Blog",
+          "The Verge",
+          "Ars Technica"
+        ]
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-09-13T05:52:07.792763+00:00",
+    "items": [
+      {
+        "title": "Amazon unveils new Alexa with generative AI",
+        "link": "https://example.com/alexa-ai",
+        "sources": [
+          "Amazon Blog",
+          "The Verge"
+        ]
+      }
+    ]
+  }
+]
