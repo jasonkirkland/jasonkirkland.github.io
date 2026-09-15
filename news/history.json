@@ -1,5 +1,30 @@
 [
   {
+    "timestamp": "2026-09-15T20:02:09.798777+00:00",
+    "items": [
+      {
+        "title": "Apple AirPods 5 Launch at $149, $30 Cheaper Than Predecessor",
+        "link": "https://www.theverge.com/tech/995273/airpods-5-wireless-charging-case-review",
+        "why": "Apples new AirPods undercut predecessors price by $30"
+      },
+      {
+        "title": "Sanders and Bannon Unite to Call for AI Regulation at Summit",
+        "link": "https://www.theguardian.com/us-news/2026/sep/15/bernie-sanders-steve-bannon-ai-summit",
+        "why": "Rare left-right alliance forming against unregulated AI"
+      },
+      {
+        "title": "Tech CEOs Urge AI Regulation as Congress Stalls on Action",
+        "link": "https://www.pbs.org/newshour/politics/tech-ceos-call-for-ai-regulation-trump-and-congress-are-not-rushing-to-act",
+        "why": "Industry demands AI rules but government remains inactive"
+      },
+      {
+        "title": "Samsung Gallery Ditches OneDrive for Google Photos Backup",
+        "link": "https://9to5google.com/2026/09/15/samsung-gallery-google-photos-backup-support/",
+        "why": "Samsung shifts cloud backup from Microsoft to Google"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-15T11:11:24.733441+00:00",
     "items": [
       {
@@ -26,6 +51,160 @@
         "title": "Sanders and Bannon Unite to Push Congress on AI Curbs",
         "link": "https://www.npr.org/2026/09/15/nx-s1-5968678/bernie-sanders-and-steve-bannon-to-share-a-stage-to-promote-curbs-on-ai",
         "why": "Unlikely bipartisan coalition forming around AI regulation \u2014 political momentum."
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-09-15T11:09:46.862646+00:00",
+    "items": [
+      {
+        "title": "Test Story",
+        "link": "https://example.com/test",
+        "why": "This is a test story for publishing."
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-09-15T11:04:08.292588+00:00",
+    "items": [
+      {
+        "title": "Big Tech AI Leaders Agree to Slow Development Pace",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/995186/is-big-techs-ai-slowdown-a-safety-pact-or-a-cartel",
+        "why": "Major AI CEOs jointly agree to slow development."
+      },
+      {
+        "title": "Anthropic Researcher Resigns, Citing Human Extinction Risk",
+        "link": "https://www.theguardian.com/technology/2026/sep/15/ai-doomsday-warnings",
+        "why": "High-profile safety resignation rocks leading AI lab."
+      },
+      {
+        "title": "Microsoft Issues Emergency Windows 11 Update for Patch Bugs",
+        "link": "https://www.theverge.com/news/995302/microsoft-out-of-band-windows-11-update-fix-issues",
+        "why": "Emergency fix for record-breaking patch causing widespread issues."
+      },
+      {
+        "title": "Apple Bundles TV and Arcade Into iCloud+ in 100 Countries",
+        "link": "https://www.engadget.com/2258771/apple-adds-apple-tv-and-arcade-to-icloud-plus-subscriptions/",
+        "why": "Apple expands service bundling strategy globally."
+      },
+      {
+        "title": "Sanders and Bannon Unite to Push Congress on AI Curbs",
+        "link": "https://www.npr.org/2026/09/15/nx-s1-5968678/bernie-sanders-and-steve-bannon-to-share-a-stage-to-promote-curbs-on-ai",
+        "why": "Unlikely bipartisan coalition forming around AI regulation."
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-09-15T10:55:55.642350+00:00",
+    "items": [
+      {
+        "title": "Big Tech leaders agree to slow AI development pace",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/995186/is-big-techs-ai-slowdown-a-safety-pact-or-a-cartel"
+      },
+      {
+        "title": "Anthropic researcher resignation sparks AI safety reckoning",
+        "link": "https://www.theguardian.com/technology/2026/sep/15/ai-doomsday-warnings"
+      },
+      {
+        "title": "Microsoft issues emergency Windows 11 update for patch bugs",
+        "link": "https://www.theverge.com/news/995302/microsoft-out-of-band-windows-11-update-fix-issues"
+      },
+      {
+        "title": "Apple Intelligence arrives in Home with iOS 27 and tvOS 27",
+        "link": "https://www.theverge.com/tech/994949/apple-intelligence-apple-home-icloud-plus-cost-subscription"
+      },
+      {
+        "title": "Sanders and Bannon unite on stage to push Congress on AI curbs",
+        "link": "https://www.npr.org/2026/09/15/nx-s1-5968678/bernie-sanders-and-steve-bannon-to-share-a-stage-to-promote-curbs-on-ai"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-09-15T10:52:07.792763+00:00",
+    "items": [
+      {
+        "title": "Apple announces iPhone 17 Pro with A19 chip",
+        "link": "https://example.com/iphone17",
+        "sources": [
+          "9to5Google",
+          "The Verge",
+          "Engadget"
+        ]
+      },
+      {
+        "title": "OpenAI raises $40B at $300B valuation",
+        "link": "https://example.com/openai-funding",
+        "sources": [
+          "TechCrunch",
+          "Bloomberg",
+          "Reuters"
+        ]
+      },
+      {
+        "title": "Google launches Gemini 3 with multimodal reasoning",
+        "link": "https://example.com/gemini3",
+        "sources": [
+          "9to5Google",
+          "The Verge"
+        ]
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-09-15T04:52:07.792763+00:00",
+    "items": [
+      {
+        "title": "Microsoft unveils new Copilot features for Office",
+        "link": "https://example.com/copilot",
+        "sources": [
+          "The Verge",
+          "TechCrunch"
+        ]
+      },
+      {
+        "title": "Nvidia hits $4T market cap",
+        "link": "https://example.com/nvidia-4t",
+        "sources": [
+          "Bloomberg",
+          "CNBC",
+          "Reuters",
+          "The Verge"
+        ]
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-09-14T07:52:07.792763+00:00",
+    "items": [
+      {
+        "title": "Anthropic releases Claude 4 with 1M token context",
+        "link": "https://example.com/claude4",
+        "sources": [
+          "Anthropic Blog",
+          "TechCrunch"
+        ]
+      },
+      {
+        "title": "Meta open-sources Llama 4",
+        "link": "https://example.com/llama4",
+        "sources": [
+          "Meta Blog",
+          "The Verge",
+          "Ars Technica"
+        ]
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-09-13T05:52:07.792763+00:00",
+    "items": [
+      {
+        "title": "Amazon unveils new Alexa with generative AI",
+        "link": "https://example.com/alexa-ai",
+        "sources": [
+          "Amazon Blog",
+          "The Verge"
+        ]
       }
     ]
   }
