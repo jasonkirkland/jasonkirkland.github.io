@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-09-16T20:03:29.193494+00:00",
+    "items": [
+      {
+        "title": "Google Opens Smart Home to AI Agents via MCP",
+        "link": "https://www.theverge.com/tech/996310/google-home-mcp-integration-agentic-ai-smart-home-price-release-date",
+        "why": "Google lets third-party AI agents control smart homes"
+      },
+      {
+        "title": "Apple Eyes Server Return to Cash In on AI Boom",
+        "link": "https://www.theverge.com/tech/996321/apple-servers-ai-nvidia",
+        "why": "Apple strategic AI infrastructure pivot, possible Nvidia partnership"
+      },
+      {
+        "title": "Anthropic Merges Claude Cowork and Chat Into One",
+        "link": "https://simonwillison.net/2026/Sep/16/one-claude/",
+        "why": "Anthropic unifies Claude products, simplifies user experience"
+      },
+      {
+        "title": "Scotland Pauses New AI Data Centres for Up to a Year",
+        "link": "https://www.theguardian.com/uk-news/2026/sep/16/datacentres-scotland-environmental-assessments-ai-boom",
+        "why": "Regulatory brake on AI infrastructure expansion sets precedent"
+      },
+      {
+        "title": "Congress Faces Growing Pressure to Regulate AI",
+        "link": "https://www.npr.org/2026/09/16/nx-s1-5969933/congress-ai-regulation",
+        "why": "Federal AI regulation debate intensifies, industry impact looming"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-16T10:01:49.883837+00:00",
     "items": [
       {
