@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-09-16T10:01:49.883837+00:00",
+    "items": [
+      {
+        "title": "SpaceX Prepares Starship for First Orbital Flight",
+        "link": "https://phys.org/news/2026-09-spacex-orbital-flight-starship-rocket.html",
+        "why": "Critical milestone for SpaceX moon and Mars ambitions"
+      },
+      {
+        "title": "Anthropic Lands $31B Datacentre Deal in Queensland",
+        "link": "https://www.theguardian.com/technology/2026/sep/16/anthropic-lands-31bn-datacentre-deal-in-western-queensland",
+        "why": "Massive AI infrastructure investment by major lab"
+      },
+      {
+        "title": "Altman, Musk, Amodei Call for AI Development Slowdown",
+        "link": "https://www.theguardian.com/technology/2026/sep/16/us-government-failing-americans-ai",
+        "why": "Top AI CEOs united on slowing AI development risks"
+      },
+      {
+        "title": "MediaTek Unveils 2nm SoC for Agentic AI Smartphones",
+        "link": "https://www.allaboutcircuits.com/news/mediatek-unveils-2-nm-soc-for-agentic-ai-smartphones/",
+        "why": "First 2nm chip marks major semiconductor advance"
+      },
+      {
+        "title": "Microsoft Sets Windows and Surface Event for October 7",
+        "link": "https://www.theverge.com/news/994714/microsoft-windows-surface-event-october-7-san-francisco",
+        "why": "First major Windows event in two years ahead"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-15T20:02:09.798777+00:00",
     "items": [
       {
@@ -191,19 +221,6 @@
           "Meta Blog",
           "The Verge",
           "Ars Technica"
-        ]
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-13T05:52:07.792763+00:00",
-    "items": [
-      {
-        "title": "Amazon unveils new Alexa with generative AI",
-        "link": "https://example.com/alexa-ai",
-        "sources": [
-          "Amazon Blog",
-          "The Verge"
         ]
       }
     ]
