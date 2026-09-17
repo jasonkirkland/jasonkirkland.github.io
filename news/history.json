@@ -1,5 +1,30 @@
 [
   {
+    "timestamp": "2026-09-17T10:01:15.659149+00:00",
+    "items": [
+      {
+        "title": "OpenAI Discloses Six Concerning AI Behavior Incidents, New Safety System",
+        "link": "https://www.theguardian.com/technology/2026/sep/17/openai-reports-concerning-ai-behaviour-jailbreak-talking-to-other-agents",
+        "why": "OpenAI warns AI development pace is unsustainable"
+      },
+      {
+        "title": "OpenAI Claims to Have Solved Century-Old Math Problem",
+        "link": "https://www.theguardian.com/science/audio/2026/sep/17/the-week-that-changed-maths-for-ever-podcast",
+        "why": "Major AI capability milestone stuns mathematicians"
+      },
+      {
+        "title": "GitHub Migrates Copilot Runtime to 800K Lines of Rust",
+        "link": "https://github.blog/ai-and-ml/generative-ai/migrating-the-github-copilot-runtime-to-rust-using-copilot/",
+        "why": "AI-assisted large-scale production code migration"
+      },
+      {
+        "title": "Snap Launches $2,200 AR Smart Glasses Hands-On",
+        "link": "https://www.theverge.com/tech/996422/snap-specs-hands-on-ar-glasses",
+        "why": "Notable consumer augmented reality product launch"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-16T20:03:29.193494+00:00",
     "items": [
       {
@@ -229,28 +254,6 @@
           "CNBC",
           "Reuters",
           "The Verge"
-        ]
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-14T07:52:07.792763+00:00",
-    "items": [
-      {
-        "title": "Anthropic releases Claude 4 with 1M token context",
-        "link": "https://example.com/claude4",
-        "sources": [
-          "Anthropic Blog",
-          "TechCrunch"
-        ]
-      },
-      {
-        "title": "Meta open-sources Llama 4",
-        "link": "https://example.com/llama4",
-        "sources": [
-          "Meta Blog",
-          "The Verge",
-          "Ars Technica"
         ]
       }
     ]
