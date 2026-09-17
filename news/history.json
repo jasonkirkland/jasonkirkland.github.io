@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-09-17T20:01:28.307653+00:00",
+    "items": [
+      {
+        "title": "OpenAI and Anthropic Signal Slowdown on Superintelligence Race",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/996923/ai-safety-slow-openai-anthropic",
+        "why": "Major AI labs publicly pivoting toward safety over speed"
+      },
+      {
+        "title": "Anthropic Relaunches Claude Code Projects for Multi-Agent Cloud Work",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/997134/anthropic-claude-code-projects",
+        "why": "Anthropic ships major multi-agent orchestration product update"
+      },
+      {
+        "title": "Trump-Xi Meeting to Address Global AI Safety Governance",
+        "link": "https://www.pbs.org/newshour/world/a-global-ai-safety-strategy-depends-on-u-s-china-cooperation-they-each-see-the-other-as-the-problem",
+        "why": "US-China AI governance on agenda for next week summit"
+      },
+      {
+        "title": "Stanford Spinout Deploys 37,000 AI Agents for Drug Discovery",
+        "link": "https://phys.org/news/2026-09-virtual-biotech-company-thousands-ai.html",
+        "why": "Massive autonomous AI workforce transforms pharmaceutical research"
+      },
+      {
+        "title": "Amazon Launches AI-Powered Connect Talent Hiring Solution",
+        "link": "https://aws.amazon.com/blogs/machine-learning/reduce-time-to-hire-for-quality-candidates-with-ai-powered-amazon-connect-talent/",
+        "why": "Amazon enters AI recruitment market with new product"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-17T10:01:15.659149+00:00",
     "items": [
       {
