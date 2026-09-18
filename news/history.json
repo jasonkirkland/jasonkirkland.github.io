@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-09-18T10:01:47.463951+00:00",
+    "items": [
+      {
+        "title": "Waymo Expands Robotaxi Service to Singapore",
+        "link": "https://www.theverge.com/transportation/997091/waymo-singapore-robotaxi-launch-2027",
+        "why": "Alphabet autonomous unit goes international with major expansion"
+      },
+      {
+        "title": "Google Shapes AI Chatbot Safety Laws While Seeking Loopholes",
+        "link": "https://www.npr.org/2026/09/18/nx-s1-5968878/ai-chatbots-safety-regulation-google",
+        "why": "Tech giant actively writing regulation to protect its products"
+      },
+      {
+        "title": "Active Attack Campaign Targets Rust Crate Maintainers",
+        "link": "https://simonwillison.net/2026/Sep/17/targeted-attacks-on-rustaceans/",
+        "why": "Ongoing supply chain security threat targeting Rust ecosystem"
+      },
+      {
+        "title": "Court Rejects OpenAI Bid for Apple-Musk Settlement Docs",
+        "link": "https://www.politico.com/news/2026/09/18/court-shuts-down-openai-bid",
+        "why": "Legal battle between OpenAI Apple and Musk escalates"
+      },
+      {
+        "title": "Bipartisan States Defy Trump on AI Regulation",
+        "link": "https://www.politico.com/news/2026/09/18/states-defy-trump-ai-regulation-01083481",
+        "why": "States push own AI rules despite federal resistance"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-17T20:01:28.307653+00:00",
     "items": [
       {
@@ -260,29 +290,6 @@
         "link": "https://example.com/gemini3",
         "sources": [
           "9to5Google",
-          "The Verge"
-        ]
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-15T04:52:07.792763+00:00",
-    "items": [
-      {
-        "title": "Microsoft unveils new Copilot features for Office",
-        "link": "https://example.com/copilot",
-        "sources": [
-          "The Verge",
-          "TechCrunch"
-        ]
-      },
-      {
-        "title": "Nvidia hits $4T market cap",
-        "link": "https://example.com/nvidia-4t",
-        "sources": [
-          "Bloomberg",
-          "CNBC",
-          "Reuters",
           "The Verge"
         ]
       }
