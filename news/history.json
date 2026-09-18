@@ -1,5 +1,41 @@
 [
   {
+    "timestamp": "2026-09-18T20:02:09.323635+00:00",
+    "items": [
+      {
+        "title": "Hackers Breached OpenAI Amid Escalating Security Concerns",
+        "link": "https://news.google.com/rss/articles/CBMiekFVX3lxTE1GR215MXpFWG9NeE9FWEZrNm9wRE1MaXJHdGZrMUQ0NEtUQ1dxb3pKWWtCN25MbURsc0tlN1ItT0FBSk9uaU5mZWx2cGJZLTFNTHRIdGc2bHljUW9GaUJtaGNUWEM5VnJtTHpXTFRPa1BEVnBYeHhxS2x3?oc=5",
+        "why": "Major AI company breached; security and safety implications"
+      },
+      {
+        "title": "California Governor Newsom Pushes for AI Kill Switch",
+        "link": "https://www.theverge.com/policy/997516/california-governor-newsom-ai-kill-switch",
+        "why": "State may mandate kill switches for frontier AI models"
+      },
+      {
+        "title": "SoftBank Agrees to Acquire Robotics and AI Institute",
+        "link": "https://www.therobotreport.com/softbank-agrees-to-acquire-robotics-and-ai-institute/",
+        "why": "Major AI robotics acquisition under CFIUS review",
+        "sources": [
+          "The Robot Report"
+        ]
+      },
+      {
+        "title": "Autonomous Airplane Completes First Cross-Country Flight",
+        "link": "https://www.popsci.com/technology/first-autonomous-flight-across-united-states/",
+        "why": "Landmark autonomous aviation milestone with no pilot",
+        "sources": [
+          "Popular Science"
+        ]
+      },
+      {
+        "title": "Disney Names First-Ever CTO, Hires Character.AI Ex-CEO",
+        "link": "https://www.theverge.com/entertainment/997555/karandeep-anand-disney-character-ai",
+        "why": "Disney's first CTO hire signals major AI strategy"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-18T10:01:47.463951+00:00",
     "items": [
       {
@@ -166,132 +202,6 @@
         "title": "Samsung Gallery Ditches OneDrive for Google Photos Backup",
         "link": "https://9to5google.com/2026/09/15/samsung-gallery-google-photos-backup-support/",
         "why": "Samsung shifts cloud backup from Microsoft to Google"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-15T11:11:24.733441+00:00",
-    "items": [
-      {
-        "title": "Big Tech AI Leaders Agree to Slow Development Pace",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/995186/is-big-techs-ai-slowdown-a-safety-pact-or-a-cartel",
-        "why": "Major AI CEOs jointly agreeing to slow development \u2014 unprecedented industry shift."
-      },
-      {
-        "title": "Anthropic Researcher Resignation Sparks AI Safety Reckoning",
-        "link": "https://www.theguardian.com/technology/2026/sep/15/ai-doomsday-warnings",
-        "why": "High-profile safety resignation rocks leading AI lab, 4 sources covering."
-      },
-      {
-        "title": "Microsoft Issues Emergency Windows 11 Update for Patch Bugs",
-        "link": "https://www.theverge.com/news/995302/microsoft-out-of-band-windows-11-update-fix-issues",
-        "why": "Emergency out-of-band fix for record-breaking patch causing widespread issues."
-      },
-      {
-        "title": "Apple Bundles TV and Arcade Into iCloud+ in 100 Countries",
-        "link": "https://www.engadget.com/2258771/apple-adds-apple-tv-and-arcade-to-icloud-plus-subscriptions/",
-        "why": "Apple expands service bundling strategy globally \u2014 major revenue shift."
-      },
-      {
-        "title": "Sanders and Bannon Unite to Push Congress on AI Curbs",
-        "link": "https://www.npr.org/2026/09/15/nx-s1-5968678/bernie-sanders-and-steve-bannon-to-share-a-stage-to-promote-curbs-on-ai",
-        "why": "Unlikely bipartisan coalition forming around AI regulation \u2014 political momentum."
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-15T11:09:46.862646+00:00",
-    "items": [
-      {
-        "title": "Test Story",
-        "link": "https://example.com/test",
-        "why": "This is a test story for publishing."
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-15T11:04:08.292588+00:00",
-    "items": [
-      {
-        "title": "Big Tech AI Leaders Agree to Slow Development Pace",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/995186/is-big-techs-ai-slowdown-a-safety-pact-or-a-cartel",
-        "why": "Major AI CEOs jointly agree to slow development."
-      },
-      {
-        "title": "Anthropic Researcher Resigns, Citing Human Extinction Risk",
-        "link": "https://www.theguardian.com/technology/2026/sep/15/ai-doomsday-warnings",
-        "why": "High-profile safety resignation rocks leading AI lab."
-      },
-      {
-        "title": "Microsoft Issues Emergency Windows 11 Update for Patch Bugs",
-        "link": "https://www.theverge.com/news/995302/microsoft-out-of-band-windows-11-update-fix-issues",
-        "why": "Emergency fix for record-breaking patch causing widespread issues."
-      },
-      {
-        "title": "Apple Bundles TV and Arcade Into iCloud+ in 100 Countries",
-        "link": "https://www.engadget.com/2258771/apple-adds-apple-tv-and-arcade-to-icloud-plus-subscriptions/",
-        "why": "Apple expands service bundling strategy globally."
-      },
-      {
-        "title": "Sanders and Bannon Unite to Push Congress on AI Curbs",
-        "link": "https://www.npr.org/2026/09/15/nx-s1-5968678/bernie-sanders-and-steve-bannon-to-share-a-stage-to-promote-curbs-on-ai",
-        "why": "Unlikely bipartisan coalition forming around AI regulation."
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-15T10:55:55.642350+00:00",
-    "items": [
-      {
-        "title": "Big Tech leaders agree to slow AI development pace",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/995186/is-big-techs-ai-slowdown-a-safety-pact-or-a-cartel"
-      },
-      {
-        "title": "Anthropic researcher resignation sparks AI safety reckoning",
-        "link": "https://www.theguardian.com/technology/2026/sep/15/ai-doomsday-warnings"
-      },
-      {
-        "title": "Microsoft issues emergency Windows 11 update for patch bugs",
-        "link": "https://www.theverge.com/news/995302/microsoft-out-of-band-windows-11-update-fix-issues"
-      },
-      {
-        "title": "Apple Intelligence arrives in Home with iOS 27 and tvOS 27",
-        "link": "https://www.theverge.com/tech/994949/apple-intelligence-apple-home-icloud-plus-cost-subscription"
-      },
-      {
-        "title": "Sanders and Bannon unite on stage to push Congress on AI curbs",
-        "link": "https://www.npr.org/2026/09/15/nx-s1-5968678/bernie-sanders-and-steve-bannon-to-share-a-stage-to-promote-curbs-on-ai"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-15T10:52:07.792763+00:00",
-    "items": [
-      {
-        "title": "Apple announces iPhone 17 Pro with A19 chip",
-        "link": "https://example.com/iphone17",
-        "sources": [
-          "9to5Google",
-          "The Verge",
-          "Engadget"
-        ]
-      },
-      {
-        "title": "OpenAI raises $40B at $300B valuation",
-        "link": "https://example.com/openai-funding",
-        "sources": [
-          "TechCrunch",
-          "Bloomberg",
-          "Reuters"
-        ]
-      },
-      {
-        "title": "Google launches Gemini 3 with multimodal reasoning",
-        "link": "https://example.com/gemini3",
-        "sources": [
-          "9to5Google",
-          "The Verge"
-        ]
       }
     ]
   }
