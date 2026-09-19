@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-09-19T10:02:19.365865+00:00",
+    "items": [
+      {
+        "title": "Google Gemini AI Hacked Real Companies In Security Test",
+        "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE51bkNPQW5Oa0ZNYlAyN1pIX1BPS0FVekszRnR5VmpPOFMwS3pkdHF4SmhsS29XdHFlQTk2YzB5N055em9QU3ZVaXEycHpmNkZPUEFpNVZQRnFnaFhXcWc?oc=5",
+        "why": "Major AI security breach demonstrates offensive AI capabilities"
+      },
+      {
+        "title": "AI Nearly Triggered US Military Conflict With China",
+        "link": "https://www.engadget.com/2263043/ai-almost-led-the-us-military-to-attack-china-report-says/",
+        "why": "AI military decision-making nearly caused international conflict"
+      },
+      {
+        "title": "California Governor Signs AI Safety Executive Order",
+        "link": "https://www.pbs.org/newshour/show/news-wrap-newsom-signs-order-for-ai-safety-in-california",
+        "why": "Major state-level AI regulation with kill switch mandate"
+      },
+      {
+        "title": "Anthropic CEO Amodei Warns China Could Surpass US AI",
+        "link": "https://www.theguardian.com/technology/ng-interactive/2026/sep/19/china-ai-foreign-policy-dario-amodei",
+        "why": "Top AI lab CEO on critical US-China AI race dynamics"
+      },
+      {
+        "title": "AI Fake Citation Invalidates Murderer Parole Decision",
+        "link": "https://www.theguardian.com/australia-news/2026/sep/19/tasmania-justice-department-review-ai-artificial-intelligence-fake-citation-murderer-parole-decision-ntwnfb",
+        "why": "AI hallucination in legal system overturns justice decision"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-18T20:02:09.323635+00:00",
     "items": [
       {
@@ -147,61 +177,6 @@
         "title": "Congress Faces Growing Pressure to Regulate AI",
         "link": "https://www.npr.org/2026/09/16/nx-s1-5969933/congress-ai-regulation",
         "why": "Federal AI regulation debate intensifies, industry impact looming"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-16T10:01:49.883837+00:00",
-    "items": [
-      {
-        "title": "SpaceX Prepares Starship for First Orbital Flight",
-        "link": "https://phys.org/news/2026-09-spacex-orbital-flight-starship-rocket.html",
-        "why": "Critical milestone for SpaceX moon and Mars ambitions"
-      },
-      {
-        "title": "Anthropic Lands $31B Datacentre Deal in Queensland",
-        "link": "https://www.theguardian.com/technology/2026/sep/16/anthropic-lands-31bn-datacentre-deal-in-western-queensland",
-        "why": "Massive AI infrastructure investment by major lab"
-      },
-      {
-        "title": "Altman, Musk, Amodei Call for AI Development Slowdown",
-        "link": "https://www.theguardian.com/technology/2026/sep/16/us-government-failing-americans-ai",
-        "why": "Top AI CEOs united on slowing AI development risks"
-      },
-      {
-        "title": "MediaTek Unveils 2nm SoC for Agentic AI Smartphones",
-        "link": "https://www.allaboutcircuits.com/news/mediatek-unveils-2-nm-soc-for-agentic-ai-smartphones/",
-        "why": "First 2nm chip marks major semiconductor advance"
-      },
-      {
-        "title": "Microsoft Sets Windows and Surface Event for October 7",
-        "link": "https://www.theverge.com/news/994714/microsoft-windows-surface-event-october-7-san-francisco",
-        "why": "First major Windows event in two years ahead"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-15T20:02:09.798777+00:00",
-    "items": [
-      {
-        "title": "Apple AirPods 5 Launch at $149, $30 Cheaper Than Predecessor",
-        "link": "https://www.theverge.com/tech/995273/airpods-5-wireless-charging-case-review",
-        "why": "Apples new AirPods undercut predecessors price by $30"
-      },
-      {
-        "title": "Sanders and Bannon Unite to Call for AI Regulation at Summit",
-        "link": "https://www.theguardian.com/us-news/2026/sep/15/bernie-sanders-steve-bannon-ai-summit",
-        "why": "Rare left-right alliance forming against unregulated AI"
-      },
-      {
-        "title": "Tech CEOs Urge AI Regulation as Congress Stalls on Action",
-        "link": "https://www.pbs.org/newshour/politics/tech-ceos-call-for-ai-regulation-trump-and-congress-are-not-rushing-to-act",
-        "why": "Industry demands AI rules but government remains inactive"
-      },
-      {
-        "title": "Samsung Gallery Ditches OneDrive for Google Photos Backup",
-        "link": "https://9to5google.com/2026/09/15/samsung-gallery-google-photos-backup-support/",
-        "why": "Samsung shifts cloud backup from Microsoft to Google"
       }
     ]
   }
