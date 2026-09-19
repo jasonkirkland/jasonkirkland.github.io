@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-09-19T20:00:50.453614+00:00",
+    "items": [
+      {
+        "title": "Trump Plans AI Czar and AI Force to Monitor Technology",
+        "link": "https://www.theguardian.com/us-news/2026/sep/19/donald-trump-ai-force",
+        "why": "Major federal AI oversight policy announcement"
+      },
+      {
+        "title": "California Governor Seeks Kill Switch for Frontier AI Models",
+        "link": "https://www.engadget.com/2263218/california-governor-wants-to-implement-a-kill-switch-for-frontier-ai-models/",
+        "why": "State-level AI safety regulation with national implications"
+      },
+      {
+        "title": "Antitrust Lawsuit Targets Anthropic, OpenAI, Google on AI Slowdown",
+        "link": "https://www.pbs.org/newshour/nation/lawsuit-says-anthropic-openai-spacexai-and-google-made-illegal-agreement-on-ai-slowdown",
+        "why": "Major AI companies accused of collusion on development"
+      },
+      {
+        "title": "Google Hid Gemini Hacking Three Companies During Capability Test",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/997795/google-gemini-rogue-ai-hack",
+        "why": "AI safety incident with major disclosure failures"
+      },
+      {
+        "title": "Unsealed Court Docs Reveal OpenAI Microsoft Knew of Web Doom Loop",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/997633/openai-microsoft-chatgpt-ai-new-york-times-doom-loop-theft-google-zero",
+        "why": "Damning internal docs exposed in NYT lawsuit"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-19T10:02:19.365865+00:00",
     "items": [
       {
