@@ -1,5 +1,30 @@
 [
   {
+    "timestamp": "2026-09-20T10:00:59.601605+00:00",
+    "items": [
+      {
+        "title": "SpaceX Plans $100B Louisiana Launch Site Under NDA",
+        "link": "https://www.npr.org/2026/09/20/nx-s1-5974180/spacex-musk-landry-louisiana-ndas",
+        "why": "Massive investment with secret government negotiations and relaxed regulations"
+      },
+      {
+        "title": "China Rejects US Calls to Slow AI Development",
+        "link": "https://www.theguardian.com/world/2026/sep/20/why-china-is-pushing-back-on-us-warnings-over-rapid-ai-development",
+        "why": "Beijing sees US safety warnings as tactic to preserve AI dominance"
+      },
+      {
+        "title": "Meta Launches Muse AI Assistant With Mac App",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/997833/meta-muse-creepy",
+        "why": "Major AI product from Meta with deep macOS integration"
+      },
+      {
+        "title": "Ukraine Launches Largest Drone Attack on Moscow",
+        "link": "https://www.npr.org/2026/09/20/nx-s1-5975372/ukraine-fires-drones-at-russia-moscow",
+        "why": "Over 1,000 drones mark unprecedented escalation in drone warfare"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-19T20:00:50.453614+00:00",
     "items": [
       {
@@ -177,36 +202,6 @@
         "title": "Snap Launches $2,200 AR Smart Glasses Hands-On",
         "link": "https://www.theverge.com/tech/996422/snap-specs-hands-on-ar-glasses",
         "why": "Notable consumer augmented reality product launch"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-16T20:03:29.193494+00:00",
-    "items": [
-      {
-        "title": "Google Opens Smart Home to AI Agents via MCP",
-        "link": "https://www.theverge.com/tech/996310/google-home-mcp-integration-agentic-ai-smart-home-price-release-date",
-        "why": "Google lets third-party AI agents control smart homes"
-      },
-      {
-        "title": "Apple Eyes Server Return to Cash In on AI Boom",
-        "link": "https://www.theverge.com/tech/996321/apple-servers-ai-nvidia",
-        "why": "Apple strategic AI infrastructure pivot, possible Nvidia partnership"
-      },
-      {
-        "title": "Anthropic Merges Claude Cowork and Chat Into One",
-        "link": "https://simonwillison.net/2026/Sep/16/one-claude/",
-        "why": "Anthropic unifies Claude products, simplifies user experience"
-      },
-      {
-        "title": "Scotland Pauses New AI Data Centres for Up to a Year",
-        "link": "https://www.theguardian.com/uk-news/2026/sep/16/datacentres-scotland-environmental-assessments-ai-boom",
-        "why": "Regulatory brake on AI infrastructure expansion sets precedent"
-      },
-      {
-        "title": "Congress Faces Growing Pressure to Regulate AI",
-        "link": "https://www.npr.org/2026/09/16/nx-s1-5969933/congress-ai-regulation",
-        "why": "Federal AI regulation debate intensifies, industry impact looming"
       }
     ]
   }
