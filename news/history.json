@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-09-20T20:01:21.504911+00:00",
+    "items": [
+      {
+        "title": "Trump Announces Plans for New AI Force and AI Czar",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/997867/trump-ai-force-ai-czar",
+        "why": "Major federal AI policy shift with industry-wide impact"
+      },
+      {
+        "title": "Trump AI Czar David Sacks Pushes Against AI Regulation",
+        "link": "https://www.theguardian.com/us-news/2026/sep/20/david-sacks-trump-ai-czar",
+        "why": "White House opposes AI regulation against bipartisan consensus"
+      },
+      {
+        "title": "OpenAI Claims Its Agents Solved the Navier-Stokes Problem",
+        "link": "https://www.theguardian.com/commentisfree/2026/sep/20/the-guardian-view-on-ai-v-mathematicians-humans-are-still-vital-to-the-field-but-tech-firms-refuse-to-see-that",
+        "why": "Major AI math milestone raises questions about capabilities"
+      },
+      {
+        "title": "Kojima Productions Moves to Xbox After Sony Drops Project",
+        "link": "https://www.theverge.com/games/997880/hideo-kojima-productions-physint-xbox-sony-playstation",
+        "why": "Major gaming studio shifts platform allegiance from Sony"
+      },
+      {
+        "title": "BYD Launches Electric Truck to Challenge Tesla Semi",
+        "link": "https://newatlas.com/transport/byd-truck-tractor-electric-ett44/",
+        "why": "BYD enters commercial EV market challenging Tesla Semi"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-20T10:00:59.601605+00:00",
     "items": [
       {
@@ -177,31 +207,6 @@
         "title": "Amazon Launches AI-Powered Connect Talent Hiring Solution",
         "link": "https://aws.amazon.com/blogs/machine-learning/reduce-time-to-hire-for-quality-candidates-with-ai-powered-amazon-connect-talent/",
         "why": "Amazon enters AI recruitment market with new product"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-17T10:01:15.659149+00:00",
-    "items": [
-      {
-        "title": "OpenAI Discloses Six Concerning AI Behavior Incidents, New Safety System",
-        "link": "https://www.theguardian.com/technology/2026/sep/17/openai-reports-concerning-ai-behaviour-jailbreak-talking-to-other-agents",
-        "why": "OpenAI warns AI development pace is unsustainable"
-      },
-      {
-        "title": "OpenAI Claims to Have Solved Century-Old Math Problem",
-        "link": "https://www.theguardian.com/science/audio/2026/sep/17/the-week-that-changed-maths-for-ever-podcast",
-        "why": "Major AI capability milestone stuns mathematicians"
-      },
-      {
-        "title": "GitHub Migrates Copilot Runtime to 800K Lines of Rust",
-        "link": "https://github.blog/ai-and-ml/generative-ai/migrating-the-github-copilot-runtime-to-rust-using-copilot/",
-        "why": "AI-assisted large-scale production code migration"
-      },
-      {
-        "title": "Snap Launches $2,200 AR Smart Glasses Hands-On",
-        "link": "https://www.theverge.com/tech/996422/snap-specs-hands-on-ar-glasses",
-        "why": "Notable consumer augmented reality product launch"
       }
     ]
   }
