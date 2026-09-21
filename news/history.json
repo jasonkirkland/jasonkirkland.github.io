@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-09-21T10:01:37.967654+00:00",
+    "items": [
+      {
+        "title": "Amazon Blocks Meta's Muse AI Agent From Shopping",
+        "link": "https://www.theverge.com/tech/998078/amazon-blocks-meta-muse-ai-agent-shopping",
+        "why": "Major platforms clashing over autonomous AI shopping agents"
+      },
+      {
+        "title": "Nvidia CEO Jensen Huang Dismisses AI Doomsday Fears",
+        "link": "https://www.theguardian.com/technology/2026/sep/21/nvidia-boss-jensen-huang-dismisses-warnings-ai-destroys-world-anthropic",
+        "why": "Top AI chipmaker rejects safety warnings as overblown"
+      },
+      {
+        "title": "Data Center Backlash Reshapes American Politics",
+        "link": "https://www.npr.org/2026/09/21/nx-s1-5927288/data-center-election-voters-ai",
+        "why": "AI infrastructure becoming a political fault line locally"
+      },
+      {
+        "title": "Joby Completes First US Coast-to-Coast Autonomous Flight",
+        "link": "https://newatlas.com/aircraft/joby-first-usa-coast-to-coast-autonomous-flight/",
+        "why": "Historic milestone for autonomous aviation in the US"
+      },
+      {
+        "title": "Deepfake Legislation Gaps Threaten 2026 Elections",
+        "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxQcFNJdF9pTU5VLWJLcXVxcjFKaXh2VXJUZ2hBVTJPVmxzZkk3WTZCRF9pYjl6VFZLYTNQUGNtOVZnOW9WSENaakM4bVM1XzkyN0NtbFBEWTNGUjhqQ29tZkpobFpMajBRUGxmSFJ1WHhuNnlSSS1BRjlyYWlXZzhCMFhLTmtyU2RQMFFaVjhFRjl0amF2Ul9FeWpR?oc=5",
+        "why": "AI-generated deepfakes outpacing election regulation efforts"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-20T20:01:21.504911+00:00",
     "items": [
       {
@@ -177,36 +207,6 @@
         "title": "Bipartisan States Defy Trump on AI Regulation",
         "link": "https://www.politico.com/news/2026/09/18/states-defy-trump-ai-regulation-01083481",
         "why": "States push own AI rules despite federal resistance"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-17T20:01:28.307653+00:00",
-    "items": [
-      {
-        "title": "OpenAI and Anthropic Signal Slowdown on Superintelligence Race",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/996923/ai-safety-slow-openai-anthropic",
-        "why": "Major AI labs publicly pivoting toward safety over speed"
-      },
-      {
-        "title": "Anthropic Relaunches Claude Code Projects for Multi-Agent Cloud Work",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/997134/anthropic-claude-code-projects",
-        "why": "Anthropic ships major multi-agent orchestration product update"
-      },
-      {
-        "title": "Trump-Xi Meeting to Address Global AI Safety Governance",
-        "link": "https://www.pbs.org/newshour/world/a-global-ai-safety-strategy-depends-on-u-s-china-cooperation-they-each-see-the-other-as-the-problem",
-        "why": "US-China AI governance on agenda for next week summit"
-      },
-      {
-        "title": "Stanford Spinout Deploys 37,000 AI Agents for Drug Discovery",
-        "link": "https://phys.org/news/2026-09-virtual-biotech-company-thousands-ai.html",
-        "why": "Massive autonomous AI workforce transforms pharmaceutical research"
-      },
-      {
-        "title": "Amazon Launches AI-Powered Connect Talent Hiring Solution",
-        "link": "https://aws.amazon.com/blogs/machine-learning/reduce-time-to-hire-for-quality-candidates-with-ai-powered-amazon-connect-talent/",
-        "why": "Amazon enters AI recruitment market with new product"
       }
     ]
   }
