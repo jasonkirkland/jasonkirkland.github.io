@@ -1,5 +1,25 @@
 [
   {
+    "timestamp": "2026-09-22T20:01:52.394965+00:00",
+    "items": [
+      {
+        "title": "Anthropic and OpenAI Announce New Cheaper AI Models",
+        "link": "https://www.engadget.com/2265801/anthropic-and-openai-announce-more-powerful-and-cheaper-ai-models/",
+        "why": "Both top AI labs launch new models simultaneously"
+      },
+      {
+        "title": "GPT-6 Sol and Luna Now Available on Amazon Bedrock",
+        "link": "https://aws.amazon.com/blogs/machine-learning/bring-more-intelligence-to-everyday-work-with-gpt-6-sol-and-gpt-6-luna-on-amazon-bedrock/",
+        "why": "OpenAI GPT-6 models reach AWS enterprise customers"
+      },
+      {
+        "title": "Motorola Signature 27 Returns as US Flagship Phone",
+        "link": "https://www.howtogeek.com/motorola-signature-27-specifications-chip-and-camera/",
+        "why": "Motorola re-enters flagship market against Apple Samsung"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-22T10:01:57.348450+00:00",
     "items": [
       {
@@ -141,66 +161,6 @@
         "title": "Ukraine Launches Largest Drone Attack on Moscow",
         "link": "https://www.npr.org/2026/09/20/nx-s1-5975372/ukraine-fires-drones-at-russia-moscow",
         "why": "Over 1,000 drones mark unprecedented escalation in drone warfare"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-19T20:00:50.453614+00:00",
-    "items": [
-      {
-        "title": "Trump Plans AI Czar and AI Force to Monitor Technology",
-        "link": "https://www.theguardian.com/us-news/2026/sep/19/donald-trump-ai-force",
-        "why": "Major federal AI oversight policy announcement"
-      },
-      {
-        "title": "California Governor Seeks Kill Switch for Frontier AI Models",
-        "link": "https://www.engadget.com/2263218/california-governor-wants-to-implement-a-kill-switch-for-frontier-ai-models/",
-        "why": "State-level AI safety regulation with national implications"
-      },
-      {
-        "title": "Antitrust Lawsuit Targets Anthropic, OpenAI, Google on AI Slowdown",
-        "link": "https://www.pbs.org/newshour/nation/lawsuit-says-anthropic-openai-spacexai-and-google-made-illegal-agreement-on-ai-slowdown",
-        "why": "Major AI companies accused of collusion on development"
-      },
-      {
-        "title": "Google Hid Gemini Hacking Three Companies During Capability Test",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/997795/google-gemini-rogue-ai-hack",
-        "why": "AI safety incident with major disclosure failures"
-      },
-      {
-        "title": "Unsealed Court Docs Reveal OpenAI Microsoft Knew of Web Doom Loop",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/997633/openai-microsoft-chatgpt-ai-new-york-times-doom-loop-theft-google-zero",
-        "why": "Damning internal docs exposed in NYT lawsuit"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-19T10:02:19.365865+00:00",
-    "items": [
-      {
-        "title": "Google Gemini AI Hacked Real Companies In Security Test",
-        "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE51bkNPQW5Oa0ZNYlAyN1pIX1BPS0FVekszRnR5VmpPOFMwS3pkdHF4SmhsS29XdHFlQTk2YzB5N055em9QU3ZVaXEycHpmNkZPUEFpNVZQRnFnaFhXcWc?oc=5",
-        "why": "Major AI security breach demonstrates offensive AI capabilities"
-      },
-      {
-        "title": "AI Nearly Triggered US Military Conflict With China",
-        "link": "https://www.engadget.com/2263043/ai-almost-led-the-us-military-to-attack-china-report-says/",
-        "why": "AI military decision-making nearly caused international conflict"
-      },
-      {
-        "title": "California Governor Signs AI Safety Executive Order",
-        "link": "https://www.pbs.org/newshour/show/news-wrap-newsom-signs-order-for-ai-safety-in-california",
-        "why": "Major state-level AI regulation with kill switch mandate"
-      },
-      {
-        "title": "Anthropic CEO Amodei Warns China Could Surpass US AI",
-        "link": "https://www.theguardian.com/technology/ng-interactive/2026/sep/19/china-ai-foreign-policy-dario-amodei",
-        "why": "Top AI lab CEO on critical US-China AI race dynamics"
-      },
-      {
-        "title": "AI Fake Citation Invalidates Murderer Parole Decision",
-        "link": "https://www.theguardian.com/australia-news/2026/sep/19/tasmania-justice-department-review-ai-artificial-intelligence-fake-citation-murderer-parole-decision-ntwnfb",
-        "why": "AI hallucination in legal system overturns justice decision"
       }
     ]
   }
