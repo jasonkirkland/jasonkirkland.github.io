@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-09-22T10:01:57.348450+00:00",
+    "items": [
+      {
+        "title": "OpenAI Solves Navier-Stokes Problem, Mathematicians Learn Little",
+        "link": "https://www.npr.org/2026/09/22/nx-s1-5968588/openai-navier-stokes-problem-mathematicians-learn-little",
+        "why": "OpenAI breaks major math problem, insights unclear"
+      },
+      {
+        "title": "British Columbia Sues OpenAI Over Tumbler Ridge Shooting",
+        "link": "https://www.engadget.com/2264989/openai-tumbler-ridge-shooting-lawsuit/",
+        "why": "Government lawsuit sets AI accountability precedent"
+      },
+      {
+        "title": "Hidden Meta Muse Setting Could Enable AI Backdoor Attacks",
+        "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxPTExlUDU5NGxnWnEyandQRWR6T2pySjd0Vl9yemZuT3d0c1hsaE55NEg2SE1COGlaajlUY05XdG04SkZjVzFZcnUzMjZicFU3VmVwUzhWeTNXMHhYTGRqS2k3M2NFMXAweUlwSTVEM1JDMUdlM3dyVWsyR0pfRVpnSnJzaw?oc=5",
+        "why": "Security flaw in Meta AI enables backdoor attacks"
+      },
+      {
+        "title": "Severed Fiber Cable Disrupts Hundreds of US Flights",
+        "link": "https://www.theverge.com/transportation/998550/a-cut-cable-disrupted-hundreds-of-flights-across-the-us",
+        "why": "Infrastructure fragility causes nationwide flight chaos"
+      },
+      {
+        "title": "Amazon Pledges $20M for Colorado River Water Conservation",
+        "link": "https://www.theverge.com/tech/998539/amazon-data-center-water-conservation-colorado-river",
+        "why": "Tech giant addresses data center water usage scrutiny"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-21T20:01:17.675925+00:00",
     "items": [
       {
@@ -171,42 +201,6 @@
         "title": "AI Fake Citation Invalidates Murderer Parole Decision",
         "link": "https://www.theguardian.com/australia-news/2026/sep/19/tasmania-justice-department-review-ai-artificial-intelligence-fake-citation-murderer-parole-decision-ntwnfb",
         "why": "AI hallucination in legal system overturns justice decision"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-18T20:02:09.323635+00:00",
-    "items": [
-      {
-        "title": "Hackers Breached OpenAI Amid Escalating Security Concerns",
-        "link": "https://news.google.com/rss/articles/CBMiekFVX3lxTE1GR215MXpFWG9NeE9FWEZrNm9wRE1MaXJHdGZrMUQ0NEtUQ1dxb3pKWWtCN25MbURsc0tlN1ItT0FBSk9uaU5mZWx2cGJZLTFNTHRIdGc2bHljUW9GaUJtaGNUWEM5VnJtTHpXTFRPa1BEVnBYeHhxS2x3?oc=5",
-        "why": "Major AI company breached; security and safety implications"
-      },
-      {
-        "title": "California Governor Newsom Pushes for AI Kill Switch",
-        "link": "https://www.theverge.com/policy/997516/california-governor-newsom-ai-kill-switch",
-        "why": "State may mandate kill switches for frontier AI models"
-      },
-      {
-        "title": "SoftBank Agrees to Acquire Robotics and AI Institute",
-        "link": "https://www.therobotreport.com/softbank-agrees-to-acquire-robotics-and-ai-institute/",
-        "why": "Major AI robotics acquisition under CFIUS review",
-        "sources": [
-          "The Robot Report"
-        ]
-      },
-      {
-        "title": "Autonomous Airplane Completes First Cross-Country Flight",
-        "link": "https://www.popsci.com/technology/first-autonomous-flight-across-united-states/",
-        "why": "Landmark autonomous aviation milestone with no pilot",
-        "sources": [
-          "Popular Science"
-        ]
-      },
-      {
-        "title": "Disney Names First-Ever CTO, Hires Character.AI Ex-CEO",
-        "link": "https://www.theverge.com/entertainment/997555/karandeep-anand-disney-character-ai",
-        "why": "Disney's first CTO hire signals major AI strategy"
       }
     ]
   }
