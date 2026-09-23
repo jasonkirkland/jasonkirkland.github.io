@@ -1,5 +1,39 @@
 [
   {
+    "timestamp": "2026-09-23T20:02:08.813289+00:00",
+    "items": [
+      {
+        "title": "Sanders Unveils Bill to Ban Artificial Superintelligence",
+        "link": "https://www.pbs.org/newshour/politics/sen-bernie-sanders-unveils-bill-to-ban-artificial-superintelligence-and-create-department-of-ai",
+        "why": "Major AI regulation move with federal oversight implications",
+        "sources": [
+          "PBS News Hour - The Latest",
+          "The Verge"
+        ]
+      },
+      {
+        "title": "California Signs Data Center Transparency Bills Into Law",
+        "link": "https://www.theverge.com/policy/999412/data-center-water-electricity-disclosure-bills",
+        "why": "First major state mandate for data center energy disclosure"
+      },
+      {
+        "title": "Google AI Overviews Reshaping How Billions Search",
+        "link": "https://www.theguardian.com/technology/2026/sep/23/google-readers-respond-ai-overview-internet-searches",
+        "why": "AI fundamentally changing the web most-used product"
+      },
+      {
+        "title": "Meta Launches Muse AI Agent for Shopping and Tasks",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/999526/meta-muse-ai-agent-hands-on-shopping",
+        "why": "Meta enters consumer AI agent market with real product"
+      },
+      {
+        "title": "Anthropic Opens Molecular Biology Lab for AI Research",
+        "link": "https://www.youtube.com/watch?v=DdCEmlAydcw",
+        "why": "AI lab building wet lab signals bio-AI convergence"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-23T10:01:40.681481+00:00",
     "items": [
       {
@@ -136,36 +170,6 @@
         "title": "Deepfake Legislation Gaps Threaten 2026 Elections",
         "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxQcFNJdF9pTU5VLWJLcXVxcjFKaXh2VXJUZ2hBVTJPVmxzZkk3WTZCRF9pYjl6VFZLYTNQUGNtOVZnOW9WSENaakM4bVM1XzkyN0NtbFBEWTNGUjhqQ29tZkpobFpMajBRUGxmSFJ1WHhuNnlSSS1BRjlyYWlXZzhCMFhLTmtyU2RQMFFaVjhFRjl0amF2Ul9FeWpR?oc=5",
         "why": "AI-generated deepfakes outpacing election regulation efforts"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-20T20:01:21.504911+00:00",
-    "items": [
-      {
-        "title": "Trump Announces Plans for New AI Force and AI Czar",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/997867/trump-ai-force-ai-czar",
-        "why": "Major federal AI policy shift with industry-wide impact"
-      },
-      {
-        "title": "Trump AI Czar David Sacks Pushes Against AI Regulation",
-        "link": "https://www.theguardian.com/us-news/2026/sep/20/david-sacks-trump-ai-czar",
-        "why": "White House opposes AI regulation against bipartisan consensus"
-      },
-      {
-        "title": "OpenAI Claims Its Agents Solved the Navier-Stokes Problem",
-        "link": "https://www.theguardian.com/commentisfree/2026/sep/20/the-guardian-view-on-ai-v-mathematicians-humans-are-still-vital-to-the-field-but-tech-firms-refuse-to-see-that",
-        "why": "Major AI math milestone raises questions about capabilities"
-      },
-      {
-        "title": "Kojima Productions Moves to Xbox After Sony Drops Project",
-        "link": "https://www.theverge.com/games/997880/hideo-kojima-productions-physint-xbox-sony-playstation",
-        "why": "Major gaming studio shifts platform allegiance from Sony"
-      },
-      {
-        "title": "BYD Launches Electric Truck to Challenge Tesla Semi",
-        "link": "https://newatlas.com/transport/byd-truck-tractor-electric-ett44/",
-        "why": "BYD enters commercial EV market challenging Tesla Semi"
       }
     ]
   }
