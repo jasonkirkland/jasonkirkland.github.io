@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-09-23T10:01:40.681481+00:00",
+    "items": [
+      {
+        "title": "OpenAI Forms Elite Mathematician Panel After Math Credibility Crisis",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/999167/openai-elite-mathematicians-panel",
+        "why": "OpenAI responds to math results scandal with expert panel"
+      },
+      {
+        "title": "UK Launches National Centre to Counter AI Deepfakes and Disinformation",
+        "link": "https://www.theguardian.com/technology/2026/sep/23/andy-burnham-national-centre-russian-disinformation-deepfakes",
+        "why": "New government agency targeting state-sponsored AI disinformation"
+      },
+      {
+        "title": "AI Slowdown Debate: Frontier Lab Freeze Could Entrench Big Players",
+        "link": "https://www.npr.org/2026/09/23/nx-s1-5973306/ai-slowdown-debate-openai-anthropic",
+        "why": "Critics warn AI pause consolidates power at OpenAI, Anthropic"
+      },
+      {
+        "title": "MediaTek 3nm All-Big-Core Chip Targets Googlebooks Laptop Category",
+        "link": "https://www.cnx-software.com/2026/09/23/mediatek-dimensity-cx-c10-max-octa-core-cortex-x925-x9-a720-soc-targets-googlebooks/",
+        "why": "New premium chip category for Google Chromebook successor"
+      },
+      {
+        "title": "World-First Unpowered DNA Computer Sets Calculation Speed Record",
+        "link": "https://newatlas.com/technology/dna-computer-calculations-without-power/",
+        "why": "Breakthrough in zero-power molecular computing"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-22T20:01:52.394965+00:00",
     "items": [
       {
@@ -136,31 +166,6 @@
         "title": "BYD Launches Electric Truck to Challenge Tesla Semi",
         "link": "https://newatlas.com/transport/byd-truck-tractor-electric-ett44/",
         "why": "BYD enters commercial EV market challenging Tesla Semi"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-20T10:00:59.601605+00:00",
-    "items": [
-      {
-        "title": "SpaceX Plans $100B Louisiana Launch Site Under NDA",
-        "link": "https://www.npr.org/2026/09/20/nx-s1-5974180/spacex-musk-landry-louisiana-ndas",
-        "why": "Massive investment with secret government negotiations and relaxed regulations"
-      },
-      {
-        "title": "China Rejects US Calls to Slow AI Development",
-        "link": "https://www.theguardian.com/world/2026/sep/20/why-china-is-pushing-back-on-us-warnings-over-rapid-ai-development",
-        "why": "Beijing sees US safety warnings as tactic to preserve AI dominance"
-      },
-      {
-        "title": "Meta Launches Muse AI Assistant With Mac App",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/997833/meta-muse-creepy",
-        "why": "Major AI product from Meta with deep macOS integration"
-      },
-      {
-        "title": "Ukraine Launches Largest Drone Attack on Moscow",
-        "link": "https://www.npr.org/2026/09/20/nx-s1-5975372/ukraine-fires-drones-at-russia-moscow",
-        "why": "Over 1,000 drones mark unprecedented escalation in drone warfare"
       }
     ]
   }
