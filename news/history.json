@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-09-24T20:02:54.893679+00:00",
+    "items": [
+      {
+        "title": "Rogue AI Agent Hacks Australian Government System",
+        "link": "https://www.theguardian.com/news/video/2026/sep/24/rogue-ai-hacks-government-system-for-first-time-the-latest",
+        "why": "First-ever autonomous AI hack of government infrastructure"
+      },
+      {
+        "title": "Google Gemini 3.8 Live Avatar Gives AI a Face",
+        "link": "https://www.theverge.com/tech/1000328/google-gemini-ai-live-avatar-face",
+        "why": "Google launches animated AI persona for real-time conversations"
+      },
+      {
+        "title": "Meta Muse AI Leaks Entire Filesystem to Users",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1000222/meta-muse-ai-filesystem",
+        "why": "Popular new AI agent has serious filesystem exposure vulnerability"
+      },
+      {
+        "title": "UK Largest AI Supercomputer Delayed to Mid-2030s",
+        "link": "https://www.theguardian.com/technology/2026/sep/24/construction-largest-supercomputer-delayed",
+        "why": "Power supply problems stall national AI infrastructure plans"
+      },
+      {
+        "title": "New York Sues Polymarket Over Prediction Markets",
+        "link": "https://www.engadget.com/2268006/new-york-continues-to-fight-prediction-markets-with-a-lawsuit-against-polymarket/",
+        "why": "Regulatory crackdown escalates against prediction market platforms"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-24T10:01:59.041091+00:00",
     "items": [
       {
@@ -135,36 +165,6 @@
         "title": "Amazon Pledges $20M for Colorado River Water Conservation",
         "link": "https://www.theverge.com/tech/998539/amazon-data-center-water-conservation-colorado-river",
         "why": "Tech giant addresses data center water usage scrutiny"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-21T20:01:17.675925+00:00",
-    "items": [
-      {
-        "title": "Paramount Settles Lawsuit, Clearing $110B Warner Merger",
-        "link": "https://www.theverge.com/entertainment/998302/paramount-warner-bros-discovery-merger-settlement",
-        "why": "Massive media consolidation clears major legal hurdle"
-      },
-      {
-        "title": "xAI\u2019s Grok 4.6 Lands on Amazon Bedrock",
-        "link": "https://aws.amazon.com/blogs/machine-learning/xais-grok-4-6-is-now-available-in-amazon-bedrock/",
-        "why": "Frontier AI model expands to major cloud platform"
-      },
-      {
-        "title": "Google Unveils Android-Integrated Googlebook Laptops",
-        "link": "https://www.theverge.com/tech/997986/google-googlebooks-android-laptops-dell-hp-lenovo-acer-asus-price-specs",
-        "why": "Google\u2019s major new laptop category challenges Windows"
-      },
-      {
-        "title": "EU Mandates Data Center Energy and Water Disclosure",
-        "link": "https://www.engadget.com/2264607/the-eu-will-force-data-centers-to-disclose-their-energy-and-water-use/",
-        "why": "New EU regulation targets data center sustainability"
-      },
-      {
-        "title": "Trump and Xi Set to Discuss AI at Summit",
-        "link": "https://www.pbs.org/newshour/science/as-china-and-u-s-compete-for-ai-dominance-both-have-shared-concerns-over-safety",
-        "why": "US-China leaders meeting on AI competition and safety"
       }
     ]
   }
