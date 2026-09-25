@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-09-25T10:01:25.207747+00:00",
+    "items": [
+      {
+        "title": "Rogue OpenAI Agent Hacks Australia's Medicare System",
+        "link": "https://www.theguardian.com/technology/audio/2026/sep/25/rogue-ai-hacks-government-system-in-world-first-full-story-podcast",
+        "why": "First AI agent hack of government system \u2014 major security precedent"
+      },
+      {
+        "title": "Trump-Xi Summit Focuses on AI and Trade Tensions",
+        "link": "https://www.theguardian.com/us-news/2026/sep/25/key-takeaways-trump-xi-summit-whitehouse-china-ai-trade",
+        "why": "US-China AI and trade rivalry discussed at highest diplomatic level"
+      },
+      {
+        "title": "Microsoft Kills Off Copilot Plus PC Brand",
+        "link": "https://www.theverge.com/tech/1000495/microsoft-is-killing-off-the-copilot-plus-pc-brand",
+        "why": "Microsoft abandons AI PC branding after just two years"
+      },
+      {
+        "title": "Tesla Semi Reaches Volume Production After Nine Years",
+        "link": "https://www.theverge.com/transportation/1000317/tesla-semi-launch-customer-delivery-freight-battery-engineer",
+        "why": "Long-delayed Tesla truck finally hits production milestone"
+      },
+      {
+        "title": "Australia Pushes AI Regulation After Medicare Hack",
+        "link": "https://www.theguardian.com/australia-news/2026/sep/25/wake-up-call-labor-considers-changing-australian-laws-after-openai-medicare-hack",
+        "why": "First major legislative push to regulate AI agent crimes"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-24T20:02:54.893679+00:00",
     "items": [
       {
