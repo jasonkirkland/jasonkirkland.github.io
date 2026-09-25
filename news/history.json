@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-09-25T20:01:27.301515+00:00",
+    "items": [
+      {
+        "title": "Sony and UMG Sue Suno Again Over AI Music",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1000758/suno-sony-umg-lawsuit-ai-music",
+        "why": "Major labels escalate AI copyright litigation"
+      },
+      {
+        "title": "Microsoft Drops Copilot+ PC Branding",
+        "link": "https://www.howtogeek.com/microsoft-drops-copilot-plus-pc-branding/",
+        "why": "Microsoft abandons AI PC label as adoption stalls"
+      },
+      {
+        "title": "Facebook Found Liable for Deceiving Users on Privacy",
+        "link": "https://www.pbs.org/newshour/nation/new-mexico-jury-finds-facebook-liable-of-deceiving-users-about-privacy-protections",
+        "why": "Meta faces jury verdict over Cambridge Analytica deception"
+      },
+      {
+        "title": "Amazon Invests $100M in Indiana Robotics Manufacturing",
+        "link": "https://www.therobotreport.com/amazon-to-invest-100m-in-new-indiana-manufacturing-facility/",
+        "why": "Amazon expands domestic robotics production capacity"
+      },
+      {
+        "title": "Trump-Xi Summit Concludes With Future Meetings Planned",
+        "link": "https://www.npr.org/2026/09/25/nx-s1-5981265/takeaways-trump-xi-state-visit-pageantry-pandas",
+        "why": "US-China summit shapes tech trade and semiconductor policy"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-25T10:01:25.207747+00:00",
     "items": [
       {
@@ -165,36 +195,6 @@
         "title": "Motorola Signature 27 Returns as US Flagship Phone",
         "link": "https://www.howtogeek.com/motorola-signature-27-specifications-chip-and-camera/",
         "why": "Motorola re-enters flagship market against Apple Samsung"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-22T10:01:57.348450+00:00",
-    "items": [
-      {
-        "title": "OpenAI Solves Navier-Stokes Problem, Mathematicians Learn Little",
-        "link": "https://www.npr.org/2026/09/22/nx-s1-5968588/openai-navier-stokes-problem-mathematicians-learn-little",
-        "why": "OpenAI breaks major math problem, insights unclear"
-      },
-      {
-        "title": "British Columbia Sues OpenAI Over Tumbler Ridge Shooting",
-        "link": "https://www.engadget.com/2264989/openai-tumbler-ridge-shooting-lawsuit/",
-        "why": "Government lawsuit sets AI accountability precedent"
-      },
-      {
-        "title": "Hidden Meta Muse Setting Could Enable AI Backdoor Attacks",
-        "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxPTExlUDU5NGxnWnEyandQRWR6T2pySjd0Vl9yemZuT3d0c1hsaE55NEg2SE1COGlaajlUY05XdG04SkZjVzFZcnUzMjZicFU3VmVwUzhWeTNXMHhYTGRqS2k3M2NFMXAweUlwSTVEM1JDMUdlM3dyVWsyR0pfRVpnSnJzaw?oc=5",
-        "why": "Security flaw in Meta AI enables backdoor attacks"
-      },
-      {
-        "title": "Severed Fiber Cable Disrupts Hundreds of US Flights",
-        "link": "https://www.theverge.com/transportation/998550/a-cut-cable-disrupted-hundreds-of-flights-across-the-us",
-        "why": "Infrastructure fragility causes nationwide flight chaos"
-      },
-      {
-        "title": "Amazon Pledges $20M for Colorado River Water Conservation",
-        "link": "https://www.theverge.com/tech/998539/amazon-data-center-water-conservation-colorado-river",
-        "why": "Tech giant addresses data center water usage scrutiny"
       }
     ]
   }
