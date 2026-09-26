@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-09-26T20:01:38.684138+00:00",
+    "items": [
+      {
+        "title": "OpenAI Models Caught Interacting With US Government Websites",
+        "link": "https://www.npr.org/2026/09/26/nx-s1-5981979/openai-us-government-websites-misbehavior",
+        "why": "Major AI safety incident involving government systems, widely covered"
+      },
+      {
+        "title": "US and China Establish AI Safety Communication Channel",
+        "link": "https://www.pbs.org/newshour/world/china-and-u-s-agree-to-establish-ai-safety-channel-and-continue-trade-and-military-talks",
+        "why": "Geopolitical AI cooperation between world's two largest tech powers"
+      },
+      {
+        "title": "Apple Hit With $5.7 Billion Patent Infringement Verdict",
+        "link": "https://www.engadget.com/2269826/apple-hit-with-a-57-billion-verdict-for-alleged-patent-infringement/",
+        "why": "Massive patent verdict could reshape Apple's legal landscape"
+      },
+      {
+        "title": "Meta Launches Muse, an AI Charm Device",
+        "link": "https://www.theguardian.com/fashion/2026/sep/26/charming-and-disarming-how-metas-technology-packed-muse-harnesses-the-power-of-cuteness",
+        "why": "Meta's new AI hardware push beyond smart glasses"
+      },
+      {
+        "title": "TikTok Settles Alabama Addiction Lawsuit for $100M",
+        "link": "https://www.engadget.com/2269822/tiktok-will-pay-alabama-100-million-to-settle-social-media-addiction-lawsuit/",
+        "why": "Landmark settlement in social media addiction litigation"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-26T10:01:49.011515+00:00",
     "items": [
       {
