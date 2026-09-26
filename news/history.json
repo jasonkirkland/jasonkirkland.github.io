@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-09-26T10:01:49.011515+00:00",
+    "items": [
+      {
+        "title": "Trump-Xi Summit Ends Without AI Arms Race Agreement",
+        "link": "https://www.theguardian.com/technology/2026/sep/25/trump-xi-ai-arms-race",
+        "why": "US-China summit fails to curb AI arms race"
+      },
+      {
+        "title": "OpenAI Agents Leaked User Images in Rogue Activity",
+        "link": "https://www.theguardian.com/technology/2026/sep/25/openai-agents-leaked-53-images-chatgpt",
+        "why": "New privacy failure involving autonomous AI agents"
+      },
+      {
+        "title": "Autonomous AI Agent Hacks Raise Legal Accountability Questions",
+        "link": "https://www.pbs.org/newshour/science/hacks-by-autonomous-ai-agents-raise-thorny-questions-of-legal-accountability",
+        "why": "Rogue AI hacking sparks policy debate on liability"
+      },
+      {
+        "title": "Pope Warns AI Paradise of Machines Threatens Humanity",
+        "link": "https://www.npr.org/2026/09/26/g-s1-145150/pope-warns-a-paradise-of-machines-could-undermine-humanity",
+        "why": "Papal address frames AI as civilizational threat"
+      },
+      {
+        "title": "Supreme Court Revives Voter-Citizenship Database Before Midterms",
+        "link": "https://www.pbs.org/newshour/show/what-the-supreme-courts-voter-citizenship-database-decision-means-for-the-midterms",
+        "why": "SCOTUS ruling reshapes midterm election landscape"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-25T20:01:27.301515+00:00",
     "items": [
       {
@@ -145,56 +175,6 @@
         "title": "Anthropic Opens Molecular Biology Lab for AI Research",
         "link": "https://www.youtube.com/watch?v=DdCEmlAydcw",
         "why": "AI lab building wet lab signals bio-AI convergence"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-23T10:01:40.681481+00:00",
-    "items": [
-      {
-        "title": "OpenAI Forms Elite Mathematician Panel After Math Credibility Crisis",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/999167/openai-elite-mathematicians-panel",
-        "why": "OpenAI responds to math results scandal with expert panel"
-      },
-      {
-        "title": "UK Launches National Centre to Counter AI Deepfakes and Disinformation",
-        "link": "https://www.theguardian.com/technology/2026/sep/23/andy-burnham-national-centre-russian-disinformation-deepfakes",
-        "why": "New government agency targeting state-sponsored AI disinformation"
-      },
-      {
-        "title": "AI Slowdown Debate: Frontier Lab Freeze Could Entrench Big Players",
-        "link": "https://www.npr.org/2026/09/23/nx-s1-5973306/ai-slowdown-debate-openai-anthropic",
-        "why": "Critics warn AI pause consolidates power at OpenAI, Anthropic"
-      },
-      {
-        "title": "MediaTek 3nm All-Big-Core Chip Targets Googlebooks Laptop Category",
-        "link": "https://www.cnx-software.com/2026/09/23/mediatek-dimensity-cx-c10-max-octa-core-cortex-x925-x9-a720-soc-targets-googlebooks/",
-        "why": "New premium chip category for Google Chromebook successor"
-      },
-      {
-        "title": "World-First Unpowered DNA Computer Sets Calculation Speed Record",
-        "link": "https://newatlas.com/technology/dna-computer-calculations-without-power/",
-        "why": "Breakthrough in zero-power molecular computing"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-22T20:01:52.394965+00:00",
-    "items": [
-      {
-        "title": "Anthropic and OpenAI Announce New Cheaper AI Models",
-        "link": "https://www.engadget.com/2265801/anthropic-and-openai-announce-more-powerful-and-cheaper-ai-models/",
-        "why": "Both top AI labs launch new models simultaneously"
-      },
-      {
-        "title": "GPT-6 Sol and Luna Now Available on Amazon Bedrock",
-        "link": "https://aws.amazon.com/blogs/machine-learning/bring-more-intelligence-to-everyday-work-with-gpt-6-sol-and-gpt-6-luna-on-amazon-bedrock/",
-        "why": "OpenAI GPT-6 models reach AWS enterprise customers"
-      },
-      {
-        "title": "Motorola Signature 27 Returns as US Flagship Phone",
-        "link": "https://www.howtogeek.com/motorola-signature-27-specifications-chip-and-camera/",
-        "why": "Motorola re-enters flagship market against Apple Samsung"
       }
     ]
   }
