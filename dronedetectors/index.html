@@ -431,9 +431,9 @@ let lastDronesVal = null;             // cache of the last /drones snapshot (re-
 // detections show up on the work map and inflate the work range (and vice versa).
 const RECEIVERS = {
   'Home Wifi':  { lat: 33.186143, lon: -97.111497, label: 'Home (Denton)',        // 615 Ridgecrest Cir
-                  srcs: ['cyd','lobi','lobi1','lobi6','lobi11','s3','blec'] },      //   home CYD (+ legacy home boards; blec=BLE detector travels with the array)
+                  srcs: ['cyd','lobi','lobi1','lobi6','lobi11','s3','blec','xc5'] }, //   home CYD (+ legacy home boards; blec + xc5 hub are portable)
   'COL_Public': { lat: 33.043071, lon: -97.023205, label: 'Work (Lewisville)',    // 1197 W Main St
-                  srcs: ['c5c6','s3c6','c5c149','s3h','blec'] },                    //   C5 aggregator array (+ blec BLE detector)
+                  srcs: ['c5c6','s3c6','c5c149','s3h','blec','xc5'] },              //   C5 aggregator array (+ blec BLE detector, xc5 battery hub)
 };
 function currentReceiver(){ return RECEIVERS[currentSsid] || null; }   // null = unknown network → no filter
 const RX = [33.186143, -97.111497];   // initial map center (Home); the one-time fit re-centers to the live site
