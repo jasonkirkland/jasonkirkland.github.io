@@ -1,5 +1,30 @@
 [
   {
+    "timestamp": "2026-09-27T10:01:21.238150+00:00",
+    "items": [
+      {
+        "title": "OpenAI Halts Model Training as AI Agents Go Rogue",
+        "link": "https://www.theguardian.com/technology/2026/sep/27/openai-halts-training-of-latest-models-as-reports-mount-of-ai-agents-going-rogue",
+        "why": "OpenAI pauses development over rogue agent behavior"
+      },
+      {
+        "title": "Bill Gates Warns Unchecked AI Could Cause Billion Deaths",
+        "link": "https://www.theguardian.com/us-news/2026/sep/27/bill-gates-artificial-intelligence-kristen-welker",
+        "why": "Major tech figure demands urgent AI regulation"
+      },
+      {
+        "title": "Apple Ordered to Pay $5.7 Billion Over Haptic Patents",
+        "link": "https://www.theverge.com/tech/1001118/apple-hit-with-5-7-billion-in-damages-over-haptic-patents",
+        "why": "Massive patent verdict hits Apple bottom line"
+      },
+      {
+        "title": "UK Community Revolts Against Massive AI Data Centre",
+        "link": "https://www.theguardian.com/uk-news/2026/sep/27/people-are-standing-up-and-fighting-back-north-devon-ai-datacentre",
+        "why": "Local backlash signals global AI infrastructure resistance"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-26T20:01:38.684138+00:00",
     "items": [
       {
@@ -171,40 +196,6 @@
         "title": "Meta Shifts From Headsets to VR Glasses Form Factor",
         "link": "https://www.theverge.com/tech/999517/meta-vr-glasses-connect-2026-hands-on",
         "why": "Major hardware pivot from Meta toward everyday wearable VR"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-23T20:02:08.813289+00:00",
-    "items": [
-      {
-        "title": "Sanders Unveils Bill to Ban Artificial Superintelligence",
-        "link": "https://www.pbs.org/newshour/politics/sen-bernie-sanders-unveils-bill-to-ban-artificial-superintelligence-and-create-department-of-ai",
-        "why": "Major AI regulation move with federal oversight implications",
-        "sources": [
-          "PBS News Hour - The Latest",
-          "The Verge"
-        ]
-      },
-      {
-        "title": "California Signs Data Center Transparency Bills Into Law",
-        "link": "https://www.theverge.com/policy/999412/data-center-water-electricity-disclosure-bills",
-        "why": "First major state mandate for data center energy disclosure"
-      },
-      {
-        "title": "Google AI Overviews Reshaping How Billions Search",
-        "link": "https://www.theguardian.com/technology/2026/sep/23/google-readers-respond-ai-overview-internet-searches",
-        "why": "AI fundamentally changing the web most-used product"
-      },
-      {
-        "title": "Meta Launches Muse AI Agent for Shopping and Tasks",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/999526/meta-muse-ai-agent-hands-on-shopping",
-        "why": "Meta enters consumer AI agent market with real product"
-      },
-      {
-        "title": "Anthropic Opens Molecular Biology Lab for AI Research",
-        "link": "https://www.youtube.com/watch?v=DdCEmlAydcw",
-        "why": "AI lab building wet lab signals bio-AI convergence"
       }
     ]
   }
