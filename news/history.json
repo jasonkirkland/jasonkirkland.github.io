@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-09-28T20:02:14.982678+00:00",
+    "items": [
+      {
+        "title": "Nvidia Launches AI Agent Security Platform, Announces $150B Buyback",
+        "link": "https://www.theguardian.com/technology/2026/sep/28/nvidia-ai-agent-security-platform-stock-buyback",
+        "why": "Largest US stock buyback ever plus AI safety initiative"
+      },
+      {
+        "title": "Anthropic Launches Claude Sonnet 5.5 on AWS Bedrock",
+        "link": "https://aws.amazon.com/blogs/machine-learning/introducing-claude-sonnet-5-5-on-aws/",
+        "why": "New model from major AI lab, cheaper and faster"
+      },
+      {
+        "title": "Google Rebrands ChromeOS to Googlebook OS, Support Until 2034",
+        "link": "https://www.engadget.com/2271249/google-will-support-chromeos-until-2034-as-it-shifts-to-googlebook-os/",
+        "why": "Major OS rebrand with decade-long support commitment"
+      },
+      {
+        "title": "OpenAI Expected to Unveil AI Agent at DevDay 2026",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1001590/openai-devday-2026-aeon-ai-agent",
+        "why": "OpenAI enters the AI agent race at DevDay"
+      },
+      {
+        "title": "Meta Launches Enterprise AI Business to Monetize Spending",
+        "link": "https://www.engadget.com/2271136/meta-is-starting-an-enterprise-business-to-justify-its-massive-ai-spending/",
+        "why": "Strategic pivot to sell AI products to enterprises"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-27T20:01:39.799083+00:00",
     "items": [
       {
@@ -111,96 +141,6 @@
         "title": "Supreme Court Revives Voter-Citizenship Database Before Midterms",
         "link": "https://www.pbs.org/newshour/show/what-the-supreme-courts-voter-citizenship-database-decision-means-for-the-midterms",
         "why": "SCOTUS ruling reshapes midterm election landscape"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-25T20:01:27.301515+00:00",
-    "items": [
-      {
-        "title": "Sony and UMG Sue Suno Again Over AI Music",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1000758/suno-sony-umg-lawsuit-ai-music",
-        "why": "Major labels escalate AI copyright litigation"
-      },
-      {
-        "title": "Microsoft Drops Copilot+ PC Branding",
-        "link": "https://www.howtogeek.com/microsoft-drops-copilot-plus-pc-branding/",
-        "why": "Microsoft abandons AI PC label as adoption stalls"
-      },
-      {
-        "title": "Facebook Found Liable for Deceiving Users on Privacy",
-        "link": "https://www.pbs.org/newshour/nation/new-mexico-jury-finds-facebook-liable-of-deceiving-users-about-privacy-protections",
-        "why": "Meta faces jury verdict over Cambridge Analytica deception"
-      },
-      {
-        "title": "Amazon Invests $100M in Indiana Robotics Manufacturing",
-        "link": "https://www.therobotreport.com/amazon-to-invest-100m-in-new-indiana-manufacturing-facility/",
-        "why": "Amazon expands domestic robotics production capacity"
-      },
-      {
-        "title": "Trump-Xi Summit Concludes With Future Meetings Planned",
-        "link": "https://www.npr.org/2026/09/25/nx-s1-5981265/takeaways-trump-xi-state-visit-pageantry-pandas",
-        "why": "US-China summit shapes tech trade and semiconductor policy"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-25T10:01:25.207747+00:00",
-    "items": [
-      {
-        "title": "Rogue OpenAI Agent Hacks Australia's Medicare System",
-        "link": "https://www.theguardian.com/technology/audio/2026/sep/25/rogue-ai-hacks-government-system-in-world-first-full-story-podcast",
-        "why": "First AI agent hack of government system \u2014 major security precedent"
-      },
-      {
-        "title": "Trump-Xi Summit Focuses on AI and Trade Tensions",
-        "link": "https://www.theguardian.com/us-news/2026/sep/25/key-takeaways-trump-xi-summit-whitehouse-china-ai-trade",
-        "why": "US-China AI and trade rivalry discussed at highest diplomatic level"
-      },
-      {
-        "title": "Microsoft Kills Off Copilot Plus PC Brand",
-        "link": "https://www.theverge.com/tech/1000495/microsoft-is-killing-off-the-copilot-plus-pc-brand",
-        "why": "Microsoft abandons AI PC branding after just two years"
-      },
-      {
-        "title": "Tesla Semi Reaches Volume Production After Nine Years",
-        "link": "https://www.theverge.com/transportation/1000317/tesla-semi-launch-customer-delivery-freight-battery-engineer",
-        "why": "Long-delayed Tesla truck finally hits production milestone"
-      },
-      {
-        "title": "Australia Pushes AI Regulation After Medicare Hack",
-        "link": "https://www.theguardian.com/australia-news/2026/sep/25/wake-up-call-labor-considers-changing-australian-laws-after-openai-medicare-hack",
-        "why": "First major legislative push to regulate AI agent crimes"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-24T20:02:54.893679+00:00",
-    "items": [
-      {
-        "title": "Rogue AI Agent Hacks Australian Government System",
-        "link": "https://www.theguardian.com/news/video/2026/sep/24/rogue-ai-hacks-government-system-for-first-time-the-latest",
-        "why": "First-ever autonomous AI hack of government infrastructure"
-      },
-      {
-        "title": "Google Gemini 3.8 Live Avatar Gives AI a Face",
-        "link": "https://www.theverge.com/tech/1000328/google-gemini-ai-live-avatar-face",
-        "why": "Google launches animated AI persona for real-time conversations"
-      },
-      {
-        "title": "Meta Muse AI Leaks Entire Filesystem to Users",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1000222/meta-muse-ai-filesystem",
-        "why": "Popular new AI agent has serious filesystem exposure vulnerability"
-      },
-      {
-        "title": "UK Largest AI Supercomputer Delayed to Mid-2030s",
-        "link": "https://www.theguardian.com/technology/2026/sep/24/construction-largest-supercomputer-delayed",
-        "why": "Power supply problems stall national AI infrastructure plans"
-      },
-      {
-        "title": "New York Sues Polymarket Over Prediction Markets",
-        "link": "https://www.engadget.com/2268006/new-york-continues-to-fight-prediction-markets-with-a-lawsuit-against-polymarket/",
-        "why": "Regulatory crackdown escalates against prediction market platforms"
       }
     ]
   }
