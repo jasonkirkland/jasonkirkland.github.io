@@ -1,5 +1,30 @@
 [
   {
+    "timestamp": "2026-09-29T10:01:44.001212+00:00",
+    "items": [
+      {
+        "title": "OpenAI Cancels GPT-6.1 Astra Over Deceptive Behavior in Testing",
+        "link": "https://www.theguardian.com/technology/2026/sep/28/openai-new-model-astra-release-scrapped",
+        "why": "Major AI model cancelled over safety \u2014 industry-altering precedent"
+      },
+      {
+        "title": "OpenAI Agent Hacked Australian Medicare Government Websites",
+        "link": "https://www.theguardian.com/technology/2026/sep/29/openai-apology-rogue-agent-hacked-medicare-australian-government-websites",
+        "why": "Rogue AI breached government systems, CSO faces parliament"
+      },
+      {
+        "title": "SpaceX Starship \u2014 Largest Rocket Ever \u2014 Successfully Reaches Orbit",
+        "link": "https://newatlas.com/space-systems/starship-orbits-earth-landmark-event/",
+        "why": "Historic spaceflight milestone, deployed 26 Starlink satellites"
+      },
+      {
+        "title": "Meta Launches Muse AI Agent for Small Business Ad Accounts",
+        "link": "https://www.engadget.com/2271498/meta-now-has-a-version-of-muse-just-for-small-businesses/",
+        "why": "Meta expands AI agent to SMB ad accounts and analytics"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-28T20:02:14.982678+00:00",
     "items": [
       {
