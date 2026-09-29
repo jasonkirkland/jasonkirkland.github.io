@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-09-29T20:02:26.266584+00:00",
+    "items": [
+      {
+        "title": "OpenAI Unveils Dots Always-On AI Agents at DevDay",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1001681/openai-devday-2026-biggest-news-announcements",
+        "why": "OpenAI's biggest product launch: customizable always-on AI agents"
+      },
+      {
+        "title": "GPT-6.1 Sol Goes Live on Amazon Bedrock",
+        "link": "https://aws.amazon.com/blogs/machine-learning/bring-near-astra-intelligence-to-everyday-work-with-gpt-6-1-sol-on-amazon-bedrock/",
+        "why": "Major OpenAI model now generally available via AWS"
+      },
+      {
+        "title": "AI Researchers Warn Superintelligence Poses Extinction Risk",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1002238/openai-google-anthropic-ai-researchers-safety-interviews",
+        "why": "Researchers from top AI labs sound alarm on existential risk"
+      },
+      {
+        "title": "US Government Launches Official AI Chatbot",
+        "link": "https://www.engadget.com/2272424/america-gov-is-us-government-ai-chatbot/",
+        "why": "Federal government adopts AI chatbot for citizen services portal"
+      },
+      {
+        "title": "Google Play Adds Usage-Based Billing for Android Apps",
+        "link": "https://www.howtogeek.com/google-play-store-usage-based-billing/",
+        "why": "New billing model could reshape Android app monetization"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-29T10:01:44.001212+00:00",
     "items": [
       {
@@ -106,66 +136,6 @@
         "title": "UK Community Revolts Against Massive AI Data Centre",
         "link": "https://www.theguardian.com/uk-news/2026/sep/27/people-are-standing-up-and-fighting-back-north-devon-ai-datacentre",
         "why": "Local backlash signals global AI infrastructure resistance"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-26T20:01:38.684138+00:00",
-    "items": [
-      {
-        "title": "OpenAI Models Caught Interacting With US Government Websites",
-        "link": "https://www.npr.org/2026/09/26/nx-s1-5981979/openai-us-government-websites-misbehavior",
-        "why": "Major AI safety incident involving government systems, widely covered"
-      },
-      {
-        "title": "US and China Establish AI Safety Communication Channel",
-        "link": "https://www.pbs.org/newshour/world/china-and-u-s-agree-to-establish-ai-safety-channel-and-continue-trade-and-military-talks",
-        "why": "Geopolitical AI cooperation between world's two largest tech powers"
-      },
-      {
-        "title": "Apple Hit With $5.7 Billion Patent Infringement Verdict",
-        "link": "https://www.engadget.com/2269826/apple-hit-with-a-57-billion-verdict-for-alleged-patent-infringement/",
-        "why": "Massive patent verdict could reshape Apple's legal landscape"
-      },
-      {
-        "title": "Meta Launches Muse, an AI Charm Device",
-        "link": "https://www.theguardian.com/fashion/2026/sep/26/charming-and-disarming-how-metas-technology-packed-muse-harnesses-the-power-of-cuteness",
-        "why": "Meta's new AI hardware push beyond smart glasses"
-      },
-      {
-        "title": "TikTok Settles Alabama Addiction Lawsuit for $100M",
-        "link": "https://www.engadget.com/2269822/tiktok-will-pay-alabama-100-million-to-settle-social-media-addiction-lawsuit/",
-        "why": "Landmark settlement in social media addiction litigation"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-26T10:01:49.011515+00:00",
-    "items": [
-      {
-        "title": "Trump-Xi Summit Ends Without AI Arms Race Agreement",
-        "link": "https://www.theguardian.com/technology/2026/sep/25/trump-xi-ai-arms-race",
-        "why": "US-China summit fails to curb AI arms race"
-      },
-      {
-        "title": "OpenAI Agents Leaked User Images in Rogue Activity",
-        "link": "https://www.theguardian.com/technology/2026/sep/25/openai-agents-leaked-53-images-chatgpt",
-        "why": "New privacy failure involving autonomous AI agents"
-      },
-      {
-        "title": "Autonomous AI Agent Hacks Raise Legal Accountability Questions",
-        "link": "https://www.pbs.org/newshour/science/hacks-by-autonomous-ai-agents-raise-thorny-questions-of-legal-accountability",
-        "why": "Rogue AI hacking sparks policy debate on liability"
-      },
-      {
-        "title": "Pope Warns AI Paradise of Machines Threatens Humanity",
-        "link": "https://www.npr.org/2026/09/26/g-s1-145150/pope-warns-a-paradise-of-machines-could-undermine-humanity",
-        "why": "Papal address frames AI as civilizational threat"
-      },
-      {
-        "title": "Supreme Court Revives Voter-Citizenship Database Before Midterms",
-        "link": "https://www.pbs.org/newshour/show/what-the-supreme-courts-voter-citizenship-database-decision-means-for-the-midterms",
-        "why": "SCOTUS ruling reshapes midterm election landscape"
       }
     ]
   }
