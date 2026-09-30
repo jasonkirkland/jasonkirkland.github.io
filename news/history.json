@@ -1,5 +1,30 @@
 [
   {
+    "timestamp": "2026-09-30T20:01:32.164431+00:00",
+    "items": [
+      {
+        "title": "FTC Opens Investigation Into AI Giants Anthropic and OpenAI",
+        "link": "https://www.theguardian.com/us-news/2026/sep/30/ftc-investigation-anthropic-openai",
+        "why": "First major US regulatory enforcement action against AI labs"
+      },
+      {
+        "title": "Meta and OpenAI Bet on AI Hardware Devices",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1002779/openai-dots-meta-muse-ai-agents-hardware-devices",
+        "why": "Two biggest AI companies moving into consumer hardware products"
+      },
+      {
+        "title": "White House AI Chatbot Contradicts Trump With Facts",
+        "link": "https://www.theguardian.com/us-news/2026/sep/30/trump-america-gov-ai-chatbot",
+        "why": "Government AI tool gives factual answers opposing Trump claims"
+      },
+      {
+        "title": "Senate Data Center Energy Bill Fails Before Midterms",
+        "link": "https://www.pbs.org/newshour/politics/watch-live-data-center-bill-falls-short-as-senate-holds-final-votes-before-the-midterms",
+        "why": "Tech infrastructure policy stalls amid energy cost concerns"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-30T10:01:46.414269+00:00",
     "items": [
       {
