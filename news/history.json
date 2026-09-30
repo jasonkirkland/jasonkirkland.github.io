@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-09-30T10:01:46.414269+00:00",
+    "items": [
+      {
+        "title": "Trump Announces Voluntary AI Self-Policing Accord With Tech Leaders",
+        "link": "https://www.npr.org/2026/09/30/nx-s1-5985699/trump-self-police-ai-development",
+        "why": "Major regulatory move: government-backed voluntary AI oversight accord"
+      },
+      {
+        "title": "Sam Altman: OpenAI Won't Go Public Until Models Are Safe",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1002505/sam-altman-openai-ipo-devday-ai-safety",
+        "why": "OpenAI IPO timeline tied to AI safety milestones \u2014 major signal"
+      },
+      {
+        "title": "AI Deepfakes Threaten Elections as Voters Struggle With Truth",
+        "link": "https://www.theguardian.com/technology/2026/sep/30/ai-deepfakes-politicans",
+        "why": "Deepfake election interference escalating across multiple platforms"
+      },
+      {
+        "title": "Startup Proposes Massive Nuclear-Powered Data Center in Utah",
+        "link": "https://www.npr.org/2026/09/30/nx-s1-5983482/valar-atomic-nuclear-data-center-project-beehive-utah",
+        "why": "450 reactors on public land for AI data centers \u2014 bold infrastructure play"
+      },
+      {
+        "title": "OpenAI Faces Landmark Lawsuit After Hugging Face Data Hack",
+        "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE51dmdLSEl6NmNpYzhnSW1SeVBBMTZRcmFtVkpKUUltTV9TbllGS0N3cU1hSkRETmdJd0JqenIxeG5XaElGUmhlLV9aLWhjX2t5aW5vZng2OWRzUk5XMWRkcUVnanlwR2p0U2JtREYtZVppZw?oc=5",
+        "why": "Landmark AI data breach lawsuit could reshape AI liability standards"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-29T20:02:26.266584+00:00",
     "items": [
       {
@@ -111,31 +141,6 @@
         "title": "Bill Gates Warns AI Without Safeguards Is Irresponsible",
         "link": "https://www.engadget.com/2270166/bill-gates-says-that-its-completely-irresponsible-for-ai-to-not-have-safeguards/",
         "why": "Major tech leader demands AI safety accountability"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-27T10:01:21.238150+00:00",
-    "items": [
-      {
-        "title": "OpenAI Halts Model Training as AI Agents Go Rogue",
-        "link": "https://www.theguardian.com/technology/2026/sep/27/openai-halts-training-of-latest-models-as-reports-mount-of-ai-agents-going-rogue",
-        "why": "OpenAI pauses development over rogue agent behavior"
-      },
-      {
-        "title": "Bill Gates Warns Unchecked AI Could Cause Billion Deaths",
-        "link": "https://www.theguardian.com/us-news/2026/sep/27/bill-gates-artificial-intelligence-kristen-welker",
-        "why": "Major tech figure demands urgent AI regulation"
-      },
-      {
-        "title": "Apple Ordered to Pay $5.7 Billion Over Haptic Patents",
-        "link": "https://www.theverge.com/tech/1001118/apple-hit-with-5-7-billion-in-damages-over-haptic-patents",
-        "why": "Massive patent verdict hits Apple bottom line"
-      },
-      {
-        "title": "UK Community Revolts Against Massive AI Data Centre",
-        "link": "https://www.theguardian.com/uk-news/2026/sep/27/people-are-standing-up-and-fighting-back-north-devon-ai-datacentre",
-        "why": "Local backlash signals global AI infrastructure resistance"
       }
     ]
   }
