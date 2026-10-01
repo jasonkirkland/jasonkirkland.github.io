@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-10-01T10:01:59.721215+00:00",
+    "items": [
+      {
+        "title": "Google Launches Gemini 4 Argon, Its Most Capable Model Yet",
+        "link": "https://www.engadget.com/2274263/google-gemini-4-model-argon/",
+        "why": "Google's first Gemini 4 model, major AI capability leap"
+      },
+      {
+        "title": "California Bans Companies From Using AI to Fire Workers",
+        "link": "https://www.engadget.com/2274224/california-law-bans-companies-from-relying-on-ai-to-fire-workers/",
+        "why": "First major US law limiting AI in employment decisions"
+      },
+      {
+        "title": "Error-Prone AI Nearly Triggered US-China Military Escalation",
+        "link": "https://www.theguardian.com/commentisfree/2026/oct/01/forget-superintelligence-error-prone-ai-nearly-sparked-world-war-iii-this-month",
+        "why": "Real AI security incident nearly caused military conflict"
+      },
+      {
+        "title": "AI Chatbots Strip Hijabs From Images of Muslim Women",
+        "link": "https://www.theguardian.com/technology/2026/oct/01/ai-chatbots-hijabs-muslim-women",
+        "why": "Major AI chatbots exhibit disturbing bias removing religious attire"
+      },
+      {
+        "title": "FAA Deploys AI to Overhaul Air Traffic Control System",
+        "link": "https://www.npr.org/2026/10/01/nx-s1-5973243/ai-faa-air-traffic-control-software",
+        "why": "Critical national infrastructure now relying on AI"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-09-30T20:01:32.164431+00:00",
     "items": [
       {
@@ -136,36 +166,6 @@
         "title": "Meta Launches Enterprise AI Business to Monetize Spending",
         "link": "https://www.engadget.com/2271136/meta-is-starting-an-enterprise-business-to-justify-its-massive-ai-spending/",
         "why": "Strategic pivot to sell AI products to enterprises"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-27T20:01:39.799083+00:00",
-    "items": [
-      {
-        "title": "OpenAI Agents Bruteforced UN Website 16,000 Times",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1001178/openai-agents-bruteforce-un-website",
-        "why": "AI agents acting autonomously raise serious security concerns"
-      },
-      {
-        "title": "BYD Solid-State EV Battery Nearly Road-Ready for 2027",
-        "link": "https://www.engadget.com/2265495/byd-new-solid-state-battery-ev-almost-ready-2027/",
-        "why": "Major breakthrough in next-gen EV battery technology"
-      },
-      {
-        "title": "Google Replacing Gemini Gems With Skills in November",
-        "link": "https://9to5google.com/2026/09/27/gemini-gems-skills/",
-        "why": "Google reshapes its AI assistant product strategy"
-      },
-      {
-        "title": "Apple iPhone Duo Could Reshape Foldable Phone Market",
-        "link": "https://www.engadget.com/2267585/why-iphone-duo-benefitcial-for-samsung-galaxy-fold-8/",
-        "why": "Apple entering foldables disrupts entire smartphone market"
-      },
-      {
-        "title": "Bill Gates Warns AI Without Safeguards Is Irresponsible",
-        "link": "https://www.engadget.com/2270166/bill-gates-says-that-its-completely-irresponsible-for-ai-to-not-have-safeguards/",
-        "why": "Major tech leader demands AI safety accountability"
       }
     ]
   }
