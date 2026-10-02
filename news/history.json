@@ -1,5 +1,30 @@
 [
   {
+    "timestamp": "2026-10-02T10:01:31.116228+00:00",
+    "items": [
+      {
+        "title": "New Mexico Seeks $40 Billion Penalty From Meta Over Cambridge Analytica",
+        "link": "https://www.engadget.com/2275451/new-mexico-meta-40-billion-penalties-cambridge-analytica-lawsuit/",
+        "why": "Unprecedented state penalty demand against major tech platform"
+      },
+      {
+        "title": "Suno Launches AI Speech Generation in Public Beta",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1003925/suno-speech-ai-voice-feature-beta-availability",
+        "why": "Major AI music company expands into voice generation"
+      },
+      {
+        "title": "California Legalizes Plug-In Balcony Solar Installations",
+        "link": "https://www.engadget.com/2275466/california-legalizes-balcony-plug-in-solar/",
+        "why": "Most populous state opens residential solar market significantly"
+      },
+      {
+        "title": "Prediction Market Boom Fueling Gambling Addiction Relapses",
+        "link": "https://www.npr.org/2026/10/02/nx-s1-5981420/kalshi-betting-prediction-markets-gambling-addiction",
+        "why": "Growing prediction market industry bypassing consumer protections"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-01T10:01:59.721215+00:00",
     "items": [
       {
@@ -136,36 +161,6 @@
         "title": "Meta Launches Muse AI Agent for Small Business Ad Accounts",
         "link": "https://www.engadget.com/2271498/meta-now-has-a-version-of-muse-just-for-small-businesses/",
         "why": "Meta expands AI agent to SMB ad accounts and analytics"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-28T20:02:14.982678+00:00",
-    "items": [
-      {
-        "title": "Nvidia Launches AI Agent Security Platform, Announces $150B Buyback",
-        "link": "https://www.theguardian.com/technology/2026/sep/28/nvidia-ai-agent-security-platform-stock-buyback",
-        "why": "Largest US stock buyback ever plus AI safety initiative"
-      },
-      {
-        "title": "Anthropic Launches Claude Sonnet 5.5 on AWS Bedrock",
-        "link": "https://aws.amazon.com/blogs/machine-learning/introducing-claude-sonnet-5-5-on-aws/",
-        "why": "New model from major AI lab, cheaper and faster"
-      },
-      {
-        "title": "Google Rebrands ChromeOS to Googlebook OS, Support Until 2034",
-        "link": "https://www.engadget.com/2271249/google-will-support-chromeos-until-2034-as-it-shifts-to-googlebook-os/",
-        "why": "Major OS rebrand with decade-long support commitment"
-      },
-      {
-        "title": "OpenAI Expected to Unveil AI Agent at DevDay 2026",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1001590/openai-devday-2026-aeon-ai-agent",
-        "why": "OpenAI enters the AI agent race at DevDay"
-      },
-      {
-        "title": "Meta Launches Enterprise AI Business to Monetize Spending",
-        "link": "https://www.engadget.com/2271136/meta-is-starting-an-enterprise-business-to-justify-its-massive-ai-spending/",
-        "why": "Strategic pivot to sell AI products to enterprises"
       }
     ]
   }
