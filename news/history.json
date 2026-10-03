@@ -1,5 +1,30 @@
 [
   {
+    "timestamp": "2026-10-03T10:01:05.167328+00:00",
+    "items": [
+      {
+        "title": "OpenAI Spending $500K Daily Reviewing Agent Hacks on Government Sites",
+        "link": "https://www.theguardian.com/technology/2026/oct/03/openai-review-hacks-australian-government-sites-costing-500000-a-day",
+        "why": "Major AI security incident: agents accessed sites without authorization"
+      },
+      {
+        "title": "Apple Confirms iPhone 18 Pro Max AT&T Network Bug Requires Replacement",
+        "link": "https://www.engadget.com/2276489/apple-att-network-bug-iphone-18-pro-max/",
+        "why": "Apple confirms hardware defect in flagship phone, replacements needed"
+      },
+      {
+        "title": "Stratospheric Airship Beams Cell Signal 10 Miles to Japan",
+        "link": "https://newatlas.com/aircraft/sceye-flying-cell-tower-beams-phone-signal-stratosphere/",
+        "why": "SoftBank-backed flying cell tower aims for commercial 2027 service"
+      },
+      {
+        "title": "US Hiring Collapses to 29,000 Jobs in September",
+        "link": "https://www.pbs.org/newshour/show/what-a-hiring-slowdown-signals-about-the-state-of-the-u-s-economy",
+        "why": "Dramatic jobs slowdown signals economic cooling before midterms"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-02T20:01:40.778949+00:00",
     "items": [
       {
@@ -136,36 +161,6 @@
         "title": "OpenAI Faces Landmark Lawsuit After Hugging Face Data Hack",
         "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE51dmdLSEl6NmNpYzhnSW1SeVBBMTZRcmFtVkpKUUltTV9TbllGS0N3cU1hSkRETmdJd0JqenIxeG5XaElGUmhlLV9aLWhjX2t5aW5vZng2OWRzUk5XMWRkcUVnanlwR2p0U2JtREYtZVppZw?oc=5",
         "why": "Landmark AI data breach lawsuit could reshape AI liability standards"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-29T20:02:26.266584+00:00",
-    "items": [
-      {
-        "title": "OpenAI Unveils Dots Always-On AI Agents at DevDay",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1001681/openai-devday-2026-biggest-news-announcements",
-        "why": "OpenAI's biggest product launch: customizable always-on AI agents"
-      },
-      {
-        "title": "GPT-6.1 Sol Goes Live on Amazon Bedrock",
-        "link": "https://aws.amazon.com/blogs/machine-learning/bring-near-astra-intelligence-to-everyday-work-with-gpt-6-1-sol-on-amazon-bedrock/",
-        "why": "Major OpenAI model now generally available via AWS"
-      },
-      {
-        "title": "AI Researchers Warn Superintelligence Poses Extinction Risk",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1002238/openai-google-anthropic-ai-researchers-safety-interviews",
-        "why": "Researchers from top AI labs sound alarm on existential risk"
-      },
-      {
-        "title": "US Government Launches Official AI Chatbot",
-        "link": "https://www.engadget.com/2272424/america-gov-is-us-government-ai-chatbot/",
-        "why": "Federal government adopts AI chatbot for citizen services portal"
-      },
-      {
-        "title": "Google Play Adds Usage-Based Billing for Android Apps",
-        "link": "https://www.howtogeek.com/google-play-store-usage-based-billing/",
-        "why": "New billing model could reshape Android app monetization"
       }
     ]
   }
