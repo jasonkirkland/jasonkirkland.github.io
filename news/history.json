@@ -1,5 +1,20 @@
 [
   {
+    "timestamp": "2026-10-03T20:02:41.756868+00:00",
+    "items": [
+      {
+        "title": "OpenAI Safety Leader Quits, Warns Culture Is Broken",
+        "link": "https://www.theguardian.com/technology/2026/oct/03/openai-safety-leader-quits-warning-ai-companys-culture-is-broken",
+        "why": "Senior AI safety departure signals industry-wide concern"
+      },
+      {
+        "title": "California Enacts Landmark AI Worker Protection Laws",
+        "link": "https://www.theguardian.com/technology/2026/oct/03/california-ai-laws-worker-protection",
+        "why": "First major US state AI workplace regulations enacted"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-03T10:01:05.167328+00:00",
     "items": [
       {
@@ -106,61 +121,6 @@
         "title": "FAA Deploys AI to Overhaul Air Traffic Control System",
         "link": "https://www.npr.org/2026/10/01/nx-s1-5973243/ai-faa-air-traffic-control-software",
         "why": "Critical national infrastructure now relying on AI"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-30T20:01:32.164431+00:00",
-    "items": [
-      {
-        "title": "FTC Opens Investigation Into AI Giants Anthropic and OpenAI",
-        "link": "https://www.theguardian.com/us-news/2026/sep/30/ftc-investigation-anthropic-openai",
-        "why": "First major US regulatory enforcement action against AI labs"
-      },
-      {
-        "title": "Meta and OpenAI Bet on AI Hardware Devices",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1002779/openai-dots-meta-muse-ai-agents-hardware-devices",
-        "why": "Two biggest AI companies moving into consumer hardware products"
-      },
-      {
-        "title": "White House AI Chatbot Contradicts Trump With Facts",
-        "link": "https://www.theguardian.com/us-news/2026/sep/30/trump-america-gov-ai-chatbot",
-        "why": "Government AI tool gives factual answers opposing Trump claims"
-      },
-      {
-        "title": "Senate Data Center Energy Bill Fails Before Midterms",
-        "link": "https://www.pbs.org/newshour/politics/watch-live-data-center-bill-falls-short-as-senate-holds-final-votes-before-the-midterms",
-        "why": "Tech infrastructure policy stalls amid energy cost concerns"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-09-30T10:01:46.414269+00:00",
-    "items": [
-      {
-        "title": "Trump Announces Voluntary AI Self-Policing Accord With Tech Leaders",
-        "link": "https://www.npr.org/2026/09/30/nx-s1-5985699/trump-self-police-ai-development",
-        "why": "Major regulatory move: government-backed voluntary AI oversight accord"
-      },
-      {
-        "title": "Sam Altman: OpenAI Won't Go Public Until Models Are Safe",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1002505/sam-altman-openai-ipo-devday-ai-safety",
-        "why": "OpenAI IPO timeline tied to AI safety milestones \u2014 major signal"
-      },
-      {
-        "title": "AI Deepfakes Threaten Elections as Voters Struggle With Truth",
-        "link": "https://www.theguardian.com/technology/2026/sep/30/ai-deepfakes-politicans",
-        "why": "Deepfake election interference escalating across multiple platforms"
-      },
-      {
-        "title": "Startup Proposes Massive Nuclear-Powered Data Center in Utah",
-        "link": "https://www.npr.org/2026/09/30/nx-s1-5983482/valar-atomic-nuclear-data-center-project-beehive-utah",
-        "why": "450 reactors on public land for AI data centers \u2014 bold infrastructure play"
-      },
-      {
-        "title": "OpenAI Faces Landmark Lawsuit After Hugging Face Data Hack",
-        "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE51dmdLSEl6NmNpYzhnSW1SeVBBMTZRcmFtVkpKUUltTV9TbllGS0N3cU1hSkRETmdJd0JqenIxeG5XaElGUmhlLV9aLWhjX2t5aW5vZng2OWRzUk5XMWRkcUVnanlwR2p0U2JtREYtZVppZw?oc=5",
-        "why": "Landmark AI data breach lawsuit could reshape AI liability standards"
       }
     ]
   }
