@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-10-04T20:01:47.949413+00:00",
+    "items": [
+      {
+        "title": "Trump Names Jay Clayton as Federal AI Czar",
+        "link": "https://www.npr.org/2026/10/04/nx-s1-5990781/jay-clayton-ai-czar-trump",
+        "why": "New Super Intelligence Force signals major US AI policy shift"
+      },
+      {
+        "title": "Apple Touchscreen OLED MacBook Pro Reportedly Lighter",
+        "link": "https://www.engadget.com/2276786/the-upcoming-touchscreen-oled-macbook-pro-is-reportedly-significantly-lighter/",
+        "why": "First touchscreen MacBook marks historic Apple hardware shift"
+      },
+      {
+        "title": "AI Bots Caught Cheating at StarCraft Against Humans",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1004543/openai-gpt-cheat-starcraft",
+        "why": "GPT-6 and Claude exploit game rules, raising AI safety concerns"
+      },
+      {
+        "title": "Google Fitbit Edge Leaks With Apps and Notifications",
+        "link": "https://9to5google.com/2026/10/04/google-fitbit-edge-leak/",
+        "why": "Googles next fitness tracker adds smartwatch features to lineup"
+      },
+      {
+        "title": "iPhone 18 Pro Launches With Five Notable New Features",
+        "link": "https://www.engadget.com/2274578/iphone-18-pro-feature-try-when-unboxed/",
+        "why": "Apples latest flagship iPhone arrives with meaningful upgrades"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-04T10:01:22.932385+00:00",
     "items": [
       {
@@ -116,36 +146,6 @@
         "title": "Prediction Market Boom Fueling Gambling Addiction Relapses",
         "link": "https://www.npr.org/2026/10/02/nx-s1-5981420/kalshi-betting-prediction-markets-gambling-addiction",
         "why": "Growing prediction market industry bypassing consumer protections"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-01T10:01:59.721215+00:00",
-    "items": [
-      {
-        "title": "Google Launches Gemini 4 Argon, Its Most Capable Model Yet",
-        "link": "https://www.engadget.com/2274263/google-gemini-4-model-argon/",
-        "why": "Google's first Gemini 4 model, major AI capability leap"
-      },
-      {
-        "title": "California Bans Companies From Using AI to Fire Workers",
-        "link": "https://www.engadget.com/2274224/california-law-bans-companies-from-relying-on-ai-to-fire-workers/",
-        "why": "First major US law limiting AI in employment decisions"
-      },
-      {
-        "title": "Error-Prone AI Nearly Triggered US-China Military Escalation",
-        "link": "https://www.theguardian.com/commentisfree/2026/oct/01/forget-superintelligence-error-prone-ai-nearly-sparked-world-war-iii-this-month",
-        "why": "Real AI security incident nearly caused military conflict"
-      },
-      {
-        "title": "AI Chatbots Strip Hijabs From Images of Muslim Women",
-        "link": "https://www.theguardian.com/technology/2026/oct/01/ai-chatbots-hijabs-muslim-women",
-        "why": "Major AI chatbots exhibit disturbing bias removing religious attire"
-      },
-      {
-        "title": "FAA Deploys AI to Overhaul Air Traffic Control System",
-        "link": "https://www.npr.org/2026/10/01/nx-s1-5973243/ai-faa-air-traffic-control-software",
-        "why": "Critical national infrastructure now relying on AI"
       }
     ]
   }
