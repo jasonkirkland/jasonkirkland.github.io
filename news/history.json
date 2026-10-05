@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-10-05T20:01:14.626367+00:00",
+    "items": [
+      {
+        "title": "Wikimedia Blames OpenAI Rogue Bots for Outage, Unauthorized Edits",
+        "link": "https://www.theverge.com/news/1004929/wikipedia-openai-rogue-bots-wikimedia-foundation-outage",
+        "why": "AI agents causing real platform damage raises accountability questions"
+      },
+      {
+        "title": "OpenAI Adds Digital Watermarks to EU ChatGPT Output for AI Act",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1004880/openai-chatgpt-text-watermarks-eu-ai-act",
+        "why": "First major AI provider implementing EU AI Act transparency rules"
+      },
+      {
+        "title": "Hackers Breached Propulsion System of US-Bound Oil Supertanker",
+        "link": "https://gcaptain.com/hackers-breached-propulsion-system-of-us-bound-oil-tanker/",
+        "why": "FBI confirms unprecedented cyberattack on critical maritime infrastructure"
+      },
+      {
+        "title": "AI Labs Claim Breakthroughs on Major Math Problems Including Millennium Prize",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1004933/ai-math-openai-breakthrough-solution",
+        "why": "OpenAI and Anthropic push beyond expected AI mathematical reasoning limits"
+      },
+      {
+        "title": "Altman Says World Should Accept Bad Things From AI for Greater Good",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1004811/openai-altman-bad-things-ai-tradeoff",
+        "why": "OpenAI CEO publicly frames AI harms as acceptable tradeoff"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-05T10:01:10.788958+00:00",
     "items": [
       {
@@ -141,31 +171,6 @@
         "title": "US Arrests Man Smuggling $300M in Servers to China",
         "link": "https://www.theguardian.com/us-news/2026/oct/02/arrest-smuggled-computer-servers-china",
         "why": "Major export-control bust involving controlled tech"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-02T10:01:31.116228+00:00",
-    "items": [
-      {
-        "title": "New Mexico Seeks $40 Billion Penalty From Meta Over Cambridge Analytica",
-        "link": "https://www.engadget.com/2275451/new-mexico-meta-40-billion-penalties-cambridge-analytica-lawsuit/",
-        "why": "Unprecedented state penalty demand against major tech platform"
-      },
-      {
-        "title": "Suno Launches AI Speech Generation in Public Beta",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1003925/suno-speech-ai-voice-feature-beta-availability",
-        "why": "Major AI music company expands into voice generation"
-      },
-      {
-        "title": "California Legalizes Plug-In Balcony Solar Installations",
-        "link": "https://www.engadget.com/2275466/california-legalizes-balcony-plug-in-solar/",
-        "why": "Most populous state opens residential solar market significantly"
-      },
-      {
-        "title": "Prediction Market Boom Fueling Gambling Addiction Relapses",
-        "link": "https://www.npr.org/2026/10/02/nx-s1-5981420/kalshi-betting-prediction-markets-gambling-addiction",
-        "why": "Growing prediction market industry bypassing consumer protections"
       }
     ]
   }
