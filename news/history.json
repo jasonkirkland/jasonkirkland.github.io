@@ -1,5 +1,25 @@
 [
   {
+    "timestamp": "2026-10-05T10:01:10.788958+00:00",
+    "items": [
+      {
+        "title": "AI-Generated Child Abuse Material Surges 40% This Year",
+        "link": "https://www.theguardian.com/technology/2026/oct/05/internet-watch-foundation-huge-rise-ai-child-sexual-abuse-material",
+        "why": "Major AI safety crisis escalating faster than enforcement"
+      },
+      {
+        "title": "Google Fitbit Edge Leaks With Screen and Pixel 11 Colors",
+        "link": "https://www.engadget.com/2276917/google-fitbit-edge-leaks-out-with-a-screen-and-pixel-11-colors/",
+        "why": "First new Fitbit tracker since 2023, major Google hardware"
+      },
+      {
+        "title": "OpenAI Suffers Elevated Work Mode and Codex Errors",
+        "link": "https://status.openai.com//incidents/01M45E0JFFJZ6EQ3BWYPW74R2Z",
+        "why": "Service degradation hitting ChatGPT Work and Codex users"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-04T20:01:47.949413+00:00",
     "items": [
       {
