@@ -104,6 +104,14 @@ h1 .icon { font-size: 1.4rem; }
   font-style: italic;
   padding: 8px 0;
 }
+.quiet {
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 .loading {
   text-align: center;
   color: var(--muted);
@@ -163,6 +171,12 @@ function escapeHtml(s) {
 
 function renderDigest(digest) {
   let html = '<div class="digest-card">';
+  if (digest.items.length === 0) {
+    html += '<div class="digest-time">' + escapeHtml(formatTime(digest.timestamp)) + '</div>';
+    html += '<div class="quiet"> Quiet news cycle — nothing met the importance threshold</div>';
+    html += '</div>';
+    return html;
+  }
   html += '<div class="digest-time">' + escapeHtml(formatTime(digest.timestamp));
   html += ' <span class="badge">' + digest.items.length + ' stor' + (digest.items.length === 1 ? 'y' : 'ies') + '</span></div>';
   for (const item of digest.items) {
