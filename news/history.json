@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-10-06T11:53:48.125469+00:00",
+    "items": [
+      {
+        "title": "Google Removes Free Gemini Flash and Pro Access Oct 9",
+        "link": "https://www.engadget.com/2278504/google-removes-free-access-gemini-flash-pro-october-9/",
+        "why": "Free tier loses key AI models \u2014 impacts millions of users"
+      },
+      {
+        "title": "Qualcomm Breaks 5 GHz Barrier With New Snapdragon SoCs",
+        "link": "https://www.allaboutcircuits.com/news/3-hardware-highlights-from-qualcomms-snapdragon-summit-2026/",
+        "why": "First mobile chips to cross 5 GHz \u2014 major mobile performance leap"
+      },
+      {
+        "title": "OpenAI Delivers Mea Culpa to Australian Government",
+        "link": "https://www.theguardian.com/technology/2026/oct/06/openai-delivers-a-mea-culpa-to-the-australian-government-in-person-but-answers-still-elude",
+        "why": "OpenAI faces international regulatory pressure over AI accountability"
+      },
+      {
+        "title": "Drax AI Datacentre Would Emit Twice Gatwick Flights Yearly",
+        "link": "https://www.theguardian.com/uk-news/2026/oct/06/drax-datacentre-yearly-co2-emissions-gatwick-flights-analysis",
+        "why": "AI infrastructure carbon footprint now rivaling major airports"
+      },
+      {
+        "title": "Amazon Alexa Plus Bug Makes Speakers Sing Lalala Endlessly",
+        "link": "https://www.theverge.com/tech/1005342/amazon-alexa-plus-keeps-creepily-singing-lalala-for-minutes-on-end",
+        "why": "Alexa Plus AI assistant glitch reveals reliability concerns"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-05T20:01:14.626367+00:00",
     "items": [
       {
@@ -116,61 +146,6 @@
         "title": "California Enacts Landmark AI Worker Protection Laws",
         "link": "https://www.theguardian.com/technology/2026/oct/03/california-ai-laws-worker-protection",
         "why": "First major US state AI workplace regulations enacted"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-03T10:01:05.167328+00:00",
-    "items": [
-      {
-        "title": "OpenAI Spending $500K Daily Reviewing Agent Hacks on Government Sites",
-        "link": "https://www.theguardian.com/technology/2026/oct/03/openai-review-hacks-australian-government-sites-costing-500000-a-day",
-        "why": "Major AI security incident: agents accessed sites without authorization"
-      },
-      {
-        "title": "Apple Confirms iPhone 18 Pro Max AT&T Network Bug Requires Replacement",
-        "link": "https://www.engadget.com/2276489/apple-att-network-bug-iphone-18-pro-max/",
-        "why": "Apple confirms hardware defect in flagship phone, replacements needed"
-      },
-      {
-        "title": "Stratospheric Airship Beams Cell Signal 10 Miles to Japan",
-        "link": "https://newatlas.com/aircraft/sceye-flying-cell-tower-beams-phone-signal-stratosphere/",
-        "why": "SoftBank-backed flying cell tower aims for commercial 2027 service"
-      },
-      {
-        "title": "US Hiring Collapses to 29,000 Jobs in September",
-        "link": "https://www.pbs.org/newshour/show/what-a-hiring-slowdown-signals-about-the-state-of-the-u-s-economy",
-        "why": "Dramatic jobs slowdown signals economic cooling before midterms"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-02T20:01:40.778949+00:00",
-    "items": [
-      {
-        "title": "OpenAI Launches Dots Agent Platform for Enterprise",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1004096/openai-chatgpt-dots-hands-on-agent",
-        "why": "Major AI company launches new agent platform"
-      },
-      {
-        "title": "Apple Warns AI Agents Pose Full Disk Access Risk",
-        "link": "https://www.engadget.com/2276186/apple-sounds-the-alarm-on-ai-agents-and-full-disk-access/",
-        "why": "Apple security alert on AI agent privacy risks"
-      },
-      {
-        "title": "Runway Debuts Praxis-1 World Model for Robotics",
-        "link": "https://www.therobotreport.com/runway-introduces-praxis-1-world-action-model-robotics/",
-        "why": "AI video firm enters robotics with open weights"
-      },
-      {
-        "title": "AI Could Expose Secret Ballots, Georgia Officials Warn",
-        "link": "https://www.theguardian.com/us-news/2026/oct/02/midterms-ai-ballot-privacy",
-        "why": "AI threatens ballot privacy ahead of midterms"
-      },
-      {
-        "title": "US Arrests Man Smuggling $300M in Servers to China",
-        "link": "https://www.theguardian.com/us-news/2026/oct/02/arrest-smuggled-computer-servers-china",
-        "why": "Major export-control bust involving controlled tech"
       }
     ]
   }
