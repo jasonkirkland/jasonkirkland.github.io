@@ -1,5 +1,9 @@
 [
   {
+    "timestamp": "2026-10-06T21:19:22.112840+00:00",
+    "items": []
+  },
+  {
     "timestamp": "2026-10-06T11:53:48.125469+00:00",
     "items": [
       {
@@ -131,21 +135,6 @@
         "title": "Google Gemini Restricts Model Access, Adds Deep Think",
         "link": "https://9to5google.com/2026/10/03/gemini-model-limits-oct-26/",
         "why": "Google tiers Gemini access changing what subscribers can use"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-03T20:02:41.756868+00:00",
-    "items": [
-      {
-        "title": "OpenAI Safety Leader Quits, Warns Culture Is Broken",
-        "link": "https://www.theguardian.com/technology/2026/oct/03/openai-safety-leader-quits-warning-ai-companys-culture-is-broken",
-        "why": "Senior AI safety departure signals industry-wide concern"
-      },
-      {
-        "title": "California Enacts Landmark AI Worker Protection Laws",
-        "link": "https://www.theguardian.com/technology/2026/oct/03/california-ai-laws-worker-protection",
-        "why": "First major US state AI workplace regulations enacted"
       }
     ]
   }
