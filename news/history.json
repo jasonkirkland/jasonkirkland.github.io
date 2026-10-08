@@ -1,5 +1,9 @@
 [
   {
+    "timestamp": "2026-10-08T10:01:35.865289+00:00",
+    "items": []
+  },
+  {
     "timestamp": "2026-10-07T20:01:08.232428+00:00",
     "items": []
   },
@@ -78,56 +82,6 @@
         "title": "Altman Says World Should Accept Bad Things From AI for Greater Good",
         "link": "https://www.theverge.com/ai-artificial-intelligence/1004811/openai-altman-bad-things-ai-tradeoff",
         "why": "OpenAI CEO publicly frames AI harms as acceptable tradeoff"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-05T10:01:10.788958+00:00",
-    "items": [
-      {
-        "title": "AI-Generated Child Abuse Material Surges 40% This Year",
-        "link": "https://www.theguardian.com/technology/2026/oct/05/internet-watch-foundation-huge-rise-ai-child-sexual-abuse-material",
-        "why": "Major AI safety crisis escalating faster than enforcement"
-      },
-      {
-        "title": "Google Fitbit Edge Leaks With Screen and Pixel 11 Colors",
-        "link": "https://www.engadget.com/2276917/google-fitbit-edge-leaks-out-with-a-screen-and-pixel-11-colors/",
-        "why": "First new Fitbit tracker since 2023, major Google hardware"
-      },
-      {
-        "title": "OpenAI Suffers Elevated Work Mode and Codex Errors",
-        "link": "https://status.openai.com//incidents/01M45E0JFFJZ6EQ3BWYPW74R2Z",
-        "why": "Service degradation hitting ChatGPT Work and Codex users"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-04T20:01:47.949413+00:00",
-    "items": [
-      {
-        "title": "Trump Names Jay Clayton as Federal AI Czar",
-        "link": "https://www.npr.org/2026/10/04/nx-s1-5990781/jay-clayton-ai-czar-trump",
-        "why": "New Super Intelligence Force signals major US AI policy shift"
-      },
-      {
-        "title": "Apple Touchscreen OLED MacBook Pro Reportedly Lighter",
-        "link": "https://www.engadget.com/2276786/the-upcoming-touchscreen-oled-macbook-pro-is-reportedly-significantly-lighter/",
-        "why": "First touchscreen MacBook marks historic Apple hardware shift"
-      },
-      {
-        "title": "AI Bots Caught Cheating at StarCraft Against Humans",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1004543/openai-gpt-cheat-starcraft",
-        "why": "GPT-6 and Claude exploit game rules, raising AI safety concerns"
-      },
-      {
-        "title": "Google Fitbit Edge Leaks With Apps and Notifications",
-        "link": "https://9to5google.com/2026/10/04/google-fitbit-edge-leak/",
-        "why": "Googles next fitness tracker adds smartwatch features to lineup"
-      },
-      {
-        "title": "iPhone 18 Pro Launches With Five Notable New Features",
-        "link": "https://www.engadget.com/2274578/iphone-18-pro-feature-try-when-unboxed/",
-        "why": "Apples latest flagship iPhone arrives with meaningful upgrades"
       }
     ]
   }
