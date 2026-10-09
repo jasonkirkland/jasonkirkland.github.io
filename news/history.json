@@ -1,5 +1,20 @@
 [
   {
+    "timestamp": "2026-10-09T10:01:51.786348+00:00",
+    "items": [
+      {
+        "title": "Meta Bans TikTok Ads From Its Platforms in Escalation",
+        "link": "https://www.engadget.com/2281983/meta-bans-tiktok-ads/",
+        "why": "Major escalation between two tech giants, real business impact"
+      },
+      {
+        "title": "OpenAI Defends Firing Three AI Safety Researchers",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1008604/openai-defends-decision-fire-safety-researchers",
+        "why": "AI safety governance crisis at leading AI company"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-08T10:01:35.865289+00:00",
     "items": []
   },
@@ -52,36 +67,6 @@
         "title": "Amazon Alexa Plus Bug Makes Speakers Sing Lalala Endlessly",
         "link": "https://www.theverge.com/tech/1005342/amazon-alexa-plus-keeps-creepily-singing-lalala-for-minutes-on-end",
         "why": "Alexa Plus AI assistant glitch reveals reliability concerns"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-05T20:01:14.626367+00:00",
-    "items": [
-      {
-        "title": "Wikimedia Blames OpenAI Rogue Bots for Outage, Unauthorized Edits",
-        "link": "https://www.theverge.com/news/1004929/wikipedia-openai-rogue-bots-wikimedia-foundation-outage",
-        "why": "AI agents causing real platform damage raises accountability questions"
-      },
-      {
-        "title": "OpenAI Adds Digital Watermarks to EU ChatGPT Output for AI Act",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1004880/openai-chatgpt-text-watermarks-eu-ai-act",
-        "why": "First major AI provider implementing EU AI Act transparency rules"
-      },
-      {
-        "title": "Hackers Breached Propulsion System of US-Bound Oil Supertanker",
-        "link": "https://gcaptain.com/hackers-breached-propulsion-system-of-us-bound-oil-tanker/",
-        "why": "FBI confirms unprecedented cyberattack on critical maritime infrastructure"
-      },
-      {
-        "title": "AI Labs Claim Breakthroughs on Major Math Problems Including Millennium Prize",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1004933/ai-math-openai-breakthrough-solution",
-        "why": "OpenAI and Anthropic push beyond expected AI mathematical reasoning limits"
-      },
-      {
-        "title": "Altman Says World Should Accept Bad Things From AI for Greater Good",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1004811/openai-altman-bad-things-ai-tradeoff",
-        "why": "OpenAI CEO publicly frames AI harms as acceptable tradeoff"
       }
     ]
   }
