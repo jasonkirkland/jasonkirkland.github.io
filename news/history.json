@@ -1,5 +1,15 @@
 [
   {
+    "timestamp": "2026-10-09T20:01:34.911503+00:00",
+    "items": [
+      {
+        "title": "AI Surveillance Startup Flock Safety Cuts 18% of Workforce",
+        "link": "https://www.theguardian.com/world/2026/oct/09/flock-job-cuts",
+        "why": "Major AI surveillance firm layoffs amid growing privacy backlash"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-09T10:01:51.786348+00:00",
     "items": [
       {
@@ -39,35 +49,5 @@
   {
     "timestamp": "2026-10-06T21:19:22.112840+00:00",
     "items": []
-  },
-  {
-    "timestamp": "2026-10-06T11:53:48.125469+00:00",
-    "items": [
-      {
-        "title": "Google Removes Free Gemini Flash and Pro Access Oct 9",
-        "link": "https://www.engadget.com/2278504/google-removes-free-access-gemini-flash-pro-october-9/",
-        "why": "Free tier loses key AI models \u2014 impacts millions of users"
-      },
-      {
-        "title": "Qualcomm Breaks 5 GHz Barrier With New Snapdragon SoCs",
-        "link": "https://www.allaboutcircuits.com/news/3-hardware-highlights-from-qualcomms-snapdragon-summit-2026/",
-        "why": "First mobile chips to cross 5 GHz \u2014 major mobile performance leap"
-      },
-      {
-        "title": "OpenAI Delivers Mea Culpa to Australian Government",
-        "link": "https://www.theguardian.com/technology/2026/oct/06/openai-delivers-a-mea-culpa-to-the-australian-government-in-person-but-answers-still-elude",
-        "why": "OpenAI faces international regulatory pressure over AI accountability"
-      },
-      {
-        "title": "Drax AI Datacentre Would Emit Twice Gatwick Flights Yearly",
-        "link": "https://www.theguardian.com/uk-news/2026/oct/06/drax-datacentre-yearly-co2-emissions-gatwick-flights-analysis",
-        "why": "AI infrastructure carbon footprint now rivaling major airports"
-      },
-      {
-        "title": "Amazon Alexa Plus Bug Makes Speakers Sing Lalala Endlessly",
-        "link": "https://www.theverge.com/tech/1005342/amazon-alexa-plus-keeps-creepily-singing-lalala-for-minutes-on-end",
-        "why": "Alexa Plus AI assistant glitch reveals reliability concerns"
-      }
-    ]
   }
 ]
