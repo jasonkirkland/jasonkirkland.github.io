@@ -1,5 +1,15 @@
 [
   {
+    "timestamp": "2026-10-11T20:01:31.514311+00:00",
+    "items": [
+      {
+        "title": "Silicon Valley Aligns With Trump's AI Rebranding Push",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1009406/silicon-valley-is-falling-in-line-with-trumps-attempt-to-rename-ai",
+        "why": "Major AI industry shifts toward political AI rebranding"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-11T10:01:00.820892+00:00",
     "items": []
   },
@@ -41,9 +51,5 @@
         "why": "AI safety governance crisis at leading AI company"
       }
     ]
-  },
-  {
-    "timestamp": "2026-10-08T10:01:35.865289+00:00",
-    "items": []
   }
 ]
