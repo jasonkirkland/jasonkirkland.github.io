@@ -1,5 +1,25 @@
 [
   {
+    "timestamp": "2026-10-12T10:01:58.827642+00:00",
+    "items": [
+      {
+        "title": "Hackers Weaponize Claude Code to Steal 628K Ukrainian Records",
+        "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxPWW9lR3lLdjJLcGlBRDg1UG1VcktFcG1IOXVRX0lCQ2lEQkJON0hsSFZEd0MxS1lwMkZHUDZwbEpEajYwQU5VOGNaN1NMQXItS095NTVNSWl1bk1kdXd1QXJuemxaWHl5OTYxbk5rZWhPYWRfQU5NM1FrSzkxekFqa05hRQ?oc=5",
+        "why": "AI coding tools weaponized for major data breach"
+      },
+      {
+        "title": "Microsoft President: AI Less Regulated Than Milk",
+        "link": "https://www.engadget.com/2283487/microsoft-president-ai-less-regulated-than-a-carton-of-milk/",
+        "why": "Tech giant calls for stronger AI regulation"
+      },
+      {
+        "title": "U.S. Drone Restrictions Strain Police Department Budgets",
+        "link": "https://www.npr.org/2026/10/12/nx-s1-5888604/police-chinese-drones-bans-costs",
+        "why": "Tech trade restrictions hit local public safety"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-11T20:01:31.514311+00:00",
     "items": [
       {
@@ -34,21 +54,6 @@
         "title": "AI Surveillance Startup Flock Safety Cuts 18% of Workforce",
         "link": "https://www.theguardian.com/world/2026/oct/09/flock-job-cuts",
         "why": "Major AI surveillance firm layoffs amid growing privacy backlash"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-09T10:01:51.786348+00:00",
-    "items": [
-      {
-        "title": "Meta Bans TikTok Ads From Its Platforms in Escalation",
-        "link": "https://www.engadget.com/2281983/meta-bans-tiktok-ads/",
-        "why": "Major escalation between two tech giants, real business impact"
-      },
-      {
-        "title": "OpenAI Defends Firing Three AI Safety Researchers",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1008604/openai-defends-decision-fire-safety-researchers",
-        "why": "AI safety governance crisis at leading AI company"
       }
     ]
   }
