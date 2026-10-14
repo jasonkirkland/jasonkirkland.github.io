@@ -1,5 +1,9 @@
 [
   {
+    "timestamp": "2026-10-14T20:01:33.361160+00:00",
+    "items": []
+  },
+  {
     "timestamp": "2026-10-14T10:01:51.534544+00:00",
     "items": [
       {
@@ -60,16 +64,6 @@
         "title": "U.S. Drone Restrictions Strain Police Department Budgets",
         "link": "https://www.npr.org/2026/10/12/nx-s1-5888604/police-chinese-drones-bans-costs",
         "why": "Tech trade restrictions hit local public safety"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-11T20:01:31.514311+00:00",
-    "items": [
-      {
-        "title": "Silicon Valley Aligns With Trump's AI Rebranding Push",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1009406/silicon-valley-is-falling-in-line-with-trumps-attempt-to-rename-ai",
-        "why": "Major AI industry shifts toward political AI rebranding"
       }
     ]
   }
