@@ -1,5 +1,25 @@
 [
   {
+    "timestamp": "2026-10-14T10:01:51.534544+00:00",
+    "items": [
+      {
+        "title": "Qualcomm Wins Jury Verdict Against Arm in License Dispute",
+        "link": "https://www.engadget.com/2286281/arm-must-pay-qualcomm-2-license-breach-lawsuit/",
+        "why": "Major semiconductor IP lawsuit verdict reshapes Arm-Qualcomm relations"
+      },
+      {
+        "title": "US Law Enforcement Warns AI Chatbots Enable Terrorist Planning",
+        "link": "https://www.theguardian.com/technology/ng-interactive/2026/oct/14/ai-terror-plots-fbi-extremism",
+        "why": "FBI warns AI tools now actively used for attack planning"
+      },
+      {
+        "title": "Bank of England and IMF Chiefs Warn of Cyber Threat to Finance",
+        "link": "https://www.theguardian.com/business/2026/oct/14/bank-of-england-imf-bosses-warning-cyber-threat-to-trust",
+        "why": "Top financial regulators flag systemic cyber risk to trust"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-13T10:01:20.189100+00:00",
     "items": [
       {
@@ -52,13 +72,5 @@
         "why": "Major AI industry shifts toward political AI rebranding"
       }
     ]
-  },
-  {
-    "timestamp": "2026-10-11T10:01:00.820892+00:00",
-    "items": []
-  },
-  {
-    "timestamp": "2026-10-10T20:01:47.131822+00:00",
-    "items": []
   }
 ]
