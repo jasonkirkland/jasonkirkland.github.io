@@ -1,5 +1,20 @@
 [
   {
+    "timestamp": "2026-10-15T20:01:29.632340+00:00",
+    "items": [
+      {
+        "title": "FTC Subpoenas OpenAI and Anthropic Over Safety Failures",
+        "link": "https://www.engadget.com/2288104/ftc-subpoenas-open-ai-and-anthropic-following-safety-failures/",
+        "why": "Major regulatory escalation against leading AI companies"
+      },
+      {
+        "title": "Withings Now Charges $100 Yearly to Sync Health Data",
+        "link": "https://www.theverge.com/tech/1012350/withings-plus-subscription-new-users-october-13-2026",
+        "why": "Health tech company monetizes user data access"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-15T10:01:52.296197+00:00",
     "items": [
       {
@@ -50,30 +65,6 @@
         "title": "Hinton Warns We Are Creating Alien Beings, Chooses Humans",
         "link": "https://www.theguardian.com/us-news/2026/oct/13/geoffrey-hinton-trump-ai-tech",
         "why": "AI godfather speaks on existential AI risks and policy"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-12T20:01:28.425726+00:00",
-    "items": []
-  },
-  {
-    "timestamp": "2026-10-12T10:01:58.827642+00:00",
-    "items": [
-      {
-        "title": "Hackers Weaponize Claude Code to Steal 628K Ukrainian Records",
-        "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxPWW9lR3lLdjJLcGlBRDg1UG1VcktFcG1IOXVRX0lCQ2lEQkJON0hsSFZEd0MxS1lwMkZHUDZwbEpEajYwQU5VOGNaN1NMQXItS095NTVNSWl1bk1kdXd1QXJuemxaWHl5OTYxbk5rZWhPYWRfQU5NM1FrSzkxekFqa05hRQ?oc=5",
-        "why": "AI coding tools weaponized for major data breach"
-      },
-      {
-        "title": "Microsoft President: AI Less Regulated Than Milk",
-        "link": "https://www.engadget.com/2283487/microsoft-president-ai-less-regulated-than-a-carton-of-milk/",
-        "why": "Tech giant calls for stronger AI regulation"
-      },
-      {
-        "title": "U.S. Drone Restrictions Strain Police Department Budgets",
-        "link": "https://www.npr.org/2026/10/12/nx-s1-5888604/police-chinese-drones-bans-costs",
-        "why": "Tech trade restrictions hit local public safety"
       }
     ]
   }
