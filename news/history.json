@@ -1,5 +1,20 @@
 [
   {
+    "timestamp": "2026-10-16T10:01:52.681383+00:00",
+    "items": [
+      {
+        "title": "Apple's First Folding iPhone Opens for Pre-Order",
+        "link": "https://www.engadget.com/2288565/apple-iphone-duo-pre-orders-open-today/",
+        "why": "Apple enters foldable market with $2,000 device"
+      },
+      {
+        "title": "Global Timekeeping Abolishes the Leap Second",
+        "link": "https://www.theverge.com/tech/1012689/leap-second-discontinue-timekeeping-change",
+        "why": "Infrastructure-critical time standard prevents Y2K-like failures"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-15T20:01:29.632340+00:00",
     "items": [
       {
@@ -45,26 +60,6 @@
         "title": "Bank of England and IMF Chiefs Warn of Cyber Threat to Finance",
         "link": "https://www.theguardian.com/business/2026/oct/14/bank-of-england-imf-bosses-warning-cyber-threat-to-trust",
         "why": "Top financial regulators flag systemic cyber risk to trust"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-13T10:01:20.189100+00:00",
-    "items": [
-      {
-        "title": "Chip Stocks Slide as Broadcom CEO Calls AI Investing a Casino",
-        "link": "https://www.theguardian.com/business/2026/oct/13/chip-stocks-broadcom-ai-samsung-shares-cxmt",
-        "why": "Semiconductor market rout signals AI investment anxiety"
-      },
-      {
-        "title": "SpaceX $119B Terafab Buildout Plans Exposed via Records Fight",
-        "link": "https://news.google.com/rss/articles/CBMiqwJBVV95cUxQaFo4aUpYd3pnSU1zQ2hXT3kxcW1IUEpxcmJBVTRBV0NleVJUQUJ4THB2a180ZklNYUdkLVFnRDMtUHNRb1RFMFVjLWlpSF9tUlFsWV9ITlNVcktXNk12bGN3eU9LQWdudjlYRFRfZ1owR1pRblZQd2QzcHVSRno4X2ZodWFEZm9uUGZCVGJQTFFRMTdmUFJPdVRZZ3V4UWd2UUhubG8yaEhPNHAtaXZvQ2hDLW1vNlhvREZ4LTg4TTd1emJUSUVBRkhNeDRUbk9xVTc5blFVbVdUY2hYYUR1d3pHNm1lN1pWM0pMdmhvekJRNnNfamVaS0sycHItQ1dsVHRsQlIwOXF1MXRmeGVuUThhMjQxR0VHOW1MQWxmLUNzUFdBWGNLQjVjcw?oc=5",
-        "why": "Massive SpaceX manufacturing expansion revealed in records"
-      },
-      {
-        "title": "Hinton Warns We Are Creating Alien Beings, Chooses Humans",
-        "link": "https://www.theguardian.com/us-news/2026/oct/13/geoffrey-hinton-trump-ai-tech",
-        "why": "AI godfather speaks on existential AI risks and policy"
       }
     ]
   }
