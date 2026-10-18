@@ -1,5 +1,9 @@
 [
   {
+    "timestamp": "2026-10-18T20:01:07.382380+00:00",
+    "items": []
+  },
+  {
     "timestamp": "2026-10-18T10:01:41.483992+00:00",
     "items": []
   },
@@ -53,16 +57,6 @@
         "title": "Withings Now Charges $100 Yearly to Sync Health Data",
         "link": "https://www.theverge.com/tech/1012350/withings-plus-subscription-new-users-october-13-2026",
         "why": "Health tech company monetizes user data access"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-15T10:01:52.296197+00:00",
-    "items": [
-      {
-        "title": "Tech Stocks Plunge as AI Debt and Inflation Fears Mount",
-        "link": "https://www.theguardian.com/business/2026/oct/15/tech-market-sell-off-deepens-amid-fears-over-us-inflation-and-ai-debt",
-        "why": "Major tech sell-off signals growing AI investment doubts"
       }
     ]
   }
