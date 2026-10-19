@@ -1,5 +1,9 @@
 [
   {
+    "timestamp": "2026-10-19T20:01:39.557126+00:00",
+    "items": []
+  },
+  {
     "timestamp": "2026-10-19T10:01:14.861858+00:00",
     "items": [
       {
@@ -24,35 +28,5 @@
   {
     "timestamp": "2026-10-17T10:00:52.255232+00:00",
     "items": []
-  },
-  {
-    "timestamp": "2026-10-16T20:01:38.712181+00:00",
-    "items": [
-      {
-        "title": "Apple Launches Its Own Smart Home Device Line",
-        "link": "https://www.theverge.com/tech/1013025/apple-home-collection-products-lg-schneider-smart-home",
-        "why": "Apple enters smart home hardware, major strategy shift"
-      },
-      {
-        "title": "Tesla Roadster Flying Stunt Is Pure Show",
-        "link": "https://www.theverge.com/transportation/1012783/tesla-roadster-flying-stunt-production-reality-musk",
-        "why": "Tesla stunt goes viral but production reality unclear"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-16T10:01:52.681383+00:00",
-    "items": [
-      {
-        "title": "Apple's First Folding iPhone Opens for Pre-Order",
-        "link": "https://www.engadget.com/2288565/apple-iphone-duo-pre-orders-open-today/",
-        "why": "Apple enters foldable market with $2,000 device"
-      },
-      {
-        "title": "Global Timekeeping Abolishes the Leap Second",
-        "link": "https://www.theverge.com/tech/1012689/leap-second-discontinue-timekeeping-change",
-        "why": "Infrastructure-critical time standard prevents Y2K-like failures"
-      }
-    ]
   }
 ]
