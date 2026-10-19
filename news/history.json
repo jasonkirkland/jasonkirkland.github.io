@@ -1,5 +1,15 @@
 [
   {
+    "timestamp": "2026-10-19T10:01:14.861858+00:00",
+    "items": [
+      {
+        "title": "Google Gemini 4 Agents Autonomously Beat Minecraft",
+        "link": "https://www.engadget.com/2289944/google-gemini-4-agents-just-beat-minecraft-with-no-human-intervention/",
+        "why": "Major milestone in autonomous AI agent collaboration capabilities"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-18T20:01:07.382380+00:00",
     "items": []
   },
@@ -42,21 +52,6 @@
         "title": "Global Timekeeping Abolishes the Leap Second",
         "link": "https://www.theverge.com/tech/1012689/leap-second-discontinue-timekeeping-change",
         "why": "Infrastructure-critical time standard prevents Y2K-like failures"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-15T20:01:29.632340+00:00",
-    "items": [
-      {
-        "title": "FTC Subpoenas OpenAI and Anthropic Over Safety Failures",
-        "link": "https://www.engadget.com/2288104/ftc-subpoenas-open-ai-and-anthropic-following-safety-failures/",
-        "why": "Major regulatory escalation against leading AI companies"
-      },
-      {
-        "title": "Withings Now Charges $100 Yearly to Sync Health Data",
-        "link": "https://www.theverge.com/tech/1012350/withings-plus-subscription-new-users-october-13-2026",
-        "why": "Health tech company monetizes user data access"
       }
     ]
   }
