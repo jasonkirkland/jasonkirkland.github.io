@@ -1,5 +1,15 @@
 [
   {
+    "timestamp": "2026-10-20T20:01:25.202465+00:00",
+    "items": [
+      {
+        "title": "Smoking Gun Found in High-Temperature Superconductivity Mystery",
+        "link": "https://phys.org/news/2026-10-gun-mystery-high-temperature-superconductivity.html",
+        "why": "Potential breakthrough with major tech industry implications"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-20T10:00:51.928045+00:00",
     "items": [
       {
@@ -38,10 +48,6 @@
   },
   {
     "timestamp": "2026-10-17T20:01:33.081644+00:00",
-    "items": []
-  },
-  {
-    "timestamp": "2026-10-17T10:00:52.255232+00:00",
     "items": []
   }
 ]
