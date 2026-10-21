@@ -1,5 +1,30 @@
 [
   {
+    "timestamp": "2026-10-21T20:01:12.423963+00:00",
+    "items": [
+      {
+        "title": "Anthropic Launches Claude Duet AI Agent",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1015843/anthropic-claude-duet-ai-agent",
+        "why": "Major AI company launches agent competing with Meta, OpenAI"
+      },
+      {
+        "title": "Meta Hit With Record $25 Billion Privacy Fine",
+        "link": "https://www.pbs.org/newshour/nation/meta-must-pay-new-mexico-25-billion-its-biggest-fine-ever-for-deceiving-users-about-facebook-privacy",
+        "why": "Largest privacy penalty ever, major regulatory action against Meta"
+      },
+      {
+        "title": "Walmart Opens Platform to AI Shopping Agents",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1015715/walmart-ai-shopping-agents",
+        "why": "Major retailer enables AI agents to shop autonomously for users"
+      },
+      {
+        "title": "GM Unveils AI-Powered Smarter Cars Strategy",
+        "link": "https://www.theverge.com/transportation/1014322/gm-onward-ai-ev-battery-compute-av",
+        "why": "Major automaker bets big on AI, autonomous features, faster updates"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-21T10:01:40.567830+00:00",
     "items": []
   },
@@ -41,13 +66,5 @@
         "why": "Major milestone in autonomous AI agent collaboration capabilities"
       }
     ]
-  },
-  {
-    "timestamp": "2026-10-18T20:01:07.382380+00:00",
-    "items": []
-  },
-  {
-    "timestamp": "2026-10-18T10:01:41.483992+00:00",
-    "items": []
   }
 ]
