@@ -1,5 +1,9 @@
 [
   {
+    "timestamp": "2026-10-22T10:01:25.053548+00:00",
+    "items": []
+  },
+  {
     "timestamp": "2026-10-21T20:01:12.423963+00:00",
     "items": [
       {
@@ -56,15 +60,5 @@
   {
     "timestamp": "2026-10-19T20:01:39.557126+00:00",
     "items": []
-  },
-  {
-    "timestamp": "2026-10-19T10:01:14.861858+00:00",
-    "items": [
-      {
-        "title": "Google Gemini 4 Agents Autonomously Beat Minecraft",
-        "link": "https://www.engadget.com/2289944/google-gemini-4-agents-just-beat-minecraft-with-no-human-intervention/",
-        "why": "Major milestone in autonomous AI agent collaboration capabilities"
-      }
-    ]
   }
 ]
