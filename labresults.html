@@ -121,6 +121,17 @@
       margin-top: 8px;
     }
 
+    .latest-date {
+      font-size: 14px;
+      color: var(--text-dim);
+      margin: -4px 0 8px;
+    }
+
+    .latest-date strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
     .meta {
       font-size: 12px;
       color: var(--text-dim);
@@ -669,6 +680,7 @@
         <button class="icon-btn" onclick="openSettings()" title="Settings">⚙</button>
         <button class="btn-primary" id="fetchBtn" onclick="fetchAndRender()">Fetch</button>
       </div>
+      <div class="latest-date" id="latestDate" hidden></div>
       <input
         type="search"
         class="search-input"
@@ -1128,6 +1140,17 @@ Respond with ONLY a JSON object (no markdown fences, no commentary):
       return display;
     }
 
+    function getLatestResultDate() {
+      if (!rawResults) return null;
+      let latest = null;
+      rawResults.forEach(labGroup => {
+        const d = labGroup.lab_result_date;
+        if (!d || isNaN(new Date(d))) return;
+        if (!latest || new Date(d) > new Date(latest)) latest = d;
+      });
+      return latest;
+    }
+
     // =========================================================================
     // Render
     // =========================================================================
@@ -1139,6 +1162,15 @@ Respond with ONLY a JSON object (no markdown fences, no commentary):
       if (groupings) parts.push('AI grouped (' + groupings.groups.length + ')');
       else if (rawResults) parts.push('Raw names');
       meta.textContent = parts.join(' · ');
+
+      const latestDateEl = document.getElementById('latestDate');
+      const latestDate = getLatestResultDate();
+      if (latestDate) {
+        latestDateEl.innerHTML = 'Latest results: <strong>' + escapeHtml(formatDate(latestDate)) + '</strong>';
+        latestDateEl.hidden = false;
+      } else {
+        latestDateEl.hidden = true;
+      }
 
       const content = document.getElementById('content');
 
