@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-10-23T20:01:09.419804+00:00",
+    "items": [
+      {
+        "title": "Moonshot AI launches Kimi K3.1 Pro model",
+        "link": "https://simonwillison.net/2026/Oct/23/kimi-k31-pro/",
+        "why": "New frontier AI model release with promised open weights"
+      },
+      {
+        "title": "Cybersecurity experts warn of AI-enabled hacking wave",
+        "link": "https://www.theguardian.com/technology/2026/oct/23/cybersecurity-ai-hacking-php-vulnerability",
+        "why": "Industry leaders sound alarm on AI-driven vulnerability tsunami"
+      },
+      {
+        "title": "New BlackX bootkit bypasses Windows Secure Boot",
+        "link": "https://thehackernews.com/2026/10/blackx-uefi-bootkit-bypasses-secure.html",
+        "why": "Sophisticated UEFI bootkit targeting diplomats, evades patches"
+      },
+      {
+        "title": "Block launches Dessa, conversation-trained AI model",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1017906/jack-dorsey-block-dessa-ai-voice-speech",
+        "why": "Jack Dorsey enters AI with novel conversational model"
+      },
+      {
+        "title": "Ruby patches critical GitLab remote code execution flaws",
+        "link": "https://thehackernews.com/2026/10/ruby-fixes-three-regex-engine-bugs.html",
+        "why": "Three regex bugs caused four critical RCE vulnerabilities in GitLab"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-23T10:01:23.016112+00:00",
     "items": [
       {
