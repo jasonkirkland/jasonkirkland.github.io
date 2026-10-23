@@ -1,5 +1,15 @@
 [
   {
+    "timestamp": "2026-10-23T00:59:59.130118+00:00",
+    "items": [
+      {
+        "title": "PHP2Shell: AI Discovers Critical RCE Flaws Affecting 70% of Websites",
+        "link": "https://www.bleepingcomputer.com/news/security/php-ships-emergency-patches-for-critical-php2shell-flaws/",
+        "why": "AI-found PHP RCE bugs force global emergency patching, governments pull sites"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-22T20:01:10.133132+00:00",
     "items": []
   },
@@ -60,9 +70,5 @@
         "why": "New Apple product faces global purchase restrictions"
       }
     ]
-  },
-  {
-    "timestamp": "2026-10-19T20:01:39.557126+00:00",
-    "items": []
   }
 ]
