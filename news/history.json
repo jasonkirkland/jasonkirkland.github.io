@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-10-24T10:01:23.925923+00:00",
+    "items": [
+      {
+        "title": "OpenAI Cuts Internet Access for Frontier Model Training",
+        "link": "https://www.engadget.com/2296019/openai-says-its-cutting-off-internet-access-for-frontier-model-training/",
+        "why": "Major AI safety policy shift from leading lab"
+      },
+      {
+        "title": "Treasury Proposes Curbing High-Tech Investments in China",
+        "link": "https://www.pbs.org/newshour/politics/treasury-proposes-rule-to-curb-high-tech-investments-in-china-and-other-adversaries",
+        "why": "New rule restricts AI and supercomputing investments abroad"
+      },
+      {
+        "title": "CISA Flags Two Actively Exploited Critical Vulnerabilities",
+        "link": "https://thehackernews.com/2026/10/cisa-flags-two-actively-exploited.html",
+        "why": "Critical security flaws under active exploitation need patching"
+      },
+      {
+        "title": "UK Pledges Hundreds of Millions for AI Security",
+        "link": "https://www.theguardian.com/uk-news/2026/oct/24/john-healey-pledges-to-use-budget-to-harness-power-of-ai-to-bolster-britains-security",
+        "why": "Major government commitment to national AI security strategy"
+      },
+      {
+        "title": "Volkswagen Replaces ID.4 and ID.5 With Electric ID. Tiguan",
+        "link": "https://newatlas.com/automotive/vw-id-tiguan/",
+        "why": "Major automaker discontinues main EVs for new electric SUV"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-23T20:01:09.419804+00:00",
     "items": [
       {
@@ -105,15 +135,5 @@
   {
     "timestamp": "2026-10-21T10:01:40.567830+00:00",
     "items": []
-  },
-  {
-    "timestamp": "2026-10-20T20:01:25.202465+00:00",
-    "items": [
-      {
-        "title": "Smoking Gun Found in High-Temperature Superconductivity Mystery",
-        "link": "https://phys.org/news/2026-10-gun-mystery-high-temperature-superconductivity.html",
-        "why": "Potential breakthrough with major tech industry implications"
-      }
-    ]
   }
 ]
