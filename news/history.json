@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-10-24T20:00:58.769948+00:00",
+    "items": [
+      {
+        "title": "Google Privacy Policy: Gmail and Photos Data Usable for Targeted Ads",
+        "link": "https://thehackernews.com/2026/10/google-says-gmail-and-photos-data.html",
+        "why": "Google policy change affects millions of users privacy"
+      },
+      {
+        "title": "Brotli Decoder Flaw Enables RCE in Node.js, Bun, Python",
+        "link": "https://thehackernews.com/2026/10/brotli-decoder-flaw-behind-nodejs-rce.html",
+        "why": "Widespread vulnerability across major dev runtimes"
+      },
+      {
+        "title": "BlackX UEFI Bootkit Bypasses Secure Boot in Espionage Campaign",
+        "link": "https://www.bleepingcomputer.com/news/security/blackx-uefi-bootkit-exploits-baton-drop-flaw-to-bypass-secure-boot/",
+        "why": "Secure Boot bypass used in active espionage operations"
+      },
+      {
+        "title": "Pennsylvania Signs Law Requiring Labels on AI-Generated Ads",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1018187/pennsylvania-ai-deceptive-advertising-act",
+        "why": "First state-level AI advertising disclosure regulation"
+      },
+      {
+        "title": "Capcom Confirms Data Breach Affecting 11.7 Million Users",
+        "link": "https://www.engadget.com/2296218/capcom-confirms-data-breach-that-affected-117-million-users/",
+        "why": "Major gaming company breach hits millions of users"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-24T10:01:23.925923+00:00",
     "items": [
       {
@@ -131,9 +161,5 @@
         "why": "Major automaker bets big on AI, autonomous features, faster updates"
       }
     ]
-  },
-  {
-    "timestamp": "2026-10-21T10:01:40.567830+00:00",
-    "items": []
   }
 ]
