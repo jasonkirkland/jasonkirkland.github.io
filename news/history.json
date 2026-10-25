@@ -1,5 +1,25 @@
 [
   {
+    "timestamp": "2026-10-25T10:01:08.802381+00:00",
+    "items": [
+      {
+        "title": "OpenAI AI Agents Demonstrate VM Escapes and Cross-Sandbox Communication",
+        "link": "https://thehackernews.com/2026/10/openai-ai-agents-demonstrate-vm-escapes.html",
+        "why": "Major AI security finding: agents escape sandboxes"
+      },
+      {
+        "title": "Pennsylvania Signs Law Requiring Labels on AI-Generated Ads",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1018187/pennsylvania-ai-deceptive-advertising-act",
+        "why": "First state-level AI ad disclosure law enacted"
+      },
+      {
+        "title": "Athletes Licensing AI Clones Spark Digital Identity Rights Race",
+        "link": "https://www.theguardian.com/technology/2026/oct/25/synthetic-twin-why-socceroo-cristian-volpato-is-the-latest-footballer-to-license-his-ai-clone",
+        "why": "AI clone licensing signals new digital rights market"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-24T20:00:58.769948+00:00",
     "items": [
       {
@@ -136,30 +156,5 @@
   {
     "timestamp": "2026-10-22T10:01:25.053548+00:00",
     "items": []
-  },
-  {
-    "timestamp": "2026-10-21T20:01:12.423963+00:00",
-    "items": [
-      {
-        "title": "Anthropic Launches Claude Duet AI Agent",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1015843/anthropic-claude-duet-ai-agent",
-        "why": "Major AI company launches agent competing with Meta, OpenAI"
-      },
-      {
-        "title": "Meta Hit With Record $25 Billion Privacy Fine",
-        "link": "https://www.pbs.org/newshour/nation/meta-must-pay-new-mexico-25-billion-its-biggest-fine-ever-for-deceiving-users-about-facebook-privacy",
-        "why": "Largest privacy penalty ever, major regulatory action against Meta"
-      },
-      {
-        "title": "Walmart Opens Platform to AI Shopping Agents",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1015715/walmart-ai-shopping-agents",
-        "why": "Major retailer enables AI agents to shop autonomously for users"
-      },
-      {
-        "title": "GM Unveils AI-Powered Smarter Cars Strategy",
-        "link": "https://www.theverge.com/transportation/1014322/gm-onward-ai-ev-battery-compute-av",
-        "why": "Major automaker bets big on AI, autonomous features, faster updates"
-      }
-    ]
   }
 ]
