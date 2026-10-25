@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-10-25T20:01:43.251026+00:00",
+    "items": [
+      {
+        "title": "Anthropic Sued Over 274 Elvis Songs Used for AI Training",
+        "link": "https://www.theguardian.com/us-news/2026/oct/25/elvis-presley-anthropic-lawsuit-ai-models-music",
+        "why": "Major new AI copyright lawsuit against leading lab"
+      },
+      {
+        "title": "AI Coding Agents Hijacked via Malicious AGENTS.md File",
+        "link": "https://www.bleepingcomputer.com/news/security/ai-coding-agents-hijacked-using-agentsmd-file-in-downloads-folder/",
+        "why": "Critical new attack vector for AI developer tools"
+      },
+      {
+        "title": "Unpatched Tailscale SSH Flaws Enable Root Access Across Networks",
+        "link": "https://thehackernews.com/2026/10/unpatched-tailscale-ssh-flaws-could-let.html",
+        "why": "Serious unpatched SSH privilege escalation in Tailscale"
+      },
+      {
+        "title": "PHP2Shell Campaign Hits Government, Shows AI-Assisted Hacking",
+        "link": "https://thehackernews.com/2026/10/php2shell-exploitation-hits-government.html",
+        "why": "First real-world AI-assisted post-exploitation observed"
+      },
+      {
+        "title": "Unit 8200 Alumni Raise $34M for Agentic SecOps Startup Mave",
+        "link": "https://www.securityweek.com/former-unit-8200-officers-raise-34-million-for-agentic-secops-startup-mave/",
+        "why": "Notable funding for AI-driven security operations"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-25T10:01:08.802381+00:00",
     "items": [
       {
@@ -148,13 +178,5 @@
         "why": "AI-found PHP RCE bugs force global emergency patching, governments pull sites"
       }
     ]
-  },
-  {
-    "timestamp": "2026-10-22T20:01:10.133132+00:00",
-    "items": []
-  },
-  {
-    "timestamp": "2026-10-22T10:01:25.053548+00:00",
-    "items": []
   }
 ]
