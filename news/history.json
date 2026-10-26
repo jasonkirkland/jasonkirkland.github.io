@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-10-26T10:00:58.120392+00:00",
+    "items": [
+      {
+        "title": "iPhone Duo Teardown Reveals Screen Cracking Causes",
+        "link": "https://www.engadget.com/2296498/ifixit-teardown-of-iphone-duo-shows-potential-causes-for-cracked-screens/",
+        "why": "Apple foldable has serious hardware durability problems"
+      },
+      {
+        "title": "Anthropic Sued Over Elvis Songs Used in AI Training",
+        "link": "https://www.theguardian.com/us-news/2026/oct/25/elvis-presley-anthropic-lawsuit-ai-models-music",
+        "why": "Major AI copyright lawsuit from music estate"
+      },
+      {
+        "title": "Microsoft 365 Token-Replay Attacks Hit 79 Organizations",
+        "link": "https://thehackernews.com/2026/10/microsoft-365-token-replay-attacks.html",
+        "why": "Active campaign compromising 97 accounts across 79 organizations"
+      },
+      {
+        "title": "AI Coding Agent Tricked Into Installing Malware",
+        "link": "https://thehackernews.com/2026/10/malicious-file-in-downloads-folder.html",
+        "why": "Novel attack vector targets AI coding assistants directly"
+      },
+      {
+        "title": "BYD $10K EV Packs 5-Minute Flash Charging",
+        "link": "https://newatlas.com/automotive/byd-seagull-ev-flash-charging/",
+        "why": "Breakthrough affordable EV with ultra-fast charging technology"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-25T20:01:43.251026+00:00",
     "items": [
       {
@@ -166,16 +196,6 @@
         "title": "Capcom Data Breach Exposes 11 Million Email Addresses",
         "link": "https://www.securityweek.com/11-million-impacted-by-capcom-data-breach/",
         "why": "Major gaming company breach hits 11 million CAPCOM ID users"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-23T00:59:59.130118+00:00",
-    "items": [
-      {
-        "title": "PHP2Shell: AI Discovers Critical RCE Flaws Affecting 70% of Websites",
-        "link": "https://www.bleepingcomputer.com/news/security/php-ships-emergency-patches-for-critical-php2shell-flaws/",
-        "why": "AI-found PHP RCE bugs force global emergency patching, governments pull sites"
       }
     ]
   }
