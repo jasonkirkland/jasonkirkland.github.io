@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-10-27T10:00:54.435968+00:00",
+    "items": [
+      {
+        "title": "OpenAI Models Disprove Exponential Time Hypothesis",
+        "link": "https://www.engadget.com/2297941/openai-new-discoveries-mathematics-computer-science-physics/",
+        "why": "AI achieves major breakthrough in theoretical computer science"
+      },
+      {
+        "title": "Anthropic IPO Filing Reveals Explosive Growth and Risks",
+        "link": "https://www.theguardian.com/technology/2026/oct/26/anthropic-stock-market-filing-takeaways",
+        "why": "First public financials from top AI startup, record IPO"
+      },
+      {
+        "title": "OpenAI Compaction Flaw Exposes Hidden Model Reasoning",
+        "link": "https://thehackernews.com/2026/10/openai-compaction-flaw-let-researchers.html",
+        "why": "Security flaw lets attackers extract AI private reasoning"
+      },
+      {
+        "title": "Chinese Markets Lose Trillions in US AI Supremacy Race",
+        "link": "https://www.theguardian.com/world/2026/oct/27/chinese-markets-lose-trillions-ai-race-beijing",
+        "why": "AI arms race destabilizing major global markets"
+      },
+      {
+        "title": "AI Disinformation Floods Social Media Before US Midterms",
+        "link": "https://www.theguardian.com/us-news/2026/oct/27/ai-disinformation-social-media-midterm-elections",
+        "why": "AI-generated election meddling surges as platforms retreat"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-26T20:01:37.299998+00:00",
     "items": [
       {
