@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-10-28T20:01:29.358699+00:00",
+    "items": [
+      {
+        "title": "Apple Unveils First-Ever Touchscreen MacBook Pro",
+        "link": "https://www.theverge.com/tech/1020676/apple-touchscreen-macbook-pro-reveal-video",
+        "why": "First touchscreen Mac ever, major Apple product shift"
+      },
+      {
+        "title": "Volt Typhoon Ran Four Zero-Day Campaigns via Covert Network",
+        "link": "https://thehackernews.com/2026/10/volt-typhoon-used-covert-silent-train.html",
+        "why": "Chinese state hackers ran four zero-day exploitation campaigns"
+      },
+      {
+        "title": "FCC Cracks Down on Chinese Drones, Routers, and Smart Devices",
+        "link": "https://www.theverge.com/policy/1019851/fcc-foreign-gadget-ban-drone-robot-roomba-storystream",
+        "why": "Broad US ban on Chinese smart devices across categories"
+      },
+      {
+        "title": "Meta Considers Delaying New Business Terms Amid Backlash",
+        "link": "https://www.engadget.com/2300293/meta-weighs-delaying-alarming-new-business-terms-as-backlash-grows/",
+        "why": "Publisher backlash forces Meta to reconsider policy changes"
+      },
+      {
+        "title": "GitHub Universe 2026: End-to-End Software Delivery Vision",
+        "link": "https://github.blog/news-insights/company-news/github-universe-2026-evolving-every-layer-of-the-stack/",
+        "why": "GitHub reveals roadmap for full software delivery platform"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-28T10:01:53.683754+00:00",
     "items": [
       {
