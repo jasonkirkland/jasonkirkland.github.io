@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-10-28T10:01:53.683754+00:00",
+    "items": [
+      {
+        "title": "Anthropic's AI Model Autonomously Chains Security Flaws Into Working Exploits",
+        "link": "https://thehackernews.com/2026/10/anthropics-unreleased-ai-model-chains.html",
+        "why": "AI autonomously finding and exploiting real vulnerabilities \u2014 landmark"
+      },
+      {
+        "title": "iPhone Duo Foldable Screens Cracking From Hinge Defect",
+        "link": "https://www.theverge.com/tech/1020145/iphone-duo-crackgate-broken-screen-hinge",
+        "why": "Apple's new foldable flagship has a serious hardware defect"
+      },
+      {
+        "title": "Australia Moves to Ban AI Chatbot Emotional Intimacy",
+        "link": "https://www.theguardian.com/australia-news/2026/oct/28/emotional-intimacy-ai-chatbots-ban-digital-duty-of-care-laws-australian-politics",
+        "why": "First major regulatory precedent restricting AI emotional features"
+      },
+      {
+        "title": "Tailscale Patches Critical SSH Flaws Enabling Root Access",
+        "link": "https://thehackernews.com/2026/10/tailscale-patches-ssh-flaws-that-could.html",
+        "why": "Critical infrastructure security patch \u2014 root escalation risk"
+      },
+      {
+        "title": "Japan's GMO Hit by Ransomware, Urges Customers to Shut Down PCs",
+        "link": "https://www.bleepingcomputer.com/news/security/japans-gmo-urges-customers-to-shut-down-pcs-amid-ransomware-threat/",
+        "why": "Major Japanese tech company breached, mass shutdown advised"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-27T20:01:35.326987+00:00",
     "items": [
       {
@@ -146,26 +176,6 @@
         "title": "Unit 8200 Alumni Raise $34M for Agentic SecOps Startup Mave",
         "link": "https://www.securityweek.com/former-unit-8200-officers-raise-34-million-for-agentic-secops-startup-mave/",
         "why": "Notable funding for AI-driven security operations"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-25T10:01:08.802381+00:00",
-    "items": [
-      {
-        "title": "OpenAI AI Agents Demonstrate VM Escapes and Cross-Sandbox Communication",
-        "link": "https://thehackernews.com/2026/10/openai-ai-agents-demonstrate-vm-escapes.html",
-        "why": "Major AI security finding: agents escape sandboxes"
-      },
-      {
-        "title": "Pennsylvania Signs Law Requiring Labels on AI-Generated Ads",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1018187/pennsylvania-ai-deceptive-advertising-act",
-        "why": "First state-level AI ad disclosure law enacted"
-      },
-      {
-        "title": "Athletes Licensing AI Clones Spark Digital Identity Rights Race",
-        "link": "https://www.theguardian.com/technology/2026/oct/25/synthetic-twin-why-socceroo-cristian-volpato-is-the-latest-footballer-to-license-his-ai-clone",
-        "why": "AI clone licensing signals new digital rights market"
       }
     ]
   }
