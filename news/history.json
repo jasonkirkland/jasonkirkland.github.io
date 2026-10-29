@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-10-29T10:01:40.837679+00:00",
+    "items": [
+      {
+        "title": "Google Launches Gemini 4 Carbon With Major Coding, Security Gains",
+        "link": "https://www.engadget.com/2300677/google-gemini-carbon-promises-significant-leap-in-ai-coding-and-cybersecurity/",
+        "why": "Major Google AI model launch with top benchmarks"
+      },
+      {
+        "title": "Microsoft Posts $92.3B Revenue as Cloud Growth Stays Strong",
+        "link": "https://www.theverge.com/tech/1020785/microsoft-earnings-revenue-q1-2027",
+        "why": "Big-tech earnings signal sustained cloud and AI demand"
+      },
+      {
+        "title": "Second Cisco Firewall VPN Zero-Day Actively Exploited Since August",
+        "link": "https://www.securityweek.com/attackers-exploit-second-cisco-firewall-vpn-zero-day-since-august/",
+        "why": "Critical VPN zero-day under active attack, patch immediately"
+      },
+      {
+        "title": "Shadowy AI Relay Bypasses OpenAI and Anthropic Sandbox Controls",
+        "link": "https://www.darkreading.com/threat-intelligence/ai-relay-service-openai-codex-claude-code-sandboxes",
+        "why": "Unofficial AI tool access in China raises security concerns"
+      },
+      {
+        "title": "Hackers Leak Details of 41,000-Plus Homeland Security Personnel",
+        "link": "https://www.engadget.com/2300661/hackers-leaked-details-more-than-41000-homeland-security-personnel/",
+        "why": "Major government data breach exposing ICE and border agents"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-28T20:01:29.358699+00:00",
     "items": [
       {
@@ -146,66 +176,6 @@
         "title": "Boston Dynamics Staff Push to Block Robot Dog Sales to ICE",
         "link": "https://arstechnica.com/ai/2026/10/boston-dynamics-employees-want-to-block-sale-of-robot-dogs-to-ice/",
         "why": "300 employees revolt over ethical concerns on government deal"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-26T10:00:58.120392+00:00",
-    "items": [
-      {
-        "title": "iPhone Duo Teardown Reveals Screen Cracking Causes",
-        "link": "https://www.engadget.com/2296498/ifixit-teardown-of-iphone-duo-shows-potential-causes-for-cracked-screens/",
-        "why": "Apple foldable has serious hardware durability problems"
-      },
-      {
-        "title": "Anthropic Sued Over Elvis Songs Used in AI Training",
-        "link": "https://www.theguardian.com/us-news/2026/oct/25/elvis-presley-anthropic-lawsuit-ai-models-music",
-        "why": "Major AI copyright lawsuit from music estate"
-      },
-      {
-        "title": "Microsoft 365 Token-Replay Attacks Hit 79 Organizations",
-        "link": "https://thehackernews.com/2026/10/microsoft-365-token-replay-attacks.html",
-        "why": "Active campaign compromising 97 accounts across 79 organizations"
-      },
-      {
-        "title": "AI Coding Agent Tricked Into Installing Malware",
-        "link": "https://thehackernews.com/2026/10/malicious-file-in-downloads-folder.html",
-        "why": "Novel attack vector targets AI coding assistants directly"
-      },
-      {
-        "title": "BYD $10K EV Packs 5-Minute Flash Charging",
-        "link": "https://newatlas.com/automotive/byd-seagull-ev-flash-charging/",
-        "why": "Breakthrough affordable EV with ultra-fast charging technology"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-25T20:01:43.251026+00:00",
-    "items": [
-      {
-        "title": "Anthropic Sued Over 274 Elvis Songs Used for AI Training",
-        "link": "https://www.theguardian.com/us-news/2026/oct/25/elvis-presley-anthropic-lawsuit-ai-models-music",
-        "why": "Major new AI copyright lawsuit against leading lab"
-      },
-      {
-        "title": "AI Coding Agents Hijacked via Malicious AGENTS.md File",
-        "link": "https://www.bleepingcomputer.com/news/security/ai-coding-agents-hijacked-using-agentsmd-file-in-downloads-folder/",
-        "why": "Critical new attack vector for AI developer tools"
-      },
-      {
-        "title": "Unpatched Tailscale SSH Flaws Enable Root Access Across Networks",
-        "link": "https://thehackernews.com/2026/10/unpatched-tailscale-ssh-flaws-could-let.html",
-        "why": "Serious unpatched SSH privilege escalation in Tailscale"
-      },
-      {
-        "title": "PHP2Shell Campaign Hits Government, Shows AI-Assisted Hacking",
-        "link": "https://thehackernews.com/2026/10/php2shell-exploitation-hits-government.html",
-        "why": "First real-world AI-assisted post-exploitation observed"
-      },
-      {
-        "title": "Unit 8200 Alumni Raise $34M for Agentic SecOps Startup Mave",
-        "link": "https://www.securityweek.com/former-unit-8200-officers-raise-34-million-for-agentic-secops-startup-mave/",
-        "why": "Notable funding for AI-driven security operations"
       }
     ]
   }
