@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-10-30T20:01:28.777141+00:00",
+    "items": [
+      {
+        "title": "Anthropic IPO Filing Reveals 92 Pages of AI Risk Factors",
+        "link": "https://www.theguardian.com/global/video/2026/oct/30/anthropic-92-page-risk-factor-document-ipo-filing-video-explainer",
+        "why": "Top AI company going public with major risk disclosures"
+      },
+      {
+        "title": "Tech Sell-Off Wipes Nearly $1T Amid AI ROI Doubts",
+        "link": "https://www.theguardian.com/technology/2026/oct/30/tech-stocks-drop-earnings-report",
+        "why": "Massive market drop raises questions about AI investment returns"
+      },
+      {
+        "title": "Google AI Satellite Sends First Response From Space",
+        "link": "https://www.theverge.com/tech/1023528/google-project-suncatcher-ai-satellite-transmission",
+        "why": "First successful AI inference from orbit \u2014 a tech milestone"
+      },
+      {
+        "title": "Gemini Now Edits Entire Google Slides Presentations",
+        "link": "http://workspaceupdates.googleblog.com/2026/10/edit-entire-presentations-with-gemini-in-Google-Slides.html",
+        "why": "Major Google Workspace AI rollout for presentation editing"
+      },
+      {
+        "title": "Starlink Dynamic Pricing Hits Some With 20% Hikes",
+        "link": "https://www.howtogeek.com/starlink-dynamic-pricing-notices-2026/",
+        "why": "SpaceX shifts broadband pricing strategy affecting many customers"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-30T10:01:45.955190+00:00",
     "items": [
       {
