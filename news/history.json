@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-10-30T10:01:45.955190+00:00",
+    "items": [
+      {
+        "title": "Binance Hit by Record $6.3 Billion Crypto Theft",
+        "link": "https://thehackernews.com/2026/10/binance-suffers-security-breach.html",
+        "why": "Largest crypto hack ever, possibly North Korean state hackers"
+      },
+      {
+        "title": "OpenAI Reverses ChatGPT Pro Usage Cuts After Backlash",
+        "link": "https://www.bleepingcomputer.com/news/artificial-intelligence/openai-doubles-chatgpt-pro-usage-limits-after-backlash-over-planned-50-percent-cut/",
+        "why": "Major AI provider reverses policy after user revolt"
+      },
+      {
+        "title": "Critical GitLab RCE Actively Exploited, Added to CISA KEV",
+        "link": "https://www.securityweek.com/max-severity-gitlab-vulnerability-exploited-against-alpine-linux/",
+        "why": "Unauthenticated remote code execution under active attack"
+      },
+      {
+        "title": "Polymarket Traders Lose $2M+ in Supply Chain Attack",
+        "link": "https://www.securityweek.com/2-million-drained-from-polymarket-traders-in-new-supply-chain-attack/",
+        "why": "Compromised analytics tool hijacked trader sessions for theft"
+      },
+      {
+        "title": "Intel Budget Chips Sold Out as Demand Outstrips Supply",
+        "link": "https://www.theverge.com/tech/1022911/intel-wildcat-lake-sold-out-ram-shortage",
+        "why": "Intel cannot meet demand for affordable laptop processors"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-29T20:01:22.929923+00:00",
     "items": [
       {
@@ -146,66 +176,6 @@
         "title": "Microsoft Rushes OOB Updates to Distrust Compromised eMudhra Certificates",
         "link": "https://www.bleepingcomputer.com/news/microsoft/microsoft-releases-windows-oob-updates-to-distrust-emudhra-certificates/",
         "why": "Compromised certificate authority forces emergency Windows patch"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-27T10:00:54.435968+00:00",
-    "items": [
-      {
-        "title": "OpenAI Models Disprove Exponential Time Hypothesis",
-        "link": "https://www.engadget.com/2297941/openai-new-discoveries-mathematics-computer-science-physics/",
-        "why": "AI achieves major breakthrough in theoretical computer science"
-      },
-      {
-        "title": "Anthropic IPO Filing Reveals Explosive Growth and Risks",
-        "link": "https://www.theguardian.com/technology/2026/oct/26/anthropic-stock-market-filing-takeaways",
-        "why": "First public financials from top AI startup, record IPO"
-      },
-      {
-        "title": "OpenAI Compaction Flaw Exposes Hidden Model Reasoning",
-        "link": "https://thehackernews.com/2026/10/openai-compaction-flaw-let-researchers.html",
-        "why": "Security flaw lets attackers extract AI private reasoning"
-      },
-      {
-        "title": "Chinese Markets Lose Trillions in US AI Supremacy Race",
-        "link": "https://www.theguardian.com/world/2026/oct/27/chinese-markets-lose-trillions-ai-race-beijing",
-        "why": "AI arms race destabilizing major global markets"
-      },
-      {
-        "title": "AI Disinformation Floods Social Media Before US Midterms",
-        "link": "https://www.theguardian.com/us-news/2026/oct/27/ai-disinformation-social-media-midterm-elections",
-        "why": "AI-generated election meddling surges as platforms retreat"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-26T20:01:37.299998+00:00",
-    "items": [
-      {
-        "title": "Microsoft Offers Buyouts to 60,000 Employees Amid AI Push",
-        "link": "https://www.theguardian.com/technology/2026/oct/26/microsoft-buyout-offers-ai-cuts",
-        "why": "Massive workforce reduction signals AI reshaping Big Tech"
-      },
-      {
-        "title": "Apple Rolls Out Siri AI Tools in 27.2 System Updates",
-        "link": "https://www.engadget.com/2297577/apple-adds-more-siri-ai-tools-in-27-2-system-updates-out-today/",
-        "why": "Major Apple platform update expands Siri AI capabilities"
-      },
-      {
-        "title": "Gheist Supply Chain Attack Steals Cloud Secrets via GitHub Tokens",
-        "link": "https://www.darkreading.com/cyberattacks-data-breaches/gheist-stolen-github-tokens-cloud-secrets",
-        "why": "Active attack harvesting credentials from thousands of repositories"
-      },
-      {
-        "title": "Apple Addresses iPhone Duo Inner Display Cracking Reports",
-        "link": "https://www.engadget.com/2297433/apple-responds-to-reports-of-the-iphone-duo-inner-display-cracking/",
-        "why": "Hardware defect response for flagship foldable device"
-      },
-      {
-        "title": "Boston Dynamics Staff Push to Block Robot Dog Sales to ICE",
-        "link": "https://arstechnica.com/ai/2026/10/boston-dynamics-employees-want-to-block-sale-of-robot-dogs-to-ice/",
-        "why": "300 employees revolt over ethical concerns on government deal"
       }
     ]
   }
