@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-10-31T10:01:19.098164+00:00",
+    "items": [
+      {
+        "title": "Apple Intelligence Finally Launching in China with iOS 27.3",
+        "link": "https://www.theverge.com/tech/1023974/apple-intelligence-china-ios-27-3",
+        "why": "Apple's AI enters massive Chinese market, major strategic move"
+      },
+      {
+        "title": "Anthropic VS Code Extension Backdoored on Cursor for 12 Hours",
+        "link": "https://arstechnica.com/security/2026/10/anthropic-vs-code-extension-on-cursor-backdoored-for-nearly-12-hours/",
+        "why": "Supply chain attack on verified dev tool, broad developer impact"
+      },
+      {
+        "title": "Shared ChatGPT Links Could Execute Attacker Code, Read Private Chats",
+        "link": "https://thehackernews.com/2026/10/a-shared-chatgpt-link-could-run.html",
+        "why": "Critical XSS-like flaw in widely used AI platform, privacy risk"
+      },
+      {
+        "title": "Critical Linux Kernel Flaw Enables Remote Root Attacks on MPTCP Servers",
+        "link": "https://www.bleepingcomputer.com/news/security/critical-linux-kernel-flaw-allows-remote-root-attacks-on-mptcp-servers/",
+        "why": "Anthropic researchers exploit critical kernel bug, urgent patching needed"
+      },
+      {
+        "title": "Largest Crypto Heist Ever: $6 Billion Stolen from Binance",
+        "link": "https://www.pbs.org/newshour/show/6-billion-cryptocurrency-heist-puts-investors-on-edge",
+        "why": "Record-breaking theft shakes crypto industry and investor confidence"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-30T20:01:28.777141+00:00",
     "items": [
       {
@@ -176,36 +206,6 @@
         "title": "Japan's GMO Hit by Ransomware, Urges Customers to Shut Down PCs",
         "link": "https://www.bleepingcomputer.com/news/security/japans-gmo-urges-customers-to-shut-down-pcs-amid-ransomware-threat/",
         "why": "Major Japanese tech company breached, mass shutdown advised"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-27T20:01:35.326987+00:00",
-    "items": [
-      {
-        "title": "Apple Puts M6 AI Chip Into iMac and 14-Inch MacBook Pro",
-        "link": "https://www.popsci.com/gear/apple-m6-chip-macbook-pro-imac-specs-details/",
-        "why": "Apple expands M6 AI chip across mainstream Mac lineup"
-      },
-      {
-        "title": "Anthropic Files for IPO, Warns Investors of Runaway AI Risks",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1019470/anthropic-ipo-resist-investor-pressure-cut-corners-safety",
-        "why": "Major AI lab going public with unprecedented safety disclosures"
-      },
-      {
-        "title": "Google Opens Android Registered App Stores Program Dec 1",
-        "link": "https://arstechnica.com/gadgets/2026/10/googles-android-registered-app-stores-program-launches-dec-1-applications-now-open/",
-        "why": "Google formally enables third-party app stores on Android"
-      },
-      {
-        "title": "CyberStrikeAI Orchestrates 44 AI Agents for Automated Hacking",
-        "link": "https://thehackernews.com/2026/10/cyberstrikeai-uses-44-ai-agents-to.html",
-        "why": "First documented large-scale AI-automated cyber attack campaign"
-      },
-      {
-        "title": "Microsoft Rushes OOB Updates to Distrust Compromised eMudhra Certificates",
-        "link": "https://www.bleepingcomputer.com/news/microsoft/microsoft-releases-windows-oob-updates-to-distrust-emudhra-certificates/",
-        "why": "Compromised certificate authority forces emergency Windows patch"
       }
     ]
   }
