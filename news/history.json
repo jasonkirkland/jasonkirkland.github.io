@@ -1,5 +1,38 @@
 [
   {
+    "timestamp": "2026-10-31T20:01:03.584267+00:00",
+    "items": [
+      {
+        "title": "Binance CEO Says 90% of $6.3B Stolen Crypto Replenished",
+        "link": "https://www.theverge.com/tech/1024091/binance-ceo-90-percent-stolen-crypto",
+        "why": "Largest crypto heist ever, major recovery underway"
+      },
+      {
+        "title": "Chainalysis Hit by Agentic AI Cyberattack, Customer Data Exposed",
+        "link": "https://www.bleepingcomputer.com/news/security/chainalysis-discloses-data-breach-from-offensive-agentic-techniques/",
+        "why": "First major agentic AI-driven cyberattack disclosed"
+      },
+      {
+        "title": "Reddit to Lock Content Behind Logins to Fight Scrapers",
+        "link": "https://www.bleepingcomputer.com/news/security/reddit-to-lock-content-behind-logins-to-fight-scrapers/",
+        "why": "Major platform shift against AI scraping",
+        "sources": [
+          "BleepingComputer"
+        ]
+      },
+      {
+        "title": "Anthropic Rolls Out Claude Duet to Waitlisted Users",
+        "link": "https://www.engadget.com/2300253/how-to-use-claude-duet/",
+        "why": "New Anthropic product launch in competitive AI market"
+      },
+      {
+        "title": "Android SMS of Death Exploit Crashes Unpatched Phones Remotely",
+        "link": "https://www.bleepingcomputer.com/news/security/new-android-sms-of-death-exploit-can-remotely-crash-unpatched-phones/",
+        "why": "Critical remote exploit affecting unpatched Android phones"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-31T10:01:19.098164+00:00",
     "items": [
       {
@@ -176,36 +209,6 @@
         "title": "GitHub Universe 2026: End-to-End Software Delivery Vision",
         "link": "https://github.blog/news-insights/company-news/github-universe-2026-evolving-every-layer-of-the-stack/",
         "why": "GitHub reveals roadmap for full software delivery platform"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-28T10:01:53.683754+00:00",
-    "items": [
-      {
-        "title": "Anthropic's AI Model Autonomously Chains Security Flaws Into Working Exploits",
-        "link": "https://thehackernews.com/2026/10/anthropics-unreleased-ai-model-chains.html",
-        "why": "AI autonomously finding and exploiting real vulnerabilities \u2014 landmark"
-      },
-      {
-        "title": "iPhone Duo Foldable Screens Cracking From Hinge Defect",
-        "link": "https://www.theverge.com/tech/1020145/iphone-duo-crackgate-broken-screen-hinge",
-        "why": "Apple's new foldable flagship has a serious hardware defect"
-      },
-      {
-        "title": "Australia Moves to Ban AI Chatbot Emotional Intimacy",
-        "link": "https://www.theguardian.com/australia-news/2026/oct/28/emotional-intimacy-ai-chatbots-ban-digital-duty-of-care-laws-australian-politics",
-        "why": "First major regulatory precedent restricting AI emotional features"
-      },
-      {
-        "title": "Tailscale Patches Critical SSH Flaws Enabling Root Access",
-        "link": "https://thehackernews.com/2026/10/tailscale-patches-ssh-flaws-that-could.html",
-        "why": "Critical infrastructure security patch \u2014 root escalation risk"
-      },
-      {
-        "title": "Japan's GMO Hit by Ransomware, Urges Customers to Shut Down PCs",
-        "link": "https://www.bleepingcomputer.com/news/security/japans-gmo-urges-customers-to-shut-down-pcs-amid-ransomware-threat/",
-        "why": "Major Japanese tech company breached, mass shutdown advised"
       }
     ]
   }
