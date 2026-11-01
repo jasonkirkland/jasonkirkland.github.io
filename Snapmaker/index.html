@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Snapmaker U1</title>
+<meta name="robots" content="noindex">
+<script src="https://accounts.google.com/gsi/client" async></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  /* Readings come from a private Google Sheet. This page holds no data: each
+     viewer signs in with Google and the Sheets API only answers if the sheet is
+     shared with them. */
+  :root {
+    --bg: #0b1016; --card: #151d27; --line: #2b3a4c;
+    --text: #ffffff; --text2: #eaf4ff;
+    --accent: #4fc3ff; --ok: #4cff9a; --warn: #ffd23f; --bad: #ff5c5c;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 16px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 16px; }
+  header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-bottom: 14px; }
+  h1 { font-size: 22px; margin: 0; font-weight: 700; }
+  .pill { padding: 4px 12px; border-radius: 999px; font-weight: 700; font-size: 14px;
+          background: #24303e; color: var(--text); border: 2px solid var(--line); text-transform: capitalize; }
+  .pill.printing { background: #0f3d26; border-color: var(--ok); }
+  .pill.paused   { background: #3d3410; border-color: var(--warn); }
+  .pill.error, .pill.cancelled, .pill.offline { background: #431616; border-color: var(--bad); }
+  .pill.complete { background: #0f2f45; border-color: var(--accent); }
+  .updated { color: var(--text2); font-size: 14px; margin-left: auto; }
+  .updated.stale { color: var(--warn); font-weight: 700; }
+  .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .card h2 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 10px; color: var(--text2); }
+  .file { font-weight: 600; word-break: break-word; margin-bottom: 10px; }
+  .big { font-size: 40px; font-weight: 800; line-height: 1; }
+  .bar { height: 14px; background: #0b1016; border-radius: 7px; overflow: hidden; margin: 10px 0 12px; border: 1px solid var(--line); }
+  .bar > div { height: 100%; background: linear-gradient(90deg, #2fa8ff, #4cff9a); width: 0; transition: width .6s; }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 15px; margin: 0; }
+  .kv dt { color: var(--text2); }
+  .kv dd { margin: 0; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+  .temps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
+  .temps .v { font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .temps .t { color: var(--text2); font-size: 14px; }
+  .temps .l { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--text2); }
+  .slots { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .slot { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; border: 2px solid var(--line); }
+  .slot.active { border-color: var(--ok); background: #0f2a1e; }
+  .sw { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #ffffff; flex: none; }
+  .slot b { display: block; font-size: 14px; }
+  .slot span { font-size: 13px; color: var(--text2); }
+  .ranges { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+  button { font: inherit; cursor: pointer; }
+  .ranges button { background: #24303e; color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font-size: 14px; }
+  .ranges button.on { background: var(--accent); color: #001826; font-weight: 700; border-color: var(--accent); }
+  .chartbox { position: relative; height: 300px; }
+  .msg { margin-top: 10px; color: var(--warn); font-weight: 600; }
+  .error-box { background: #431616; border: 2px solid var(--bad); padding: 14px; border-radius: 12px; display: none; margin-bottom: 12px; }
+  #signin { text-align: center; padding: 48px 16px; }
+  #signin p { color: var(--text2); max-width: 440px; margin: 0 auto 20px; }
+  .btn { background: #ffffff; color: #1f1f1f; border: 0; border-radius: 999px; padding: 12px 22px; font-weight: 700; font-size: 16px; }
+  .link { background: none; border: 0; color: var(--accent); padding: 0; font-size: 13px; text-decoration: underline; }
+  footer { margin-top: 14px; color: var(--text2); font-size: 13px; display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; }
+  footer a { color: var(--accent); }
+  #app { display: none; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Snapmaker U1</h1>
+    <span id="state" class="pill" hidden></span>
+    <span id="updated" class="updated"></span>
+  </header>
+  <div id="err" class="error-box"></div>
+
+  <section id="signin" class="card">
+    <p>Printer readings are stored in a private Google Sheet. Sign in with a Google account the sheet is shared with.</p>
+    <button class="btn" id="signin-btn">Sign in with Google</button>
+  </section>
+
+  <div id="app">
+    <div class="grid">
+      <section class="card">
+        <h2>Job</h2>
+        <div id="file" class="file">—</div>
+        <div class="big" id="pct">—</div>
+        <div class="bar"><div id="barfill"></div></div>
+        <dl class="kv">
+          <dt>Layer</dt><dd id="layer">—</dd>
+          <dt>Printing time</dt><dd id="ptime">—</dd>
+          <dt>Time left</dt><dd id="eta">—</dd>
+          <dt>Finishes at</dt><dd id="finish">—</dd>
+          <dt>Filament used</dt><dd id="fil">—</dd>
+        </dl>
+        <div id="message" class="msg"></div>
+      </section>
+
+      <section class="card">
+        <h2>Temperatures</h2>
+        <div class="temps">
+          <div><div class="l" id="nozzle-label">Nozzle</div><div class="v" id="noz">—</div><div class="t" id="nozt"></div></div>
+          <div><div class="l">Bed</div><div class="v" id="bed">—</div><div class="t" id="bedt"></div></div>
+          <div><div class="l">Chamber</div><div class="v" id="cham">—</div><div class="t">&nbsp;</div></div>
+        </div>
+        <dl class="kv" style="margin-top:14px">
+          <dt>Part fan</dt><dd id="fan">—</dd>
+          <dt>Speed / flow</dt><dd id="speed">—</dd>
+          <dt>Z height</dt><dd id="z">—</dd>
+        </dl>
+      </section>
+
+      <section class="card">
+        <h2>Filament slots</h2>
+        <div class="slots" id="slots"></div>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top:12px">
+      <h2>History</h2>
+      <div class="ranges" id="ranges">
+        <button data-h="1">1 h</button><button data-h="6" class="on">6 h</button>
+        <button data-h="24">24 h</button><button data-h="168">7 d</button>
+      </div>
+      <div class="chartbox"><canvas id="chart"></canvas></div>
+    </section>
+
+    <footer>
+      <span id="viewer"></span>
+      <a href="https://docs.google.com/spreadsheets/d/1r6ZAru9vmaVyqjTQUzE8RMQV8IspdyFyGW-hKNL978E/edit" target="_blank" rel="noopener">Open the sheet</a>
+      <button class="link" id="signout">Sign out</button>
+    </footer>
+  </div>
+</main>
+
+<script>
+const CLIENT_ID = '164938993732-j5jnvmca9dcna72v8jdfli9u0pl4tt6g.apps.googleusercontent.com';
+const SHEET_ID = '1r6ZAru9vmaVyqjTQUzE8RMQV8IspdyFyGW-hKNL978E';
+const SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly email';
+const COLUMNS = ['timestamp', 'state', 'filename', 'progress_pct', 'layer', 'total_layers',
+  'print_min', 'elapsed_min', 'eta_min', 'filament_m', 'active_tool',
+  'nozzle_c', 'nozzle_target_c', 'bed_c', 'bed_target_c', 'chamber_c',
+  't1_c', 't2_c', 't3_c', 't4_c', 'part_fan_pct', 'speed_pct', 'flow_pct',
+  'z_mm', 'slot1', 'slot2', 'slot3', 'slot4', 'message', 'ts_ms'];
+const ROWS_PER_HOUR = 120;      // collector writes every 30 s while printing
+
+let hours = 6, chart = null, latestTs = null, tokenClient = null, timer = null;
+let token = null;
+const $ = id => document.getElementById(id);
+const num = v => (v === '' || v === null || v === undefined) ? null : Number(v);
+const fmtMin = m => { m = num(m); if (m === null) return '—'; const h = Math.floor(m / 60), mm = Math.round(m % 60); return h ? `${h} h ${mm} m` : `${mm} m`; };
+const deg = v => num(v) === null ? '—' : `${Math.round(v)}°`;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+// ------------------------------------------------------------ auth
+// Access tokens last an hour; keep one per tab so a reload doesn't re-prompt.
+try { const t = JSON.parse(sessionStorage.getItem('u1tok') || 'null'); if (t && t.exp > Date.now() + 60e3) token = t; } catch (e) {}
+
+function initAuth() {
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID, scope: SCOPES,
+    callback: r => {
+      if (r.error) return showError('Sign-in failed: ' + r.error);
+      token = { v: r.access_token, exp: Date.now() + r.expires_in * 1000 };
+      try { sessionStorage.setItem('u1tok', JSON.stringify(token)); } catch (e) {}
+      start();
+    },
+  });
+}
+function signIn() {
+  if (!tokenClient) return showError('Google sign-in is still loading, try again in a second.');
+  let hint; try { hint = localStorage.getItem('u1email') || undefined; } catch (e) {}
+  tokenClient.requestAccessToken({ prompt: '', login_hint: hint });
+}
+function signOut() {
+  if (token) google.accounts.oauth2.revoke(token.v, () => {});
+  token = null; clearInterval(timer);
+  try { sessionStorage.removeItem('u1tok'); localStorage.removeItem('u1email'); } catch (e) {}
+  $('app').style.display = 'none'; $('signin').style.display = 'block'; $('state').hidden = true; $('updated').textContent = '';
+}
+function needSignIn(msg) {
+  token = null; clearInterval(timer);
+  try { sessionStorage.removeItem('u1tok'); } catch (e) {}
+  $('app').style.display = 'none'; $('signin').style.display = 'block';
+  if (msg) showError(msg);
+}
+
+async function api(path) {
+  if (!token || token.exp < Date.now()) { needSignIn('Your sign-in expired. Sign in again to keep watching.'); throw new Error('expired'); }
+  const r = await fetch(path, { headers: { Authorization: 'Bearer ' + token.v } });
+  if (r.status === 401) { needSignIn('Your sign-in expired. Sign in again to keep watching.'); throw new Error('401'); }
+  if (r.status === 403 || r.status === 404) {
+    const who = $('viewer').dataset.email || 'This Google account';
+    throw new Error(`${who} doesn't have access to the U1 monitor sheet. Ask the owner to share it with you.`);
+  }
+  if (!r.ok) throw new Error(`Google Sheets error ${r.status}`);
+  return r.json();
+}
+
+// ------------------------------------------------------------ data
+async function start() {
+  $('signin').style.display = 'none'; $('app').style.display = 'block'; $('err').style.display = 'none';
+  try {
+    const u = await api('https://www.googleapis.com/oauth2/v3/userinfo');
+    $('viewer').textContent = 'Signed in as ' + u.email; $('viewer').dataset.email = u.email;
+    try { localStorage.setItem('u1email', u.email); } catch (e) {}
+  } catch (e) {}
+  load();
+  clearInterval(timer); timer = setInterval(load, 30000);
+}
+
+async function load() {
+  try {
+    const base = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values`;
+    const meta = await api(`${base}/Meta!A2:B2?valueRenderOption=UNFORMATTED_VALUE`);
+    const last = num(meta.values && meta.values[0] && meta.values[0][0]);
+    if (!last || last < 2) { $('state').hidden = false; $('state').textContent = 'no data yet'; return; }
+    const first = Math.max(2, last - Math.ceil(hours * ROWS_PER_HOUR) - 10);
+    // only the columns the chart needs for the history, plus the full latest row
+    const ranges = [`Readings!A${last}:AD${last}`, `Readings!AD${first}:AD${last}`, `Readings!D${first}:D${last}`,
+                    `Readings!L${first}:P${last}`];
+    const q = ranges.map(r => 'ranges=' + encodeURIComponent(r)).join('&');
+    const d = await api(`${base}:batchGet?${q}&valueRenderOption=UNFORMATTED_VALUE`);
+    const vr = d.valueRanges.map(v => v.values || []);
+    const row = vr[0][0] || [];
+    const latest = {}; COLUMNS.forEach((c, i) => latest[c] = row[i]);
+    const cutoff = Date.now() - hours * 3600e3;
+    const series = vr[1].map((t, i) => ({
+      t: num(t[0]), progress: num((vr[2][i] || [])[0]),
+      nozzle: num((vr[3][i] || [])[0]), bed: num((vr[3][i] || [])[2]), chamber: num((vr[3][i] || [])[4]),
+    })).filter(p => p.t && p.t >= cutoff);
+    $('err').style.display = 'none';
+    render(latest, series);
+  } catch (e) {
+    if (e.message !== 'expired' && e.message !== '401') showError(e.message);
+  }
+}
+
+function showError(m) { $('err').style.display = 'block'; $('err').textContent = m; }
+
+// ------------------------------------------------------------ view
+function render(r, series) {
+  latestTs = new Date(num(r.ts_ms) || r.timestamp);
+  tickUpdated();
+  $('state').hidden = false;
+  $('state').textContent = r.state || 'unknown';
+  $('state').className = 'pill ' + (r.state || '');
+  $('file').textContent = r.filename || 'No job';
+  const pct = num(r.progress_pct) || 0;
+  $('pct').textContent = r.filename ? pct.toFixed(1) + '%' : '—';
+  $('barfill').style.width = (r.filename ? pct : 0) + '%';
+  $('layer').textContent = num(r.total_layers) ? `${r.layer} / ${r.total_layers}` : '—';
+  $('ptime').textContent = fmtMin(r.print_min);
+  const active = r.state === 'printing' || r.state === 'paused';
+  $('eta').textContent = active ? fmtMin(r.eta_min) : '—';
+  $('finish').textContent = active && num(r.eta_min) !== null
+    ? new Date(latestTs.getTime() + num(r.eta_min) * 60000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '—';
+  $('fil').textContent = num(r.filament_m) !== null ? `${Number(r.filament_m).toFixed(2)} m` : '—';
+  $('message').textContent = r.message || '';
+
+  $('nozzle-label').textContent = num(r.active_tool) ? `Nozzle · slot ${r.active_tool}` : 'Nozzle';
+  $('noz').textContent = deg(r.nozzle_c);  $('nozt').textContent = num(r.nozzle_target_c) ? '→ ' + deg(r.nozzle_target_c) : 'off';
+  $('bed').textContent = deg(r.bed_c);     $('bedt').textContent = num(r.bed_target_c) ? '→ ' + deg(r.bed_target_c) : 'off';
+  $('cham').textContent = deg(r.chamber_c);
+  $('fan').textContent = num(r.part_fan_pct) !== null ? Math.round(r.part_fan_pct) + '%' : '—';
+  $('speed').textContent = `${r.speed_pct || '—'}% / ${r.flow_pct || '—'}%`;
+  $('z').textContent = num(r.z_mm) !== null ? Number(r.z_mm).toFixed(2) + ' mm' : '—';
+
+  $('slots').innerHTML = [1, 2, 3, 4].map(i => {
+    const s = String(r['slot' + i] || '');
+    const m = s.match(/#([0-9a-fA-F]{6})$/);
+    const name = s.replace(/\s*#[0-9a-fA-F]{6}$/, '') || 'empty';
+    const on = num(r.active_tool) === i;
+    return `<div class="slot ${on ? 'active' : ''}"><div class="sw" style="background:${m ? '#' + m[1] : 'transparent'}"></div>
+            <div><b>Slot ${i}${on ? ' · active' : ''}</b><span>${esc(name)} · ${deg(r['t' + i + '_c'])}</span></div></div>`;
+  }).join('');
+
+  drawChart(series);
+}
+
+function drawChart(series) {
+  const step = Math.max(1, Math.ceil(series.length / 600));     // keep the chart light
+  const s = series.filter((p, i) => i % step === 0 || i === series.length - 1);
+  const pts = k => s.map(p => ({ x: p.t, y: p[k] }));
+  const ds = [
+    { label: 'Nozzle °C', data: pts('nozzle'), borderColor: '#ff8a3d', yAxisID: 'y' },
+    { label: 'Bed °C', data: pts('bed'), borderColor: '#4fc3ff', yAxisID: 'y' },
+    { label: 'Chamber °C', data: pts('chamber'), borderColor: '#d59cff', yAxisID: 'y' },
+    { label: 'Progress %', data: pts('progress'), borderColor: '#4cff9a', yAxisID: 'p', borderDash: [5, 4] },
+  ].map(d => Object.assign(d, { pointRadius: 0, borderWidth: 2, tension: 0.2 }));
+  const now = Date.now();
+  const tick = v => {
+    const t = new Date(v);
+    return hours > 24 ? t.toLocaleDateString([], { weekday: 'short' }) + ' ' + t.toLocaleTimeString([], { hour: 'numeric' })
+                      : t.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  };
+  const opts = {
+    animation: false, maintainAspectRatio: false, parsing: false,
+    interaction: { mode: 'nearest', axis: 'x', intersect: false },
+    plugins: { legend: { labels: { color: '#ffffff', boxWidth: 14 } },
+               tooltip: { callbacks: { title: i => new Date(i[0].parsed.x).toLocaleString() } } },
+    scales: {
+      x: { type: 'linear', min: now - hours * 3600e3, max: now, ticks: { color: '#eaf4ff', callback: tick, maxTicksLimit: 7 }, grid: { color: '#22303f' } },
+      y: { ticks: { color: '#eaf4ff' }, grid: { color: '#22303f' }, title: { display: true, text: '°C', color: '#eaf4ff' } },
+      p: { position: 'right', min: 0, max: 100, ticks: { color: '#4cff9a' }, grid: { display: false } },
+    },
+  };
+  if (chart) { chart.data.datasets = ds; chart.options = opts; chart.update(); }
+  else chart = new Chart($('chart'), { type: 'line', data: { datasets: ds }, options: opts });
+}
+
+function tickUpdated() {
+  if (!latestTs || !token) return;
+  const s = Math.round((Date.now() - latestTs) / 1000);
+  const txt = s < 90 ? `${s}s ago` : s < 5400 ? `${Math.round(s / 60)} min ago` : latestTs.toLocaleString();
+  const stale = s > 300;
+  $('updated').textContent = (stale ? 'Collector offline? Last reading ' : 'Updated ') + txt;
+  $('updated').className = 'updated' + (stale ? ' stale' : '');
+}
+
+$('ranges').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  hours = Number(b.dataset.h);
+  document.querySelectorAll('#ranges button').forEach(x => x.classList.toggle('on', x === b));
+  load();
+});
+$('signin-btn').addEventListener('click', signIn);
+$('signout').addEventListener('click', signOut);
+setInterval(tickUpdated, 1000);
+window.addEventListener('load', () => { initAuth(); if (token) start(); });
+</script>
+</body>
+</html>
