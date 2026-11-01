@@ -1,5 +1,38 @@
 [
   {
+    "timestamp": "2026-11-01T21:01:14.123434+00:00",
+    "items": [
+      {
+        "title": "OpenAI Raises Less Than Half of $30 Billion Target",
+        "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQTW9TMmVsZkc2b05TYkloVW41X050RjdtZ1F5U01TRnJOSEthYTJpcDdPWVhJb0FvRGEteHgtbVhSS0lOVEZ3T2N5MTNpSUNWNXpETThZR0RvcFQwY2Q5R3ctRUFvM1ZtdFdMaXhGSnpPM2FiLUhORXNrem84cUpfVGpuQ0VmaGNsZUlxUVQ0dk4zQUE2cWFzUk8yM1R3cjc3dEczVw?oc=5",
+        "why": "OpenAI funding shortfall signals investor caution on AI valuations",
+        "sources": [
+          "\"hacker news ai\" - Google News"
+        ]
+      },
+      {
+        "title": "FBI Links $6.3B Binance Crypto Heist to North Korea",
+        "link": "https://www.bleepingcomputer.com/news/security/fbi-links-63-billion-binance-crypto-heist-to-north-korean-hackers/",
+        "why": "Largest crypto heist ever linked to North Korean state hackers"
+      },
+      {
+        "title": "OpenAI Doubles Pro Usage Limits, Merges Work Into Chat",
+        "link": "https://www.bleepingcomputer.com/news/artificial-intelligence/openai-says-its-doubling-pro-usage-limits-and-bringing-work-features-to-chat/",
+        "why": "OpenAI consolidates Work features into ChatGPT, doubles Pro limits"
+      },
+      {
+        "title": "xAI Must Face NAACP Lawsuit Over Data Center Pollution",
+        "link": "https://www.engadget.com/2303462/judge-says-xai-must-face-naacp-lawsuit-on-data-center-pollution/",
+        "why": "xAI Memphis data center faces legal challenge over community pollution"
+      },
+      {
+        "title": "UK Plans Largest Substation for Teesside AI Data Centre",
+        "link": "https://www.theguardian.com/business/2026/nov/01/national-grid-to-site-biggest-substation-on-teesside-near-planned-ai-datacentre",
+        "why": "UK backs massive AI infrastructure with largest-ever grid substation"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-01T20:01:04.972118+00:00",
     "items": [
       {
@@ -212,36 +245,6 @@
         "title": "Intel Budget Chips Sold Out as Demand Outstrips Supply",
         "link": "https://www.theverge.com/tech/1022911/intel-wildcat-lake-sold-out-ram-shortage",
         "why": "Intel cannot meet demand for affordable laptop processors"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-29T20:01:22.929923+00:00",
-    "items": [
-      {
-        "title": "Anthropic's Claude AI Chains Exploits Across Browsers and OSes",
-        "link": "https://www.darkreading.com/application-security/claude-model-exploits-major-browsers-oses",
-        "why": "AI autonomously finds real zero-day vulnerabilities"
-      },
-      {
-        "title": "Mistral Releases Largest Model Yet to Challenge AI Giants",
-        "link": "https://www.howtogeek.com/mistral-large-4-weights-released/",
-        "why": "European AI challenger enters heavyweight competition"
-      },
-      {
-        "title": "Google Gemini Can Now Edit Docs, Sheets, and PDFs In-Chat",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1022519/google-gemini-file-editing-documents-pdfs",
-        "why": "Google integrates productivity suite into AI chat"
-      },
-      {
-        "title": "China Planted Spy Near Nvidia CEO Jensen Huang, Report Says",
-        "link": "https://arstechnica.com/tech-policy/2026/10/report-trump-did-nothing-with-intel-that-china-planted-spy-close-to-nvidia-ceo/",
-        "why": "Geopolitical espionage targeting America's AI chip leader"
-      },
-      {
-        "title": "Hackers Exploit Cisco SD-WAN Flaw With Custom KeyDrift Malware",
-        "link": "https://www.bleepingcomputer.com/news/security/hackers-exploit-cisco-sd-wan-flaw-to-deploy-custom-keydrift-malware/",
-        "why": "APT group targets enterprise networking infrastructure"
       }
     ]
   }
