@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-01T10:01:29.521956+00:00",
+    "items": [
+      {
+        "title": "FBI Attributes Record $6.43B Binance Crypto Heist to North Korea",
+        "link": "https://thehackernews.com/2026/11/fbi-links-north-koreas-tradertraitor-to.html",
+        "why": "Largest crypto theft ever, state-sponsored, geopolitical impact"
+      },
+      {
+        "title": "CVSS 10.0 Flaw in Canonical LXD and MicroCloud Allows Client Impersonation",
+        "link": "https://thehackernews.com/2026/11/critical-lxd-and-microcloud-flaw-cvss.html",
+        "why": "Perfect-score vulnerability in widely deployed infrastructure tools"
+      },
+      {
+        "title": "Polymarket Traders Lose $2.7M to Hijacked Third-Party Script",
+        "link": "https://thehackernews.com/2026/11/hackers-steal-about-27-million-from.html",
+        "why": "Supply-chain attack hits major prediction market platform users"
+      },
+      {
+        "title": "ChatGPT Account Takeover Exploit Discovered in Artifacts Pattern",
+        "link": "https://simonwillison.net/2026/Oct/31/how-we-took-over-chatgpt-accounts/",
+        "why": "Critical OpenAI platform vulnerability enabling full account hijacking"
+      },
+      {
+        "title": "Northflank Breach Exposes Customer AI API Keys to Abuse",
+        "link": "https://www.bleepingcomputer.com/news/security/northflank-security-breach-leads-to-abuse-of-customers-ai-api-keys/",
+        "why": "Cloud platform breach compromises AI API credentials across customers"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-10-31T20:01:03.584267+00:00",
     "items": [
       {
@@ -179,36 +209,6 @@
         "title": "Hackers Leak Details of 41,000-Plus Homeland Security Personnel",
         "link": "https://www.engadget.com/2300661/hackers-leaked-details-more-than-41000-homeland-security-personnel/",
         "why": "Major government data breach exposing ICE and border agents"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-28T20:01:29.358699+00:00",
-    "items": [
-      {
-        "title": "Apple Unveils First-Ever Touchscreen MacBook Pro",
-        "link": "https://www.theverge.com/tech/1020676/apple-touchscreen-macbook-pro-reveal-video",
-        "why": "First touchscreen Mac ever, major Apple product shift"
-      },
-      {
-        "title": "Volt Typhoon Ran Four Zero-Day Campaigns via Covert Network",
-        "link": "https://thehackernews.com/2026/10/volt-typhoon-used-covert-silent-train.html",
-        "why": "Chinese state hackers ran four zero-day exploitation campaigns"
-      },
-      {
-        "title": "FCC Cracks Down on Chinese Drones, Routers, and Smart Devices",
-        "link": "https://www.theverge.com/policy/1019851/fcc-foreign-gadget-ban-drone-robot-roomba-storystream",
-        "why": "Broad US ban on Chinese smart devices across categories"
-      },
-      {
-        "title": "Meta Considers Delaying New Business Terms Amid Backlash",
-        "link": "https://www.engadget.com/2300293/meta-weighs-delaying-alarming-new-business-terms-as-backlash-grows/",
-        "why": "Publisher backlash forces Meta to reconsider policy changes"
-      },
-      {
-        "title": "GitHub Universe 2026: End-to-End Software Delivery Vision",
-        "link": "https://github.blog/news-insights/company-news/github-universe-2026-evolving-every-layer-of-the-stack/",
-        "why": "GitHub reveals roadmap for full software delivery platform"
       }
     ]
   }
