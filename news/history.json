@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-01T11:01:31.750459+00:00",
+    "items": [
+      {
+        "title": "FBI Attributes Record $6.4B Binance Crypto Heist to North Korea",
+        "link": "https://thehackernews.com/2026/11/fbi-links-north-koreas-tradertraitor-to.html",
+        "why": "Largest crypto theft ever, state-sponsored, major precedent"
+      },
+      {
+        "title": "CVSS 10.0 Flaw in Canonical LXD and MicroCloud Allows Client Impersonation",
+        "link": "https://thehackernews.com/2026/11/critical-lxd-and-microcloud-flaw-cvss.html",
+        "why": "Max-severity vulnerability in widely deployed cloud infrastructure"
+      },
+      {
+        "title": "Researchers Demonstrate ChatGPT Account Takeover via Artifacts Exploit",
+        "link": "https://simonwillison.net/2026/Oct/31/how-we-took-over-chatgpt-accounts/",
+        "why": "Direct account compromise in OpenAI platform, broad impact"
+      },
+      {
+        "title": "Polymarket Traders Lose $2.7M in Hijacked Third-Party Script Attack",
+        "link": "https://thehackernews.com/2026/11/hackers-steal-about-27-million-from.html",
+        "why": "Supply-chain attack hits major prediction market platform"
+      },
+      {
+        "title": "Northflank Breach Exposes Customer AI API Keys to Abuse",
+        "link": "https://www.bleepingcomputer.com/news/security/northflank-security-breach-leads-to-abuse-of-customers-ai-api-keys/",
+        "why": "Cloud platform breach leads to active AI key exploitation"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-01T10:01:29.521956+00:00",
     "items": [
       {
@@ -179,36 +209,6 @@
         "title": "Hackers Exploit Cisco SD-WAN Flaw With Custom KeyDrift Malware",
         "link": "https://www.bleepingcomputer.com/news/security/hackers-exploit-cisco-sd-wan-flaw-to-deploy-custom-keydrift-malware/",
         "why": "APT group targets enterprise networking infrastructure"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-29T10:01:40.837679+00:00",
-    "items": [
-      {
-        "title": "Google Launches Gemini 4 Carbon With Major Coding, Security Gains",
-        "link": "https://www.engadget.com/2300677/google-gemini-carbon-promises-significant-leap-in-ai-coding-and-cybersecurity/",
-        "why": "Major Google AI model launch with top benchmarks"
-      },
-      {
-        "title": "Microsoft Posts $92.3B Revenue as Cloud Growth Stays Strong",
-        "link": "https://www.theverge.com/tech/1020785/microsoft-earnings-revenue-q1-2027",
-        "why": "Big-tech earnings signal sustained cloud and AI demand"
-      },
-      {
-        "title": "Second Cisco Firewall VPN Zero-Day Actively Exploited Since August",
-        "link": "https://www.securityweek.com/attackers-exploit-second-cisco-firewall-vpn-zero-day-since-august/",
-        "why": "Critical VPN zero-day under active attack, patch immediately"
-      },
-      {
-        "title": "Shadowy AI Relay Bypasses OpenAI and Anthropic Sandbox Controls",
-        "link": "https://www.darkreading.com/threat-intelligence/ai-relay-service-openai-codex-claude-code-sandboxes",
-        "why": "Unofficial AI tool access in China raises security concerns"
-      },
-      {
-        "title": "Hackers Leak Details of 41,000-Plus Homeland Security Personnel",
-        "link": "https://www.engadget.com/2300661/hackers-leaked-details-more-than-41000-homeland-security-personnel/",
-        "why": "Major government data breach exposing ICE and border agents"
       }
     ]
   }
