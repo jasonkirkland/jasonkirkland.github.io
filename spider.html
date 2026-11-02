@@ -419,7 +419,7 @@ var DIFFS = {
 };
 var DIFF_ORDER = ['easy','medium','hard','expert','master'];
 
-var BUILD = '2026-09-05b';   /* shown in the menu, so a stale cache is obvious */
+var BUILD = '2026-11-02';   /* shown in the menu, so a stale cache is obvious */
 var LS_SAVE = 'spider.save.v1';
 var LS_PREF = 'spider.pref.v1';
 var LS_STAT = 'spider.stats.v1';
@@ -1713,15 +1713,32 @@ window.__spider = {
   start: startGame
 };
 
-/* Swallow the pinch- and double-tap-zoom gestures that would just smear the
-   table around. Safari ignores user-scalable=no, so this is the only thing
-   standing between a stray two-finger touch and a zoomed board. */
+/* Swallow the pinch-zoom gestures that would just smear the table around.
+   Safari ignores user-scalable=no, so this is the only thing standing between
+   a stray two-finger touch and a zoomed board.  (Double-tap zoom is handled
+   separately below — it does not fire gesture events on iOS Safari.) */
 ['gesturestart','gesturechange','gestureend'].forEach(function(n){
   document.addEventListener(n, function(e){ e.preventDefault(); }, {passive:false});
 });
 document.addEventListener('touchmove', function(e){
   /* a second finger on the table is never a game gesture */
   if(e.touches.length > 1 && e.target.closest && e.target.closest('#app')) e.preventDefault();
+}, {passive:false});
+
+/* iOS Safari double-tap-to-zoom: touch-action:none, user-scalable=no, and
+   viewport maximum-scale=1 are all ignored for this one gesture.  The zoom
+   is triggered by the second touchend in a quick pair, not by touchstart or
+   gesture events, so none of the guards above stop it.  pointerup has
+   already fired by the time touchend fires, so game taps are unaffected —
+   only the browser's zoom default action is swallowed. */
+var _dtEnd = 0, _dtX = 0, _dtY = 0;
+document.addEventListener('touchend', function(e){
+  var t = e.changedTouches[0], now = Date.now();
+  if(t && now - _dtEnd < 300 &&
+     Math.abs(t.clientX - _dtX) < 30 && Math.abs(t.clientY - _dtY) < 30){
+    e.preventDefault();
+  }
+  _dtEnd = now; _dtX = t ? t.clientX : 0; _dtY = t ? t.clientY : 0;
 }, {passive:false});
 
 /* Getting back out of a zoom.
