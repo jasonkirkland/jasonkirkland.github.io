@@ -61,7 +61,17 @@
   .chartbox { position: relative; height: 300px; }
   /* fixed 16:9 box so the image arriving or changing never moves the page */
   .cam { position: relative; aspect-ratio: 16 / 9; background: #0b1016; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-  .cam img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cam img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block;
+             transform-origin: 0 0; user-select: none; -webkit-user-drag: none; cursor: zoom-in; }
+  .cam.zoomed img { cursor: grab; }
+  .cam.dragging img { cursor: grabbing; }
+  .camctl { position: absolute; right: 8px; bottom: 8px; display: flex; gap: 6px; align-items: center; }
+  .camctl button { width: 38px; height: 38px; border-radius: 10px; border: 1px solid #ffffff55; background: #000000b3;
+                   color: #ffffff; font-size: 20px; font-weight: 700; line-height: 1; padding: 0; }
+  .camctl button:disabled { opacity: .4; }
+  .camctl .lvl { min-width: 44px; padding: 4px 6px; border-radius: 8px; background: #000000b3; color: #ffffff;
+                 font-size: 14px; font-weight: 700; text-align: center; font-variant-numeric: tabular-nums; }
+  .card.wide { grid-column: 1 / -1; }
   .cam .none { position: absolute; inset: 0; display: grid; place-items: center; color: var(--text2); font-size: 14px; }
   .cam [hidden] { display: none; }
   .camtime { margin-top: 6px; font-size: 14px; color: var(--text2); min-height: 1.4em; font-variant-numeric: tabular-nums; }
@@ -109,9 +119,16 @@
         <div id="message" class="msg"></div>
       </section>
 
-      <section class="card">
+      <section class="card" id="camcard">
         <h2>Camera</h2>
-        <div class="cam"><img id="camimg" alt="Latest snapshot from the printer camera" hidden><div class="none" id="camnone">No snapshot yet</div></div>
+        <div class="cam" id="cam"><img id="camimg" alt="Latest snapshot from the printer camera" draggable="false" hidden><div class="none" id="camnone">No snapshot yet</div>
+          <div class="camctl" id="camctl" hidden>
+            <button id="zout" title="Zoom out" aria-label="Zoom out">−</button>
+            <span class="lvl" id="zlvl">1×</span>
+            <button id="zin" title="Zoom in" aria-label="Zoom in">+</button>
+            <button id="zwide" title="Bigger view" aria-label="Toggle bigger view">⤢</button>
+          </div>
+        </div>
         <div class="camtime" id="camtime"></div>
       </section>
 
@@ -334,18 +351,97 @@ function drawChart(series) {
 
 // Latest camera snapshot: Camera!A2 = time, B2 = ts_ms, C2 = part count, D2.. = base64 JPEG pieces
 async function loadCamera(base) {
-  let row;
-  try { row = ((await api(`${base}/Camera!A2:Z2?valueRenderOption=UNFORMATTED_VALUE`)).values || [])[0]; }
+  let head;
+  try { head = ((await api(`${base}/Camera!B2:C2?valueRenderOption=UNFORMATTED_VALUE`)).values || [])[0]; }
   catch (e) { return; }     // no Camera tab yet (no snapshot sent so far)
-  const ts = row && num(row[1]), n = row && num(row[2]);
-  if (!ts || !n || ts === camTs) return;
-  const b64 = row.slice(3, 3 + n).join('');
+  const ts = head && num(head[0]), n = head && num(head[1]);
+  if (!ts || !n || ts === camTs) return;        // the ~100k-char image is only downloaded when it changes
+  const col = i => { let s = ''; for (i++; i > 0; i = Math.floor((i - 1) / 26)) s = String.fromCharCode(65 + (i - 1) % 26) + s; return s; };
+  let parts;
+  try { parts = ((await api(`${base}/Camera!D2:${col(3 + n - 1)}2?valueRenderOption=UNFORMATTED_VALUE`)).values || [])[0] || []; }
+  catch (e) { return; }
+  const b64 = parts.join('');
   if (b64.length < 100) return;
   camTs = ts;
   $('camimg').src = 'data:image/jpeg;base64,' + b64;
-  $('camimg').hidden = false; $('camnone').hidden = true;
+  $('camimg').hidden = false; $('camnone').hidden = true; $('camctl').hidden = false;
   tickUpdated();
 }
+
+// ------------------------------------------------------------ camera zoom / pan
+// The image is a full 1920x1080 frame; zoom is a CSS transform, kept across refreshes.
+const ZMAX = 6, cam = $('cam'), camImg = $('camimg');
+const ptrs = new Map(); let pinch = null, lastTap = 0, lastTouch = 0;
+let zs = 1, zx = 0, zy = 0;                       // scale and translate (px, relative to the box)
+function zApply() {
+  const w = cam.clientWidth, h = cam.clientHeight;
+  zs = Math.min(ZMAX, Math.max(1, zs));
+  zx = Math.min(0, Math.max(w - w * zs, zx));     // keep the image covering the box
+  zy = Math.min(0, Math.max(h - h * zs, zy));
+  camImg.style.transform = `translate(${zx}px, ${zy}px) scale(${zs})`;
+  $('zlvl').textContent = (Math.round(zs * 10) / 10) + '×';
+  $('zout').disabled = zs <= 1; $('zin').disabled = zs >= ZMAX;
+  cam.classList.toggle('zoomed', zs > 1);
+  cam.style.touchAction = zs > 1 ? 'none' : 'pan-y';   // at 1x let the page scroll; zoomed, drags pan the image
+}
+function zoomAt(f, px, py) {                       // zoom by factor f keeping the point (px, py) still
+  const ns = Math.min(ZMAX, Math.max(1, zs * f));
+  zx = px - (px - zx) * ns / zs; zy = py - (py - zy) * ns / zs; zs = ns;
+  zApply();
+}
+const centre = () => [cam.clientWidth / 2, cam.clientHeight / 2];
+const local = e => { const r = cam.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+$('zin').addEventListener('click', () => zoomAt(1.5, ...centre()));
+$('zout').addEventListener('click', () => zoomAt(1 / 1.5, ...centre()));
+$('zlvl').addEventListener('click', () => { zs = 1; zApply(); });
+$('zwide').addEventListener('click', () => {
+  // keep the same spot in view when the box changes size
+  const w0 = cam.clientWidth; $('camcard').classList.toggle('wide');
+  const k = cam.clientWidth / w0; zx *= k; zy *= k; zApply();
+  $('camcard').scrollIntoView({ block: 'nearest' });
+});
+cam.addEventListener('wheel', e => {
+  if (camImg.hidden || (!e.ctrlKey && zs === 1)) return;    // plain scrolling over an unzoomed image scrolls the page
+  e.preventDefault();
+  zoomAt(Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.002)), ...local(e));
+}, { passive: false });
+cam.addEventListener('dblclick', e => { if (Date.now() - lastTouch < 800) return; if (zs > 1) { zs = 1; zApply(); } else zoomAt(3, ...local(e)); });
+
+
+cam.addEventListener('pointerdown', e => {
+  if (camImg.hidden || e.target.closest('.camctl')) return;
+  cam.setPointerCapture(e.pointerId);
+  ptrs.set(e.pointerId, local(e));
+  if (ptrs.size === 2) {
+    const [a, b] = [...ptrs.values()];
+    pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), s: zs };
+  }
+  if (e.pointerType === 'touch') lastTouch = Date.now();
+  if (e.pointerType === 'touch' && ptrs.size === 1) {      // double-tap (dblclick is unreliable on phones)
+    const now = Date.now();
+    if (now - lastTap < 300) { if (zs > 1) { zs = 1; zApply(); } else zoomAt(3, ...local(e)); lastTap = 0; }
+    else lastTap = now;
+  }
+});
+cam.addEventListener('pointermove', e => {
+  if (!ptrs.has(e.pointerId)) return;
+  const prev = ptrs.get(e.pointerId), cur = local(e);
+  ptrs.set(e.pointerId, cur);
+  if (ptrs.size === 2 && pinch) {
+    const [a, b] = [...ptrs.values()];
+    const d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+    zoomAt(pinch.s * d / pinch.d / zs, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
+  } else if (ptrs.size === 1 && zs > 1) {
+    zx += cur[0] - prev[0]; zy += cur[1] - prev[1];
+    cam.classList.add('dragging');
+    zApply();
+  }
+});
+const ptrEnd = e => { ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch = null; if (!ptrs.size) cam.classList.remove('dragging'); };
+cam.addEventListener('pointerup', ptrEnd);
+cam.addEventListener('pointercancel', ptrEnd);
+window.addEventListener('resize', zApply);
+zApply();
 
 function tickUpdated() {
   if (camTs) {
