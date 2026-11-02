@@ -74,8 +74,14 @@
   .card.wide { grid-column: 1 / -1; }
   .cam .none { position: absolute; inset: 0; display: grid; place-items: center; color: var(--text2); font-size: 14px; }
   .cam [hidden] { display: none; }
-  .camtime { margin-top: 6px; font-size: 14px; color: var(--text2); min-height: 1.4em; font-variant-numeric: tabular-nums; }
-  .camtime.stale { color: var(--warn); font-weight: 700; }
+  .camrow { margin-top: 8px; display: flex; align-items: center; gap: 10px; min-height: 38px; }
+  .camtime { flex: 1; min-width: 0; font-size: 14px; color: var(--text2); font-variant-numeric: tabular-nums;
+             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .camtime.stale, .camtime.bad { color: var(--warn); font-weight: 700; }
+  .camtime.busy { color: var(--accent); font-weight: 700; }
+  .snapbtn { flex: none; background: #24303e; color: var(--text); border: 1px solid var(--line); border-radius: 8px;
+             padding: 8px 12px; font-size: 14px; font-weight: 700; }
+  .snapbtn:disabled { opacity: .5; }
   .msg { margin-top: 10px; color: var(--warn); font-weight: 600; }
   .error-box { background: #431616; border: 2px solid var(--bad); padding: 14px; border-radius: 12px; display: none; margin-bottom: 12px; }
   #signin { text-align: center; padding: 48px 16px; }
@@ -129,7 +135,8 @@
             <button id="zwide" title="Bigger view" aria-label="Toggle bigger view">⤢</button>
           </div>
         </div>
-        <div class="camtime" id="camtime"></div>
+        <div class="camrow"><div class="camtime" id="camtime"></div>
+          <button class="snapbtn" id="snapnow" title="Ask the Mac for a fresh photo now">📷 Snapshot now</button></div>
       </section>
 
       <section class="card">
@@ -173,6 +180,9 @@
 const CLIENT_ID = '164938993732-j5jnvmca9dcna72v8jdfli9u0pl4tt6g.apps.googleusercontent.com';
 const SHEET_ID = '1r6ZAru9vmaVyqjTQUzE8RMQV8IspdyFyGW-hKNL978E';
 const SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly email';
+// Apps Script ingest. "Snapshot now" sends the viewer's token here; the script only accepts it if that token can read the sheet.
+const INGEST_URL = 'https://script.google.com/macros/s/AKfycbzrdmEuHu-O15TMVYSjhXYPKEpu7LUgSXyHzVXRfChGK-Eeqksfpt6W04miuVNXwJ4Npg/exec';
+const VALUES_BASE = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values`;
 const COLUMNS = ['timestamp', 'state', 'filename', 'progress_pct', 'layer', 'total_layers',
   'print_min', 'elapsed_min', 'eta_min', 'filament_m', 'active_tool',
   'nozzle_c', 'nozzle_target_c', 'bed_c', 'bed_target_c', 'chamber_c',
@@ -247,7 +257,7 @@ async function start() {
 
 async function load() {
   try {
-    const base = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values`;
+    const base = VALUES_BASE;
     const meta = await api(`${base}/Meta!A2:B2?valueRenderOption=UNFORMATTED_VALUE`);
     const last = num(meta.values && meta.values[0] && meta.values[0][0]);
     if (!last || last < 2) { $('state').hidden = false; $('state').textContent = 'no data yet'; return; }
@@ -443,8 +453,42 @@ cam.addEventListener('pointercancel', ptrEnd);
 window.addEventListener('resize', zApply);
 zApply();
 
+// ------------------------------------------------------------ snapshot on demand
+let camStatus = null;          // {text, cls, until} shown instead of the snapshot age while set
+function setCamStatus(text, cls, ms) { camStatus = text ? { text, cls, until: Date.now() + (ms || 6e4) } : null; tickUpdated(); }
+
+async function snapNow() {
+  if (!token) return;
+  const btn = $('snapnow'), before = camTs;
+  btn.disabled = true;
+  setCamStatus('Asking the Mac for a photo…', 'busy', 9e4);
+  try {
+    // no Content-Type header: a text/plain POST needs no CORS preflight, which Apps Script can't answer
+    const r = await fetch(INGEST_URL, { method: 'POST', body: JSON.stringify({ action: 'request', access_token: token.v }) });
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || 'refused');
+  } catch (e) {
+    btn.disabled = false;
+    return setCamStatus('Request failed: ' + e.message, 'bad', 15e3);
+  }
+  setCamStatus('Requested — waiting for the photo…', 'busy', 9e4);
+  const deadline = Date.now() + 75e3;   // the Mac checks every 10 s; a snapshot then takes ~5 s to upload
+  while (Date.now() < deadline) {
+    await new Promise(res => setTimeout(res, 3000));
+    await loadCamera(VALUES_BASE);
+    if (camTs !== before) { btn.disabled = false; return setCamStatus('New photo ✓', 'busy', 4e3); }
+  }
+  btn.disabled = false;
+  setCamStatus('No new photo — is the Mac awake?', 'bad', 20e3);
+}
+$('snapnow').addEventListener('click', snapNow);
+
 function tickUpdated() {
-  if (camTs) {
+  if (camStatus && Date.now() > camStatus.until) camStatus = null;
+  if (camStatus) {
+    $('camtime').textContent = camStatus.text;
+    $('camtime').className = 'camtime ' + (camStatus.cls || '');
+  } else if (camTs) {
     const c = Math.round((Date.now() - camTs) / 1000);
     $('camtime').textContent = 'Snapshot ' + (c < 90 ? `${c}s ago` : c < 5400 ? `${Math.round(c / 60)} min ago` : new Date(camTs).toLocaleString());
     $('camtime').className = 'camtime' + (c > 900 ? ' stale' : '');
