@@ -1,5 +1,38 @@
 [
   {
+    "timestamp": "2026-11-02T21:01:14.759590+00:00",
+    "items": [
+      {
+        "title": "OpenAI Raises Less Than Half of $30 Billion Target",
+        "link": "https://www.theverge.com/1024807/google-botnet-android-tv-shut-down",
+        "why": "Major AI funding shortfall signals investor caution",
+        "sources": [
+          "\"hacker news ai\" - Google News"
+        ]
+      },
+      {
+        "title": "Google Disrupts 1.3M-Device Android TV Botnet",
+        "link": "https://www.bleepingcomputer.com/news/security/google-disrupts-million-device-xcpe-android-malware-botnet-bans-tv-box-maker/",
+        "why": "Google partner built backdoor in massive botnet"
+      },
+      {
+        "title": "Apple Plans $1,000 Home Robot for 2027",
+        "link": "https://arstechnica.com/apple/2026/11/apples-roaming-home-robot-may-do-facetime-switch-lights-on-and-yell-at-your-cat/",
+        "why": "Apple enters home robotics with consumer device"
+      },
+      {
+        "title": "NYT Sues Brave Browser Over AI Scraping",
+        "link": "https://www.theverge.com/tech/1024588/brave-lawsuit-ai-scraping-new-york-times",
+        "why": "Media vs AI scraping battle reaches browsers"
+      },
+      {
+        "title": "BMW Challenges Tesla FSD With Urban Driver Assist",
+        "link": "https://www.theverge.com/transportation/1024616/bmw-level-2-city-driver-assist-2027",
+        "why": "BMW enters urban autonomy race against Tesla"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-02T11:01:27.373109+00:00",
     "items": [
       {
@@ -219,36 +252,6 @@
         "title": "Largest Crypto Heist Ever: $6 Billion Stolen from Binance",
         "link": "https://www.pbs.org/newshour/show/6-billion-cryptocurrency-heist-puts-investors-on-edge",
         "why": "Record-breaking theft shakes crypto industry and investor confidence"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-30T20:01:28.777141+00:00",
-    "items": [
-      {
-        "title": "Anthropic IPO Filing Reveals 92 Pages of AI Risk Factors",
-        "link": "https://www.theguardian.com/global/video/2026/oct/30/anthropic-92-page-risk-factor-document-ipo-filing-video-explainer",
-        "why": "Top AI company going public with major risk disclosures"
-      },
-      {
-        "title": "Tech Sell-Off Wipes Nearly $1T Amid AI ROI Doubts",
-        "link": "https://www.theguardian.com/technology/2026/oct/30/tech-stocks-drop-earnings-report",
-        "why": "Massive market drop raises questions about AI investment returns"
-      },
-      {
-        "title": "Google AI Satellite Sends First Response From Space",
-        "link": "https://www.theverge.com/tech/1023528/google-project-suncatcher-ai-satellite-transmission",
-        "why": "First successful AI inference from orbit \u2014 a tech milestone"
-      },
-      {
-        "title": "Gemini Now Edits Entire Google Slides Presentations",
-        "link": "http://workspaceupdates.googleblog.com/2026/10/edit-entire-presentations-with-gemini-in-Google-Slides.html",
-        "why": "Major Google Workspace AI rollout for presentation editing"
-      },
-      {
-        "title": "Starlink Dynamic Pricing Hits Some With 20% Hikes",
-        "link": "https://www.howtogeek.com/starlink-dynamic-pricing-notices-2026/",
-        "why": "SpaceX shifts broadband pricing strategy affecting many customers"
       }
     ]
   }
