@@ -84,6 +84,10 @@
     background:transparent; border:0; color:#7fd1ff; font-size:20px; line-height:1; cursor:pointer; border-radius:5px;
   }
   #detail-close:hover { color:#fff; background:rgba(127,209,255,.12); }
+  #detail img.ac-photo { width:100%; border-radius:8px; margin:2px 0 2px; display:block; }
+  #detail .ac-photo-credit { font-size:10px; color:#7f8fa6; margin:2px 0 6px; }
+  #detail .ac-photo-loading { height:70px; display:flex; align-items:center; justify-content:center;
+    color:#7f8fa6; font-size:11px; }
   #faa { position:absolute; top:8px; left:50%; transform:translateX(-50%); z-index:8; display:none;
     max-width:92%; padding:8px 14px; border-radius:9px; font-size:13px; font-weight:600; color:#fff;
     background:rgba(200,40,40,.92); border:1px solid #ff7a7a; box-shadow:0 3px 14px rgba(0,0,0,.5);
@@ -416,6 +420,54 @@ async function pumpEnr(){
   enrBusy=false;
 }
 
+// ---- aircraft photos via planespotters.net (by registration; cached in localStorage) ----
+// Shows a real photo of the actual aircraft in the popup. Requires the registration from
+// adsbdb enrichment. planespotters API is CORS-enabled (Access-Control-Allow-Origin: *).
+let photoCache={};
+try{ photoCache=JSON.parse(localStorage.getItem('adsb_photos_v1')||'{}'); }catch(e){}
+function savePhotos(){ try{ localStorage.setItem('adsb_photos_v1',JSON.stringify(photoCache)); }catch(e){} }
+
+async function fetchAcPhoto(reg){
+  reg=(reg||'').toUpperCase().trim();
+  if(!reg) return null;
+  if(photoCache[reg]!==undefined) return photoCache[reg];   // cached (incl. negative cache)
+  try{
+    const r=await fetch('https://api.planespotters.net/pub/photos/reg/'+encodeURIComponent(reg));
+    const d=r.ok?await r.json():null;
+    const ph=d&&d.photos&&d.photos[0];
+    if(ph){
+      const obj={ url: (ph.thumbnail_large||ph.thumbnail||{}).src || ph.link, by: ph.photographer||'' };
+      photoCache[reg]=obj; savePhotos(); return obj;
+    }
+  }catch(e){}
+  photoCache[reg]=null; savePhotos(); return null;   // negative cache — don't retry
+}
+
+// Returns inline HTML for the photo section of the popup. If the photo is already cached,
+// renders it directly. If not cached yet, inserts a placeholder div for loadAcPhoto() to fill.
+function photoHTMLFor(a){
+  if(a.category==='RID') return '';                 // drones — no photo lookup
+  const c=acData(a.hex); const reg=c&&c.reg;
+  if(!reg) return '';                               // no registration known yet
+  const p=photoCache[reg];
+  if(p) return `<img class="ac-photo" src="${p.url}" alt="Photo of ${reg}"><div class="ac-photo-credit">📷 ${p.by} / planespotters.net</div>`;
+  return `<div id="ac-photo-slot" class="ac-photo-loading">loading photo…</div>`;
+}
+
+// Async-fill the photo placeholder after popupHTML has been rendered. Called from showDetail
+// and the live-refresh loop. No-op if the photo is already cached (rendered inline) or the
+// popup has been closed/refreshed away.
+async function loadAcPhoto(a){
+  if(a.category==='RID') return;
+  const c=acData(a.hex); const reg=c&&c.reg; if(!reg) return;
+  if(photoCache[reg]!==undefined) return;            // already cached — rendered inline
+  const p=await fetchAcPhoto(reg);
+  const s=document.getElementById('ac-photo-slot');  // re-query (popup may have refreshed)
+  if(!s) return;
+  if(p) s.outerHTML=`<img class="ac-photo" src="${p.url}" alt="Photo of ${reg}"><div class="ac-photo-credit">📷 ${p.by} / planespotters.net</div>`;
+  else s.outerHTML='';
+}
+
 function squareAround(lng,lat,half=0.0011){
   const dLat=half, dLon=half/Math.cos(lat*Math.PI/180);
   return [[[lng-dLon,lat-dLat],[lng+dLon,lat-dLat],[lng+dLon,lat+dLat],[lng-dLon,lat+dLat],[lng-dLon,lat-dLat]]];
@@ -444,7 +496,7 @@ const trails={};            // hex -> [[lng,lat],...]
 let planeData=[];           // current positioned aircraft (for deck.gl)
 let overlay=null;
 let selectedHex=null;                       // which plane's docked panel is open
-function showDetail(a){ selectedHex=a.hex; document.getElementById('detail-body').innerHTML=popupHTML(a); document.getElementById('detail').style.display='block'; }
+function showDetail(a){ selectedHex=a.hex; document.getElementById('detail-body').innerHTML=popupHTML(a); document.getElementById('detail').style.display='block'; loadAcPhoto(a); }
 function closeDetail(){ selectedHex=null; const d=document.getElementById('detail'); if(d) d.style.display='none'; }
 
 function buildLayers(){
@@ -536,7 +588,8 @@ function animFrame(){
 
 function popupHTML(a){
   const alt=a.alt_baro; const air=bestAirline(a);
-  return `<b>${(a.flight||a.hex).trim()}</b><br>`+
+  return photoHTMLFor(a)+
+    `<b>${(a.flight||a.hex).trim()}</b><br>`+
     `${a.category==='A7'?'Type: Rotorcraft 🚁<br>':''}`+
     `${air?`Airline: ${air}<br>`:''}`+
     `${enrichLines(a)}`+
@@ -730,7 +783,7 @@ function render(d){
   // keep the docked detail panel refreshed for the selected plane (real values)
   if(selectedHex){
     const sa=ac.find(x=>x.hex===selectedHex);
-    if(sa){ document.getElementById('detail-body').innerHTML=popupHTML(sa); }
+    if(sa){ document.getElementById('detail-body').innerHTML=popupHTML(sa); if(document.getElementById('ac-photo-slot')) loadAcPhoto(sa); }
     else { closeDetail(); }   // plane left coverage
   }
 
