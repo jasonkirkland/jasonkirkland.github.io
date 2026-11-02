@@ -1,5 +1,38 @@
 [
   {
+    "timestamp": "2026-11-02T21:01:20.862943+00:00",
+    "items": [
+      {
+        "title": "OpenAI Raises Less Than Half of $30 Billion Target",
+        "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQTW9TMmVsZkc2b05TYkloVW41X050RjdtZ1F5U01TRnJOSEthYTJpcDdPWVhJb0FvRGEteHgtbVhSS0lOVEZ3T2N5MTNpSUNWNXpETThZR0RvcFQwY2Q5R3ctRUFvM1ZtdFdMaXhGSnpPM2FiLUhORXNrem84cUpfVGpuQ0VmaGNsZUlxUVQ0dk4zQUE2cWFzUk8yM1R3cjc3dEczVw?oc=5",
+        "why": "Major AI funding shortfall signals investor caution",
+        "sources": [
+          "\"hacker news ai\" - Google News"
+        ]
+      },
+      {
+        "title": "Google Disrupts 1.3M-Device Android TV Botnet",
+        "link": "https://www.bleepingcomputer.com/news/security/google-disrupts-million-device-xcpe-android-malware-botnet-bans-tv-box-maker/",
+        "why": "Google partner built backdoor in massive botnet"
+      },
+      {
+        "title": "Apple Plans $1,000 Home Robot for 2027",
+        "link": "https://arstechnica.com/apple/2026/11/apples-roaming-home-robot-may-do-facetime-switch-lights-on-and-yell-at-your-cat/",
+        "why": "Apple enters home robotics with consumer device"
+      },
+      {
+        "title": "NYT Sues Brave Browser Over AI Scraping",
+        "link": "https://www.theverge.com/tech/1024588/brave-lawsuit-ai-scraping-new-york-times",
+        "why": "Media vs AI scraping battle reaches browsers"
+      },
+      {
+        "title": "BMW Challenges Tesla FSD With Urban Driver Assist",
+        "link": "https://www.theverge.com/transportation/1024616/bmw-level-2-city-driver-assist-2027",
+        "why": "BMW enters urban autonomy race against Tesla"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-02T21:01:14.759590+00:00",
     "items": [
       {
