@@ -1,5 +1,39 @@
 [
   {
+    "timestamp": "2026-11-02T11:01:27.373109+00:00",
+    "items": [
+      {
+        "title": "Chainalysis Discloses Data Breach From AI-Driven Cyberattack",
+        "link": "https://www.securityweek.com/chainalysis-discloses-data-breach-following-ai-driven-cyberattack/",
+        "why": "Major blockchain firm breached using offensive AI agents"
+      },
+      {
+        "title": "FBI Officially Attributes $6B Binance Hack to North Korea",
+        "link": "https://www.securityweek.com/fbi-flags-over-600-addresses-tied-to-north-koreas-binance-heist/",
+        "why": "Largest crypto heist ever officially pinned on North Korea"
+      },
+      {
+        "title": "VOLTA Infostealer Weaponizes Claude and Gemini AI",
+        "link": "https://thehackernews.com/2026/11/new-volta-infostealer-uses-claude.html",
+        "why": "Malware uses LLMs to rank victims by financial value"
+      },
+      {
+        "title": "Ivanti Patches Two More Connect Secure Zero-Days",
+        "link": "https://www.bleepingcomputer.com/news/security/ivanti-patches-two-more-connect-secure-zero-days-chained-in-attacks/",
+        "why": "Actively exploited enterprise VPN zero-days now patched",
+        "sources": [
+          "BleepingComputer",
+          "SecurityWeek"
+        ]
+      },
+      {
+        "title": "Government Linux Servers Hit With SysGoRAT and AI Scripts",
+        "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxOeXBoNG5MWlhoU2VqOTRfLXNtYXJ0THNoY191UE54amprSFRLUmJqRHZ4blNsTnFxdWZlcThRZWRjZENXZWUwRXJfTXN0TTdIU0NjbmtUck5mcGh3bnlEM1dfWnU0c3g4c0lZcktHVEs3SnNqaEh0Vjl4aWttSXpRcFFkVQ?oc=5",
+        "why": "Nation-state targets government servers with AI-generated attacks"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-01T21:01:14.123434+00:00",
     "items": [
       {
@@ -215,36 +249,6 @@
         "title": "Starlink Dynamic Pricing Hits Some With 20% Hikes",
         "link": "https://www.howtogeek.com/starlink-dynamic-pricing-notices-2026/",
         "why": "SpaceX shifts broadband pricing strategy affecting many customers"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-30T10:01:45.955190+00:00",
-    "items": [
-      {
-        "title": "Binance Hit by Record $6.3 Billion Crypto Theft",
-        "link": "https://thehackernews.com/2026/10/binance-suffers-security-breach.html",
-        "why": "Largest crypto hack ever, possibly North Korean state hackers"
-      },
-      {
-        "title": "OpenAI Reverses ChatGPT Pro Usage Cuts After Backlash",
-        "link": "https://www.bleepingcomputer.com/news/artificial-intelligence/openai-doubles-chatgpt-pro-usage-limits-after-backlash-over-planned-50-percent-cut/",
-        "why": "Major AI provider reverses policy after user revolt"
-      },
-      {
-        "title": "Critical GitLab RCE Actively Exploited, Added to CISA KEV",
-        "link": "https://www.securityweek.com/max-severity-gitlab-vulnerability-exploited-against-alpine-linux/",
-        "why": "Unauthenticated remote code execution under active attack"
-      },
-      {
-        "title": "Polymarket Traders Lose $2M+ in Supply Chain Attack",
-        "link": "https://www.securityweek.com/2-million-drained-from-polymarket-traders-in-new-supply-chain-attack/",
-        "why": "Compromised analytics tool hijacked trader sessions for theft"
-      },
-      {
-        "title": "Intel Budget Chips Sold Out as Demand Outstrips Supply",
-        "link": "https://www.theverge.com/tech/1022911/intel-wildcat-lake-sold-out-ram-shortage",
-        "why": "Intel cannot meet demand for affordable laptop processors"
       }
     ]
   }
