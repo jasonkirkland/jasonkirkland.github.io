@@ -355,11 +355,11 @@ function airlineName(flight){
 
 // ---- live enrichment via adsbdb.com (client-side, cached; CORS-enabled, no key) ----
 let acCache={}, rtCache={};
-try{ acCache=JSON.parse(localStorage.getItem('adsb_enr_ac')||'{}'); }catch(e){}
+try{ acCache=JSON.parse(localStorage.getItem('adsb_enr_ac2')||'{}'); }catch(e){}
 try{ rtCache=JSON.parse(localStorage.getItem('adsb_enr_rt2')||'{}'); }catch(e){}
 const RT_TTL=12*3600*1000, NEG_TTL=6*3600*1000;   // routes ~12h; retry unknowns after 6h
 const enrQ=[], enrIn=new Set(); let enrBusy=false, lastAc=[];
-function saveEnr(){ try{ localStorage.setItem('adsb_enr_ac',JSON.stringify(acCache)); localStorage.setItem('adsb_enr_rt2',JSON.stringify(rtCache)); }catch(e){} }
+function saveEnr(){ try{ localStorage.setItem('adsb_enr_ac2',JSON.stringify(acCache)); localStorage.setItem('adsb_enr_rt2',JSON.stringify(rtCache)); }catch(e){} }
 function acData(hex){ const e=acCache[hex]; return (e&&!e.unknown)?e:null; }
 function rtData(cs){ const e=rtCache[cs]; return (e&&!e.unknown)?e:null; }
 function bestAirline(a){ const cs=((a.flight||'')+'').trim().toUpperCase(); const r=rtData(cs), c=acData(a.hex);
@@ -405,7 +405,7 @@ async function pumpEnr(){
       if(j.t==='a'){
         const r=await fetch('https://api.adsbdb.com/v0/aircraft/'+encodeURIComponent(j.k.toUpperCase()));
         const d=r.ok?await r.json():null; const ac=d&&(d.response||{}).aircraft;
-        acCache[j.k]=ac?{reg:ac.registration,type:ac.type,icao:ac.icao_type,mfr:ac.manufacturer,op:ac.registered_owner,ts:Date.now()}:{unknown:true,ts:Date.now()};
+        acCache[j.k]=ac?{reg:ac.registration,type:ac.type,icao:ac.icao_type,mfr:ac.manufacturer,op:ac.registered_owner,thumb:ac.url_photo_thumbnail||null,ts:Date.now()}:{unknown:true,ts:Date.now()};
       }else{
         const r=await fetch('https://api.adsbdb.com/v0/callsign/'+encodeURIComponent(j.k));
         const d=r.ok?await r.json():null; const fr=d&&(d.response||{}).flightroute;
@@ -443,12 +443,18 @@ async function fetchAcPhoto(reg){
   photoCache[reg]=null; savePhotos(); return null;   // negative cache — don't retry
 }
 
-// Returns inline HTML for the photo section of the popup. If the photo is already cached,
-// renders it directly. If not cached yet, inserts a placeholder div for loadAcPhoto() to fill.
+// Returns inline HTML for the photo section of the popup.
+// Priority: 1) adsbdb built-in thumbnail (airport-data.com) — already cached, no async needed.
+//           2) planespotters.net by registration — async, cached in photoCache.
+//           3) nothing (no registration or both sources empty).
 function photoHTMLFor(a){
   if(a.category==='RID') return '';                 // drones — no photo lookup
-  const c=acData(a.hex); const reg=c&&c.reg;
-  if(!reg) return '';                               // no registration known yet
+  const c=acData(a.hex);
+  // 1. adsbdb thumbnail — render immediately, no async
+  if(c && c.thumb) return `<img class="ac-photo" src="${c.thumb}" alt="Photo of ${c.reg||a.hex}"><div class="ac-photo-credit">📷 airport-data.com</div>`;
+  // 2. planespotters fallback
+  const reg=c&&c.reg;
+  if(!reg) return '';                               // no registration — can't look up
   const p=photoCache[reg];
   if(p) return `<img class="ac-photo" src="${p.url}" alt="Photo of ${reg}"><div class="ac-photo-credit">📷 ${p.by} / planespotters.net</div>`;
   return `<div id="ac-photo-slot" class="ac-photo-loading">loading photo…</div>`;
@@ -460,7 +466,8 @@ function photoHTMLFor(a){
 async function loadAcPhoto(a){
   if(a.category==='RID') return;
   const c=acData(a.hex); const reg=c&&c.reg; if(!reg) return;
-  if(photoCache[reg]!==undefined) return;            // already cached — rendered inline
+  if(c && c.thumb) return;                           // adsbdb photo already rendered inline
+  if(photoCache[reg]!==undefined) return;            // planespotters cached — rendered inline
   const p=await fetchAcPhoto(reg);
   const s=document.getElementById('ac-photo-slot');  // re-query (popup may have refreshed)
   if(!s) return;
