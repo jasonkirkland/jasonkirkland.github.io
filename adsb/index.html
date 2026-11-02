@@ -427,6 +427,47 @@ let photoCache={};
 try{ photoCache=JSON.parse(localStorage.getItem('adsb_photos_v1')||'{}'); }catch(e){}
 function savePhotos(){ try{ localStorage.setItem('adsb_photos_v1',JSON.stringify(photoCache)); }catch(e){} }
 
+// ---- category-based fallback images (Wikimedia Commons, CC-licensed) ----
+// When we can't identify the specific aircraft, show a generic stock image
+// for its ICAO emitter category so the popup always has a photo.
+const CAT_FALLBACK={
+  'A1':{url:'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/20/Cessna_172_Skyhawk_AGC.jpg/500px-Cessna_172_Skyhawk_AGC.jpg',label:'light aircraft',by:'Firedragon1408',lic:'CC BY-SA 4.0'},
+  'A2':{url:'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/48/Beechcraft_Super_King_Air_200_N888HT_C-N_BB444_%285470180368%29.jpg/500px-Beechcraft_Super_King_Air_200_N888HT_C-N_BB444_%285470180368%29.jpg',label:'small aircraft',by:'Tomás Del Coro',lic:'CC BY-SA 2.0'},
+  'A3':{url:'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9d/Gear_Actuation-Boeing-737-800_EL-AL_approaching_VIE-DSC_3259w.jpg/500px-Gear_Actuation-Boeing-737-800_EL-AL_approaching_VIE-DSC_3259w.jpg',label:'large aircraft',by:'Peter Haas',lic:'CC BY-SA 3.0'},
+  'A4':{url:'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/Leipzig_Halle_Airport_DHL_Air_Austria_Boeing_757-223%28PCF%29%28WL%29_OE-LNZ_%28DSC08668%29.jpg/500px-Leipzig_Halle_Airport_DHL_Air_Austria_Boeing_757-223%28PCF%29%28WL%29_OE-LNZ_%28DSC08668%29.jpg',label:'large aircraft',by:'MarcelX42',lic:'CC BY-SA 4.0'},
+  'A5':{url:'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/82/Lufthansa_Boeing_747-8_D-ABYI_IAD_VA1.jpg/500px-Lufthansa_Boeing_747-8_D-ABYI_IAD_VA1.jpg',label:'heavy aircraft',by:'Acroterion',lic:'CC BY-SA 4.0'},
+  'A7':{url:'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/82/Bell_407_HB-XQY.jpg/500px-Bell_407_HB-XQY.jpg',label:'helicopter',by:'Chme82',lic:'CC BY-SA 4.0'},
+};
+
+// ---- type-based stock photos via Wikimedia Commons (by ICAO type code) ----
+// Fallback when no specific aircraft photo is found. Searches Commons for
+// "manufacturer type" and caches the first result by ICAO type code.
+let typePhotoCache={};
+try{ typePhotoCache=JSON.parse(localStorage.getItem('adsb_type_photos_v1')||'{}'); }catch(e){}
+function saveTypePhotos(){ try{ localStorage.setItem('adsb_type_photos_v1',JSON.stringify(typePhotoCache)); }catch(e){} }
+function stripHTML(s){ return (s||'').replace(/<[^>]+>/g,'').trim(); }
+
+async function fetchTypePhoto(icao,mfr,type){
+  icao=(icao||'').toUpperCase().trim(); if(!icao) return null;
+  if(typePhotoCache[icao]!==undefined) return typePhotoCache[icao];   // cached (incl. negative)
+  const q=(mfr?mfr+' ':'')+(type||icao);
+  try{
+    const url='https://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo'+
+      '&iiprop=url|extmetadata&iiurlwidth=400&generator=search&gsrsearch='+
+      encodeURIComponent(q+' aircraft')+'&gsrnamespace=6&gsrlimit=1&origin=*';
+    const r=await fetch(url); const d=r.ok?await r.json():null;
+    const pages=d&&d.query&&d.query.pages;
+    if(pages){
+      const p=Object.values(pages)[0]; const ii=p&&p.imageinfo&&p.imageinfo[0];
+      if(ii&&ii.thumburl){
+        const obj={ url:ii.thumburl.split('?')[0], by:stripHTML(ii.extmetadata&&ii.extmetadata.Artist&&ii.extmetadata.Artist.value)||'Wikimedia', lic:ii.extmetadata&&ii.extmetadata.LicenseShortName&&ii.extmetadata.LicenseShortName.value||'' };
+        typePhotoCache[icao]=obj; saveTypePhotos(); return obj;
+      }
+    }
+  }catch(e){}
+  typePhotoCache[icao]=null; saveTypePhotos(); return null;
+}
+
 async function fetchAcPhoto(reg){
   reg=(reg||'').toUpperCase().trim();
   if(!reg) return null;
@@ -446,7 +487,9 @@ async function fetchAcPhoto(reg){
 // Returns inline HTML for the photo section of the popup.
 // Priority: 1) adsbdb built-in thumbnail (airport-data.com) — already cached, no async needed.
 //           2) planespotters.net by registration — async, cached in photoCache.
-//           3) nothing (no registration or both sources empty).
+//           3) Wikimedia Commons by ICAO type — async, cached in typePhotoCache (stock photo of type).
+//           4) Category fallback — synchronous, generic image for the ICAO emitter category.
+//           5) nothing (no category, no registration, no type).
 function photoHTMLFor(a){
   if(a.category==='RID') return '';                 // drones — no photo lookup
   const c=acData(a.hex);
@@ -454,10 +497,20 @@ function photoHTMLFor(a){
   if(c && c.thumb) return `<img class="ac-photo" src="${c.thumb}" alt="Photo of ${c.reg||a.hex}"><div class="ac-photo-credit">📷 airport-data.com</div>`;
   // 2. planespotters fallback
   const reg=c&&c.reg;
-  if(!reg) return '';                               // no registration — can't look up
-  const p=photoCache[reg];
-  if(p) return `<img class="ac-photo" src="${p.url}" alt="Photo of ${reg}"><div class="ac-photo-credit">📷 ${p.by} / planespotters.net</div>`;
-  return `<div id="ac-photo-slot" class="ac-photo-loading">loading photo…</div>`;
+  if(reg && photoCache[reg]) return `<img class="ac-photo" src="${photoCache[reg].url}" alt="Photo of ${reg}"><div class="ac-photo-credit">📷 ${photoCache[reg].by} / planespotters.net</div>`;
+  // 3. Wikimedia Commons type-based stock photo
+  const icao=c&&c.icao?c.icao.toUpperCase():null;
+  if(icao && typePhotoCache[icao]) return `<img class="ac-photo" src="${typePhotoCache[icao].url}" alt="Stock photo of ${c.mfr||''} ${c.type||icao}"><div class="ac-photo-credit">📷 ${typePhotoCache[icao].by} / Wikimedia · stock ${typePhotoCache[icao].lic}</div>`;
+  // 4. Category fallback — synchronous, always available for A1-A7
+  const cat=CAT_FALLBACK[a.category];
+  const canUpgrade=(reg && photoCache[reg]===undefined)||(icao && typePhotoCache[icao]===undefined);
+  if(cat){
+    if(canUpgrade) return `<div id="ac-photo-slot"><img class="ac-photo" src="${cat.url}" alt="Generic ${cat.label}"><div class="ac-photo-credit">📷 ${cat.by} / Wikimedia · generic ${cat.label}</div></div>`;
+    return `<img class="ac-photo" src="${cat.url}" alt="Generic ${cat.label}"><div class="ac-photo-credit">📷 ${cat.by} / Wikimedia · generic ${cat.label}</div>`;
+  }
+  // 5. No category fallback but we have something to look up — show loading
+  if(reg || icao) return `<div id="ac-photo-slot" class="ac-photo-loading">loading photo…</div>`;
+  return '';
 }
 
 // Async-fill the photo placeholder after popupHTML has been rendered. Called from showDetail
@@ -465,14 +518,38 @@ function photoHTMLFor(a){
 // popup has been closed/refreshed away.
 async function loadAcPhoto(a){
   if(a.category==='RID') return;
-  const c=acData(a.hex); const reg=c&&c.reg; if(!reg) return;
+  const c=acData(a.hex); const reg=c&&c.reg; const icao=c&&c.icao?c.icao.toUpperCase():null;
   if(c && c.thumb) return;                           // adsbdb photo already rendered inline
-  if(photoCache[reg]!==undefined) return;            // planespotters cached — rendered inline
-  const p=await fetchAcPhoto(reg);
-  const s=document.getElementById('ac-photo-slot');  // re-query (popup may have refreshed)
-  if(!s) return;
-  if(p) s.outerHTML=`<img class="ac-photo" src="${p.url}" alt="Photo of ${reg}"><div class="ac-photo-credit">📷 ${p.by} / planespotters.net</div>`;
-  else s.outerHTML='';
+  if(reg && photoCache[reg]) return;                  // planespotters cached — rendered inline
+  if(icao && typePhotoCache[icao]) return;            // Wikimedia type cached — rendered inline
+
+  // Try planespotters by registration first (best — actual aircraft photo)
+  if(reg && photoCache[reg]===undefined){
+    const p=await fetchAcPhoto(reg);
+    if(p){
+      const s=document.getElementById('ac-photo-slot');
+      if(s) s.outerHTML=`<img class="ac-photo" src="${p.url}" alt="Photo of ${reg}"><div class="ac-photo-credit">📷 ${p.by} / planespotters.net</div>`;
+      return;
+    }
+  }
+
+  // Fallback: Wikimedia Commons by type (stock photo of the aircraft type)
+  if(icao && typePhotoCache[icao]===undefined){
+    const tp=await fetchTypePhoto(icao, c&&c.mfr, c&&c.type);
+    if(tp){
+      const s=document.getElementById('ac-photo-slot');
+      if(s) s.outerHTML=`<img class="ac-photo" src="${tp.url}" alt="Stock photo of ${c.mfr||''} ${c.type||icao}"><div class="ac-photo-credit">📷 ${tp.by} / Wikimedia · stock ${tp.lic}</div>`;
+      return;
+    }
+  }
+
+  // Both sources failed — if there's a placeholder, replace with category fallback (no wrapper)
+  const s=document.getElementById('ac-photo-slot');
+  if(s){
+    const cat=CAT_FALLBACK[a.category];
+    if(cat) s.outerHTML=`<img class="ac-photo" src="${cat.url}" alt="Generic ${cat.label}"><div class="ac-photo-credit">📷 ${cat.by} / Wikimedia · generic ${cat.label}</div>`;
+    else s.outerHTML='';
+  }
 }
 
 function squareAround(lng,lat,half=0.0011){
