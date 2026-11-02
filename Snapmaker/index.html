@@ -28,7 +28,11 @@
   .pill.paused   { background: #3d3410; border-color: var(--warn); }
   .pill.error, .pill.cancelled, .pill.offline { background: #431616; border-color: var(--bad); }
   .pill.complete { background: #0f2f45; border-color: var(--accent); }
-  .updated { color: var(--text2); font-size: 14px; margin-left: auto; }
+  .updated { color: var(--text2); font-size: 14px; margin-left: auto; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  /* phones: the timestamp gets its own fixed-height line, so its text changing every second can't re-wrap the header */
+  @media (max-width: 600px) {
+    .updated { flex: 1 0 100%; margin-left: 0; min-height: 1.4em; overflow: hidden; text-overflow: ellipsis; }
+  }
   .updated.stale { color: var(--warn); font-weight: 700; }
   .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
@@ -88,6 +92,7 @@
         <div class="big" id="pct">—</div>
         <div class="bar"><div id="barfill"></div></div>
         <dl class="kv">
+          <dt>Material</dt><dd id="mat">—</dd>
           <dt>Layer</dt><dd id="layer">—</dd>
           <dt>Printing time</dt><dd id="ptime">—</dd>
           <dt>Time left</dt><dd id="eta">—</dd>
@@ -259,6 +264,9 @@ function render(r, series) {
   $('fil').textContent = num(r.filament_m) !== null ? `${Number(r.filament_m).toFixed(2)} m` : '—';
   $('message').textContent = r.message || '';
 
+  // the gcode filename comes from the slicer project and can name the wrong material, so show what the active slot holds
+  const tool = num(r.active_tool), loaded = tool ? String(r['slot' + tool] || '').replace(/\s*#[0-9a-fA-F]{6}$/, '') : '';
+  $('mat').textContent = tool ? `${loaded || 'unknown'} · slot ${tool}` : '—';
   $('nozzle-label').textContent = num(r.active_tool) ? `Nozzle · slot ${r.active_tool}` : 'Nozzle';
   $('noz').textContent = deg(r.nozzle_c);  $('nozt').textContent = num(r.nozzle_target_c) ? '→ ' + deg(r.nozzle_target_c) : 'off';
   $('bed').textContent = deg(r.bed_c);     $('bedt').textContent = num(r.bed_target_c) ? '→ ' + deg(r.bed_target_c) : 'off';
