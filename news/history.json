@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-03T21:01:39.605152+00:00",
+    "items": [
+      {
+        "title": "OpenAI Raises Less Than Half of $30B Funding Target",
+        "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQTW9TMmVsZkc2b05TYkloVW41X050RjdtZ1F5U01TRnJOSEthYTJpcDdPWVhJb0FvRGEteHgtbVhSS0lOVEZ3T2N5MTNpSUNWNXpETThZR0RvcFQwY2Q5R3ctRUFvM1ZtdFdMaXhGSnpPM2FiLUhORXNrem84cUpfVGpuQ0VmaGNsZUlxUVQ0dk4zQUE2cWFzUk8yM1R3cjc3dEczVw?oc=5",
+        "why": "OpenAI funding shortfall signals investor caution on AI valuations"
+      },
+      {
+        "title": "North Korean Hackers Steal $6.3B from Binance via Fake Interview",
+        "link": "https://www.bleepingcomputer.com/news/security/binance-says-fake-job-interview-led-to-63-billion-crypto-heist/",
+        "why": "Largest crypto heist ever via AI-powered social engineering attack"
+      },
+      {
+        "title": "Apple Opens Siri AI to Third-Party Apps in iOS 27.3",
+        "link": "https://www.theverge.com/tech/1025694/apple-siri-ai-third-party-apps",
+        "why": "Apple finally extends Siri automation across third-party ecosystem"
+      },
+      {
+        "title": "Google Admits Search Cannot Function Without AI",
+        "link": "https://www.theguardian.com/technology/2026/nov/03/google-search-artificial-intelligence",
+        "why": "Google confirms AI is now inseparable from core Search product"
+      },
+      {
+        "title": "NYT Sues Brave Over Paywall Bypass and AI Content Deals",
+        "link": "https://arstechnica.com/tech-policy/2026/11/nyt-demands-brave-shut-down-its-paywall-blocker-and-end-deals-with-ai-firms/",
+        "why": "Major publisher escalates legal war against AI and paywall circumvention"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-03T11:01:49.029061+00:00",
     "items": [
       {
@@ -252,39 +282,6 @@
         "title": "Northflank Breach Exposes Customer AI API Keys to Abuse",
         "link": "https://www.bleepingcomputer.com/news/security/northflank-security-breach-leads-to-abuse-of-customers-ai-api-keys/",
         "why": "Cloud platform breach compromises AI API credentials across customers"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-31T20:01:03.584267+00:00",
-    "items": [
-      {
-        "title": "Binance CEO Says 90% of $6.3B Stolen Crypto Replenished",
-        "link": "https://www.theverge.com/tech/1024091/binance-ceo-90-percent-stolen-crypto",
-        "why": "Largest crypto heist ever, major recovery underway"
-      },
-      {
-        "title": "Chainalysis Hit by Agentic AI Cyberattack, Customer Data Exposed",
-        "link": "https://www.bleepingcomputer.com/news/security/chainalysis-discloses-data-breach-from-offensive-agentic-techniques/",
-        "why": "First major agentic AI-driven cyberattack disclosed"
-      },
-      {
-        "title": "Reddit to Lock Content Behind Logins to Fight Scrapers",
-        "link": "https://www.bleepingcomputer.com/news/security/reddit-to-lock-content-behind-logins-to-fight-scrapers/",
-        "why": "Major platform shift against AI scraping",
-        "sources": [
-          "BleepingComputer"
-        ]
-      },
-      {
-        "title": "Anthropic Rolls Out Claude Duet to Waitlisted Users",
-        "link": "https://www.engadget.com/2300253/how-to-use-claude-duet/",
-        "why": "New Anthropic product launch in competitive AI market"
-      },
-      {
-        "title": "Android SMS of Death Exploit Crashes Unpatched Phones Remotely",
-        "link": "https://www.bleepingcomputer.com/news/security/new-android-sms-of-death-exploit-can-remotely-crash-unpatched-phones/",
-        "why": "Critical remote exploit affecting unpatched Android phones"
       }
     ]
   }
