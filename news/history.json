@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-04T21:01:30.628752+00:00",
+    "items": [
+      {
+        "title": "Zyxel Patches Zero-Day Exploited Against 1,000 Switches",
+        "link": "https://www.bleepingcomputer.com/news/security/zyxel-fixes-zero-day-exploited-to-hack-nearly-1-000-network-switches/",
+        "why": "Active zero-day exploited at scale, now patched"
+      },
+      {
+        "title": "DreamHost Data Breach Exposes FTP Logins, Webmail Sessions",
+        "link": "https://www.bleepingcomputer.com/news/security/dreamhost-confirms-data-breach-exposed-ftp-logins-and-webmail-sessions/",
+        "why": "Major hosting provider breached for two months"
+      },
+      {
+        "title": "Cyberattack Disrupts Blood Storage Refrigeration in France",
+        "link": "https://www.bleepingcomputer.com/news/security/cyberattack-disrupts-blood-storage-refrigeration-systems-in-france/",
+        "why": "Cyberattack with real-world safety consequences"
+      },
+      {
+        "title": "Nintendo Switch Cartridge Supplier Exits ROM Business",
+        "link": "https://www.engadget.com/2306886/nintendos-main-switch-cartridge-supplier-is-leaving-the-rom-business/",
+        "why": "Physical game media supply chain disrupted"
+      },
+      {
+        "title": "ChatGPT Now Creates Animated GIFs via Images 2.6",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1026474/openai-chatgpt-animated-gifs-images-2-6",
+        "why": "OpenAI expands image generation capabilities"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-04T11:01:16.572337+00:00",
     "items": [
       {
@@ -186,102 +216,6 @@
         "title": "Government Linux Servers Hit With SysGoRAT and AI Scripts",
         "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxOeXBoNG5MWlhoU2VqOTRfLXNtYXJ0THNoY191UE54amprSFRLUmJqRHZ4blNsTnFxdWZlcThRZWRjZENXZWUwRXJfTXN0TTdIU0NjbmtUck5mcGh3bnlEM1dfWnU0c3g4c0lZcktHVEs3SnNqaEh0Vjl4aWttSXpRcFFkVQ?oc=5",
         "why": "Nation-state targets government servers with AI-generated attacks"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-01T21:01:14.123434+00:00",
-    "items": [
-      {
-        "title": "OpenAI Raises Less Than Half of $30 Billion Target",
-        "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQTW9TMmVsZkc2b05TYkloVW41X050RjdtZ1F5U01TRnJOSEthYTJpcDdPWVhJb0FvRGEteHgtbVhSS0lOVEZ3T2N5MTNpSUNWNXpETThZR0RvcFQwY2Q5R3ctRUFvM1ZtdFdMaXhGSnpPM2FiLUhORXNrem84cUpfVGpuQ0VmaGNsZUlxUVQ0dk4zQUE2cWFzUk8yM1R3cjc3dEczVw?oc=5",
-        "why": "OpenAI funding shortfall signals investor caution on AI valuations",
-        "sources": [
-          "\"hacker news ai\" - Google News"
-        ]
-      },
-      {
-        "title": "FBI Links $6.3B Binance Crypto Heist to North Korea",
-        "link": "https://www.bleepingcomputer.com/news/security/fbi-links-63-billion-binance-crypto-heist-to-north-korean-hackers/",
-        "why": "Largest crypto heist ever linked to North Korean state hackers"
-      },
-      {
-        "title": "OpenAI Doubles Pro Usage Limits, Merges Work Into Chat",
-        "link": "https://www.bleepingcomputer.com/news/artificial-intelligence/openai-says-its-doubling-pro-usage-limits-and-bringing-work-features-to-chat/",
-        "why": "OpenAI consolidates Work features into ChatGPT, doubles Pro limits"
-      },
-      {
-        "title": "xAI Must Face NAACP Lawsuit Over Data Center Pollution",
-        "link": "https://www.engadget.com/2303462/judge-says-xai-must-face-naacp-lawsuit-on-data-center-pollution/",
-        "why": "xAI Memphis data center faces legal challenge over community pollution"
-      },
-      {
-        "title": "UK Plans Largest Substation for Teesside AI Data Centre",
-        "link": "https://www.theguardian.com/business/2026/nov/01/national-grid-to-site-biggest-substation-on-teesside-near-planned-ai-datacentre",
-        "why": "UK backs massive AI infrastructure with largest-ever grid substation"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-01T20:01:04.972118+00:00",
-    "items": [
-      {
-        "title": "FBI Links $6.3B Binance Crypto Heist to North Korean Hackers",
-        "link": "https://www.bleepingcomputer.com/news/security/fbi-links-63-billion-binance-crypto-heist-to-north-korean-hackers/",
-        "why": "Largest crypto theft ever, state-sponsored, major security"
-      },
-      {
-        "title": "OpenAI Doubles Pro Usage Limits, Merges Work Into Chat",
-        "link": "https://www.bleepingcomputer.com/news/artificial-intelligence/openai-says-its-doubling-pro-usage-limits-and-bringing-work-features-to-chat/",
-        "why": "Major ChatGPT product change affecting all Pro users"
-      },
-      {
-        "title": "xAI Must Face NAACP Lawsuit Over Data Center Pollution",
-        "link": "https://www.engadget.com/2303462/judge-says-xai-must-face-naacp-lawsuit-on-data-center-pollution/",
-        "why": "AI infrastructure faces growing legal accountability"
-      },
-      {
-        "title": "Alpine Linux Rebuilds GitLab After Attempted RCE Attack",
-        "link": "https://www.bleepingcomputer.com/news/security/alpine-linux-rebuilds-gitlab-after-attempted-rce-attack/",
-        "why": "Open-source supply chain security incident at scale",
-        "sources": [
-          "BleepingComputer"
-        ]
-      },
-      {
-        "title": "Apple HomeView Code Hints at Security Camera Features",
-        "link": "https://www.theverge.com/tech/1024219/apples-homeview-could-add-security-camera-features",
-        "why": "Apple expanding smart home hub into security cameras"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-01T11:01:31.750459+00:00",
-    "items": [
-      {
-        "title": "FBI Attributes Record $6.4B Binance Crypto Heist to North Korea",
-        "link": "https://thehackernews.com/2026/11/fbi-links-north-koreas-tradertraitor-to.html",
-        "why": "Largest crypto theft ever, state-sponsored, major precedent"
-      },
-      {
-        "title": "CVSS 10.0 Flaw in Canonical LXD and MicroCloud Allows Client Impersonation",
-        "link": "https://thehackernews.com/2026/11/critical-lxd-and-microcloud-flaw-cvss.html",
-        "why": "Max-severity vulnerability in widely deployed cloud infrastructure"
-      },
-      {
-        "title": "Researchers Demonstrate ChatGPT Account Takeover via Artifacts Exploit",
-        "link": "https://simonwillison.net/2026/Oct/31/how-we-took-over-chatgpt-accounts/",
-        "why": "Direct account compromise in OpenAI platform, broad impact"
-      },
-      {
-        "title": "Polymarket Traders Lose $2.7M in Hijacked Third-Party Script Attack",
-        "link": "https://thehackernews.com/2026/11/hackers-steal-about-27-million-from.html",
-        "why": "Supply-chain attack hits major prediction market platform"
-      },
-      {
-        "title": "Northflank Breach Exposes Customer AI API Keys to Abuse",
-        "link": "https://www.bleepingcomputer.com/news/security/northflank-security-breach-leads-to-abuse-of-customers-ai-api-keys/",
-        "why": "Cloud platform breach leads to active AI key exploitation"
       }
     ]
   }
