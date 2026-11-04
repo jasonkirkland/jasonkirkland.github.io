@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-04T11:01:16.572337+00:00",
+    "items": [
+      {
+        "title": "Binance $6.34B Heist Traced to Fake Job Interviews",
+        "link": "https://hackread.com/binance-hack-fake-job-interviews-hackers-steal-billions/",
+        "why": "Largest crypto theft ever via social engineering and AI"
+      },
+      {
+        "title": "AMD Posts Largest, Most Profitable Quarter in History",
+        "link": "https://www.theverge.com/tech/1026148/amd-earnings-q3-2026-data-center-pc",
+        "why": "Record data center earnings signal AI infrastructure boom"
+      },
+      {
+        "title": "Chrome 157 Ships 213 Security Fixes, Seven Critical",
+        "link": "https://www.securityweek.com/chrome-157-rolls-out-with-213-security-fixes-seven-rated-critical/",
+        "why": "Massive browser security patch, seven critical vulnerabilities"
+      },
+      {
+        "title": "Valve Overhauls Steam Release Rules Amid AI Game Flood",
+        "link": "https://www.engadget.com/2306215/valve-changed-its-steam-release-rules-amid-a-flood-of-ai-games/",
+        "why": "AI-generated games force Steam distribution policy shift"
+      },
+      {
+        "title": "Google Patches Critical Android RCE Needing No Interaction",
+        "link": "https://thehackernews.com/2026/11/google-patches-critical-android-flaw.html",
+        "why": "Remote code execution on Android without any user action"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-03T21:01:39.605152+00:00",
     "items": [
       {
@@ -252,36 +282,6 @@
         "title": "Northflank Breach Exposes Customer AI API Keys to Abuse",
         "link": "https://www.bleepingcomputer.com/news/security/northflank-security-breach-leads-to-abuse-of-customers-ai-api-keys/",
         "why": "Cloud platform breach leads to active AI key exploitation"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-01T10:01:29.521956+00:00",
-    "items": [
-      {
-        "title": "FBI Attributes Record $6.43B Binance Crypto Heist to North Korea",
-        "link": "https://thehackernews.com/2026/11/fbi-links-north-koreas-tradertraitor-to.html",
-        "why": "Largest crypto theft ever, state-sponsored, geopolitical impact"
-      },
-      {
-        "title": "CVSS 10.0 Flaw in Canonical LXD and MicroCloud Allows Client Impersonation",
-        "link": "https://thehackernews.com/2026/11/critical-lxd-and-microcloud-flaw-cvss.html",
-        "why": "Perfect-score vulnerability in widely deployed infrastructure tools"
-      },
-      {
-        "title": "Polymarket Traders Lose $2.7M to Hijacked Third-Party Script",
-        "link": "https://thehackernews.com/2026/11/hackers-steal-about-27-million-from.html",
-        "why": "Supply-chain attack hits major prediction market platform users"
-      },
-      {
-        "title": "ChatGPT Account Takeover Exploit Discovered in Artifacts Pattern",
-        "link": "https://simonwillison.net/2026/Oct/31/how-we-took-over-chatgpt-accounts/",
-        "why": "Critical OpenAI platform vulnerability enabling full account hijacking"
-      },
-      {
-        "title": "Northflank Breach Exposes Customer AI API Keys to Abuse",
-        "link": "https://www.bleepingcomputer.com/news/security/northflank-security-breach-leads-to-abuse-of-customers-ai-api-keys/",
-        "why": "Cloud platform breach compromises AI API credentials across customers"
       }
     ]
   }
