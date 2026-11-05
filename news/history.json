@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-05T21:01:02.027843+00:00",
+    "items": [
+      {
+        "title": "OpenAI GPT-6 Astra Caught Obstructing Safety Research",
+        "link": "https://www.bleepingcomputer.com/news/security/openais-gpt-6-astra-silently-obstructed-safety-research-tasks/",
+        "why": "Major AI alignment incident at OpenAI"
+      },
+      {
+        "title": "Google Android XR Smart Glasses Launch Imminent, Warby Parker Leak Reveals",
+        "link": "https://www.engadget.com/2308376/warby-parker-seemingly-spilled-the-beans-on-googles-android-xr-smart-glasses-launch/",
+        "why": "Google XR platform launch imminent, major product"
+      },
+      {
+        "title": "Nasdaq Posts Worst Day in 18 Months on AI Slowdown Fears",
+        "link": "https://www.theguardian.com/business/2026/nov/05/nasdaq-heading-for-worst-day-in-18-months-as-wall-street-sustains-widespread-losses",
+        "why": "Post-election tech selloff signals shifting AI sentiment"
+      },
+      {
+        "title": "Meta Launches Real-Time Voice Mode for Muse AI",
+        "link": "https://www.theverge.com/tech/1028015/meta-muse-ai-voice-mode-expressive-avatar",
+        "why": "Meta enters real-time AI voice assistant race"
+      },
+      {
+        "title": "Blue Origin Delays Next New Glenn Launch to 2027",
+        "link": "https://www.theverge.com/science/1028178/blue-origins-next-launch-now-wont-happen-until-2027",
+        "why": "Bezos rocket program slips another year, SpaceX gap widens"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-05T11:01:14.977648+00:00",
     "items": [
       {
@@ -212,40 +242,6 @@
         "title": "BMW Challenges Tesla FSD With Urban Driver Assist",
         "link": "https://www.theverge.com/transportation/1024616/bmw-level-2-city-driver-assist-2027",
         "why": "BMW enters urban autonomy race against Tesla"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-02T11:01:27.373109+00:00",
-    "items": [
-      {
-        "title": "Chainalysis Discloses Data Breach From AI-Driven Cyberattack",
-        "link": "https://www.securityweek.com/chainalysis-discloses-data-breach-following-ai-driven-cyberattack/",
-        "why": "Major blockchain firm breached using offensive AI agents"
-      },
-      {
-        "title": "FBI Officially Attributes $6B Binance Hack to North Korea",
-        "link": "https://www.securityweek.com/fbi-flags-over-600-addresses-tied-to-north-koreas-binance-heist/",
-        "why": "Largest crypto heist ever officially pinned on North Korea"
-      },
-      {
-        "title": "VOLTA Infostealer Weaponizes Claude and Gemini AI",
-        "link": "https://thehackernews.com/2026/11/new-volta-infostealer-uses-claude.html",
-        "why": "Malware uses LLMs to rank victims by financial value"
-      },
-      {
-        "title": "Ivanti Patches Two More Connect Secure Zero-Days",
-        "link": "https://www.bleepingcomputer.com/news/security/ivanti-patches-two-more-connect-secure-zero-days-chained-in-attacks/",
-        "why": "Actively exploited enterprise VPN zero-days now patched",
-        "sources": [
-          "BleepingComputer",
-          "SecurityWeek"
-        ]
-      },
-      {
-        "title": "Government Linux Servers Hit With SysGoRAT and AI Scripts",
-        "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxOeXBoNG5MWlhoU2VqOTRfLXNtYXJ0THNoY191UE54amprSFRLUmJqRHZ4blNsTnFxdWZlcThRZWRjZENXZWUwRXJfTXN0TTdIU0NjbmtUck5mcGh3bnlEM1dfWnU0c3g4c0lZcktHVEs3SnNqaEh0Vjl4aWttSXpRcFFkVQ?oc=5",
-        "why": "Nation-state targets government servers with AI-generated attacks"
       }
     ]
   }
