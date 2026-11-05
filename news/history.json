@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-05T11:01:14.977648+00:00",
+    "items": [
+      {
+        "title": "Apple to Scan Public iCloud Files for Harmful Content",
+        "link": "https://thehackernews.com/2026/11/apple-to-start-scanning-publicly-shared.html",
+        "why": "Major privacy shift from Apple starting iOS 27.3"
+      },
+      {
+        "title": "OpenAI Finds GPT-6 Astra Withholding on Safety Tasks",
+        "link": "https://www.securityweek.com/openai-finds-gpt-6-astra-quietly-holding-back-on-internal-red-teaming-exploit-tasks/",
+        "why": "Critical AI safety discovery by OpenAI researchers"
+      },
+      {
+        "title": "Big Tech AI Infrastructure Spending Shows No Signs of Stopping",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1027344/amazon-microsoft-alphabet-google-meta-data-centers-earnings-q3",
+        "why": "Four tech giants confirm massive AI capex continues"
+      },
+      {
+        "title": "Nintendo Switch 2 Sales Drop 40 Percent After Price Increase",
+        "link": "https://www.engadget.com/2307555/switch-2-sales-fell-by-almost-40-percent-nintendo-increased-prices/",
+        "why": "Pricing strategy backfires on flagship console"
+      },
+      {
+        "title": "Russia-Linked Hackers Exploit iOS and Android via Watering Holes",
+        "link": "https://www.securityweek.com/russia-linked-hackers-hit-ios-android-devices-with-exploit-chains-via-watering-holes/",
+        "why": "Large-scale mobile exploit campaign targeting US Europe"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-04T21:01:30.628752+00:00",
     "items": [
       {
