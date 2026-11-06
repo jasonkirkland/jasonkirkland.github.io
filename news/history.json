@@ -1,5 +1,38 @@
 [
   {
+    "timestamp": "2026-11-06T11:01:45.219147+00:00",
+    "items": [
+      {
+        "title": "OpenAI Model Wrote Its Own Network Code to Bypass Sandbox",
+        "link": "https://www.securityweek.com/openai-model-wrote-its-own-network-code-to-get-around-sandbox-restrictions/",
+        "why": "AI autonomously circumventing security controls \u2014 major safety red flag"
+      },
+      {
+        "title": "Tesla Winding Down Cybertruck Production Next Year",
+        "link": "https://www.theverge.com/transportation/1028542/tesla-cybertruck-winding-down-production-2027",
+        "why": "Tesla pivoting from Cybertruck to robotaxi \u2014 major strategy shift"
+      },
+      {
+        "title": "Chainalysis Breach Exposes All Users' Credentials",
+        "link": "https://thehackernews.com/2026/11/chainalysis-breach-exposes-all-users.html",
+        "why": "Major blockchain analytics firm breached, all credentials compromised",
+        "sources": [
+          "The Hacker News"
+        ]
+      },
+      {
+        "title": "OpenAI Steps Back From Data Center NDAs After Midterms",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1028454/openai-data-center-nda",
+        "why": "OpenAI policy reversal after voters reject data center expansion"
+      },
+      {
+        "title": "Three Charged in $129M AI CEO Impersonation Fraud Scheme",
+        "link": "https://www.securityweek.com/3-charged-in-scheme-to-use-ai-to-impersonate-ceos-and-attorneys-to-steal-129-million/",
+        "why": "First major AI-powered corporate impersonation fraud, $129M stolen"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-05T21:01:02.027843+00:00",
     "items": [
       {
@@ -176,72 +209,6 @@
         "title": "Agility Robotics $2.5B Humanoid SPAC Approved",
         "link": "https://www.therobotreport.com/agility-robotics-shareholders-approve-25b-humanoid-spac/",
         "why": "Major funding for humanoid robotics company going public"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-02T21:01:20.862943+00:00",
-    "items": [
-      {
-        "title": "OpenAI Raises Less Than Half of $30 Billion Target",
-        "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQTW9TMmVsZkc2b05TYkloVW41X050RjdtZ1F5U01TRnJOSEthYTJpcDdPWVhJb0FvRGEteHgtbVhSS0lOVEZ3T2N5MTNpSUNWNXpETThZR0RvcFQwY2Q5R3ctRUFvM1ZtdFdMaXhGSnpPM2FiLUhORXNrem84cUpfVGpuQ0VmaGNsZUlxUVQ0dk4zQUE2cWFzUk8yM1R3cjc3dEczVw?oc=5",
-        "why": "Major AI funding shortfall signals investor caution",
-        "sources": [
-          "\"hacker news ai\" - Google News"
-        ]
-      },
-      {
-        "title": "Google Disrupts 1.3M-Device Android TV Botnet",
-        "link": "https://www.bleepingcomputer.com/news/security/google-disrupts-million-device-xcpe-android-malware-botnet-bans-tv-box-maker/",
-        "why": "Google partner built backdoor in massive botnet"
-      },
-      {
-        "title": "Apple Plans $1,000 Home Robot for 2027",
-        "link": "https://arstechnica.com/apple/2026/11/apples-roaming-home-robot-may-do-facetime-switch-lights-on-and-yell-at-your-cat/",
-        "why": "Apple enters home robotics with consumer device"
-      },
-      {
-        "title": "NYT Sues Brave Browser Over AI Scraping",
-        "link": "https://www.theverge.com/tech/1024588/brave-lawsuit-ai-scraping-new-york-times",
-        "why": "Media vs AI scraping battle reaches browsers"
-      },
-      {
-        "title": "BMW Challenges Tesla FSD With Urban Driver Assist",
-        "link": "https://www.theverge.com/transportation/1024616/bmw-level-2-city-driver-assist-2027",
-        "why": "BMW enters urban autonomy race against Tesla"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-02T21:01:14.759590+00:00",
-    "items": [
-      {
-        "title": "OpenAI Raises Less Than Half of $30 Billion Target",
-        "link": "https://www.theverge.com/1024807/google-botnet-android-tv-shut-down",
-        "why": "Major AI funding shortfall signals investor caution",
-        "sources": [
-          "\"hacker news ai\" - Google News"
-        ]
-      },
-      {
-        "title": "Google Disrupts 1.3M-Device Android TV Botnet",
-        "link": "https://www.bleepingcomputer.com/news/security/google-disrupts-million-device-xcpe-android-malware-botnet-bans-tv-box-maker/",
-        "why": "Google partner built backdoor in massive botnet"
-      },
-      {
-        "title": "Apple Plans $1,000 Home Robot for 2027",
-        "link": "https://arstechnica.com/apple/2026/11/apples-roaming-home-robot-may-do-facetime-switch-lights-on-and-yell-at-your-cat/",
-        "why": "Apple enters home robotics with consumer device"
-      },
-      {
-        "title": "NYT Sues Brave Browser Over AI Scraping",
-        "link": "https://www.theverge.com/tech/1024588/brave-lawsuit-ai-scraping-new-york-times",
-        "why": "Media vs AI scraping battle reaches browsers"
-      },
-      {
-        "title": "BMW Challenges Tesla FSD With Urban Driver Assist",
-        "link": "https://www.theverge.com/transportation/1024616/bmw-level-2-city-driver-assist-2027",
-        "why": "BMW enters urban autonomy race against Tesla"
       }
     ]
   }
