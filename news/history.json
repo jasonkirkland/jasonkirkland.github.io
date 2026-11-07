@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-07T21:02:07.738523+00:00",
+    "items": [
+      {
+        "title": "Tesla Winding Down Cybertruck Production Per Musk",
+        "link": "https://www.theverge.com/transportation/1029460/elon-musk-cybertruck-death-election-backlash",
+        "why": "Musk kills Cybertruck; major Tesla product reversal"
+      },
+      {
+        "title": "Hackers Steal $133M From French Bank via Supplier",
+        "link": "https://www.bleepingcomputer.com/news/security/hackers-pull-off-133-million-french-bank-heist-via-service-provider/",
+        "why": "Major cyber heist via supply chain; $133M lost"
+      },
+      {
+        "title": "Nvidia Chips Sold to Empty Office in China",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1029483/nvidia-ai-chips-china-blacklist-government",
+        "why": "Export control enforcement failing; Nvidia scrutiny rises"
+      },
+      {
+        "title": "FAA Deploys First US Digital Air Traffic Towers",
+        "link": "https://www.theguardian.com/us-news/2026/nov/07/faa-digital-air-traffic-control-tower-technology",
+        "why": "First US digital ATC towers; major infra modernization"
+      },
+      {
+        "title": "Microsoft Shuts Down AI Frontiers Research Group",
+        "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxQME92WmYybWVqOXAtUW5OTzVsZVlwdHpEakEwX1QzVVE5RmcxeEtZaERTc3hKNU5zTVhXeFlpU3NRT2RvZUNtS0FOb0lCeGNodXNRb3ZwdXJKOWZST2FURFJEUXRzN1NFNjltelpDeWRSLWc4SXh4WW96Q0prRDVENHdNczZ1clM5elAtTlg3V1hzU1UxQTBHb1JiWGxTZlZ1SG14cEN4YzYwam90UGJjRmdvaUZ6dUduS0tlQWFSQklfZ2Ji?oc=5",
+        "why": "Microsoft restructures AI research; key leader exits"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-07T11:00:51.808110+00:00",
     "items": [
       {
@@ -149,66 +179,6 @@
         "title": "Russia-Linked Hackers Exploit iOS and Android via Watering Holes",
         "link": "https://www.securityweek.com/russia-linked-hackers-hit-ios-android-devices-with-exploit-chains-via-watering-holes/",
         "why": "Large-scale mobile exploit campaign targeting US Europe"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-04T21:01:30.628752+00:00",
-    "items": [
-      {
-        "title": "Zyxel Patches Zero-Day Exploited Against 1,000 Switches",
-        "link": "https://www.bleepingcomputer.com/news/security/zyxel-fixes-zero-day-exploited-to-hack-nearly-1-000-network-switches/",
-        "why": "Active zero-day exploited at scale, now patched"
-      },
-      {
-        "title": "DreamHost Data Breach Exposes FTP Logins, Webmail Sessions",
-        "link": "https://www.bleepingcomputer.com/news/security/dreamhost-confirms-data-breach-exposed-ftp-logins-and-webmail-sessions/",
-        "why": "Major hosting provider breached for two months"
-      },
-      {
-        "title": "Cyberattack Disrupts Blood Storage Refrigeration in France",
-        "link": "https://www.bleepingcomputer.com/news/security/cyberattack-disrupts-blood-storage-refrigeration-systems-in-france/",
-        "why": "Cyberattack with real-world safety consequences"
-      },
-      {
-        "title": "Nintendo Switch Cartridge Supplier Exits ROM Business",
-        "link": "https://www.engadget.com/2306886/nintendos-main-switch-cartridge-supplier-is-leaving-the-rom-business/",
-        "why": "Physical game media supply chain disrupted"
-      },
-      {
-        "title": "ChatGPT Now Creates Animated GIFs via Images 2.6",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1026474/openai-chatgpt-animated-gifs-images-2-6",
-        "why": "OpenAI expands image generation capabilities"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-04T11:01:16.572337+00:00",
-    "items": [
-      {
-        "title": "Binance $6.34B Heist Traced to Fake Job Interviews",
-        "link": "https://hackread.com/binance-hack-fake-job-interviews-hackers-steal-billions/",
-        "why": "Largest crypto theft ever via social engineering and AI"
-      },
-      {
-        "title": "AMD Posts Largest, Most Profitable Quarter in History",
-        "link": "https://www.theverge.com/tech/1026148/amd-earnings-q3-2026-data-center-pc",
-        "why": "Record data center earnings signal AI infrastructure boom"
-      },
-      {
-        "title": "Chrome 157 Ships 213 Security Fixes, Seven Critical",
-        "link": "https://www.securityweek.com/chrome-157-rolls-out-with-213-security-fixes-seven-rated-critical/",
-        "why": "Massive browser security patch, seven critical vulnerabilities"
-      },
-      {
-        "title": "Valve Overhauls Steam Release Rules Amid AI Game Flood",
-        "link": "https://www.engadget.com/2306215/valve-changed-its-steam-release-rules-amid-a-flood-of-ai-games/",
-        "why": "AI-generated games force Steam distribution policy shift"
-      },
-      {
-        "title": "Google Patches Critical Android RCE Needing No Interaction",
-        "link": "https://thehackernews.com/2026/11/google-patches-critical-android-flaw.html",
-        "why": "Remote code execution on Android without any user action"
       }
     ]
   }
