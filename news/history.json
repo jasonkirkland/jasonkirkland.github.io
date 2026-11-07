@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-07T11:00:51.808110+00:00",
+    "items": [
+      {
+        "title": "OpenAI Hits $1.25 Trillion Valuation in New Funding Round",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1029380/openai-1-25-trillion-investment-valuation",
+        "why": "Largest AI company valuation ever; reshapes industry"
+      },
+      {
+        "title": "Claude Code Exposes Developer Secrets Across 1,122 GitHub Repos",
+        "link": "https://thehackernews.com/2026/11/claude-codes-dont-ask-again-file.html",
+        "why": "Active credential leak from Anthropic AI coding tool"
+      },
+      {
+        "title": "China Recruited AI Executive to Spy on Nvidia CEO Jensen Huang",
+        "link": "https://www.theverge.com/tech/1029338/nvidia-ceo-jensen-huang-china-spy",
+        "why": "Nation-state espionage targeting top AI chipmaker"
+      },
+      {
+        "title": "SonicWall SSL-VPN MFA Bypass Flaw Actively Exploited in Attacks",
+        "link": "https://www.bleepingcomputer.com/news/security/sonicwall-warns-of-new-ssl-vpn-mfa-bypass-flaw-exploited-in-attacks/",
+        "why": "Active exploit bypasses MFA on enterprise VPN firewalls"
+      },
+      {
+        "title": "SpaceX Declares Starlink Mobile a Major Mobile Carrier",
+        "link": "https://www.theverge.com/science/1029162/spacex-starlink-mobile-elon-musk-news",
+        "why": "Satellite-to-cell disrupts entire telecom carrier market"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-06T21:01:29.439580+00:00",
     "items": [
       {
@@ -179,36 +209,6 @@
         "title": "Google Patches Critical Android RCE Needing No Interaction",
         "link": "https://thehackernews.com/2026/11/google-patches-critical-android-flaw.html",
         "why": "Remote code execution on Android without any user action"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-03T21:01:39.605152+00:00",
-    "items": [
-      {
-        "title": "OpenAI Raises Less Than Half of $30B Funding Target",
-        "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQTW9TMmVsZkc2b05TYkloVW41X050RjdtZ1F5U01TRnJOSEthYTJpcDdPWVhJb0FvRGEteHgtbVhSS0lOVEZ3T2N5MTNpSUNWNXpETThZR0RvcFQwY2Q5R3ctRUFvM1ZtdFdMaXhGSnpPM2FiLUhORXNrem84cUpfVGpuQ0VmaGNsZUlxUVQ0dk4zQUE2cWFzUk8yM1R3cjc3dEczVw?oc=5",
-        "why": "OpenAI funding shortfall signals investor caution on AI valuations"
-      },
-      {
-        "title": "North Korean Hackers Steal $6.3B from Binance via Fake Interview",
-        "link": "https://www.bleepingcomputer.com/news/security/binance-says-fake-job-interview-led-to-63-billion-crypto-heist/",
-        "why": "Largest crypto heist ever via AI-powered social engineering attack"
-      },
-      {
-        "title": "Apple Opens Siri AI to Third-Party Apps in iOS 27.3",
-        "link": "https://www.theverge.com/tech/1025694/apple-siri-ai-third-party-apps",
-        "why": "Apple finally extends Siri automation across third-party ecosystem"
-      },
-      {
-        "title": "Google Admits Search Cannot Function Without AI",
-        "link": "https://www.theguardian.com/technology/2026/nov/03/google-search-artificial-intelligence",
-        "why": "Google confirms AI is now inseparable from core Search product"
-      },
-      {
-        "title": "NYT Sues Brave Over Paywall Bypass and AI Content Deals",
-        "link": "https://arstechnica.com/tech-policy/2026/11/nyt-demands-brave-shut-down-its-paywall-blocker-and-end-deals-with-ai-firms/",
-        "why": "Major publisher escalates legal war against AI and paywall circumvention"
       }
     ]
   }
