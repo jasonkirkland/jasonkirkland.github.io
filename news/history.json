@@ -1,5 +1,25 @@
 [
   {
+    "timestamp": "2026-11-08T11:00:59.856218+00:00",
+    "items": [
+      {
+        "title": "FAA Launches First US Digital Air Traffic Control Towers",
+        "link": "https://www.theguardian.com/us-news/2026/nov/07/faa-digital-air-traffic-control-tower-technology",
+        "why": "Major gov tech infrastructure deployment in aviation"
+      },
+      {
+        "title": "UK Public Bodies Overwhelmed by AI Chatbot-Generated Complaints",
+        "link": "https://www.theguardian.com/technology/2026/nov/08/ai-clog-public-bodies-local-authorities-onslaught-chatbot-generated-correspondence",
+        "why": "AI-driven spam flooding government, real societal impact"
+      },
+      {
+        "title": "Cybersecurity Crisis: Hot Fridges, Fake Nuclear Alert, $6B Heist",
+        "link": "https://www.theguardian.com/news/ng-interactive/2026/nov/08/hot-fridges-a-fake-nuclear-alert-and-a-6bn-heist-are-we-in-the-foothills-of-a-hacking-epidemic",
+        "why": "Escalating cyberattacks signal growing hacking epidemic"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-07T21:02:07.738523+00:00",
     "items": [
       {
