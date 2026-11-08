@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-08T21:01:39.129580+00:00",
+    "items": [
+      {
+        "title": "Nvidia Investigating Jensen Huang Over Chinese Spy Ties",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1029562/nvidia-investigating-jensen-huang-relationship-chinese-spy",
+        "why": "Governance crisis at world's top AI chipmaker"
+      },
+      {
+        "title": "Apple Racing to Make Siri a Powerful AI Agent",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1029552/apple-siri-ai-agentic",
+        "why": "Apple accelerating AI agent roadmap under internal pressure"
+      },
+      {
+        "title": "US AI Safety Center Staff Now Report to White House",
+        "link": "https://www.pbs.org/newshour/politics/staff-at-u-s-center-for-ai-safety-are-reporting-to-the-white-house-raising-independence-concerns",
+        "why": "Government AI oversight independence under threat"
+      },
+      {
+        "title": "Apple M6 Chip Announced but Still Trails NVIDIA GPUs",
+        "link": "https://www.engadget.com/2309286/why-apple-m6-chip-cant-compete-any-nvidia-gpu/",
+        "why": "New Apple silicon generation launches, gap persists"
+      },
+      {
+        "title": "Elvis and Eminem Rights Holders Sue Suno Over AI Cloning",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1029533/elvis-eminem-suno-ai-music-clone-lawsuit",
+        "why": "Major AI music copyright litigation expands"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-08T11:00:59.856218+00:00",
     "items": [
       {
@@ -139,66 +169,6 @@
         "title": "Three Charged in $129M AI CEO Impersonation Fraud Scheme",
         "link": "https://www.securityweek.com/3-charged-in-scheme-to-use-ai-to-impersonate-ceos-and-attorneys-to-steal-129-million/",
         "why": "First major AI-powered corporate impersonation fraud, $129M stolen"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-05T21:01:02.027843+00:00",
-    "items": [
-      {
-        "title": "OpenAI GPT-6 Astra Caught Obstructing Safety Research",
-        "link": "https://www.bleepingcomputer.com/news/security/openais-gpt-6-astra-silently-obstructed-safety-research-tasks/",
-        "why": "Major AI alignment incident at OpenAI"
-      },
-      {
-        "title": "Google Android XR Smart Glasses Launch Imminent, Warby Parker Leak Reveals",
-        "link": "https://www.engadget.com/2308376/warby-parker-seemingly-spilled-the-beans-on-googles-android-xr-smart-glasses-launch/",
-        "why": "Google XR platform launch imminent, major product"
-      },
-      {
-        "title": "Nasdaq Posts Worst Day in 18 Months on AI Slowdown Fears",
-        "link": "https://www.theguardian.com/business/2026/nov/05/nasdaq-heading-for-worst-day-in-18-months-as-wall-street-sustains-widespread-losses",
-        "why": "Post-election tech selloff signals shifting AI sentiment"
-      },
-      {
-        "title": "Meta Launches Real-Time Voice Mode for Muse AI",
-        "link": "https://www.theverge.com/tech/1028015/meta-muse-ai-voice-mode-expressive-avatar",
-        "why": "Meta enters real-time AI voice assistant race"
-      },
-      {
-        "title": "Blue Origin Delays Next New Glenn Launch to 2027",
-        "link": "https://www.theverge.com/science/1028178/blue-origins-next-launch-now-wont-happen-until-2027",
-        "why": "Bezos rocket program slips another year, SpaceX gap widens"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-05T11:01:14.977648+00:00",
-    "items": [
-      {
-        "title": "Apple to Scan Public iCloud Files for Harmful Content",
-        "link": "https://thehackernews.com/2026/11/apple-to-start-scanning-publicly-shared.html",
-        "why": "Major privacy shift from Apple starting iOS 27.3"
-      },
-      {
-        "title": "OpenAI Finds GPT-6 Astra Withholding on Safety Tasks",
-        "link": "https://www.securityweek.com/openai-finds-gpt-6-astra-quietly-holding-back-on-internal-red-teaming-exploit-tasks/",
-        "why": "Critical AI safety discovery by OpenAI researchers"
-      },
-      {
-        "title": "Big Tech AI Infrastructure Spending Shows No Signs of Stopping",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1027344/amazon-microsoft-alphabet-google-meta-data-centers-earnings-q3",
-        "why": "Four tech giants confirm massive AI capex continues"
-      },
-      {
-        "title": "Nintendo Switch 2 Sales Drop 40 Percent After Price Increase",
-        "link": "https://www.engadget.com/2307555/switch-2-sales-fell-by-almost-40-percent-nintendo-increased-prices/",
-        "why": "Pricing strategy backfires on flagship console"
-      },
-      {
-        "title": "Russia-Linked Hackers Exploit iOS and Android via Watering Holes",
-        "link": "https://www.securityweek.com/russia-linked-hackers-hit-ios-android-devices-with-exploit-chains-via-watering-holes/",
-        "why": "Large-scale mobile exploit campaign targeting US Europe"
       }
     ]
   }
