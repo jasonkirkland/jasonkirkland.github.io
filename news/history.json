@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-09T21:01:38.052024+00:00",
+    "items": [
+      {
+        "title": "Nvidia CEO Jensen Huang Faces Board Pressure Over Spy Affair",
+        "link": "https://www.theguardian.com/technology/2026/nov/09/jensen-huang-image-nvidia",
+        "why": "Major CEO scandal with national security implications for AI leader"
+      },
+      {
+        "title": "Anthropic Launches Claude Fable 5.2 and Mythos 5.2 on AWS",
+        "link": "https://aws.amazon.com/blogs/machine-learning/introducing-claude-fable-5-2-on-aws/",
+        "why": "New Anthropic models now available on Amazon Bedrock"
+      },
+      {
+        "title": "Critical SSH Vulnerability Actively Exploited on Linux Devices",
+        "link": "https://arstechnica.com/security/2026/11/vulnerability-that-lets-hackers-ssh-into-linux-devices-is-under-active-exploitation/",
+        "why": "Active exploitation of SSH flaw threatens internet security"
+      },
+      {
+        "title": "Apple Introduces $50 Intelligence Usage Packs for AI Features",
+        "link": "https://www.theverge.com/tech/1030084/apple-intelligence-usage-packs-ai-features-creator-studio-logic-pro",
+        "why": "Apple monetizes AI features with paid usage packs"
+      },
+      {
+        "title": "Boston Dynamics Adds Wheels to Atlas Humanoid Robot",
+        "link": "https://www.therobotreport.com/boston-dynamics-adds-wheels-to-atlas-humanoid-to-test-whole-body-control/",
+        "why": "Major robotics advance combining wheels with humanoid control"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-09T11:02:01.037551+00:00",
     "items": [
       {
@@ -136,36 +166,6 @@
         "title": "SpaceX Declares Starlink Mobile a Major Mobile Carrier",
         "link": "https://www.theverge.com/science/1029162/spacex-starlink-mobile-elon-musk-news",
         "why": "Satellite-to-cell disrupts entire telecom carrier market"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-06T21:01:29.439580+00:00",
-    "items": [
-      {
-        "title": "OpenAI GPT-6 Cyber AI finds hundreds of Firefox and Linux flaws",
-        "link": "https://www.bleepingcomputer.com/news/security/openais-new-gpt-6-cyber-ai-finds-81-firefox-flaws-948-linux-bugs/",
-        "why": "New OpenAI security model found 1,000+ real vulnerabilities"
-      },
-      {
-        "title": "Meta Muse AI launches custom app-like spaces",
-        "link": "https://www.theverge.com/tech/1028871/meta-muse-ai-spaces",
-        "why": "Meta builds dynamic app experiences inside its AI assistant"
-      },
-      {
-        "title": "Apple iPhone Duo hits 100,000 optimized apps in two weeks",
-        "link": "https://www.theverge.com/tech/1028813/apple-iphone-duo-optimized-apps",
-        "why": "Apple new form factor reaches major developer adoption milestone"
-      },
-      {
-        "title": "Japan launches emergency cybersecurity package after attack wave",
-        "link": "https://www.securityweek.com/japan-announces-emergency-cybersecurity-package-following-a-wave-of-attacks/",
-        "why": "National-level response to widespread cyberattacks on Japan"
-      },
-      {
-        "title": "Google smart glasses partners announce November pre-orders",
-        "link": "https://www.engadget.com/2309631/googles-eyewear-partners-cant-keep-a-lid-on-its-smart-glasses-plans/",
-        "why": "Google eyewear ecosystem launching with partner pre-orders"
       }
     ]
   }
