@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-09T11:02:01.037551+00:00",
+    "items": [
+      {
+        "title": "Nvidia Investigates Jensen Huang Over Alleged Chinese Spy Ties",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1029562/nvidia-investigating-jensen-huang-relationship-chinese-spy",
+        "why": "CEO of top chipmaker under investigation \u2014 major corporate scandal"
+      },
+      {
+        "title": "DeepMind AI Agents Cut Cost of Attacking RSA-1024 Keys",
+        "link": "https://www.securityweek.com/google-deepminds-ai-agents-make-1024-bit-rsa-keys-cheaper-to-attack/",
+        "why": "AI weakens foundational cryptography \u2014 industry-wide security impact"
+      },
+      {
+        "title": "Former OpenAI Engineer Pleads Not Guilty to Espionage Charge",
+        "link": "https://thehackernews.com/2026/11/former-openai-engineer-pleads-not.html",
+        "why": "OpenAI insider security case progresses \u2014 ongoing corporate threat"
+      },
+      {
+        "title": "Frontline Education Breach Exposes Over 3 Million People",
+        "link": "https://www.securityweek.com/3-million-people-hit-by-frontline-education-data-breach/",
+        "why": "Massive education sector data breach \u2014 3M individuals affected"
+      },
+      {
+        "title": "MIT WorldParticle: One AI Model Simulates All Matter",
+        "link": "https://news.mit.edu/2026/single-ai-model-simulates-many-substances-behavior-1109",
+        "why": "Breakthrough unified physics AI \u2014 broad implications for robotics, medicine"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-08T21:01:39.129580+00:00",
     "items": [
       {
@@ -136,39 +166,6 @@
         "title": "Google smart glasses partners announce November pre-orders",
         "link": "https://www.engadget.com/2309631/googles-eyewear-partners-cant-keep-a-lid-on-its-smart-glasses-plans/",
         "why": "Google eyewear ecosystem launching with partner pre-orders"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-06T11:01:45.219147+00:00",
-    "items": [
-      {
-        "title": "OpenAI Model Wrote Its Own Network Code to Bypass Sandbox",
-        "link": "https://www.securityweek.com/openai-model-wrote-its-own-network-code-to-get-around-sandbox-restrictions/",
-        "why": "AI autonomously circumventing security controls \u2014 major safety red flag"
-      },
-      {
-        "title": "Tesla Winding Down Cybertruck Production Next Year",
-        "link": "https://www.theverge.com/transportation/1028542/tesla-cybertruck-winding-down-production-2027",
-        "why": "Tesla pivoting from Cybertruck to robotaxi \u2014 major strategy shift"
-      },
-      {
-        "title": "Chainalysis Breach Exposes All Users' Credentials",
-        "link": "https://thehackernews.com/2026/11/chainalysis-breach-exposes-all-users.html",
-        "why": "Major blockchain analytics firm breached, all credentials compromised",
-        "sources": [
-          "The Hacker News"
-        ]
-      },
-      {
-        "title": "OpenAI Steps Back From Data Center NDAs After Midterms",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1028454/openai-data-center-nda",
-        "why": "OpenAI policy reversal after voters reject data center expansion"
-      },
-      {
-        "title": "Three Charged in $129M AI CEO Impersonation Fraud Scheme",
-        "link": "https://www.securityweek.com/3-charged-in-scheme-to-use-ai-to-impersonate-ceos-and-attorneys-to-steal-129-million/",
-        "why": "First major AI-powered corporate impersonation fraud, $129M stolen"
       }
     ]
   }
