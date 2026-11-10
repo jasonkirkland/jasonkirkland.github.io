@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-10T21:01:32.558574+00:00",
+    "items": [
+      {
+        "title": "Git Patches Critical RCE Flaw in Recursive Clones",
+        "link": "https://github.blog/open-source/git/git-security-vulnerabilities-announced-7/",
+        "why": "Critical RCE in core dev tool, patch immediately"
+      },
+      {
+        "title": "Microsoft Patches Actively Exploited Outlook Zero-Day",
+        "link": "https://www.securityweek.com/exploited-outlook-zero-day-among-1094-flaws-patched-by-microsoft/",
+        "why": "Active exploitation of Outlook, patch now"
+      },
+      {
+        "title": "SGLang RCE Exploit Breaches NEAR AI Infrastructure",
+        "link": "https://thehackernews.com/2026/11/sglang-rce-exploit-breaches-near-ai.html",
+        "why": "AI inference engine flaw exploited, data stolen"
+      },
+      {
+        "title": "Nitori Hack Exposes 37.6 Million Customer Records",
+        "link": "https://www.bleepingcomputer.com/news/security/japanese-furniture-giant-nitori-says-hackers-stole-376m-customer-records/",
+        "why": "Massive data breach at major Japanese retailer"
+      },
+      {
+        "title": "New York to Independently Test AI Models",
+        "link": "https://www.engadget.com/2312487/new-york-will-independently-test-ai-models/",
+        "why": "First state to independently audit AI"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-10T11:01:55.258464+00:00",
     "items": [
       {
