@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-10T11:01:55.258464+00:00",
+    "items": [
+      {
+        "title": "Anthropic Launches Claude Fable 5.2, Beats GPT-6 Cyber",
+        "link": "https://thehackernews.com/2026/11/anthropics-claude-fable-52-beats-gpt-6.html",
+        "why": "Major new AI model release from Anthropic, benchmark win"
+      },
+      {
+        "title": "Meta AI Launches Muse Ember Small Efficient Model",
+        "link": "https://simonwillison.net/2026/Nov/10/muse-ember/",
+        "why": "Meta enters small model space against Haiku and Luna"
+      },
+      {
+        "title": "Australia Mandates AI Safety Reporting After OpenAI Hack",
+        "link": "https://www.theguardian.com/technology/2026/nov/10/australia-manadatory-reporting-openai-medicare-hack",
+        "why": "New AI safety regulator and mandatory reporting requirements"
+      },
+      {
+        "title": "Google Patches Eighth Chrome Zero-Day Exploited This Year",
+        "link": "https://www.bleepingcomputer.com/news/security/google-patches-eighth-chrome-zero-day-exploited-in-attacks-this-year/",
+        "why": "Eighth actively exploited Chrome zero-day signals serious trend"
+      },
+      {
+        "title": "France Blames Iran for Cyberattack on 700 Retail Sites",
+        "link": "https://thehackernews.com/2026/11/france-blames-iran-for-sabotage-attack.html",
+        "why": "Nation-state sabotage of infrastructure, European sanctions loom"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-09T21:01:38.052024+00:00",
     "items": [
       {
@@ -136,36 +166,6 @@
         "title": "Microsoft Shuts Down AI Frontiers Research Group",
         "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxQME92WmYybWVqOXAtUW5OTzVsZVlwdHpEakEwX1QzVVE5RmcxeEtZaERTc3hKNU5zTVhXeFlpU3NRT2RvZUNtS0FOb0lCeGNodXNRb3ZwdXJKOWZST2FURFJEUXRzN1NFNjltelpDeWRSLWc4SXh4WW96Q0prRDVENHdNczZ1clM5elAtTlg3V1hzU1UxQTBHb1JiWGxTZlZ1SG14cEN4YzYwam90UGJjRmdvaUZ6dUduS0tlQWFSQklfZ2Ji?oc=5",
         "why": "Microsoft restructures AI research; key leader exits"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-07T11:00:51.808110+00:00",
-    "items": [
-      {
-        "title": "OpenAI Hits $1.25 Trillion Valuation in New Funding Round",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1029380/openai-1-25-trillion-investment-valuation",
-        "why": "Largest AI company valuation ever; reshapes industry"
-      },
-      {
-        "title": "Claude Code Exposes Developer Secrets Across 1,122 GitHub Repos",
-        "link": "https://thehackernews.com/2026/11/claude-codes-dont-ask-again-file.html",
-        "why": "Active credential leak from Anthropic AI coding tool"
-      },
-      {
-        "title": "China Recruited AI Executive to Spy on Nvidia CEO Jensen Huang",
-        "link": "https://www.theverge.com/tech/1029338/nvidia-ceo-jensen-huang-china-spy",
-        "why": "Nation-state espionage targeting top AI chipmaker"
-      },
-      {
-        "title": "SonicWall SSL-VPN MFA Bypass Flaw Actively Exploited in Attacks",
-        "link": "https://www.bleepingcomputer.com/news/security/sonicwall-warns-of-new-ssl-vpn-mfa-bypass-flaw-exploited-in-attacks/",
-        "why": "Active exploit bypasses MFA on enterprise VPN firewalls"
-      },
-      {
-        "title": "SpaceX Declares Starlink Mobile a Major Mobile Carrier",
-        "link": "https://www.theverge.com/science/1029162/spacex-starlink-mobile-elon-musk-news",
-        "why": "Satellite-to-cell disrupts entire telecom carrier market"
       }
     ]
   }
