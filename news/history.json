@@ -1,5 +1,39 @@
 [
   {
+    "timestamp": "2026-11-11T11:01:48.497294+00:00",
+    "items": [
+      {
+        "title": "Microsoft Researchers Backdoor AI Agents by Editing Fewer Than 10 Neurons",
+        "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxQZ21xa3YtMDdBNFNZbzJnVC1SdlNTU1Niblgzak1wOGJraWFlcnVmRnZsRXphSUxSMzVwbS03RzZGTm5XT3dvdzhBVkhFaVlILUVPajRDcDZYb3E2TVBVZnh1NXo1TnZLWjZtUnNNVEVMOWFCOUxLMmpVR0Zscy1RamloVWlRU2U5TEV4d2ZxVlBLeHNGblF6clR5WHZSQkdkQ3J3?oc=5",
+        "why": "Major AI security research with broad implications",
+        "sources": [
+          "\"hacker news ai\" - Google News",
+          "The Hacker News"
+        ]
+      },
+      {
+        "title": "Railway: Stolen AI Keys Led to $740K in Unauthorized Usage Charges",
+        "link": "https://thehackernews.com/2026/11/railway-says-stolen-customer-ai-keys.html",
+        "why": "Real-world AI API key theft with massive cost"
+      },
+      {
+        "title": "Microsoft Patches 1,259 Flaws Including Exploited Outlook Bug",
+        "link": "https://thehackernews.com/2026/11/microsoft-patches-1259-flaws-including.html",
+        "why": "Massive Patch Tuesday with actively exploited bug"
+      },
+      {
+        "title": "NEAR AI Hack: User Data Exposed via SGLang Vulnerability",
+        "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTE15Q3NOZlVmVmxQUUQycl81cGJkX2R1V3hpV3poUWJhT1FqQUlvTEJ0R1dvVWpidmVIcW52a3paRVMwblZvbEVlQ3hIbkt5NHZEYUdSR3djV2FlQXRXdldFWk5EZkpaRy00NGNmdjFfX1dsbXlX?oc=5",
+        "why": "AI platform breach exposing confidential user data"
+      },
+      {
+        "title": "UK Regulator: AI Makes University Coursework Assessment Impossible",
+        "link": "https://www.theguardian.com/education/2026/nov/11/ai-close-to-impossible-assess-university-coursework-regulator",
+        "why": "Major regulatory shift in education due to AI"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-10T21:01:32.558574+00:00",
     "items": [
       {
@@ -146,56 +180,6 @@
         "title": "Elvis and Eminem Rights Holders Sue Suno Over AI Cloning",
         "link": "https://www.theverge.com/ai-artificial-intelligence/1029533/elvis-eminem-suno-ai-music-clone-lawsuit",
         "why": "Major AI music copyright litigation expands"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-08T11:00:59.856218+00:00",
-    "items": [
-      {
-        "title": "FAA Launches First US Digital Air Traffic Control Towers",
-        "link": "https://www.theguardian.com/us-news/2026/nov/07/faa-digital-air-traffic-control-tower-technology",
-        "why": "Major gov tech infrastructure deployment in aviation"
-      },
-      {
-        "title": "UK Public Bodies Overwhelmed by AI Chatbot-Generated Complaints",
-        "link": "https://www.theguardian.com/technology/2026/nov/08/ai-clog-public-bodies-local-authorities-onslaught-chatbot-generated-correspondence",
-        "why": "AI-driven spam flooding government, real societal impact"
-      },
-      {
-        "title": "Cybersecurity Crisis: Hot Fridges, Fake Nuclear Alert, $6B Heist",
-        "link": "https://www.theguardian.com/news/ng-interactive/2026/nov/08/hot-fridges-a-fake-nuclear-alert-and-a-6bn-heist-are-we-in-the-foothills-of-a-hacking-epidemic",
-        "why": "Escalating cyberattacks signal growing hacking epidemic"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-07T21:02:07.738523+00:00",
-    "items": [
-      {
-        "title": "Tesla Winding Down Cybertruck Production Per Musk",
-        "link": "https://www.theverge.com/transportation/1029460/elon-musk-cybertruck-death-election-backlash",
-        "why": "Musk kills Cybertruck; major Tesla product reversal"
-      },
-      {
-        "title": "Hackers Steal $133M From French Bank via Supplier",
-        "link": "https://www.bleepingcomputer.com/news/security/hackers-pull-off-133-million-french-bank-heist-via-service-provider/",
-        "why": "Major cyber heist via supply chain; $133M lost"
-      },
-      {
-        "title": "Nvidia Chips Sold to Empty Office in China",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1029483/nvidia-ai-chips-china-blacklist-government",
-        "why": "Export control enforcement failing; Nvidia scrutiny rises"
-      },
-      {
-        "title": "FAA Deploys First US Digital Air Traffic Towers",
-        "link": "https://www.theguardian.com/us-news/2026/nov/07/faa-digital-air-traffic-control-tower-technology",
-        "why": "First US digital ATC towers; major infra modernization"
-      },
-      {
-        "title": "Microsoft Shuts Down AI Frontiers Research Group",
-        "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxQME92WmYybWVqOXAtUW5OTzVsZVlwdHpEakEwX1QzVVE5RmcxeEtZaERTc3hKNU5zTVhXeFlpU3NRT2RvZUNtS0FOb0lCeGNodXNRb3ZwdXJKOWZST2FURFJEUXRzN1NFNjltelpDeWRSLWc4SXh4WW96Q0prRDVENHdNczZ1clM5elAtTlg3V1hzU1UxQTBHb1JiWGxTZlZ1SG14cEN4YzYwam90UGJjRmdvaUZ6dUduS0tlQWFSQklfZ2Ji?oc=5",
-        "why": "Microsoft restructures AI research; key leader exits"
       }
     ]
   }
