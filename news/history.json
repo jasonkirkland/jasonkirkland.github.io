@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-11T21:01:35.957173+00:00",
+    "items": [
+      {
+        "title": "TSMC to invest $1B in Anthropic and OpenAI",
+        "link": "https://arstechnica.com/ai/2026/11/taiwans-chipmaking-giant-tsmc-to-invest-1b-in-anthropic-openai/",
+        "why": "Worlds largest chipmaker backing top AI labs"
+      },
+      {
+        "title": "Notion customer AI chat transcripts exposed in Fireworks breach",
+        "link": "https://www.bleepingcomputer.com/news/security/notion-says-fireworks-breach-exposed-customer-ai-chat-transcripts/",
+        "why": "Security breach at major AI infrastructure provider"
+      },
+      {
+        "title": "ByteDance reportedly building its own AI agent",
+        "link": "https://www.engadget.com/2314064/bytedance-is-reportedly-working-on-its-own-ai-agent/",
+        "why": "Chinese tech giant enters AI agent race against Meta"
+      },
+      {
+        "title": "United Airlines restricts AI agents from booking flights",
+        "link": "https://www.engadget.com/2314121/united-is-restricting-ai-agents-from-booking-flights/",
+        "why": "Major carrier pushes back on AI agent security"
+      },
+      {
+        "title": "EU Digital Fairness Act targets loot boxes and addictive features",
+        "link": "https://www.theverge.com/policy/1031575/digital-fairness-act-eu-dfa-consumer-protection",
+        "why": "Sweeping new EU rules reshape online platforms"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-11T11:01:48.497294+00:00",
     "items": [
       {
