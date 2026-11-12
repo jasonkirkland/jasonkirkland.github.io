@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-12T21:01:04.075739+00:00",
+    "items": [
+      {
+        "title": "NVIDIA CEO Jensen Huang Ousted Over Spy-Linked Affair",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1032069/jensen-huang-resignation-affair-chips-smuggling",
+        "why": "NVIDIA leadership crisis reshapes AI chip industry landscape"
+      },
+      {
+        "title": "Microsoft 365 Outage Hits Outlook, Teams, Exchange Worldwide",
+        "link": "https://www.securityweek.com/microsoft-365-outage-disrupts-outlook-exchange-online-and-teams/",
+        "why": "Global business productivity outage, cause still under investigation"
+      },
+      {
+        "title": "Google Launches Gemini 4 Hydrogen, Replacing 3.8 Flash",
+        "link": "https://arstechnica.com/google/2026/11/google-rolls-out-gemini-4-hydrogen-finally-replacing-3-8-flash/",
+        "why": "Google latest AI model rollout accelerates Gemini generation cycle"
+      },
+      {
+        "title": "Critical Apache HTTP/2 RCE Vulnerability Patched",
+        "link": "https://www.bleepingcomputer.com/news/security/apache-http-server-patches-critical-http-2-remote-code-execution-flaw/",
+        "why": "Unauthenticated remote code execution in widely deployed web server"
+      },
+      {
+        "title": "Ukraine Reports SpaceX Starshield Restrictions Resume",
+        "link": "https://arstechnica.com/tech-policy/2026/11/ukraine-says-spacex-starshield-is-restricted-again-spacex-claims-it-isnt/",
+        "why": "SpaceX bandwidth limits impact Ukraine defense capabilities again"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-12T11:01:15.190232+00:00",
     "items": [
       {
@@ -183,36 +213,6 @@
         "title": "Boston Dynamics Adds Wheels to Atlas Humanoid Robot",
         "link": "https://www.therobotreport.com/boston-dynamics-adds-wheels-to-atlas-humanoid-to-test-whole-body-control/",
         "why": "Major robotics advance combining wheels with humanoid control"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-09T11:02:01.037551+00:00",
-    "items": [
-      {
-        "title": "Nvidia Investigates Jensen Huang Over Alleged Chinese Spy Ties",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1029562/nvidia-investigating-jensen-huang-relationship-chinese-spy",
-        "why": "CEO of top chipmaker under investigation \u2014 major corporate scandal"
-      },
-      {
-        "title": "DeepMind AI Agents Cut Cost of Attacking RSA-1024 Keys",
-        "link": "https://www.securityweek.com/google-deepminds-ai-agents-make-1024-bit-rsa-keys-cheaper-to-attack/",
-        "why": "AI weakens foundational cryptography \u2014 industry-wide security impact"
-      },
-      {
-        "title": "Former OpenAI Engineer Pleads Not Guilty to Espionage Charge",
-        "link": "https://thehackernews.com/2026/11/former-openai-engineer-pleads-not.html",
-        "why": "OpenAI insider security case progresses \u2014 ongoing corporate threat"
-      },
-      {
-        "title": "Frontline Education Breach Exposes Over 3 Million People",
-        "link": "https://www.securityweek.com/3-million-people-hit-by-frontline-education-data-breach/",
-        "why": "Massive education sector data breach \u2014 3M individuals affected"
-      },
-      {
-        "title": "MIT WorldParticle: One AI Model Simulates All Matter",
-        "link": "https://news.mit.edu/2026/single-ai-model-simulates-many-substances-behavior-1109",
-        "why": "Breakthrough unified physics AI \u2014 broad implications for robotics, medicine"
       }
     ]
   }
