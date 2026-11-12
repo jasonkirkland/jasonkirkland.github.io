@@ -1,5 +1,38 @@
 [
   {
+    "timestamp": "2026-11-12T11:01:15.190232+00:00",
+    "items": [
+      {
+        "title": "Nvidia Board Reportedly Preparing to Oust CEO Jensen Huang",
+        "link": "https://www.theverge.com/tech/1031652/jensen-huang-rumor",
+        "why": "World's top AI chipmaker may lose its founder-CEO"
+      },
+      {
+        "title": "Maersk Confirms Data Theft Amid $5 Million Extortion Attempt",
+        "link": "https://www.securityweek.com/maersk-confirms-data-theft-amid-5-million-extortion-attempt/",
+        "why": "Global shipping giant breached, 100GB data stolen",
+        "sources": [
+          "SecurityWeek"
+        ]
+      },
+      {
+        "title": "4,837 Hijacked GitHub Accounts Used to Plant CI Secret Stealer",
+        "link": "https://thehackernews.com/2026/11/4837-hijacked-github-accounts-ran-ci.html",
+        "why": "Massive supply chain attack targeting developer secrets"
+      },
+      {
+        "title": "Hackers Stole AI Credentials for $740K in Free Compute",
+        "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxObDVlQ29UeUZrZHR2SmVvS2NzSE9odmljYm1neXdSSWhIY3JDY1VLVFNGS2NZT05kMFlUOUM3OHV5YWlndi1qRHVCSk9HRlFBVEVqbkV3UWEyMzg3MGpQYjU0OFRzb0c5RzVHR3drZVVGMkFXeEZWVjAxSVBNVVQ4dmptN0VScjUzSGs0Z3BySUdEOG53YVEyU0hpTXlmRE1SX2FDWHU1WDBDc3BkZE00bTNkQzRtQTQ2OHFCMVV5UVZwUGxKNmd0anZCZlc?oc=5",
+        "why": "Novel attack vector exploiting AI API keys at scale"
+      },
+      {
+        "title": "Critical Apache HTTP/2 Flaw Enables Remote Code Execution",
+        "link": "https://thehackernews.com/2026/11/critical-apache-http2-flaw-could-let.html",
+        "why": "Pre-auth RCE in widely deployed web server software"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-11T21:01:35.957173+00:00",
     "items": [
       {
@@ -180,36 +213,6 @@
         "title": "MIT WorldParticle: One AI Model Simulates All Matter",
         "link": "https://news.mit.edu/2026/single-ai-model-simulates-many-substances-behavior-1109",
         "why": "Breakthrough unified physics AI \u2014 broad implications for robotics, medicine"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-08T21:01:39.129580+00:00",
-    "items": [
-      {
-        "title": "Nvidia Investigating Jensen Huang Over Chinese Spy Ties",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1029562/nvidia-investigating-jensen-huang-relationship-chinese-spy",
-        "why": "Governance crisis at world's top AI chipmaker"
-      },
-      {
-        "title": "Apple Racing to Make Siri a Powerful AI Agent",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1029552/apple-siri-ai-agentic",
-        "why": "Apple accelerating AI agent roadmap under internal pressure"
-      },
-      {
-        "title": "US AI Safety Center Staff Now Report to White House",
-        "link": "https://www.pbs.org/newshour/politics/staff-at-u-s-center-for-ai-safety-are-reporting-to-the-white-house-raising-independence-concerns",
-        "why": "Government AI oversight independence under threat"
-      },
-      {
-        "title": "Apple M6 Chip Announced but Still Trails NVIDIA GPUs",
-        "link": "https://www.engadget.com/2309286/why-apple-m6-chip-cant-compete-any-nvidia-gpu/",
-        "why": "New Apple silicon generation launches, gap persists"
-      },
-      {
-        "title": "Elvis and Eminem Rights Holders Sue Suno Over AI Cloning",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1029533/elvis-eminem-suno-ai-music-clone-lawsuit",
-        "why": "Major AI music copyright litigation expands"
       }
     ]
   }
