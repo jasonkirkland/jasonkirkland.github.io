@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-13T11:01:33.326666+00:00",
+    "items": [
+      {
+        "title": "Nvidia CEO Jensen Huang Resigns Over Chinese Spy Scandal",
+        "link": "https://www.theverge.com/tech/1032434/nvidia-jensen-huang-resignation-reactions",
+        "why": "Nvidia CEO exits over national security scandal, industry shockwave"
+      },
+      {
+        "title": "OpenAI Launches Daybreak Red Team AI Security Tools",
+        "link": "https://www.securityweek.com/openai-unveils-daybreak-red-team-defense-factory-security-tools/",
+        "why": "OpenAI enters AI-powered security testing and patching market"
+      },
+      {
+        "title": "Microsoft Confirms Windows Activation Failures From November Updates",
+        "link": "https://www.bleepingcomputer.com/news/microsoft/microsoft-confirms-windows-activation-failures-after-november-updates/",
+        "why": "Patch Tuesday breaks Windows activation and licensing globally"
+      },
+      {
+        "title": "SpaceX Starship Test Attempts First-Ever Spaceship Catch",
+        "link": "https://phys.org/news/2026-11-spacex-starship-spaceship.html",
+        "why": "SpaceX attempts historic booster recovery milestone today"
+      },
+      {
+        "title": "Operation Endgame Seizes 235 Servers in Cybercrime Takedown",
+        "link": "https://www.securityweek.com/law-enforcement-disrupts-gootloader-castlerat-and-stealc-infrastructure/",
+        "why": "Global law enforcement dismantles major malware infrastructure and credentials"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-12T21:01:04.075739+00:00",
     "items": [
       {
@@ -183,36 +213,6 @@
         "title": "France Blames Iran for Cyberattack on 700 Retail Sites",
         "link": "https://thehackernews.com/2026/11/france-blames-iran-for-sabotage-attack.html",
         "why": "Nation-state sabotage of infrastructure, European sanctions loom"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-09T21:01:38.052024+00:00",
-    "items": [
-      {
-        "title": "Nvidia CEO Jensen Huang Faces Board Pressure Over Spy Affair",
-        "link": "https://www.theguardian.com/technology/2026/nov/09/jensen-huang-image-nvidia",
-        "why": "Major CEO scandal with national security implications for AI leader"
-      },
-      {
-        "title": "Anthropic Launches Claude Fable 5.2 and Mythos 5.2 on AWS",
-        "link": "https://aws.amazon.com/blogs/machine-learning/introducing-claude-fable-5-2-on-aws/",
-        "why": "New Anthropic models now available on Amazon Bedrock"
-      },
-      {
-        "title": "Critical SSH Vulnerability Actively Exploited on Linux Devices",
-        "link": "https://arstechnica.com/security/2026/11/vulnerability-that-lets-hackers-ssh-into-linux-devices-is-under-active-exploitation/",
-        "why": "Active exploitation of SSH flaw threatens internet security"
-      },
-      {
-        "title": "Apple Introduces $50 Intelligence Usage Packs for AI Features",
-        "link": "https://www.theverge.com/tech/1030084/apple-intelligence-usage-packs-ai-features-creator-studio-logic-pro",
-        "why": "Apple monetizes AI features with paid usage packs"
-      },
-      {
-        "title": "Boston Dynamics Adds Wheels to Atlas Humanoid Robot",
-        "link": "https://www.therobotreport.com/boston-dynamics-adds-wheels-to-atlas-humanoid-to-test-whole-body-control/",
-        "why": "Major robotics advance combining wheels with humanoid control"
       }
     ]
   }
