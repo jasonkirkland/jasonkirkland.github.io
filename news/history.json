@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-13T21:01:20.881856+00:00",
+    "items": [
+      {
+        "title": "Nvidia CEO Jensen Huang Resigns Amid Chinese Spy Scandal",
+        "link": "https://www.theguardian.com/technology/2026/nov/13/nvidia-scandal-sparks-us-national-security-concerns-china",
+        "why": "Top AI chipmaker CEO resigns over espionage ties"
+      },
+      {
+        "title": "OpenAI Launches ChatGPT Wallet for AI Agent Purchases",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1033425/openai-chatgpt-wallet",
+        "why": "AI agents can now autonomously make real purchases"
+      },
+      {
+        "title": "Microsoft Outlook Outage Recovering After Two Days",
+        "link": "https://www.theverge.com/tech/1032862/microsoft-outlook-down-outage",
+        "why": "Millions impacted by near two-day Microsoft 365 outage"
+      },
+      {
+        "title": "Google Lets Users Connect Gemini to Bank Accounts",
+        "link": "https://www.engadget.com/2316384/google-now-lets-people-connect-gemini-to-their-bank-accounts/",
+        "why": "Google expands Gemini into personal finance analytics"
+      },
+      {
+        "title": "Trezor Confirms Malicious Implants in Hardware Wallets",
+        "link": "https://www.bleepingcomputer.com/news/cryptocurrency/trezor-confirms-crypto-stealing-implants-in-three-wallets-releases-fix/",
+        "why": "Compromised crypto wallets shipped with stealing malware"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-13T11:01:33.326666+00:00",
     "items": [
       {
@@ -183,36 +213,6 @@
         "title": "New York to Independently Test AI Models",
         "link": "https://www.engadget.com/2312487/new-york-will-independently-test-ai-models/",
         "why": "First state to independently audit AI"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-10T11:01:55.258464+00:00",
-    "items": [
-      {
-        "title": "Anthropic Launches Claude Fable 5.2, Beats GPT-6 Cyber",
-        "link": "https://thehackernews.com/2026/11/anthropics-claude-fable-52-beats-gpt-6.html",
-        "why": "Major new AI model release from Anthropic, benchmark win"
-      },
-      {
-        "title": "Meta AI Launches Muse Ember Small Efficient Model",
-        "link": "https://simonwillison.net/2026/Nov/10/muse-ember/",
-        "why": "Meta enters small model space against Haiku and Luna"
-      },
-      {
-        "title": "Australia Mandates AI Safety Reporting After OpenAI Hack",
-        "link": "https://www.theguardian.com/technology/2026/nov/10/australia-manadatory-reporting-openai-medicare-hack",
-        "why": "New AI safety regulator and mandatory reporting requirements"
-      },
-      {
-        "title": "Google Patches Eighth Chrome Zero-Day Exploited This Year",
-        "link": "https://www.bleepingcomputer.com/news/security/google-patches-eighth-chrome-zero-day-exploited-in-attacks-this-year/",
-        "why": "Eighth actively exploited Chrome zero-day signals serious trend"
-      },
-      {
-        "title": "France Blames Iran for Cyberattack on 700 Retail Sites",
-        "link": "https://thehackernews.com/2026/11/france-blames-iran-for-sabotage-attack.html",
-        "why": "Nation-state sabotage of infrastructure, European sanctions loom"
       }
     ]
   }
