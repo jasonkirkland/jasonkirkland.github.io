@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-14T11:01:43.087918+00:00",
+    "items": [
+      {
+        "title": "Nationwide FAA Ground Stop Halts US Flights for Hours",
+        "link": "https://www.engadget.com/2316792/faa-flights-resume-ground-stop-old-equipment/",
+        "why": "Major infrastructure outage, aging systems blamed"
+      },
+      {
+        "title": "Workday Outage Locks Millions of Employees Out",
+        "link": "https://www.engadget.com/2316804/workday-outage-locks-millions-employees-out-of-account/",
+        "why": "Enterprise HR platform down across thousands of companies"
+      },
+      {
+        "title": "SpaceX Starship Reaches Orbit in Flight 15",
+        "link": "https://arstechnica.com/space/2026/11/starship-flight-15-powers-to-orbit-setting-up-a-possible-catch-on-saturday/",
+        "why": "Orbital milestone achieved despite booster catch failure"
+      },
+      {
+        "title": "Amazon Plans to Index All Online Shopping Data Worldwide",
+        "link": "https://www.theverge.com/tech/1033697/amazon-world-product-graph-ai-search",
+        "why": "Ambitious AI-powered global product data strategy"
+      },
+      {
+        "title": "Cabinet Feud Erupts Over Nvidia Chip Exports to China",
+        "link": "https://www.pbs.org/newshour/show/bessent-accuses-lutnick-of-failing-to-prevent-china-from-obtaining-nvidia-chips",
+        "why": "Top officials spar over chip export enforcement"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-13T21:01:20.881856+00:00",
     "items": [
       {
@@ -183,36 +213,6 @@
         "title": "UK Regulator: AI Makes University Coursework Assessment Impossible",
         "link": "https://www.theguardian.com/education/2026/nov/11/ai-close-to-impossible-assess-university-coursework-regulator",
         "why": "Major regulatory shift in education due to AI"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-10T21:01:32.558574+00:00",
-    "items": [
-      {
-        "title": "Git Patches Critical RCE Flaw in Recursive Clones",
-        "link": "https://github.blog/open-source/git/git-security-vulnerabilities-announced-7/",
-        "why": "Critical RCE in core dev tool, patch immediately"
-      },
-      {
-        "title": "Microsoft Patches Actively Exploited Outlook Zero-Day",
-        "link": "https://www.securityweek.com/exploited-outlook-zero-day-among-1094-flaws-patched-by-microsoft/",
-        "why": "Active exploitation of Outlook, patch now"
-      },
-      {
-        "title": "SGLang RCE Exploit Breaches NEAR AI Infrastructure",
-        "link": "https://thehackernews.com/2026/11/sglang-rce-exploit-breaches-near-ai.html",
-        "why": "AI inference engine flaw exploited, data stolen"
-      },
-      {
-        "title": "Nitori Hack Exposes 37.6 Million Customer Records",
-        "link": "https://www.bleepingcomputer.com/news/security/japanese-furniture-giant-nitori-says-hackers-stole-376m-customer-records/",
-        "why": "Massive data breach at major Japanese retailer"
-      },
-      {
-        "title": "New York to Independently Test AI Models",
-        "link": "https://www.engadget.com/2312487/new-york-will-independently-test-ai-models/",
-        "why": "First state to independently audit AI"
       }
     ]
   }
