@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-14T21:01:34.276453+00:00",
+    "items": [
+      {
+        "title": "FAA Nationwide Ground Stop Tied to Telecom Upgrade",
+        "link": "https://www.npr.org/2026/11/14/nx-s1-6040952/faa-ground-stop-airplane-travel",
+        "why": "Longest flight stoppage in 25 years, contractor upgrade failure"
+      },
+      {
+        "title": "Cursor Breach Enabled Malicious Claude Code Extension",
+        "link": "https://www.bleepingcomputer.com/news/security/cursor-confirms-security-breach-led-to-malicious-claude-code-extension/",
+        "why": "Security breach in major AI coding tool, malicious extension shipped"
+      },
+      {
+        "title": "US Disrupts North Korean $400M Crypto Theft Campaign",
+        "link": "https://www.bleepingcomputer.com/news/security/us-disrupts-north-korean-campaign-behind-400-million-crypto-theft/",
+        "why": "Major cyber operation targets $400M North Korean theft"
+      },
+      {
+        "title": "Apple iPhone Duo Apps Showcase Foldable Launch",
+        "link": "https://www.popsci.com/diy/these-7-apps-really-show-off-the-new-apple-iphone-duos-abilities-tech-tips/",
+        "why": "Apple foldable iPhone launches with developer app showcase"
+      },
+      {
+        "title": "Tesla Invites Select Customers to Buy Cybercab",
+        "link": "https://www.theverge.com/transportation/1033844/tesla-personal-cybercab-orders-299-subscription-fine-print/",
+        "why": "Tesla begins selling autonomous Cybercab for personal use"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-14T11:01:43.087918+00:00",
     "items": [
       {
@@ -179,40 +209,6 @@
         "title": "EU Digital Fairness Act targets loot boxes and addictive features",
         "link": "https://www.theverge.com/policy/1031575/digital-fairness-act-eu-dfa-consumer-protection",
         "why": "Sweeping new EU rules reshape online platforms"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-11T11:01:48.497294+00:00",
-    "items": [
-      {
-        "title": "Microsoft Researchers Backdoor AI Agents by Editing Fewer Than 10 Neurons",
-        "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxQZ21xa3YtMDdBNFNZbzJnVC1SdlNTU1Niblgzak1wOGJraWFlcnVmRnZsRXphSUxSMzVwbS03RzZGTm5XT3dvdzhBVkhFaVlILUVPajRDcDZYb3E2TVBVZnh1NXo1TnZLWjZtUnNNVEVMOWFCOUxLMmpVR0Zscy1RamloVWlRU2U5TEV4d2ZxVlBLeHNGblF6clR5WHZSQkdkQ3J3?oc=5",
-        "why": "Major AI security research with broad implications",
-        "sources": [
-          "\"hacker news ai\" - Google News",
-          "The Hacker News"
-        ]
-      },
-      {
-        "title": "Railway: Stolen AI Keys Led to $740K in Unauthorized Usage Charges",
-        "link": "https://thehackernews.com/2026/11/railway-says-stolen-customer-ai-keys.html",
-        "why": "Real-world AI API key theft with massive cost"
-      },
-      {
-        "title": "Microsoft Patches 1,259 Flaws Including Exploited Outlook Bug",
-        "link": "https://thehackernews.com/2026/11/microsoft-patches-1259-flaws-including.html",
-        "why": "Massive Patch Tuesday with actively exploited bug"
-      },
-      {
-        "title": "NEAR AI Hack: User Data Exposed via SGLang Vulnerability",
-        "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTE15Q3NOZlVmVmxQUUQycl81cGJkX2R1V3hpV3poUWJhT1FqQUlvTEJ0R1dvVWpidmVIcW52a3paRVMwblZvbEVlQ3hIbkt5NHZEYUdSR3djV2FlQXRXdldFWk5EZkpaRy00NGNmdjFfX1dsbXlX?oc=5",
-        "why": "AI platform breach exposing confidential user data"
-      },
-      {
-        "title": "UK Regulator: AI Makes University Coursework Assessment Impossible",
-        "link": "https://www.theguardian.com/education/2026/nov/11/ai-close-to-impossible-assess-university-coursework-regulator",
-        "why": "Major regulatory shift in education due to AI"
       }
     ]
   }
