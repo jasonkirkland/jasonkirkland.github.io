@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-15T11:01:01.206329+00:00",
+    "items": [
+      {
+        "title": "Nvidia CEO Jensen Huang Resigns Amid Spy Affair Scandal",
+        "link": "https://www.theguardian.com/technology/2026/nov/14/jensen-huang-affair-nvidia-nightmare",
+        "why": "Nvidia founder resigns over suspected spy relationship"
+      },
+      {
+        "title": "SpaceX Starship Completes First Orbital Return and Pad Capture",
+        "link": "https://arstechnica.com/space/2026/11/with-starship-catch-spacex-still-shows-it-can-dazzle-the-world/",
+        "why": "Historic first orbital flight recovery via launch pad arms"
+      },
+      {
+        "title": "Trojanized Claude Code Extension Hits Cursor Marketplace",
+        "link": "https://thehackernews.com/2026/11/stolen-fireworks-ai-key-led-to-cursor.html",
+        "why": "Stolen API key compromised Anthropic Cursor extension"
+      },
+      {
+        "title": "Meta Fined $887 Million by Italy Over Android Photo Access",
+        "link": "https://www.securityweek.com/meta-fined-887-million-in-italy-over-android-gallery-photos-and-videos-on-facebook/",
+        "why": "Massive EU privacy fine over Facebook gallery access"
+      },
+      {
+        "title": "South Korea Tax Exam Top Scorer Admits AI Cheating",
+        "link": "https://www.theguardian.com/technology/2026/nov/15/ai-cheating-south-korea-college-entrance-exam",
+        "why": "AI cheating scandal raises exam integrity concerns"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-14T21:01:34.276453+00:00",
     "items": [
       {
@@ -179,36 +209,6 @@
         "title": "Critical Apache HTTP/2 Flaw Enables Remote Code Execution",
         "link": "https://thehackernews.com/2026/11/critical-apache-http2-flaw-could-let.html",
         "why": "Pre-auth RCE in widely deployed web server software"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-11T21:01:35.957173+00:00",
-    "items": [
-      {
-        "title": "TSMC to invest $1B in Anthropic and OpenAI",
-        "link": "https://arstechnica.com/ai/2026/11/taiwans-chipmaking-giant-tsmc-to-invest-1b-in-anthropic-openai/",
-        "why": "Worlds largest chipmaker backing top AI labs"
-      },
-      {
-        "title": "Notion customer AI chat transcripts exposed in Fireworks breach",
-        "link": "https://www.bleepingcomputer.com/news/security/notion-says-fireworks-breach-exposed-customer-ai-chat-transcripts/",
-        "why": "Security breach at major AI infrastructure provider"
-      },
-      {
-        "title": "ByteDance reportedly building its own AI agent",
-        "link": "https://www.engadget.com/2314064/bytedance-is-reportedly-working-on-its-own-ai-agent/",
-        "why": "Chinese tech giant enters AI agent race against Meta"
-      },
-      {
-        "title": "United Airlines restricts AI agents from booking flights",
-        "link": "https://www.engadget.com/2314121/united-is-restricting-ai-agents-from-booking-flights/",
-        "why": "Major carrier pushes back on AI agent security"
-      },
-      {
-        "title": "EU Digital Fairness Act targets loot boxes and addictive features",
-        "link": "https://www.theverge.com/policy/1031575/digital-fairness-act-eu-dfa-consumer-protection",
-        "why": "Sweeping new EU rules reshape online platforms"
       }
     ]
   }
