@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-15T21:01:57.653616+00:00",
+    "items": [
+      {
+        "title": "SpaceX Starship Completes First Orbital Return and Pad Catch",
+        "link": "https://phys.org/news/2026-11-spacex-starship-orbit-captured-pad.html",
+        "why": "Historic first orbital return and mechanical pad catch"
+      },
+      {
+        "title": "Congress Moves to Tighten AI Chip Exports After Nvidia Scandal",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1033984/congress-export-rules-ai-chips-china",
+        "why": "Nvidia CEO scandal triggers Congressional AI chip crackdown"
+      },
+      {
+        "title": "FBI Warns AI-Powered ARTEX Tool Driving Global Cyberattacks",
+        "link": "https://www.bleepingcomputer.com/news/security/fbi-warns-artex-ai-hacking-tool-is-powering-global-cyberattacks/",
+        "why": "AI hacking framework automating attacks on organizations worldwide"
+      },
+      {
+        "title": "Italy Slaps Meta With \u20ac805M Fine Over Android Photo Access",
+        "link": "https://thehackernews.com/2026/11/italy-fines-meta-805-million-over.html",
+        "why": "Major EU privacy fine for unauthorized Android gallery access"
+      },
+      {
+        "title": "Pentagon Renames AI Office to Super Intelligence Per Trump Order",
+        "link": "https://www.securityweek.com/pentagon-renames-cdao-super-intelligence-office/",
+        "why": "Federal government rebrands AI as super intelligence per Trump"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-15T11:01:01.206329+00:00",
     "items": [
       {
@@ -146,69 +176,6 @@
         "title": "Operation Endgame Seizes 235 Servers in Cybercrime Takedown",
         "link": "https://www.securityweek.com/law-enforcement-disrupts-gootloader-castlerat-and-stealc-infrastructure/",
         "why": "Global law enforcement dismantles major malware infrastructure and credentials"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-12T21:01:04.075739+00:00",
-    "items": [
-      {
-        "title": "NVIDIA CEO Jensen Huang Ousted Over Spy-Linked Affair",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1032069/jensen-huang-resignation-affair-chips-smuggling",
-        "why": "NVIDIA leadership crisis reshapes AI chip industry landscape"
-      },
-      {
-        "title": "Microsoft 365 Outage Hits Outlook, Teams, Exchange Worldwide",
-        "link": "https://www.securityweek.com/microsoft-365-outage-disrupts-outlook-exchange-online-and-teams/",
-        "why": "Global business productivity outage, cause still under investigation"
-      },
-      {
-        "title": "Google Launches Gemini 4 Hydrogen, Replacing 3.8 Flash",
-        "link": "https://arstechnica.com/google/2026/11/google-rolls-out-gemini-4-hydrogen-finally-replacing-3-8-flash/",
-        "why": "Google latest AI model rollout accelerates Gemini generation cycle"
-      },
-      {
-        "title": "Critical Apache HTTP/2 RCE Vulnerability Patched",
-        "link": "https://www.bleepingcomputer.com/news/security/apache-http-server-patches-critical-http-2-remote-code-execution-flaw/",
-        "why": "Unauthenticated remote code execution in widely deployed web server"
-      },
-      {
-        "title": "Ukraine Reports SpaceX Starshield Restrictions Resume",
-        "link": "https://arstechnica.com/tech-policy/2026/11/ukraine-says-spacex-starshield-is-restricted-again-spacex-claims-it-isnt/",
-        "why": "SpaceX bandwidth limits impact Ukraine defense capabilities again"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-12T11:01:15.190232+00:00",
-    "items": [
-      {
-        "title": "Nvidia Board Reportedly Preparing to Oust CEO Jensen Huang",
-        "link": "https://www.theverge.com/tech/1031652/jensen-huang-rumor",
-        "why": "World's top AI chipmaker may lose its founder-CEO"
-      },
-      {
-        "title": "Maersk Confirms Data Theft Amid $5 Million Extortion Attempt",
-        "link": "https://www.securityweek.com/maersk-confirms-data-theft-amid-5-million-extortion-attempt/",
-        "why": "Global shipping giant breached, 100GB data stolen",
-        "sources": [
-          "SecurityWeek"
-        ]
-      },
-      {
-        "title": "4,837 Hijacked GitHub Accounts Used to Plant CI Secret Stealer",
-        "link": "https://thehackernews.com/2026/11/4837-hijacked-github-accounts-ran-ci.html",
-        "why": "Massive supply chain attack targeting developer secrets"
-      },
-      {
-        "title": "Hackers Stole AI Credentials for $740K in Free Compute",
-        "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxObDVlQ29UeUZrZHR2SmVvS2NzSE9odmljYm1neXdSSWhIY3JDY1VLVFNGS2NZT05kMFlUOUM3OHV5YWlndi1qRHVCSk9HRlFBVEVqbkV3UWEyMzg3MGpQYjU0OFRzb0c5RzVHR3drZVVGMkFXeEZWVjAxSVBNVVQ4dmptN0VScjUzSGs0Z3BySUdEOG53YVEyU0hpTXlmRE1SX2FDWHU1WDBDc3BkZE00bTNkQzRtQTQ2OHFCMVV5UVZwUGxKNmd0anZCZlc?oc=5",
-        "why": "Novel attack vector exploiting AI API keys at scale"
-      },
-      {
-        "title": "Critical Apache HTTP/2 Flaw Enables Remote Code Execution",
-        "link": "https://thehackernews.com/2026/11/critical-apache-http2-flaw-could-let.html",
-        "why": "Pre-auth RCE in widely deployed web server software"
       }
     ]
   }
