@@ -1,5 +1,40 @@
 [
   {
+    "timestamp": "2026-11-16T21:01:38.416566+00:00",
+    "items": [
+      {
+        "title": "California Sues OpenAI Over AI Agents Escaping Sandboxes",
+        "link": "https://www.bleepingcomputer.com/news/security/california-sues-openai-over-ai-agents-escaping-sandboxes-hacking-firms/",
+        "why": "Major state lawsuit against OpenAI over unsafe AI agents",
+        "sources": [
+          "BleepingComputer",
+          "Engadget - Technology News & Expert Reviews",
+          "The Verge"
+        ]
+      },
+      {
+        "title": "Trump Backs Reinstating Jensen Huang as Nvidia CEO",
+        "link": "https://www.theguardian.com/technology/2026/nov/16/trump-backs-calls-for-reinstatement-of-jensen-huang-as-nvidia-ceo",
+        "why": "President intervenes in Nvidia leadership crisis"
+      },
+      {
+        "title": "US Tightens Controls on Remote Access to AI Chips",
+        "link": "https://www.npr.org/2026/11/16/nx-s1-6042883/nvidia-jensen-huang-commerce-department",
+        "why": "Closes loophole letting China access AI chips remotely"
+      },
+      {
+        "title": "Shareholders Sue Intel CEO After 28.6% Stock Crash",
+        "link": "https://arstechnica.com/tech-policy/2026/11/shareholders-sue-intel-its-ceo-and-cfo-after-stock-drops-28-6-percent-in-one-day/",
+        "why": "Intel faces securities lawsuit amid PC slump"
+      },
+      {
+        "title": "Hyperscale Data Centers Now Use 2% of US Electricity",
+        "link": "https://arstechnica.com/science/2026/11/hyperscale-data-centers-use-2-of-us-electricity/",
+        "why": "Quantifies massive energy footprint of AI infrastructure"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-16T11:01:17.128418+00:00",
     "items": [
       {
@@ -150,66 +185,6 @@
         "title": "Cabinet Feud Erupts Over Nvidia Chip Exports to China",
         "link": "https://www.pbs.org/newshour/show/bessent-accuses-lutnick-of-failing-to-prevent-china-from-obtaining-nvidia-chips",
         "why": "Top officials spar over chip export enforcement"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-13T21:01:20.881856+00:00",
-    "items": [
-      {
-        "title": "Nvidia CEO Jensen Huang Resigns Amid Chinese Spy Scandal",
-        "link": "https://www.theguardian.com/technology/2026/nov/13/nvidia-scandal-sparks-us-national-security-concerns-china",
-        "why": "Top AI chipmaker CEO resigns over espionage ties"
-      },
-      {
-        "title": "OpenAI Launches ChatGPT Wallet for AI Agent Purchases",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1033425/openai-chatgpt-wallet",
-        "why": "AI agents can now autonomously make real purchases"
-      },
-      {
-        "title": "Microsoft Outlook Outage Recovering After Two Days",
-        "link": "https://www.theverge.com/tech/1032862/microsoft-outlook-down-outage",
-        "why": "Millions impacted by near two-day Microsoft 365 outage"
-      },
-      {
-        "title": "Google Lets Users Connect Gemini to Bank Accounts",
-        "link": "https://www.engadget.com/2316384/google-now-lets-people-connect-gemini-to-their-bank-accounts/",
-        "why": "Google expands Gemini into personal finance analytics"
-      },
-      {
-        "title": "Trezor Confirms Malicious Implants in Hardware Wallets",
-        "link": "https://www.bleepingcomputer.com/news/cryptocurrency/trezor-confirms-crypto-stealing-implants-in-three-wallets-releases-fix/",
-        "why": "Compromised crypto wallets shipped with stealing malware"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-13T11:01:33.326666+00:00",
-    "items": [
-      {
-        "title": "Nvidia CEO Jensen Huang Resigns Over Chinese Spy Scandal",
-        "link": "https://www.theverge.com/tech/1032434/nvidia-jensen-huang-resignation-reactions",
-        "why": "Nvidia CEO exits over national security scandal, industry shockwave"
-      },
-      {
-        "title": "OpenAI Launches Daybreak Red Team AI Security Tools",
-        "link": "https://www.securityweek.com/openai-unveils-daybreak-red-team-defense-factory-security-tools/",
-        "why": "OpenAI enters AI-powered security testing and patching market"
-      },
-      {
-        "title": "Microsoft Confirms Windows Activation Failures From November Updates",
-        "link": "https://www.bleepingcomputer.com/news/microsoft/microsoft-confirms-windows-activation-failures-after-november-updates/",
-        "why": "Patch Tuesday breaks Windows activation and licensing globally"
-      },
-      {
-        "title": "SpaceX Starship Test Attempts First-Ever Spaceship Catch",
-        "link": "https://phys.org/news/2026-11-spacex-starship-spaceship.html",
-        "why": "SpaceX attempts historic booster recovery milestone today"
-      },
-      {
-        "title": "Operation Endgame Seizes 235 Servers in Cybercrime Takedown",
-        "link": "https://www.securityweek.com/law-enforcement-disrupts-gootloader-castlerat-and-stealc-infrastructure/",
-        "why": "Global law enforcement dismantles major malware infrastructure and credentials"
       }
     ]
   }
