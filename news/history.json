@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-17T21:01:32.758215+00:00",
+    "items": [
+      {
+        "title": "Nvidia's Jensen Huang Faces Escalating Probes Amid Political Firestorm",
+        "link": "https://arstechnica.com/tech-policy/2026/11/trump-was-in-bed-with-jensen-critics-balk-at-huangs-wish-to-return-to-nvidia/",
+        "why": "Nvidia CEO under scrutiny amid government probes and political controversy"
+      },
+      {
+        "title": "California Bans Waymo Driverless Rides From All State Freeways",
+        "link": "https://www.theverge.com/transportation/1035789/california-dmv-bans-waymo-freeways-construction-zone-safety",
+        "why": "Major regulatory setback for autonomous vehicle industry nationwide"
+      },
+      {
+        "title": "Japan's Fugaku Supercomputer Taken Offline After Cyberattack",
+        "link": "https://www.bleepingcomputer.com/news/security/japan-takes-fugaku-supercomputer-offlline-after-cyberattack/",
+        "why": "Top-tier supercomputer breached, major national security incident"
+      },
+      {
+        "title": "Civilization Studio Firaxis Lays Off a Third of Staff",
+        "link": "https://arstechnica.com/gaming/2026/11/civilization-studio-firaxis-games-lays-off-a-third-of-staff/",
+        "why": "Major game studio gutted including studio head departure"
+      },
+      {
+        "title": "Top 400 US Data Centers Emit More CO2 Than Denmark",
+        "link": "https://www.pbs.org/newshour/nation/400-largest-u-s-data-centers-produced-more-carbon-dioxide-in-a-year-than-denmark-study-finds",
+        "why": "Landmark study quantifies data center carbon impact at scale"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-17T11:01:07.725937+00:00",
     "items": [
       {
@@ -185,36 +215,6 @@
         "title": "Tesla Invites Select Customers to Buy Cybercab",
         "link": "https://www.theverge.com/transportation/1033844/tesla-personal-cybercab-orders-299-subscription-fine-print/",
         "why": "Tesla begins selling autonomous Cybercab for personal use"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-14T11:01:43.087918+00:00",
-    "items": [
-      {
-        "title": "Nationwide FAA Ground Stop Halts US Flights for Hours",
-        "link": "https://www.engadget.com/2316792/faa-flights-resume-ground-stop-old-equipment/",
-        "why": "Major infrastructure outage, aging systems blamed"
-      },
-      {
-        "title": "Workday Outage Locks Millions of Employees Out",
-        "link": "https://www.engadget.com/2316804/workday-outage-locks-millions-employees-out-of-account/",
-        "why": "Enterprise HR platform down across thousands of companies"
-      },
-      {
-        "title": "SpaceX Starship Reaches Orbit in Flight 15",
-        "link": "https://arstechnica.com/space/2026/11/starship-flight-15-powers-to-orbit-setting-up-a-possible-catch-on-saturday/",
-        "why": "Orbital milestone achieved despite booster catch failure"
-      },
-      {
-        "title": "Amazon Plans to Index All Online Shopping Data Worldwide",
-        "link": "https://www.theverge.com/tech/1033697/amazon-world-product-graph-ai-search",
-        "why": "Ambitious AI-powered global product data strategy"
-      },
-      {
-        "title": "Cabinet Feud Erupts Over Nvidia Chip Exports to China",
-        "link": "https://www.pbs.org/newshour/show/bessent-accuses-lutnick-of-failing-to-prevent-china-from-obtaining-nvidia-chips",
-        "why": "Top officials spar over chip export enforcement"
       }
     ]
   }
