@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-17T11:01:07.725937+00:00",
+    "items": [
+      {
+        "title": "Optimizely Supply Chain Attack Hits CNN, BBC, Zoom, Salesforce",
+        "link": "https://www.bleepingcomputer.com/news/security/optimizely-supply-chain-attack-delivers-malware-to-cnn-fox-news-bbc-salesforce-sites/",
+        "why": "Major supply chain attack on top websites"
+      },
+      {
+        "title": "Apple Adds Disk Access Controls to Rein in AI Agents",
+        "link": "https://www.engadget.com/2318790/apple-adds-new-disk-controls-to-prevent-ai-agents-from-running-amok/",
+        "why": "Apple restricts AI agent disk access for security"
+      },
+      {
+        "title": "Google Identifies First Autonomous AI Hacking System",
+        "link": "https://news.google.com/rss/articles/CBMiyAFBV95cUxPSjJyQzVxRkl1Zk44cU4zazJuWmFvLWZmbGNXeGlGOHNHRHVpUEg2V1Jqd2dnZjRIYjNuMGs4akhlSVZVRVcyeFl1TDJFWGptd0JpTmdZLVNMNWxuVFZuNENNVXFGUDJTMkROb2hqckNhRTd5eTNwN0FEYUM2NUFWUEF4VGYyX2Y3TkF5djcyNW4zR19ZV1M3VWh2eDRNTDNpX0ZVTG1JYm9uS2c5SUV4dGZMTVUzYXNrNV9RMEVpN3JwYTMya2xWaw?oc=5",
+        "why": "First autonomous AI hacking system discovered by Google"
+      },
+      {
+        "title": "Anthropic IPO Set to Fuel AI Wealth Gold Rush",
+        "link": "https://www.theguardian.com/business/2026/nov/17/millionaire-factory-anthropic-ipo-set-to-fuel-ai-gold-rush-in-londons-high-end-property-market",
+        "why": "Anthropic IPO driving major new tech wealth"
+      },
+      {
+        "title": "UK Actors Gain Landmark Rights Over AI Digital Replicas",
+        "link": "https://www.theguardian.com/technology/2026/nov/17/actors-uk-rights-digital-replicas-ai-protections",
+        "why": "Landmark AI labor protections for performers"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-16T21:01:38.416566+00:00",
     "items": [
       {
