@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-18T21:02:00.992315+00:00",
+    "items": [
+      {
+        "title": "Decade-Old NGINX HTTP/2 Flaw Enables Unauthenticated Remote Code Execution",
+        "link": "https://thehackernews.com/2026/11/10-year-old-nginx-http2-flaw-lets.html",
+        "why": "Critical RCE vulnerability in widely deployed web server software"
+      },
+      {
+        "title": "Meta Staffers Alarmed as Muse AI Surfaces Private Financial Data",
+        "link": "https://arstechnica.com/tech-policy/2026/11/muse-privacy-invasions-are-freaking-out-meta-staffers-internal-chats-show/",
+        "why": "Meta AI product leaking personal data raises internal privacy concerns"
+      },
+      {
+        "title": "Trump Announces AI Chip and Data Center Hub in the Philippines",
+        "link": "https://www.theverge.com/policy/1036749/trump-ai-chip-data-center-us-philippines-pax-silica",
+        "why": "Major US-AI infrastructure expansion into Southeast Asia geopolitically significant"
+      },
+      {
+        "title": "Windows Server 2028 Bets on Security-First Hardened Defaults",
+        "link": "https://arstechnica.com/gadgets/2026/11/windows-server-2028-public-preview-bets-on-a-security-first-approach/",
+        "why": "Microsoft rewrites server OS defaults aligning with DoD security standards"
+      },
+      {
+        "title": "Coinbase Blocks $4.7M in Transfers to Elon Musk Deepfake Scam",
+        "link": "https://www.bleepingcomputer.com/news/security/coinbase-blocks-47-million-in-transfers-to-elon-musk-deepfake-scam/",
+        "why": "AI deepfake fraud at scale blocked by major crypto exchange"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-18T11:01:05.011484+00:00",
     "items": [
       {
@@ -155,36 +185,6 @@
         "title": "Amazon Discovers AI Agent Campaign Stealing API Keys From AI Apps",
         "link": "https://thehackernews.com/2026/11/amazon-uncovers-ai-agent-campaign.html",
         "why": "Novel AI-on-AI attack targeting exposed infrastructure"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-15T21:01:57.653616+00:00",
-    "items": [
-      {
-        "title": "SpaceX Starship Completes First Orbital Return and Pad Catch",
-        "link": "https://phys.org/news/2026-11-spacex-starship-orbit-captured-pad.html",
-        "why": "Historic first orbital return and mechanical pad catch"
-      },
-      {
-        "title": "Congress Moves to Tighten AI Chip Exports After Nvidia Scandal",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1033984/congress-export-rules-ai-chips-china",
-        "why": "Nvidia CEO scandal triggers Congressional AI chip crackdown"
-      },
-      {
-        "title": "FBI Warns AI-Powered ARTEX Tool Driving Global Cyberattacks",
-        "link": "https://www.bleepingcomputer.com/news/security/fbi-warns-artex-ai-hacking-tool-is-powering-global-cyberattacks/",
-        "why": "AI hacking framework automating attacks on organizations worldwide"
-      },
-      {
-        "title": "Italy Slaps Meta With \u20ac805M Fine Over Android Photo Access",
-        "link": "https://thehackernews.com/2026/11/italy-fines-meta-805-million-over.html",
-        "why": "Major EU privacy fine for unauthorized Android gallery access"
-      },
-      {
-        "title": "Pentagon Renames AI Office to Super Intelligence Per Trump Order",
-        "link": "https://www.securityweek.com/pentagon-renames-cdao-super-intelligence-office/",
-        "why": "Federal government rebrands AI as super intelligence per Trump"
       }
     ]
   }
