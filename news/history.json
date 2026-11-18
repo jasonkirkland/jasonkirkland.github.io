@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-18T11:01:05.011484+00:00",
+    "items": [
+      {
+        "title": "OpenAI Launches Embedded Evaluators Safety Program",
+        "link": "https://www.npr.org/2026/11/18/nx-s1-6044223/openai-embedded-evaluators-program-critics",
+        "why": "OpenAI grants outside researchers access to evaluate safety"
+      },
+      {
+        "title": "Java4Shell Flaw Enables Pre-Auth RCE in Enterprise Apps",
+        "link": "https://thehackernews.com/2026/11/java4shell-cve-2026-114938-enables-pre.html",
+        "why": "Critical unauthenticated RCE hits Jira, Jenkins, Keycloak"
+      },
+      {
+        "title": "Microsoft Announces Windows Server 2028 at Ignite",
+        "link": "https://www.bleepingcomputer.com/news/microsoft/microsoft-announces-windows-server-2028-with-hardened-security/",
+        "why": "Next-gen server OS unveiled with hardened security features"
+      },
+      {
+        "title": "Meta Project Gryffindor Targets School Kids for Instagram",
+        "link": "https://www.npr.org/2026/11/18/nx-s1-6037808/meta-instagram-schools-teens-safety",
+        "why": "Internal docs contradict Meta teen safety claims"
+      },
+      {
+        "title": "Google Buys 50MW Geothermal Power for Data Centers",
+        "link": "https://newatlas.com/energy/google-quaise-rock-vaporizing-geothermal-tech-data-center-power/",
+        "why": "Google bets on rock-vaporizing geothermal for AI infrastructure"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-17T21:01:32.758215+00:00",
     "items": [
       {
@@ -155,66 +185,6 @@
         "title": "Pentagon Renames AI Office to Super Intelligence Per Trump Order",
         "link": "https://www.securityweek.com/pentagon-renames-cdao-super-intelligence-office/",
         "why": "Federal government rebrands AI as super intelligence per Trump"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-15T11:01:01.206329+00:00",
-    "items": [
-      {
-        "title": "Nvidia CEO Jensen Huang Resigns Amid Spy Affair Scandal",
-        "link": "https://www.theguardian.com/technology/2026/nov/14/jensen-huang-affair-nvidia-nightmare",
-        "why": "Nvidia founder resigns over suspected spy relationship"
-      },
-      {
-        "title": "SpaceX Starship Completes First Orbital Return and Pad Capture",
-        "link": "https://arstechnica.com/space/2026/11/with-starship-catch-spacex-still-shows-it-can-dazzle-the-world/",
-        "why": "Historic first orbital flight recovery via launch pad arms"
-      },
-      {
-        "title": "Trojanized Claude Code Extension Hits Cursor Marketplace",
-        "link": "https://thehackernews.com/2026/11/stolen-fireworks-ai-key-led-to-cursor.html",
-        "why": "Stolen API key compromised Anthropic Cursor extension"
-      },
-      {
-        "title": "Meta Fined $887 Million by Italy Over Android Photo Access",
-        "link": "https://www.securityweek.com/meta-fined-887-million-in-italy-over-android-gallery-photos-and-videos-on-facebook/",
-        "why": "Massive EU privacy fine over Facebook gallery access"
-      },
-      {
-        "title": "South Korea Tax Exam Top Scorer Admits AI Cheating",
-        "link": "https://www.theguardian.com/technology/2026/nov/15/ai-cheating-south-korea-college-entrance-exam",
-        "why": "AI cheating scandal raises exam integrity concerns"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-14T21:01:34.276453+00:00",
-    "items": [
-      {
-        "title": "FAA Nationwide Ground Stop Tied to Telecom Upgrade",
-        "link": "https://www.npr.org/2026/11/14/nx-s1-6040952/faa-ground-stop-airplane-travel",
-        "why": "Longest flight stoppage in 25 years, contractor upgrade failure"
-      },
-      {
-        "title": "Cursor Breach Enabled Malicious Claude Code Extension",
-        "link": "https://www.bleepingcomputer.com/news/security/cursor-confirms-security-breach-led-to-malicious-claude-code-extension/",
-        "why": "Security breach in major AI coding tool, malicious extension shipped"
-      },
-      {
-        "title": "US Disrupts North Korean $400M Crypto Theft Campaign",
-        "link": "https://www.bleepingcomputer.com/news/security/us-disrupts-north-korean-campaign-behind-400-million-crypto-theft/",
-        "why": "Major cyber operation targets $400M North Korean theft"
-      },
-      {
-        "title": "Apple iPhone Duo Apps Showcase Foldable Launch",
-        "link": "https://www.popsci.com/diy/these-7-apps-really-show-off-the-new-apple-iphone-duos-abilities-tech-tips/",
-        "why": "Apple foldable iPhone launches with developer app showcase"
-      },
-      {
-        "title": "Tesla Invites Select Customers to Buy Cybercab",
-        "link": "https://www.theverge.com/transportation/1033844/tesla-personal-cybercab-orders-299-subscription-fine-print/",
-        "why": "Tesla begins selling autonomous Cybercab for personal use"
       }
     ]
   }
