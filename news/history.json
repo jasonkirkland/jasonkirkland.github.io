@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-19T11:01:39.950589+00:00",
+    "items": [
+      {
+        "title": "Anthropic Raises $81 Billion in Record Nasdaq IPO",
+        "link": "https://www.theguardian.com/business/live/2026/nov/19/anthropic-float-stock-market-nasdaq-raises-81bn-record-ipo-latest-news-updates",
+        "why": "Largest IPO in history; $1.5T AI valuation milestone"
+      },
+      {
+        "title": "Java4Shell Exploitation Underway as Vendors Rush Advisories",
+        "link": "https://www.securityweek.com/java4shell-exploitation-attempts-begin-as-vendors-rush-out-advisories/",
+        "why": "Active exploitation of critical vuln; Log4Shell-scale threat"
+      },
+      {
+        "title": "NVIDIA Investigates Gentlemen Ransomware Breach Claims",
+        "link": "https://www.bleepingcomputer.com/news/security/nvidia-investigating-gentlemen-ransomware-breach-claims/",
+        "why": "Major chipmaker faces potential data breach exposure"
+      },
+      {
+        "title": "Palo Alto Networks Acquires AI Startup Applied Compute for $4.5B",
+        "link": "https://www.securityweek.com/palo-alto-networks-to-buy-ai-startup-applied-compute-for-4-5-billion/",
+        "why": "Massive cybersecurity-AI consolidation; sovereign cloud play"
+      },
+      {
+        "title": "DOJ Accuses Russian National of Spying on Palantir Employees",
+        "link": "https://www.engadget.com/2321489/doj-accuses-russian-national-of-spying-on-and-harassing-palantir-employees/",
+        "why": "State-sponsored espionage targeting US defense tech"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-18T21:02:00.992315+00:00",
     "items": [
       {
@@ -151,40 +181,6 @@
         "title": "Hyperscale Data Centers Now Use 2% of US Electricity",
         "link": "https://arstechnica.com/science/2026/11/hyperscale-data-centers-use-2-of-us-electricity/",
         "why": "Quantifies massive energy footprint of AI infrastructure"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-16T11:01:17.128418+00:00",
-    "items": [
-      {
-        "title": "Musk Joins 165,000 in Open Letter Demanding Jensen Huang Return to Nvidia",
-        "link": "https://www.theguardian.com/technology/2026/nov/16/elon-musk-tech-execs-open-letter-jensen-huang-return-nvidia-ceo",
-        "why": "Nvidia CEO crisis deepens with massive industry pressure"
-      },
-      {
-        "title": "Anthropic Rolls Out Claude Fable 5.2 and Mythos 5.2 Models",
-        "link": "https://www.bleepingcomputer.com/news/artificial-intelligence/anthropics-claude-fable-52-blocks-fewer-security-tasks-while-mythos-gets-better-at-finding-bugs/",
-        "why": "Major AI model release with improved coding and security"
-      },
-      {
-        "title": "ULA Vulcan Rocket Failure Destroys 40 Amazon LEO Satellites",
-        "link": "https://www.engadget.com/2317283/ula-vulcan-rocket-failure-destroys-40-amazon-leo-satellites/",
-        "why": "Significant setback for Amazon Kuiper and ULA reliability",
-        "sources": [
-          "Engadget - Technology News & Expert Reviews",
-          "The Verge"
-        ]
-      },
-      {
-        "title": "Senator Slams Commerce Secretary Over Nvidia AI Chips Reaching China",
-        "link": "https://www.theverge.com/policy/1034047/nvidia-us-commerce-department-cantwell-lutnick",
-        "why": "Escalating political pressure on AI chip export controls"
-      },
-      {
-        "title": "Amazon Discovers AI Agent Campaign Stealing API Keys From AI Apps",
-        "link": "https://thehackernews.com/2026/11/amazon-uncovers-ai-agent-campaign.html",
-        "why": "Novel AI-on-AI attack targeting exposed infrastructure"
       }
     ]
   }
