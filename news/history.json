@@ -1,5 +1,38 @@
 [
   {
+    "timestamp": "2026-11-20T11:01:00.488726+00:00",
+    "items": [
+      {
+        "title": "Anthropic IPO Fails to Halt Global AI Stock Sell-Off",
+        "link": "https://www.theguardian.com/business/2026/nov/20/global-stock-markets-slump-anthropic-ipo-ai-sell-off",
+        "why": "Major IPO and market-wide AI stock crash"
+      },
+      {
+        "title": "OpenAI Tests Dots Personal AI Agents on Plus Tier",
+        "link": "https://www.engadget.com/2322656/openai-is-testing-dots-personal-agents-on-its-20-per-month-plus-tier/",
+        "why": "OpenAI expands autonomous agents to mass market"
+      },
+      {
+        "title": "China-Linked Hackers Exploit Critical VMware vCenter Zero-Day",
+        "link": "https://thehackernews.com/2026/11/china-linked-hackers-exploit-critical.html",
+        "why": "Active nation-state zero-day exploitation, critical severity",
+        "sources": [
+          "The Hacker News"
+        ]
+      },
+      {
+        "title": "European Commission Confirms AI-Assisted Cyberattack Disruption",
+        "link": "https://www.securityweek.com/european-commission-confirms-ai-assisted-cyberattack-disrupted-services/",
+        "why": "First government-level AI-powered cyberattack confirmed"
+      },
+      {
+        "title": "Robotics Industry Enters Post-Jensen Huang Era",
+        "link": "https://www.therobotreport.com/robotics-enters-its-post-jensen-huang-era/",
+        "why": "NVIDIA leader gone; robotics momentum uncertain"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-19T21:01:35.992206+00:00",
     "items": [
       {
@@ -176,41 +209,6 @@
         "title": "UK Actors Gain Landmark Rights Over AI Digital Replicas",
         "link": "https://www.theguardian.com/technology/2026/nov/17/actors-uk-rights-digital-replicas-ai-protections",
         "why": "Landmark AI labor protections for performers"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-16T21:01:38.416566+00:00",
-    "items": [
-      {
-        "title": "California Sues OpenAI Over AI Agents Escaping Sandboxes",
-        "link": "https://www.bleepingcomputer.com/news/security/california-sues-openai-over-ai-agents-escaping-sandboxes-hacking-firms/",
-        "why": "Major state lawsuit against OpenAI over unsafe AI agents",
-        "sources": [
-          "BleepingComputer",
-          "Engadget - Technology News & Expert Reviews",
-          "The Verge"
-        ]
-      },
-      {
-        "title": "Trump Backs Reinstating Jensen Huang as Nvidia CEO",
-        "link": "https://www.theguardian.com/technology/2026/nov/16/trump-backs-calls-for-reinstatement-of-jensen-huang-as-nvidia-ceo",
-        "why": "President intervenes in Nvidia leadership crisis"
-      },
-      {
-        "title": "US Tightens Controls on Remote Access to AI Chips",
-        "link": "https://www.npr.org/2026/11/16/nx-s1-6042883/nvidia-jensen-huang-commerce-department",
-        "why": "Closes loophole letting China access AI chips remotely"
-      },
-      {
-        "title": "Shareholders Sue Intel CEO After 28.6% Stock Crash",
-        "link": "https://arstechnica.com/tech-policy/2026/11/shareholders-sue-intel-its-ceo-and-cfo-after-stock-drops-28-6-percent-in-one-day/",
-        "why": "Intel faces securities lawsuit amid PC slump"
-      },
-      {
-        "title": "Hyperscale Data Centers Now Use 2% of US Electricity",
-        "link": "https://arstechnica.com/science/2026/11/hyperscale-data-centers-use-2-of-us-electricity/",
-        "why": "Quantifies massive energy footprint of AI infrastructure"
       }
     ]
   }
