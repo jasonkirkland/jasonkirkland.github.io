@@ -1,5 +1,40 @@
 [
   {
+    "timestamp": "2026-11-21T11:01:15.976279+00:00",
+    "items": [
+      {
+        "title": "Anthropic Goes Public: Can AI Safety Survive the IPO?",
+        "link": "https://www.npr.org/2026/11/21/nx-s1-6048678/anthropic-ipo-mission-ai-safety",
+        "why": "Major AI company IPO tests safety-first commitment"
+      },
+      {
+        "title": "AI Stocks Plunge, Rattling Broader Markets This Week",
+        "link": "https://www.npr.org/2026/11/21/nx-s1-6048729/ai-stock-markets-anthropic-nvidia",
+        "why": "Market-wide AI selloff signals investor confidence cracking"
+      },
+      {
+        "title": "Signal Blocks AI Agents From Reading Private Chats",
+        "link": "https://thehackernews.com/2026/11/signal-blocks-ai-agents-from-reading.html",
+        "why": "Major messaging app moves to protect privacy from AI",
+        "sources": [
+          "\"hacker news ai\" - Google News",
+          "Engadget - Technology News & Expert Reviews",
+          "The Hacker News"
+        ]
+      },
+      {
+        "title": "YouTube Faces $3 Billion Settlement Over Teen Addiction Lawsuits",
+        "link": "https://www.engadget.com/2323927/youtube-could-pay-3-billion-to-settle-social-media-addiction-lawsuits-with-school-districts/",
+        "why": "Massive payout could reshape social media accountability"
+      },
+      {
+        "title": "CISA Warns: Critical VMware, Cisco, Apache Flaws Actively Exploited",
+        "link": "https://thehackernews.com/2026/11/hackers-exploit-critical-vmware-cisco.html",
+        "why": "Active espionage attacks on critical enterprise infrastructure"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-20T21:01:35.818952+00:00",
     "items": [
       {
@@ -149,36 +184,6 @@
         "title": "Coinbase Blocks $4.7M in Transfers to Elon Musk Deepfake Scam",
         "link": "https://www.bleepingcomputer.com/news/security/coinbase-blocks-47-million-in-transfers-to-elon-musk-deepfake-scam/",
         "why": "AI deepfake fraud at scale blocked by major crypto exchange"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-18T11:01:05.011484+00:00",
-    "items": [
-      {
-        "title": "OpenAI Launches Embedded Evaluators Safety Program",
-        "link": "https://www.npr.org/2026/11/18/nx-s1-6044223/openai-embedded-evaluators-program-critics",
-        "why": "OpenAI grants outside researchers access to evaluate safety"
-      },
-      {
-        "title": "Java4Shell Flaw Enables Pre-Auth RCE in Enterprise Apps",
-        "link": "https://thehackernews.com/2026/11/java4shell-cve-2026-114938-enables-pre.html",
-        "why": "Critical unauthenticated RCE hits Jira, Jenkins, Keycloak"
-      },
-      {
-        "title": "Microsoft Announces Windows Server 2028 at Ignite",
-        "link": "https://www.bleepingcomputer.com/news/microsoft/microsoft-announces-windows-server-2028-with-hardened-security/",
-        "why": "Next-gen server OS unveiled with hardened security features"
-      },
-      {
-        "title": "Meta Project Gryffindor Targets School Kids for Instagram",
-        "link": "https://www.npr.org/2026/11/18/nx-s1-6037808/meta-instagram-schools-teens-safety",
-        "why": "Internal docs contradict Meta teen safety claims"
-      },
-      {
-        "title": "Google Buys 50MW Geothermal Power for Data Centers",
-        "link": "https://newatlas.com/energy/google-quaise-rock-vaporizing-geothermal-tech-data-center-power/",
-        "why": "Google bets on rock-vaporizing geothermal for AI infrastructure"
       }
     ]
   }
