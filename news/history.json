@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-21T21:01:45.309800+00:00",
+    "items": [
+      {
+        "title": "Mathematician Proves Riemann Hypothesis Using Claude AI",
+        "link": "https://www.theguardian.com/technology/2026/nov/21/anthropic-riemann-hypothesis-solved-claude-ai",
+        "why": "Landmark AI-assisted math proof independently verified by two groups"
+      },
+      {
+        "title": "FBI and USDA Hit by Hacks Targeting Federal Databases",
+        "link": "https://www.theverge.com/tech/1039543/fbi-usda-hacked",
+        "why": "Major breach of federal agencies and criminal justice database"
+      },
+      {
+        "title": "UN Talks on Autonomous Weapons Rules Collapse",
+        "link": "https://www.theguardian.com/technology/2026/nov/21/international-talks-control-ai-autonomous-weapons-collapse",
+        "why": "Failed AI weapons regulation raises global security concerns"
+      },
+      {
+        "title": "Microsoft Entra Connect Health Flaw Exploited in Data Breach",
+        "link": "https://www.bleepingcomputer.com/news/security/microsoft-entra-connect-health-flaw-exploited-to-steal-tenant-data/",
+        "why": "Enterprise identity infrastructure breached, tenant data stolen"
+      },
+      {
+        "title": "CoreWeave Exposes Risky Economics of AI Data Center Boom",
+        "link": "https://www.theguardian.com/business/2026/nov/21/debt-laden-cloud-computing-company-coreweave-ai-boom",
+        "why": "Debt-laden AI cloud provider signals potential bubble risks"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-21T11:01:15.976279+00:00",
     "items": [
       {
