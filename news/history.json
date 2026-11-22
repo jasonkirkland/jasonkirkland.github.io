@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-22T21:01:28.564595+00:00",
+    "items": [
+      {
+        "title": "Mathematician Solves Riemann Hypothesis Using Anthropic's Claude AI",
+        "link": "https://www.theguardian.com/technology/2026/nov/21/anthropic-riemann-hypothesis-solved-claude-ai",
+        "why": "AI assists landmark math proof, independently verified"
+      },
+      {
+        "title": "Signal Blocks Siri and Gemini From Accessing Private Chats",
+        "link": "https://www.bleepingcomputer.com/news/security/signal-to-block-siri-gemini-ai-from-capturing-chats-on-ios-android/",
+        "why": "Major messaging app draws AI privacy line"
+      },
+      {
+        "title": "Cleverbridge Breach: Hackers Stole Credit Card Numbers and CVVs",
+        "link": "https://www.bleepingcomputer.com/news/security/cleverbridge-warns-hackers-stole-credit-card-numbers-cvvs-in-data-breach/",
+        "why": "E-commerce platform exposes full payment card data"
+      },
+      {
+        "title": "Senator Grills Nvidia Over China Bypassing AI Chip Export Controls",
+        "link": "https://www.theguardian.com/us-news/2026/nov/22/jensen-huang-nvidia-john-kennedy",
+        "why": "Export control failures threaten AI chip security"
+      },
+      {
+        "title": "Hackers Exploit GL.iNet Cloud Flaw to Infect Routers and KVM Devices",
+        "link": "https://www.bleepingcomputer.com/news/security/hackers-exploit-glinet-cloud-flaw-to-infect-routers-kvm-devices/",
+        "why": "Active exploitation of router cloud management vulnerability"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-22T11:00:52.060371+00:00",
     "items": [
       {
@@ -184,36 +214,6 @@
         "title": "Russian Spy Targeted Silicon Valley Tech and Defense Firm",
         "link": "https://arstechnica.com/security/2026/11/man-charged-with-spying-on-silicon-valley-tech-and-defense-company-for-russia/",
         "why": "Espionage case hitting the heart of US tech industry"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-19T11:01:39.950589+00:00",
-    "items": [
-      {
-        "title": "Anthropic Raises $81 Billion in Record Nasdaq IPO",
-        "link": "https://www.theguardian.com/business/live/2026/nov/19/anthropic-float-stock-market-nasdaq-raises-81bn-record-ipo-latest-news-updates",
-        "why": "Largest IPO in history; $1.5T AI valuation milestone"
-      },
-      {
-        "title": "Java4Shell Exploitation Underway as Vendors Rush Advisories",
-        "link": "https://www.securityweek.com/java4shell-exploitation-attempts-begin-as-vendors-rush-out-advisories/",
-        "why": "Active exploitation of critical vuln; Log4Shell-scale threat"
-      },
-      {
-        "title": "NVIDIA Investigates Gentlemen Ransomware Breach Claims",
-        "link": "https://www.bleepingcomputer.com/news/security/nvidia-investigating-gentlemen-ransomware-breach-claims/",
-        "why": "Major chipmaker faces potential data breach exposure"
-      },
-      {
-        "title": "Palo Alto Networks Acquires AI Startup Applied Compute for $4.5B",
-        "link": "https://www.securityweek.com/palo-alto-networks-to-buy-ai-startup-applied-compute-for-4-5-billion/",
-        "why": "Massive cybersecurity-AI consolidation; sovereign cloud play"
-      },
-      {
-        "title": "DOJ Accuses Russian National of Spying on Palantir Employees",
-        "link": "https://www.engadget.com/2321489/doj-accuses-russian-national-of-spying-on-and-harassing-palantir-employees/",
-        "why": "State-sponsored espionage targeting US defense tech"
       }
     ]
   }
