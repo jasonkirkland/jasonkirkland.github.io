@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-23T21:01:22.773515+00:00",
+    "items": [
+      {
+        "title": "Jensen Huang Returns as Nvidia CEO After Near Exit",
+        "link": "https://www.theverge.com/tech/1040428/nvidia-jensen-huang-ceo-return",
+        "why": "Nvidia cofounder nearly stepped down this month"
+      },
+      {
+        "title": "Nvidia CEO Huang to Testify Publicly Before Senate",
+        "link": "https://www.engadget.com/2325655/nvidia-jensen-huang-will-testify-publlicly-before-senators-on-december-3/",
+        "why": "Congressional scrutiny of AI chip giant intensifies"
+      },
+      {
+        "title": "Microsoft Azure Flaw Exploited to Steal API Credentials",
+        "link": "https://www.bleepingcomputer.com/news/security/microsoft-azure-flaw-exploited-to-steal-customers-api-credentials/",
+        "why": "Active exploitation of cloud platform security vulnerability"
+      },
+      {
+        "title": "OpenRouter Drops AI Providers Over Leaked Secrets",
+        "link": "https://www.bleepingcomputer.com/news/security/openrouter-drops-ai-providers-over-leaked-prompts-and-secrets/",
+        "why": "AI routing platform cuts providers for data violations"
+      },
+      {
+        "title": "Russia May Launch Nuclear Weapon Into Orbit Next Month",
+        "link": "https://arstechnica.com/space/2026/11/russia-may-launch-a-nuclear-armed-satellite-far-sooner-than-we-thought/",
+        "why": "Space nuclear weapon could destroy thousands of satellites"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-23T11:01:36.687255+00:00",
     "items": [
       {
