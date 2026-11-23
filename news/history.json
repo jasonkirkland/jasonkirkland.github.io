@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-23T11:01:36.687255+00:00",
+    "items": [
+      {
+        "title": "Meta Muse AI Agents Shop Walmart for Black Friday Deals",
+        "link": "https://www.theverge.com/ai-artificial-intelligence/1039874/walmart-agent-gateway-meta-muse-black-friday",
+        "why": "Major AI agent milestone \u2014 autonomous shopping at scale"
+      },
+      {
+        "title": "CISA Flags Critical Cisco Expressway RCE Flaw as Actively Exploited",
+        "link": "https://www.bleepingcomputer.com/news/security/cisa-flags-critical-cisco-expressway-rce-flaw-as-actively-exploited/",
+        "why": "Critical security flaw actively exploited, federal alert issued"
+      },
+      {
+        "title": "CERT-In Warns AI-Powered Cyberattacks Hit Indian Bank Payments",
+        "link": "https://thehackernews.com/2026/11/ai-assisted-cyberattacks-trigger.html",
+        "why": "AI-assisted attacks triggering unauthorized bank payments"
+      },
+      {
+        "title": "Nvidia Bets $500M on Inception to Reshape AI Text Generation",
+        "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxPbGtaSmlfdVBBbk84OFV3T2trakUyZHBld2VWNEI1UlBuSTBOb2lENzZzYnNJclhVeVIyTEtJNkVObHpmaTdyVm0wSk83SllDOE1sS0x3al9Db1p1Zl9IOGtjVVg4c2ttN3NHaThMVTQxSVJMUU15c3d0Y2ZqUC1OOW9uUG40M1VjbS1mZUJhQ3lxUWpJdW83a3FwNjdFUGc?oc=5",
+        "why": "Massive Nvidia investment targeting AI model innovation"
+      },
+      {
+        "title": "Anthropic IPO Sparks Debate Over AI Wealth and Bubble Risks",
+        "link": "https://www.theguardian.com/commentisfree/2026/nov/23/anthropic-ipo-tech-elite-stock-bubble",
+        "why": "Major AI company goes public, market implications significant"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-22T21:01:28.564595+00:00",
     "items": [
       {
@@ -151,69 +181,6 @@
         "title": "Germany Seriously Pursuing TikTok Europe Takeover",
         "link": "https://www.engadget.com/2323606/germany-seems-to-be-serious-about-a-tiktok-europe-takeover/",
         "why": "European push to control major social platform"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-20T11:01:00.488726+00:00",
-    "items": [
-      {
-        "title": "Anthropic IPO Fails to Halt Global AI Stock Sell-Off",
-        "link": "https://www.theguardian.com/business/2026/nov/20/global-stock-markets-slump-anthropic-ipo-ai-sell-off",
-        "why": "Major IPO and market-wide AI stock crash"
-      },
-      {
-        "title": "OpenAI Tests Dots Personal AI Agents on Plus Tier",
-        "link": "https://www.engadget.com/2322656/openai-is-testing-dots-personal-agents-on-its-20-per-month-plus-tier/",
-        "why": "OpenAI expands autonomous agents to mass market"
-      },
-      {
-        "title": "China-Linked Hackers Exploit Critical VMware vCenter Zero-Day",
-        "link": "https://thehackernews.com/2026/11/china-linked-hackers-exploit-critical.html",
-        "why": "Active nation-state zero-day exploitation, critical severity",
-        "sources": [
-          "The Hacker News"
-        ]
-      },
-      {
-        "title": "European Commission Confirms AI-Assisted Cyberattack Disruption",
-        "link": "https://www.securityweek.com/european-commission-confirms-ai-assisted-cyberattack-disrupted-services/",
-        "why": "First government-level AI-powered cyberattack confirmed"
-      },
-      {
-        "title": "Robotics Industry Enters Post-Jensen Huang Era",
-        "link": "https://www.therobotreport.com/robotics-enters-its-post-jensen-huang-era/",
-        "why": "NVIDIA leader gone; robotics momentum uncertain"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-19T21:01:35.992206+00:00",
-    "items": [
-      {
-        "title": "Anthropic Hits $2 Trillion in Record-Breaking IPO Debut",
-        "link": "https://www.theguardian.com/business/live/2026/nov/19/anthropic-float-stock-market-nasdaq-raises-81bn-record-ipo-latest-news-updates",
-        "why": "Largest tech IPO ever; AI industry landmark event"
-      },
-      {
-        "title": "Google Puts AI Chats Directly on Search Homepage",
-        "link": "https://www.theverge.com/tech/1038059/google-search-homepage-ai-chats",
-        "why": "Fundamental shift for world's most visited webpage"
-      },
-      {
-        "title": "VMware vCenter Zero-Day Exploited by Chinese APT Before Patch",
-        "link": "https://www.securityweek.com/newly-patched-vmware-vcenter-flaw-exploited-as-zero-day-by-chinese-apt/",
-        "why": "Critical infrastructure zero-day with active nation-state exploitation"
-      },
-      {
-        "title": "Google Gemini Now Imports Chat History From Rival AI Apps",
-        "link": "https://blog.google/innovation-and-ai/products/gemini-app/switch-ai-assistants-transfer-history/",
-        "why": "Aggressive competitive play to win AI assistant switchers"
-      },
-      {
-        "title": "Russian Spy Targeted Silicon Valley Tech and Defense Firm",
-        "link": "https://arstechnica.com/security/2026/11/man-charged-with-spying-on-silicon-valley-tech-and-defense-company-for-russia/",
-        "why": "Espionage case hitting the heart of US tech industry"
       }
     ]
   }
