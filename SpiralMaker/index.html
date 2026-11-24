@@ -1,0 +1,912 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spiral Belt Designer</title>
+<style>
+  :root{
+    --bg:#0e1621; --panel:#16212f; --panel2:#1d2b3c; --line:#3a5068;
+    --text:#ffffff; --text2:#eaf4ff; --accent:#4fb3ff; --ok:#3ee08a; --bad:#ff5a5a; --warn:#ffd24a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  #app{display:grid;grid-template-columns:380px 1fr;height:100vh}
+  #side{background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;padding:14px 16px 30px}
+  h1{font-size:19px;margin:0 0 4px}
+  .sub{color:var(--text2);font-size:13px;margin-bottom:10px}
+  fieldset{border:1px solid var(--line);border-radius:10px;margin:12px 0;padding:10px 12px;background:var(--panel2)}
+  legend{font-weight:700;padding:0 6px;color:var(--accent);font-size:14px;letter-spacing:.3px}
+  label{display:block;color:var(--text2);font-size:13.5px;margin:8px 0 3px}
+  .row{display:flex;gap:8px;align-items:center}
+  .row > *{flex:1}
+  input[type=number],select{width:100%;background:#0b121b;color:#fff;border:1px solid #5a7896;border-radius:7px;padding:6px 8px;font-size:15px}
+  input[type=number]:focus,select:focus{outline:2px solid var(--accent);border-color:var(--accent)}
+  .chk{display:flex;align-items:center;gap:8px;margin:8px 0 2px;color:var(--text);font-size:14px;cursor:pointer}
+  .chk input{width:17px;height:17px;accent-color:var(--accent)}
+  .seg{display:flex;border:1px solid #5a7896;border-radius:8px;overflow:hidden}
+  .seg label{flex:1;margin:0;text-align:center;padding:6px 4px;cursor:pointer;color:#fff;font-size:13.5px}
+  .seg input{display:none}
+  .seg label:has(input:checked){background:var(--accent);color:#04121f;font-weight:700}
+  button{background:var(--accent);color:#04121f;border:0;border-radius:8px;padding:9px 12px;font-weight:700;font-size:14.5px;cursor:pointer}
+  button.secondary{background:#2b4058;color:#fff;border:1px solid #5a7896}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  .drop{border:2px dashed #5a7896;border-radius:10px;padding:14px;text-align:center;color:var(--text);cursor:pointer}
+  .drop.over{border-color:var(--accent);background:#14324d}
+  .parts{margin-top:8px}
+  .part{display:flex;align-items:center;gap:8px;font-size:13.5px;padding:3px 0;color:#fff}
+  .sw{width:16px;height:16px;border-radius:4px;border:1px solid #fff;flex:none}
+  .hint{font-size:12.5px;color:var(--text2);margin-top:6px}
+  .hidden{display:none !important}
+  #view{position:relative}
+  #canvasWrap{position:absolute;inset:0}
+  #stats{position:absolute;left:12px;top:12px;background:rgba(10,18,28,.92);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:14px;min-width:270px;max-width:380px}
+  #stats table{border-collapse:collapse}
+  #stats td{padding:2px 8px 2px 0;vertical-align:top;color:#fff}
+  #stats td:first-child{color:var(--text2)}
+  .ok{color:var(--ok) !important;font-weight:700}
+  .bad{color:var(--bad) !important;font-weight:700}
+  .warn{color:var(--warn)}
+  #status{position:absolute;right:12px;top:12px;background:rgba(10,18,28,.92);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:14px}
+  #warnings{margin-top:6px;font-size:13px;color:var(--warn)}
+  #dl{display:flex;flex-direction:column;gap:8px}
+  .xbtn{padding:2px 8px;font-size:13px;flex:none}
+  .stripehead{font-weight:700;margin-top:12px}
+  .stripehead input[type=color]{margin-left:auto;width:42px;height:26px;border:1px solid #fff;border-radius:6px;background:none;padding:0;cursor:pointer}
+  .stripebox{border-left:3px solid #5a7896;padding-left:10px;margin-left:4px}
+  .stripebox.off{display:none}
+  .empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff;pointer-events:none;text-align:center;padding:30px}
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="app">
+<aside id="side">
+  <h1>Spiral Belt Designer</h1>
+  <div class="sub">Turns a straight belt profile (STL or SVG) into a standing spiral that fits your print bed.</div>
+
+  <fieldset>
+    <legend>1 · Input</legend>
+    <div id="drop" class="drop">Drop STL or SVG file(s) here, or click to choose.<br><span class="hint">Multiple STLs = multiple colour parts (keep them in the same coordinates).</span></div>
+    <input id="file" type="file" accept=".stl,.svg" multiple class="hidden">
+    <div class="row" style="margin-top:8px">
+      <button id="demoBtn" class="secondary">Load demo belt</button>
+      <button id="addBtn" class="secondary">Add part…</button>
+    </div>
+    <input id="fileAdd" type="file" accept=".stl,.svg" multiple class="hidden">
+    <div id="partsList" class="parts"></div>
+
+    <div id="stlOpts" class="hidden">
+      <div class="row">
+        <div><label>Length axis</label>
+          <select id="lenAxis"><option value="auto">Auto (longest)</option><option value="0">X</option><option value="1">Y</option><option value="2">Z</option></select></div>
+        <div><label>Width axis</label>
+          <select id="widAxis"><option value="auto">Auto</option><option value="0">X</option><option value="1">Y</option><option value="2">Z</option></select></div>
+      </div>
+      <div class="hint">Width = the belt's height when standing (Z in your Tinkercad screenshot).</div>
+    </div>
+
+    <div id="svgOpts" class="hidden">
+      <label>SVG drawing is the…</label>
+      <div class="seg">
+        <label><input type="radio" name="svgMode" value="cross" checked>Cross-section</label>
+        <label><input type="radio" name="svgMode" value="face">Face (side view)</label>
+      </div>
+      <div class="hint" id="svgModeHint"></div>
+      <div id="faceThickRow" class="hidden"><label>Belt thickness (mm)</label><input id="faceThick" type="number" value="3" min="0.2" step="0.1"></div>
+      <label>Unitless SVG numbers are…</label>
+      <select id="svgUnit"><option value="mm">millimetres</option><option value="px96">pixels @ 96 dpi (Inkscape/Figma)</option><option value="px72">pixels @ 72 dpi (Illustrator)</option></select>
+      <div class="hint" id="svgUnitInfo"></div>
+    </div>
+
+    <label class="chk"><input id="flipOut" type="checkbox">Flip which face is on the outside</label>
+    <label class="chk"><input id="flipUp" type="checkbox">Flip upside-down</label>
+  </fieldset>
+
+  <fieldset>
+    <legend>2 · Belt size</legend>
+    <label>Length (along the spiral)</label>
+    <div class="row"><input id="len" type="number" value="1000" min="1" step="any"><select id="lenUnit" style="flex:0 0 80px"><option>mm</option><option>in</option><option>ft</option></select></div>
+    <label class="chk"><input id="useWidth" type="checkbox" checked>Scale to this width (belt height)</label>
+    <div class="row"><input id="wid" type="number" value="25" min="0.1" step="any"><select id="widUnit" style="flex:0 0 80px"><option>mm</option><option>in</option><option>ft</option></select></div>
+    <label class="chk"><input id="scaleThick" type="checkbox">Scale thickness with width (uniform)</label>
+    <div id="lenModeBox">
+      <label>Fill the length by…</label>
+      <div class="seg">
+        <label><input type="radio" name="lenMode" value="tile" checked>Repeating the pattern</label>
+        <label><input type="radio" name="lenMode" value="stretch">Stretching it</label>
+      </div>
+      <div class="hint">Repeat keeps vertical pin-stripes the same size &amp; spacing (load one repeat of the pattern). Stretch scales the whole profile to the length.</div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>3 · Pin stripes (optional)</legend>
+    <div class="hint" style="margin-top:0">Generated by the app as separate colour parts. They follow your profile's real surface, so they hug lips and fillets.</div>
+
+    <label class="chk stripehead"><input id="hsOn" type="checkbox">Horizontal stripes <input id="hsColor" type="color" value="#d1232a"></label>
+    <div id="hsBox" class="stripebox">
+      <div class="row">
+        <div><label>Stripe height (mm)</label><input id="hsH" type="number" value="2" min="0.1" step="0.1"></div>
+        <div><label>Down from top (mm)</label><input id="hsTop" type="number" value="0" min="0" step="0.1"></div>
+      </div>
+      <div class="row">
+        <div><label>How many</label><input id="hsCount" type="number" value="1" min="1" max="50" step="1"></div>
+        <div><label>Spacing (mm)</label><input id="hsSpace" type="number" value="6" min="0.1" step="0.1"></div>
+      </div>
+      <div class="row">
+        <div><label>Raised (mm)</label><input id="hsRaise" type="number" value="0.4" min="0" step="0.1"></div>
+        <div><label>Inlay depth (mm)</label><input id="hsInlay" type="number" value="0.8" min="0" step="0.1"></div>
+      </div>
+      <label>Which face</label>
+      <select id="hsSide"><option value="out">Outside face</option><option value="in">Inside face</option><option value="both">Both faces</option><option value="through" selected>Through full thickness</option></select>
+    </div>
+
+    <label class="chk stripehead"><input id="vsOn" type="checkbox">Vertical pin stripes <input id="vsColor" type="color" value="#2f7de1"></label>
+    <div id="vsBox" class="stripebox">
+      <div class="row">
+        <div><label>Stripe width (mm)</label><input id="vsW" type="number" value="3" min="0.1" step="0.1"></div>
+        <div><label>Spacing (mm)</label><input id="vsSpace" type="number" value="40" min="0" step="0.5"></div>
+      </div>
+      <div class="row">
+        <div><label>First stripe at (mm)</label><input id="vsStart" type="number" value="20" min="0" step="0.5"></div>
+        <div><label>Raised (mm)</label><input id="vsRaise" type="number" value="0.4" min="0" step="0.1"></div>
+      </div>
+      <div class="row">
+        <div><label>Inlay depth (mm)</label><input id="vsInlay" type="number" value="0.8" min="0" step="0.1"></div>
+        <div><label>Which face</label>
+          <select id="vsSide"><option value="out" selected>Outside</option><option value="in">Inside</option><option value="both">Both</option><option value="through">Through</option></select></div>
+      </div>
+      <div class="row">
+        <div><label>Stop short of top (mm)</label><input id="vsTopIn" type="number" value="0" min="0" step="0.1"></div>
+        <div><label>Stop short of bottom (mm)</label><input id="vsBotIn" type="number" value="0" min="0" step="0.1"></div>
+      </div>
+    </div>
+    <div class="hint">Raised = sticks out past the surface. Inlay = sinks into the belt (overlaps it, so the colour goes into the wall). Set both to 0 to turn a stripe off.</div>
+  </fieldset>
+
+  <fieldset>
+    <legend>4 · Spiral &amp; printer</legend>
+    <label>Printer</label>
+    <select id="printer">
+      <option value="p1s">Bambu Lab P1S (256 × 256 × 256)</option>
+      <option value="u1">Snapmaker U1 (270 × 270 × 270)</option>
+      <option value="custom">Custom…</option>
+    </select>
+    <div id="customBed" class="row hidden">
+      <div><label>Bed X</label><input id="bedX" type="number" value="256"></div>
+      <div><label>Bed Y</label><input id="bedY" type="number" value="256"></div>
+      <div><label>Max Z</label><input id="bedZ" type="number" value="256"></div>
+    </div>
+    <div class="row">
+      <div><label>Inner radius (mm)</label><input id="rIn" type="number" value="25" min="1" step="any"></div>
+      <div><label>Gap between turns (mm)</label><input id="gap" type="number" value="1.5" min="0" step="0.1"></div>
+    </div>
+    <div class="row">
+      <div><label>Edge margin (mm)</label><input id="margin" type="number" value="5" min="0" step="any"></div>
+      <div><label>Smoothness (° per segment)</label><input id="angStep" type="number" value="2" min="0.25" max="15" step="0.25"></div>
+    </div>
+    <div class="hint">Gap ≥ 1 mm keeps the turns from fusing. Smaller ° = smoother curve, bigger file.</div>
+  </fieldset>
+
+  <fieldset>
+    <legend>5 · Export</legend>
+    <div id="dl">
+      <button id="dlAll" disabled>Download STL</button>
+      <div id="dlParts"></div>
+    </div>
+    <div class="hint">Multi-colour: download each part, then drag them all into Bambu Studio / Snapmaker Orca at once and answer <b>Yes</b> to "load as a single object with multiple parts".</div>
+  </fieldset>
+</aside>
+
+<main id="view">
+  <div id="canvasWrap"></div>
+  <div id="empty" class="empty">Load an STL / SVG profile — or click “Load demo belt” — to see the spiral.</div>
+  <div id="stats" class="hidden"></div>
+  <div id="status">Ready</div>
+</main>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
+
+const $ = id => document.getElementById(id);
+const PRINTERS = { p1s:{name:'Bambu P1S', x:256, y:256, z:256}, u1:{name:'Snapmaker U1', x:270, y:270, z:270} };
+const UNIT = { mm:1, in:25.4, ft:304.8 };
+const PALETTE = ['#a9b2bc','#d1232a','#2f7de1','#f2c12e','#2fb36d','#9b59d0','#ff8a3d','#e0e0e0'];
+
+let parts = [];   // {name,type:'stl'|'svg',color, pos?:Float32Array, shapes?:Shape[], unitScale?, svgHasUnits?}
+let result = null;
+
+// ---------------------------------------------------------------- loading
+async function readFiles(fileList, append){
+  const added = [];
+  for (const f of [...fileList]){
+    const ext = f.name.split('.').pop().toLowerCase();
+    try{
+      if (ext === 'stl'){
+        let g = new STLLoader().parse(await f.arrayBuffer());
+        if (g.index) g = g.toNonIndexed();
+        added.push({ name:f.name, type:'stl', pos:Float32Array.from(g.attributes.position.array) });
+      } else if (ext === 'svg'){
+        added.push(...parseSVG(await f.text(), f.name));
+      } else alert('Unsupported file: '+f.name);
+    }catch(e){ console.error(e); alert('Could not read '+f.name+': '+e.message); }
+  }
+  if (!added.length) return;
+  // never mix the demo with real files
+  const next = append ? parts.filter(p=>!p.demo).concat(added) : added;
+  if (new Set(next.map(p=>p.type)).size > 1){ alert('Please use either STL parts or SVG files, not both at once.'); return; }
+  next.forEach((p,i)=>{ if(!p.color) p.color = PALETTE[i % PALETTE.length]; });
+  parts = next;
+  onPartsChanged();
+}
+
+function parseSVG(text, name){
+  const data = new SVGLoader().parse(text);
+  const root = data.xml;
+  // Work out mm per SVG user unit (SVGLoader ignores viewBox).
+  const ABS = { mm:1, cm:10, in:25.4, pt:25.4/72, pc:25.4/6, px:25.4/96 };
+  let unitScale = null, info = '';
+  const wAttr = (root.getAttribute && root.getAttribute('width')) || '';
+  const m = wAttr.trim().match(/^([\d.]+)\s*(mm|cm|in|pt|pc|px)?$/i);
+  const vb = (root.getAttribute && root.getAttribute('viewBox') || '').trim().split(/[\s,]+/).map(Number);
+  if (m && m[2]){
+    const wmm = parseFloat(m[1]) * ABS[m[2].toLowerCase()];
+    unitScale = (vb.length === 4 && vb[2] > 0) ? wmm / vb[2] : ABS[m[2].toLowerCase()];
+    info = `Size detected from file: width ${wAttr}`;
+  }
+  const groups = new Map();
+  for (const p of data.paths){
+    const fill = p.userData?.style?.fill;
+    if (!fill || fill === 'none') continue;
+    const shapes = SVGLoader.createShapes(p);
+    if (!shapes.length) continue;
+    const key = '#' + p.color.getHexString();
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(...shapes);
+  }
+  if (!groups.size) throw new Error('no filled shapes found (outline-only strokes are ignored — give shapes a fill).');
+  const multi = groups.size > 1;
+  return [...groups].map(([col, shapes]) => ({
+    name: multi ? `${name} (${col})` : name, type:'svg', color:col, shapes, unitScale, svgInfo:info
+  }));
+}
+
+function boxTris(x0,x1,y0,y1,z0,z1){
+  const out = [];
+  const P = (x,y,z)=>[x,y,z];
+  const quad = (a,b,c,d,n)=>{
+    const ux=b[0]-a[0],uy=b[1]-a[1],uz=b[2]-a[2], vx=c[0]-a[0],vy=c[1]-a[1],vz=c[2]-a[2];
+    const cx=uy*vz-uz*vy, cy=uz*vx-ux*vz, cz=ux*vy-uy*vx;
+    if (cx*n[0]+cy*n[1]+cz*n[2] >= 0) out.push(...a,...b,...c,...a,...c,...d);
+    else out.push(...a,...c,...b,...a,...d,...c);
+  };
+  quad(P(x0,y0,z0),P(x0,y0,z1),P(x0,y1,z1),P(x0,y1,z0),[-1,0,0]);
+  quad(P(x1,y0,z0),P(x1,y1,z0),P(x1,y1,z1),P(x1,y0,z1),[1,0,0]);
+  quad(P(x0,y0,z0),P(x1,y0,z0),P(x1,y0,z1),P(x0,y0,z1),[0,-1,0]);
+  quad(P(x0,y1,z0),P(x0,y1,z1),P(x1,y1,z1),P(x1,y1,z0),[0,1,0]);
+  quad(P(x0,y0,z0),P(x0,y1,z0),P(x1,y1,z0),P(x1,y0,z0),[0,0,-1]);
+  quad(P(x0,y0,z1),P(x1,y0,z1),P(x1,y1,z1),P(x0,y1,z1),[0,0,1]);
+  return out;
+}
+
+function loadDemo(){
+  // One 40 mm repeat, Tinkercad-style: X = length, Y = thickness, Z = height.
+  parts = [
+    { name:'demo body (grey)', type:'stl', demo:true, color:PALETTE[0], pos:Float32Array.from(boxTris(0,40, 0,3, 0,25)) },
+  ];
+  $('hsOn').checked = true; $('vsOn').checked = true;
+  onPartsChanged();
+}
+
+function onPartsChanged(){
+  const isSVG = parts.length && parts[0].type === 'svg';
+  $('stlOpts').classList.toggle('hidden', !parts.length || isSVG);
+  $('svgOpts').classList.toggle('hidden', !isSVG);
+  $('partsList').innerHTML = parts.map((p,i)=>`<div class="part"><span class="sw" style="background:${p.color}"></span><span style="flex:1">${escapeHTML(p.name)}</span><button class="secondary xbtn" data-remove="${i}" title="Remove this part">✕</button></div>`).join('');
+  $('empty').classList.toggle('hidden', parts.length>0);
+  updateModeUI();
+  schedule();
+}
+const escapeHTML = s => s.replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function updateModeUI(){
+  const isSVG = parts.length && parts[0].type === 'svg';
+  const svgMode = document.querySelector('input[name=svgMode]:checked').value;
+  $('faceThickRow').classList.toggle('hidden', svgMode !== 'face');
+  $('svgModeHint').textContent = svgMode === 'cross'
+    ? 'Draw the belt’s end profile: X = thickness, Y = height. Ridges & grooves become horizontal stripes running the full length. Each fill colour becomes its own part.'
+    : 'Draw the belt face: X = along the belt, Y = height. Each fill colour becomes its own part, extruded through the thickness. Great for vertical pin-stripes.';
+  $('lenModeBox').classList.toggle('hidden', isSVG && svgMode === 'cross');
+  $('hsBox').classList.toggle('off', !$('hsOn').checked);
+  $('vsBox').classList.toggle('off', !$('vsOn').checked);
+  const sp = parts.find(p=>p.type==='svg');
+  $('svgUnitInfo').textContent = sp ? (sp.unitScale ? sp.svgInfo + ' (setting above ignored).' : 'No physical size in the file — using the setting above.') : '';
+}
+
+// ---------------------------------------------------------------- geometry helpers
+function extrudeSVG(part, depth, mmPerUnit){
+  let g = new THREE.ExtrudeGeometry(part.shapes, { depth, bevelEnabled:false, steps:1, curveSegments:24 });
+  if (g.index) g = g.toNonIndexed();
+  const a = g.attributes.position.array, out = new Float64Array(a.length);
+  for (let i=0;i<a.length;i+=9){
+    // flip SVG y-down to y-up (mirror) and swap two vertices to keep outward winding
+    const src=[0,6,3];
+    for (let k=0;k<3;k++){ const s=i+src[k], d=i+k*3; out[d]=a[s]*mmPerUnit; out[d+1]=-a[s+1]*mmPerUnit; out[d+2]=a[s+2]; }
+  }
+  g.dispose();
+  return out;
+}
+
+// Map every part into the belt frame (u = along length, v = thickness, w = height). Always a proper rotation, so nothing gets mirrored.
+function toBeltFrame(){
+  const isSVG = parts[0].type === 'svg';
+  let frames = [], forceStretch = false;
+  if (isSVG){
+    const svgMode = document.querySelector('input[name=svgMode]:checked').value;
+    const unitless = { mm:1, px96:25.4/96, px72:25.4/72 }[$('svgUnit').value];
+    for (const p of parts){
+      const s = p.unitScale || unitless;
+      if (svgMode === 'cross'){
+        const a = extrudeSVG(p, 1, s);           // x=thickness, y=height, z=length
+        const f = new Float64Array(a.length);
+        for (let i=0;i<a.length;i+=3){ f[i]=a[i+2]; f[i+1]=a[i]; f[i+2]=a[i+1]; }
+        frames.push(f); forceStretch = true;
+      } else {
+        const t = Math.max(0.05, +$('faceThick').value || 3);
+        const a = extrudeSVG(p, t, s);           // x=length, y=height, z=thickness (drawing faces +z)
+        const f = new Float64Array(a.length);
+        for (let i=0;i<a.length;i+=3){ f[i]=a[i]; f[i+1]=-a[i+2]; f[i+2]=a[i+1]; }
+        frames.push(f);
+      }
+    }
+    return { frames, forceStretch, axisInfo:'' };
+  }
+  // STL: pick axes
+  const mn=[Infinity,Infinity,Infinity], mx=[-Infinity,-Infinity,-Infinity];
+  for (const p of parts) for (let i=0;i<p.pos.length;i+=3) for (let k=0;k<3;k++){ const v=p.pos[i+k]; if(v<mn[k])mn[k]=v; if(v>mx[k])mx[k]=v; }
+  const ext = [0,1,2].map(k=>mx[k]-mn[k]);
+  const order = [0,1,2].sort((a,b)=>ext[b]-ext[a]);
+  let la = $('lenAxis').value === 'auto' ? order[0] : +$('lenAxis').value;
+  let wa = $('widAxis').value === 'auto' ? order.find(k=>k!==la) : +$('widAxis').value;
+  if (wa === la) wa = order.find(k=>k!==la);
+  const U=[0,0,0], W=[0,0,0]; U[la]=1; W[wa]=1;
+  const V=[W[1]*U[2]-W[2]*U[1], W[2]*U[0]-W[0]*U[2], W[0]*U[1]-W[1]*U[0]];   // V = W × U (right-handed)
+  for (const p of parts){
+    const a=p.pos, f=new Float64Array(a.length);
+    for (let i=0;i<a.length;i+=3){
+      const x=a[i],y=a[i+1],z=a[i+2];
+      f[i]=U[0]*x+U[1]*y+U[2]*z; f[i+1]=V[0]*x+V[1]*y+V[2]*z; f[i+2]=W[0]*x+W[1]*y+W[2]*z;
+    }
+    frames.push(f);
+  }
+  const AX='XYZ';
+  return { frames, forceStretch:false, axisInfo:`length=${AX[la]}, width=${AX[wa]}, thickness=${AX[3-la-wa]}` };
+}
+
+function bbox(arrs){
+  const mn=[Infinity,Infinity,Infinity], mx=[-Infinity,-Infinity,-Infinity];
+  for (const a of arrs) for (let i=0;i<a.length;i+=3) for (let k=0;k<3;k++){ const v=a[i+k]; if(v<mn[k])mn[k]=v; if(v>mx[k])mx[k]=v; }
+  return {mn,mx};
+}
+
+// Remove pairs of coincident, opposite-facing triangles (internal walls left where tiles touch).
+function removeSeamPairs(a){
+  const q = v => Math.round(v*1e4);
+  const map = new Map(), dead = new Uint8Array(a.length/9);
+  for (let t=0;t<a.length/9;t++){
+    const o=t*9, ks=[];
+    for (let k=0;k<3;k++) ks.push(q(a[o+k*3])+','+q(a[o+k*3+1])+','+q(a[o+k*3+2]));
+    const key = ks.slice().sort().join('|');
+    const other = map.get(key);
+    if (other !== undefined && !dead[other]){
+      if (normalDot(a,o,other*9) < 0){ dead[t]=1; dead[other]=1; map.delete(key); continue; }
+    }
+    map.set(key,t);
+  }
+  let n=0; for (const d of dead) if(!d) n++;
+  const out = new Float64Array(n*9); let j=0;
+  for (let t=0;t<dead.length;t++) if(!dead[t]){ out.set(a.subarray(t*9,t*9+9), j); j+=9; }
+  return out;
+}
+// Triangles forming the flat end faces at u=0 (facing -u) and u=segLen (facing +u).
+// Returned only if both ends have the same cross-section (area + extents), i.e. the pattern tiles seamlessly.
+function findSeamCaps(a, segLen){
+  const eps = 1e-5, start = new Set(), end = new Set();
+  const st = {area:0, mn:[Infinity,Infinity], mx:[-Infinity,-Infinity]}, en = {area:0, mn:[Infinity,Infinity], mx:[-Infinity,-Infinity]};
+  for (let o=0,t=0;o<a.length;o+=9,t++){
+    const n = triNormal(a,o), area = Math.hypot(n[0],n[1],n[2])/2;
+    let acc = null;
+    if (Math.abs(a[o])<eps && Math.abs(a[o+3])<eps && Math.abs(a[o+6])<eps && n[0]<0){ start.add(t); acc = st; }
+    else if (Math.abs(a[o]-segLen)<eps && Math.abs(a[o+3]-segLen)<eps && Math.abs(a[o+6]-segLen)<eps && n[0]>0){ end.add(t); acc = en; }
+    if (!acc) continue;
+    acc.area += area;
+    for (let k=0;k<3;k++) for (let d=0;d<2;d++){ const v=a[o+k*3+1+d]; if(v<acc.mn[d])acc.mn[d]=v; if(v>acc.mx[d])acc.mx[d]=v; }
+  }
+  if (!start.size || !end.size) return { start:new Set(), end:new Set() };
+  const same = Math.abs(st.area-en.area) <= 1e-6*Math.max(1,st.area) &&
+    [0,1].every(d => Math.abs(st.mn[d]-en.mn[d])<1e-4 && Math.abs(st.mx[d]-en.mx[d])<1e-4);
+  return same ? { start, end } : null;
+}
+function triNormal(a,o){
+  const ux=a[o+3]-a[o],uy=a[o+4]-a[o+1],uz=a[o+5]-a[o+2], vx=a[o+6]-a[o],vy=a[o+7]-a[o+1],vz=a[o+8]-a[o+2];
+  return [uy*vz-uz*vy, uz*vx-ux*vz, ux*vy-uy*vx];
+}
+function normalDot(a,o1,o2){ const n1=triNormal(a,o1), n2=triNormal(a,o2); return n1[0]*n2[0]+n1[1]*n2[1]+n1[2]*n2[2]; }
+
+// Slice triangles with planes u = planes[k] so they can bend smoothly. Shared edges are cut identically -> stays watertight.
+function slabCut(a, planes){
+  let cap = a.length*2, out = new Float64Array(cap), n = 0;
+  const push = (p,q,r)=>{
+    const ux=q[0]-p[0],uy=q[1]-p[1],uz=q[2]-p[2], vx=r[0]-p[0],vy=r[1]-p[1],vz=r[2]-p[2];
+    const cx=uy*vz-uz*vy, cy=uz*vx-ux*vz, cz=ux*vy-uy*vx;
+    if (cx*cx+cy*cy+cz*cz < 1e-18) return;
+    if (n+9 > cap){ cap*=2; const o2=new Float64Array(cap); o2.set(out); out=o2; }
+    out[n++]=p[0];out[n++]=p[1];out[n++]=p[2];out[n++]=q[0];out[n++]=q[1];out[n++]=q[2];out[n++]=r[0];out[n++]=r[1];out[n++]=r[2];
+  };
+  const fan = poly => { for (let i=1;i<poly.length-1;i++) push(poly[0],poly[i],poly[i+1]); };
+  const cut = (A,B,p) => { if (A[0]>B[0]){ const t=A;A=B;B=t; } const t=(p-A[0])/(B[0]-A[0]); return [p, A[1]+t*(B[1]-A[1]), A[2]+t*(B[2]-A[2])]; };
+  const firstAbove = x => { let lo=0, hi=planes.length; while(lo<hi){ const m=(lo+hi)>>1; if (planes[m] <= x) lo=m+1; else hi=m; } return lo; };
+  for (let o=0;o<a.length;o+=9){
+    let poly = [[a[o],a[o+1],a[o+2]],[a[o+3],a[o+4],a[o+5]],[a[o+6],a[o+7],a[o+8]]];
+    const umin=Math.min(a[o],a[o+3],a[o+6]), umax=Math.max(a[o],a[o+3],a[o+6]);
+    let k = firstAbove(umin);
+    while (k < planes.length && planes[k] < umax){
+      const p = planes[k], L=[], R=[];
+      for (let i=0;i<poly.length;i++){
+        const A=poly[i], B=poly[(i+1)%poly.length], da=A[0]-p, db=B[0]-p;
+        if (da<=0) L.push(A);
+        if (da>=0) R.push(A);
+        if ((da<0&&db>0)||(da>0&&db<0)){ const I=cut(A,B,p); L.push(I); R.push(I); }
+      }
+      fan(L); poly = R; k++;
+    }
+    fan(poly);
+  }
+  return out.subarray(0,n);
+}
+
+// Archimedean spiral r = r0 + b·θ with an arc-length lookup table.
+function makeSpiral(r0, b, L){
+  const S=[0], TH=[0]; let th=0, s=0; const dth=0.002;
+  while (s < L + 2){
+    const f1=Math.hypot(r0+b*th,b), f2=Math.hypot(r0+b*(th+dth),b);
+    s += 0.5*(f1+f2)*dth; th += dth; S.push(s); TH.push(th);
+    if (S.length > 5e6) break;
+  }
+  return { r0, b, S:Float64Array.from(S), TH:Float64Array.from(TH) };
+}
+function thetaAt(sp, s){
+  const S=sp.S, TH=sp.TH;
+  if (s <= 0) return s / Math.hypot(sp.r0, sp.b);
+  let lo=0, hi=S.length-1;
+  if (s >= S[hi]) return TH[hi] + (s-S[hi]) / Math.hypot(sp.r0+sp.b*TH[hi], sp.b);
+  while (hi-lo>1){ const m=(lo+hi)>>1; if (S[m] <= s) lo=m; else hi=m; }
+  return TH[lo] + (TH[hi]-TH[lo]) * (s-S[lo]) / (S[hi]-S[lo]);
+}
+function bend(a, sp){
+  const out = new Float32Array(a.length), {r0,b} = sp;
+  for (let i=0;i<a.length;i+=3){
+    const th = thetaAt(sp, a[i]), r = r0 + b*th, c=Math.cos(th), s=Math.sin(th);
+    const dx = b*c - r*s, dy = b*s + r*c, l = Math.hypot(dx,dy);
+    const nx = -dy/l, ny = dx/l;                 // inward normal (frame T, N, Z is right-handed)
+    const n = a[i+1];
+    out[i] = r*c + n*nx; out[i+1] = r*s + n*ny; out[i+2] = a[i+2];
+  }
+  return out;
+}
+function signedVolume(a){
+  let v=0;
+  for (let o=0;o<a.length;o+=9){
+    v += a[o]*(a[o+4]*a[o+8]-a[o+5]*a[o+7]) - a[o+1]*(a[o+3]*a[o+8]-a[o+5]*a[o+6]) + a[o+2]*(a[o+3]*a[o+7]-a[o+4]*a[o+6]);
+  }
+  return v/6;
+}
+function flipWinding(a){ for (let o=0;o<a.length;o+=9) for (let k=0;k<3;k++){ const t=a[o+3+k]; a[o+3+k]=a[o+6+k]; a[o+6+k]=t; } }
+
+// Approximate max belt length that fits within a half-span R (outer face), for the stats panel.
+function maxFitLength(r0, b, outerExtra, R){
+  const rEnd = R - outerExtra;
+  if (rEnd <= r0) return 0;
+  const th = (rEnd - r0)/b;
+  return (rEnd*rEnd - r0*r0)/(2*b) + 0 * th;
+}
+
+// ---------------------------------------------------------------- generated stripes
+// Sampler: outermost (side=-1, smallest v) or innermost (side=+1, largest v) surface of the body at height w.
+function makeProfileSampler(bodies){
+  const tv = [], tw = [];
+  for (const a of bodies) for (let o=0;o<a.length;o+=9){ tv.push(a[o+1],a[o+4],a[o+7]); tw.push(a[o+2],a[o+5],a[o+8]); }
+  const n = tv.length/3, wmin = new Float64Array(n), wmax = new Float64Array(n);
+  for (let t=0;t<n;t++){ wmin[t]=Math.min(tw[t*3],tw[t*3+1],tw[t*3+2]); wmax[t]=Math.max(tw[t*3],tw[t*3+1],tw[t*3+2]); }
+  return (w, side) => {
+    const e = 1e-4, lo = w-e, hi = w+e;
+    let best = side < 0 ? Infinity : -Infinity;
+    for (let t=0;t<n;t++){
+      if (wmax[t] < lo || wmin[t] > hi) continue;
+      // clip triangle (v,w) to the band [lo,hi]
+      let poly = [[tv[t*3],tw[t*3]],[tv[t*3+1],tw[t*3+1]],[tv[t*3+2],tw[t*3+2]]];
+      for (const [lim, keepAbove] of [[lo,true],[hi,false]]){
+        const out = [];
+        for (let i=0;i<poly.length;i++){
+          const A=poly[i], B=poly[(i+1)%poly.length];
+          const ia = keepAbove ? A[1]>=lim : A[1]<=lim, ib = keepAbove ? B[1]>=lim : B[1]<=lim;
+          if (ia) out.push(A);
+          if (ia !== ib){ const k=(lim-A[1])/(B[1]-A[1]); out.push([A[0]+k*(B[0]-A[0]), lim]); }
+        }
+        poly = out; if (!poly.length) break;
+      }
+      for (const p of poly) best = side < 0 ? Math.min(best, p[0]) : Math.max(best, p[0]);
+    }
+    return best;
+  };
+}
+
+// Cross-section polygon (in v,w) for a stripe covering heights w0..w1, following the body surface.
+function stripePolys(sample, w0, w1, side, raise, inlay){
+  if (w1 - w0 < 1e-3) return [];
+  const n = Math.min(400, Math.max(2, Math.ceil((w1-w0)/0.25)));
+  const ws = []; for (let i=0;i<=n;i++) ws.push(w0 + (w1-w0)*i/n);
+  const one = which => {
+    const L = [], R = [];
+    for (const w of ws){
+      const fo = sample(w,-1), fi = sample(w,+1);
+      if (!isFinite(fo) || !isFinite(fi)) continue;
+      let a, b;
+      if (which === 'out'){ a = fo - raise; b = Math.min(fo + inlay, fi); }
+      else if (which === 'in'){ a = Math.max(fi - inlay, fo); b = fi + raise; }
+      else { a = fo - raise; b = fi + raise; }
+      if (b - a < 1e-3) continue;
+      L.push([a,w]); R.push([b,w]);
+    }
+    if (L.length < 2) return null;
+    let poly = L.concat(R.reverse());
+    // drop collinear / duplicate points
+    poly = poly.filter((p,i)=>{ const A=poly[(i-1+poly.length)%poly.length], B=poly[(i+1)%poly.length];
+      return Math.abs((p[0]-A[0])*(B[1]-A[1]) - (p[1]-A[1])*(B[0]-A[0])) > 1e-7; });
+    let area = 0; for (let i=0;i<poly.length;i++){ const A=poly[i],B=poly[(i+1)%poly.length]; area += A[0]*B[1]-B[0]*A[1]; }
+    if (Math.abs(area) < 1e-6) return null;
+    if (area < 0) poly.reverse();
+    return poly;
+  };
+  if (raise <= 0 && inlay <= 0 && side !== 'through') return [];
+  const sides = side === 'both' ? ['out','in'] : [side];
+  return sides.map(one).filter(Boolean);
+}
+
+// Extrude a CCW (v,w) polygon along u from u0 to u1; pushes oriented triangles into out[].
+function extrudeU(poly, u0, u1, out){
+  const tri = (A,B,C,n) => {
+    const ux=B[0]-A[0],uy=B[1]-A[1],uz=B[2]-A[2], vx=C[0]-A[0],vy=C[1]-A[1],vz=C[2]-A[2];
+    if ((uy*vz-uz*vy)*n[0] + (uz*vx-ux*vz)*n[1] + (ux*vy-uy*vx)*n[2] >= 0) out.push(...A,...B,...C); else out.push(...A,...C,...B);
+  };
+  const faces = THREE.ShapeUtils.triangulateShape(poly.map(p=>new THREE.Vector2(p[0],p[1])), []);
+  for (const [i,j,k] of faces){
+    const P = u => [[u,poly[i][0],poly[i][1]],[u,poly[j][0],poly[j][1]],[u,poly[k][0],poly[k][1]]];
+    tri(...P(u0), [-1,0,0]); tri(...P(u1), [1,0,0]);
+  }
+  for (let i=0;i<poly.length;i++){
+    const p = poly[i], q = poly[(i+1)%poly.length], n = [0, q[1]-p[1], -(q[0]-p[0])];
+    const a=[u0,p[0],p[1]], b=[u1,p[0],p[1]], c=[u1,q[0],q[1]], d=[u0,q[0],q[1]];
+    tri(a,b,c,n); tri(a,c,d,n);
+  }
+}
+
+function makeStripes(bodies, L, H){
+  const res = [], num = id => Math.max(0, +$(id).value || 0);
+  if (!$('hsOn').checked && !$('vsOn').checked) return res;
+  const sample = makeProfileSampler(bodies);
+  if ($('hsOn').checked){
+    const h = num('hsH'), top = num('hsTop'), count = Math.max(1, Math.round(num('hsCount'))), sp = num('hsSpace');
+    const out = [];
+    for (let i=0;i<count;i++){
+      const w1 = Math.min(H, H - top - i*sp), w0 = Math.max(0, w1 - h);
+      for (const poly of stripePolys(sample, w0, w1, $('hsSide').value, num('hsRaise'), num('hsInlay'))) extrudeU(poly, 0, L, out);
+    }
+    if (out.length) res.push({ gen:true, name:'horizontal stripes', color:$('hsColor').value, tris:Float64Array.from(out) });
+  }
+  if ($('vsOn').checked){
+    const wd = num('vsW'), sp = num('vsSpace'), start = num('vsStart');
+    const polys = stripePolys(sample, num('vsBotIn'), H - num('vsTopIn'), $('vsSide').value, num('vsRaise'), num('vsInlay'));
+    const out = [];
+    if (wd > 0 && polys.length){
+      let count = 0;
+      for (let uc = start; uc + wd/2 <= L + 1e-6; uc += (sp > wd ? sp : Infinity)){
+        const u0 = Math.max(0, uc - wd/2);
+        for (const poly of polys) extrudeU(poly, u0, uc + wd/2, out);
+        if (++count > 5000) break;
+      }
+    }
+    if (out.length) res.push({ gen:true, name:'vertical pin stripes', color:$('vsColor').value, tris:Float64Array.from(out) });
+  }
+  return res;
+}
+
+// ---------------------------------------------------------------- main build
+function getBed(){
+  const v = $('printer').value;
+  if (v === 'custom') return { name:'Custom', x:+$('bedX').value||256, y:+$('bedY').value||256, z:+$('bedZ').value||256 };
+  return PRINTERS[v];
+}
+
+function build(){
+  if (!parts.length){ result=null; refreshView(); return; }
+  const t0 = performance.now();
+  const L = (+$('len').value || 0) * UNIT[$('lenUnit').value];
+  if (!(L > 0)) throw new Error('Enter a length');
+  const { frames, forceStretch, axisInfo } = toBeltFrame();
+
+  // normalise: u from 0, w from 0, v centred
+  let {mn, mx} = bbox(frames);
+  const segLen = mx[0]-mn[0], thick0 = mx[1]-mn[1], height0 = mx[2]-mn[2];
+  const vc = (mn[1]+mx[1])/2;
+  const flipOut = $('flipOut').checked, flipUp = $('flipUp').checked;
+  for (const f of frames){
+    for (let i=0;i<f.length;i+=3){
+      let u=f[i]-mn[0], v=f[i+1]-vc, w=f[i+2]-mn[2];
+      if (flipOut){ u = segLen-u; v = -v; }      // 180° about the height axis
+      if (flipUp){ v = -v; w = height0-w; }      // 180° about the length axis
+      f[i]=u; f[i+1]=v; f[i+2]=w;
+    }
+  }
+
+  const useW = $('useWidth').checked;
+  const targetW = (+$('wid').value || 0) * UNIT[$('widUnit').value];
+  const sw = (useW && targetW > 0 && height0 > 0) ? targetW/height0 : 1;
+  const sv = $('scaleThick').checked ? sw : 1;
+  const lenMode = forceStretch ? 'stretch' : document.querySelector('input[name=lenMode]:checked').value;
+  let tiles = 1, period = segLen, su;
+  if (lenMode === 'tile'){
+    const natural = segLen * ($('scaleThick').checked ? sw : 1);
+    tiles = Math.max(1, Math.round(L / natural));
+    if (tiles > 20000) throw new Error('Too many repeats ('+tiles+') — is the pattern tiny?');
+    su = L / (tiles*segLen); period = segLen*su;
+  } else su = L / segLen;
+
+  const H = height0 * sw;
+
+  // straight belt: tile + scale each loaded part
+  const straights = frames.map((f, pi) => {
+    // where tiles touch, drop the matching end/start caps so the belt is one solid (no internal walls)
+    const caps = tiles > 1 ? findSeamCaps(f, segLen) : null;
+    const N = f.length/9;
+    const nTri = caps ? 2*N - caps.start.size - caps.end.size + (tiles-2)*(N - caps.start.size - caps.end.size) : N*tiles;
+    let straight = new Float64Array(nTri*9), j = 0;
+    for (let k=0;k<tiles;k++){
+      const du = k*segLen;
+      for (let t=0;t<N;t++){
+        if (caps && ((k>0 && caps.start.has(t)) || (k<tiles-1 && caps.end.has(t)))) continue;
+        for (let i=t*9;i<t*9+9;i+=3){ straight[j++]=(f[i]+du)*su; straight[j++]=f[i+1]*sv; straight[j++]=f[i+2]*sw; }
+      }
+    }
+    if (tiles > 1 && !caps) straight = removeSeamPairs(straight);
+    return { name:parts[pi].name, color:parts[pi].color, tris:straight };
+  });
+
+  // generated stripes follow the body's cross-section (sampled from one scaled repeat)
+  const scaledBodies = frames.map(f => { const a = new Float64Array(f.length); for (let i=0;i<f.length;i+=3){ a[i]=f[i]*su; a[i+1]=f[i+1]*sv; a[i+2]=f[i+2]*sw; } return a; });
+  straights.push(...makeStripes(scaledBodies, L, H));
+
+  // spiral sized from the real thickness, including raised stripes (+v faces inward)
+  const vbb = bbox(straights.map(p=>p.tris));
+  const vmin = vbb.mn[1], vmax = vbb.mx[1], T = vmax - vmin;
+  const gap = Math.max(0, +$('gap').value || 0);
+  const rIn = Math.max(0.5, +$('rIn').value || 20);
+  const r0 = rIn + vmax;
+  const b = (T + gap) / (2*Math.PI);
+  const sp = makeSpiral(r0, b, L);
+
+  // slicing planes: finer near the centre (tight curve), coarser outside
+  const ang = Math.max(0.25, +$('angStep').value || 2) * Math.PI/180;
+  const planes = []; let s = 0;
+  while (true){
+    const r = r0 + b*thetaAt(sp, s);
+    s += Math.min(6, Math.max(0.15, r*ang));
+    if (s >= L - 0.05) break;
+    planes.push(s);
+  }
+
+  const outParts = straights.map(p => {
+    const bent = bend(slabCut(p.tris, planes), sp);
+    if (signedVolume(bent) < 0) flipWinding(bent);
+    return { name:p.name, color:p.color, gen:!!p.gen, tris:bent };
+  });
+
+  // centre footprint on origin, sit on z=0
+  const bb = bbox(outParts.map(p=>p.tris));
+  const cx=(bb.mn[0]+bb.mx[0])/2, cy=(bb.mn[1]+bb.mx[1])/2, cz=bb.mn[2];
+  for (const p of outParts) for (let i=0;i<p.tris.length;i+=3){ p.tris[i]-=cx; p.tris[i+1]-=cy; p.tris[i+2]-=cz; }
+  const fx = bb.mx[0]-bb.mn[0], fy = bb.mx[1]-bb.mn[1], fz = bb.mx[2]-bb.mn[2];
+
+  const thEnd = thetaAt(sp, L);
+  const tris = outParts.reduce((n,p)=>n+p.tris.length/9, 0);
+  result = {
+    parts: outParts, L, T, H, vmin, gap, rIn, r0, b, fx, fy, fz, tiles, period, lenMode, axisInfo, tris,
+    turns: thEnd/(2*Math.PI), outerR: r0 + b*thEnd - vmin, ms: performance.now()-t0,
+  };
+  refreshView();
+}
+
+// ---------------------------------------------------------------- viewer
+const wrap = $('canvasWrap');
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setPixelRatio(window.devicePixelRatio);
+wrap.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#0e1621');
+const camera = new THREE.PerspectiveCamera(40, 1, 1, 10000);
+camera.up.set(0,0,1);
+camera.position.set(0, -380, 300);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+scene.add(new THREE.HemisphereLight(0xffffff, 0x334455, 1.6));
+const dl = new THREE.DirectionalLight(0xffffff, 1.6); dl.position.set(200,-300,500); scene.add(dl);
+const dl2 = new THREE.DirectionalLight(0xffffff, 0.6); dl2.position.set(-300,200,200); scene.add(dl2);
+let bedGroup = new THREE.Group(), modelGroup = new THREE.Group();
+scene.add(bedGroup, modelGroup);
+
+function drawBed(){
+  bedGroup.clear();
+  const bed = getBed(), hx = bed.x/2, hy = bed.y/2;
+  const plate = new THREE.Mesh(new THREE.PlaneGeometry(bed.x, bed.y), new THREE.MeshStandardMaterial({ color:'#1f2f42', roughness:0.9 }));
+  plate.position.z = -0.3; bedGroup.add(plate);
+  const pts = [];
+  for (let x=-hx; x<=hx+0.01; x+=10) pts.push(x,-hy,0, x,hy,0);
+  for (let y=-hy; y<=hy+0.01; y+=10) pts.push(-hx,y,0, hx,y,0);
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pts,3));
+  bedGroup.add(new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color:'#3d5a78' })));
+  const m = +$('margin').value || 0;
+  const edge = (hx2,hy2,col)=>{ const e=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-hx2,-hy2,0.2),new THREE.Vector3(hx2,-hy2,0.2),new THREE.Vector3(hx2,hy2,0.2),new THREE.Vector3(-hx2,hy2,0.2),new THREE.Vector3(-hx2,-hy2,0.2)]); bedGroup.add(new THREE.Line(e,new THREE.LineBasicMaterial({color:col}))); };
+  edge(hx,hy,'#9fd4ff');
+  if (m>0) edge(hx-m,hy-m,'#ffd24a');
+}
+
+function refreshView(){
+  drawBed();
+  modelGroup.children.forEach(c=>c.geometry.dispose());
+  modelGroup.clear();
+  $('dlParts').innerHTML = '';
+  if (!result){ $('stats').classList.add('hidden'); $('dlAll').disabled = true; return; }
+  for (const p of result.parts){
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(p.tris, 3));
+    g.computeVertexNormals();
+    modelGroup.add(new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color:p.color, roughness:0.55, metalness:0.05, flatShading:true,
+      polygonOffset:!!p.gen, polygonOffsetFactor:-2, polygonOffsetUnits:-4 })));   // stripes win where they share a surface
+  }
+  $('dlAll').disabled = false;
+  $('dlAll').textContent = result.parts.length > 1 ? 'Download combined STL (all parts)' : 'Download STL';
+  if (result.parts.length > 1){
+    $('dlParts').innerHTML = result.parts.map((p,i)=>`<button class="secondary" data-part="${i}" style="width:100%;margin-top:6px;text-align:left"><span class="sw" style="display:inline-block;vertical-align:-3px;margin-right:8px;background:${p.color}"></span>Part: ${escapeHTML(p.name)}</button>`).join('');
+  }
+  renderStats();
+}
+
+function fmtLen(mm){
+  const u = $('lenUnit').value;
+  return `${mm.toFixed(1)} mm` + (u==='in' ? ` (${(mm/25.4).toFixed(2)} in)` : u==='ft' ? ` (${(mm/304.8).toFixed(3)} ft)` : '');
+}
+function renderStats(){
+  const r = result, bed = getBed(), m = +$('margin').value || 0;
+  const fitsXY = (b)=> r.fx <= b.x - 2*m && r.fy <= b.y - 2*m;
+  const fitsZ = (b)=> r.fz <= b.z;
+  const fitTxt = (b)=> (fitsXY(b) && fitsZ(b)) ? `<span class="ok">✓ fits</span>` :
+      `<span class="bad">✗ ${!fitsXY(b) ? 'too wide' : ''}${!fitsXY(b)&&!fitsZ(b)?', ':''}${!fitsZ(b)?'too tall':''}</span>`;
+  const maxL = b => maxFitLength(r.r0, r.b, -r.vmin, Math.min(b.x,b.y)/2 - m);
+  const rows = [
+    ['Belt length', fmtLen(r.L)],
+    ['Height (width)', `${r.H.toFixed(2)} mm`],
+    ['Thickness', `${r.T.toFixed(2)} mm · gap ${r.gap} mm`],
+    r.lenMode==='tile' ? ['Pattern', `${r.tiles} × ${r.period.toFixed(2)} mm repeats`] : ['Pattern', 'stretched to length'],
+    ['Turns', r.turns.toFixed(2)],
+    ['Footprint', `${r.fx.toFixed(1)} × ${r.fy.toFixed(1)} × ${r.fz.toFixed(1)} mm`],
+    [bed.name, fitTxt(bed)],
+    ...Object.values(PRINTERS).filter(p=>p.name!==bed.name).map(p=>[p.name, fitTxt(p)]),
+    ['≈ Max length', Object.values(PRINTERS).map(p=>`${p.name.split(' ').pop()}: ${(maxL(p)/1000).toFixed(2)} m`).join(' · ')],
+    ['Triangles', r.tris.toLocaleString() + ` · ${r.ms.toFixed(0)} ms`],
+  ];
+  if (r.axisInfo) rows.push(['STL axes', r.axisInfo]);
+  const gen = r.parts.filter(p=>p.gen).map(p=>p.name);
+  if (gen.length) rows.push(['Stripes', gen.join(', ')]);
+  const warns = [];
+  if (r.gap < 0.8) warns.push('Gap under 0.8 mm — turns may fuse together.');
+  if (r.rIn < r.T*2) warns.push('Inner radius is very tight for this thickness.');
+  if (r.H > 0 && r.T > 0 && r.H / r.T > 60) warns.push('Very tall & thin wall — consider a brim.');
+  $('stats').innerHTML = `<table>${rows.map(([a,b])=>`<tr><td>${a}</td><td>${b}</td></tr>`).join('')}</table>` +
+    (warns.length ? `<div id="warnings">⚠ ${warns.join('<br>⚠ ')}</div>` : '');
+  $('stats').classList.remove('hidden');
+}
+
+let lastFitKey = '';
+function fitCamera(){
+  if (!result) return;
+  const key = parts.map(p=>p.name).join('|');
+  if (key === lastFitKey) return;
+  lastFitKey = key;
+  const bed = getBed(), d = Math.max(bed.x, bed.y);
+  controls.target.set(0,0,result.fz/3);
+  camera.position.set(0, -d*1.25, d*1.05);
+}
+
+function resize(){
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  renderer.setSize(w, h, false); renderer.domElement.style.width='100%'; renderer.domElement.style.height='100%';
+  camera.aspect = w/h; camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(wrap); resize();
+(function loop(){ controls.update(); renderer.render(scene, camera); requestAnimationFrame(loop); })();
+
+// ---------------------------------------------------------------- export
+function stlBlob(list){
+  const n = list.reduce((s,p)=>s+p.tris.length/9, 0);
+  const buf = new ArrayBuffer(84 + 50*n), dv = new DataView(buf);
+  const head = 'Spiral Belt Designer';
+  for (let i=0;i<head.length;i++) dv.setUint8(i, head.charCodeAt(i));
+  dv.setUint32(80, n, true);
+  let off = 84;
+  for (const p of list){
+    const a = p.tris;
+    for (let o=0;o<a.length;o+=9){
+      const nn = triNormal(a,o), l = Math.hypot(nn[0],nn[1],nn[2]) || 1;
+      dv.setFloat32(off, nn[0]/l, true); dv.setFloat32(off+4, nn[1]/l, true); dv.setFloat32(off+8, nn[2]/l, true); off+=12;
+      for (let k=0;k<9;k++){ dv.setFloat32(off, a[o+k], true); off+=4; }
+      dv.setUint16(off, 0, true); off+=2;
+    }
+  }
+  return new Blob([buf], { type:'model/stl' });
+}
+function download(blob, name){
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
+}
+const baseName = () => `spiral_belt_${Math.round(result.L)}mm_x_${result.H.toFixed(1)}mm`;
+const safe = s => s.replace(/\.(stl|svg)$/i,'').replace(/[^\w.-]+/g,'_');
+$('dlAll').onclick = () => result && download(stlBlob(result.parts), baseName()+'.stl');
+$('dlParts').onclick = e => {
+  const btn = e.target.closest('[data-part]'); if (!btn || !result) return;
+  const p = result.parts[+btn.dataset.part];
+  download(stlBlob([p]), `${baseName()}_${safe(p.name)}.stl`);
+};
+
+// ---------------------------------------------------------------- wiring
+let timer = null;
+function schedule(){
+  clearTimeout(timer);
+  $('status').textContent = 'Building…';
+  timer = setTimeout(()=>{
+    try{ build(); fitCamera(); $('status').textContent = result ? 'Ready' : 'Ready'; }
+    catch(e){ console.error(e); $('status').innerHTML = `<span class="bad">${escapeHTML(e.message)}</span>`; }
+  }, 250);
+}
+$('drop').onclick = () => $('file').click();
+$('addBtn').onclick = () => $('fileAdd').click();
+$('file').onchange = e => { readFiles(e.target.files, false); e.target.value=''; };
+$('fileAdd').onchange = e => { readFiles(e.target.files, parts.length>0); e.target.value=''; };
+$('drop').ondragover = e => { e.preventDefault(); $('drop').classList.add('over'); };
+$('drop').ondragleave = () => $('drop').classList.remove('over');
+$('drop').ondrop = e => { e.preventDefault(); $('drop').classList.remove('over'); readFiles(e.dataTransfer.files, false); };
+$('demoBtn').onclick = loadDemo;
+$('partsList').onclick = e => {
+  const b = e.target.closest('[data-remove]'); if (!b) return;
+  parts.splice(+b.dataset.remove, 1);
+  onPartsChanged();
+};
+$('printer').onchange = () => { $('customBed').classList.toggle('hidden', $('printer').value!=='custom'); schedule(); };
+document.querySelectorAll('#side input, #side select').forEach(el => {
+  if (el.type === 'file') return;
+  el.addEventListener('input', () => { updateModeUI(); schedule(); });
+});
+drawBed();
+window.__spiral = { get result(){ return result; }, loadDemo };
+</script>
+</body>
+</html>
