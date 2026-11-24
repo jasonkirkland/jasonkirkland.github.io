@@ -84,9 +84,9 @@
     <div id="stlOpts" class="hidden">
       <div class="row">
         <div><label>Length axis</label>
-          <select id="lenAxis"><option value="auto">Auto (longest)</option><option value="0">X</option><option value="1">Y</option><option value="2">Z</option></select></div>
+          <select id="lenAxis"><option value="auto">Auto (extrusion)</option><option value="0">X</option><option value="1">Y</option><option value="2">Z</option></select></div>
         <div><label>Width axis</label>
-          <select id="widAxis"><option value="auto">Auto</option><option value="0">X</option><option value="1">Y</option><option value="2">Z</option></select></div>
+          <select id="widAxis"><option value="auto">Auto (Z up)</option><option value="0">X</option><option value="1">Y</option><option value="2">Z</option></select></div>
       </div>
       <div class="hint">Width = the belt's height when standing (Z in your Tinkercad screenshot).</div>
     </div>
@@ -376,9 +376,27 @@ function toBeltFrame(){
   for (const p of parts) for (let i=0;i<p.pos.length;i+=3) for (let k=0;k<3;k++){ const v=p.pos[i+k]; if(v<mn[k])mn[k]=v; if(v>mx[k])mx[k]=v; }
   const ext = [0,1,2].map(k=>mx[k]-mn[k]);
   const order = [0,1,2].sort((a,b)=>ext[b]-ext[a]);
-  let la = $('lenAxis').value === 'auto' ? order[0] : +$('lenAxis').value;
-  let wa = $('widAxis').value === 'auto' ? order.find(k=>k!==la) : +$('widAxis').value;
-  if (wa === la) wa = order.find(k=>k!==la);
+  // An extruded profile has every vertex on one of its two end faces along the extrusion axis.
+  // That axis is the belt length, however short the slice is.
+  const prism = [0,1,2].filter(k => {
+    const tol = Math.max(1e-4, ext[k]*1e-4);
+    for (const p of parts) for (let i=k;i<p.pos.length;i+=3){ const v=p.pos[i]; if (Math.abs(v-mn[k])>tol && Math.abs(v-mx[k])>tol) return false; }
+    return ext[k] > 0;
+  });
+  let la;
+  if ($('lenAxis').value !== 'auto') la = +$('lenAxis').value;
+  else if (prism.length === 1) la = prism[0];
+  else if (prism.length > 1) la = prism.sort((a,b)=>ext[b]-ext[a])[0];
+  else la = order[0];
+  let wa;
+  if ($('widAxis').value !== 'auto') wa = +$('widAxis').value;
+  else {
+    // Tinkercad/slicers are Z-up: a standing belt's height is Z, unless Z is the length or the piece is lying flat.
+    const rest = [0,1,2].filter(k=>k!==la);
+    const flat = ext[2] <= Math.min(...rest.map(k=>ext[k]));
+    wa = (la !== 2 && !flat) ? 2 : rest.sort((a,b)=>ext[b]-ext[a])[0];
+  }
+  if (wa === la) wa = [0,1,2].find(k=>k!==la);
   const U=[0,0,0], W=[0,0,0]; U[la]=1; W[wa]=1;
   const V=[W[1]*U[2]-W[2]*U[1], W[2]*U[0]-W[0]*U[2], W[0]*U[1]-W[1]*U[0]];   // V = W × U (right-handed)
   for (const p of parts){
