@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-24T21:01:20.090901+00:00",
+    "items": [
+      {
+        "title": "Nvidia CEO Jensen Huang denies Trump rehired him in all-hands",
+        "link": "https://www.theverge.com/tech/1041571/jensen-huang-all-hands-nvidia-apology",
+        "why": "Top AI chip CEO addresses political controversy with staff"
+      },
+      {
+        "title": "Australia passes online safety laws with multibillion-dollar tech fines",
+        "link": "https://www.pbs.org/newshour/world/australia-set-to-pass-online-safety-laws-with-multibillion-dollar-fines-for-tech-giants",
+        "why": "Major regulatory shift hitting Google Meta and others"
+      },
+      {
+        "title": "Linux SSH vulnerability lets attackers bypass server password protection",
+        "link": "https://www.howtogeek.com/linux-vulnerability-let-attackers-bypass-servers-password-protection/",
+        "why": "Critical security flaw affects hardened Linux servers"
+      },
+      {
+        "title": "Amazon delivery drone crashes into garage, triggers FAA probe",
+        "link": "https://arstechnica.com/gadgets/2026/11/faa-opens-probe-after-amazon-delivery-drone-clips-cable-crashes-into-garage/",
+        "why": "FAA investigation threatens Amazon Prime Air expansion"
+      },
+      {
+        "title": "AI-assisted proof of Riemann hypothesis appears solid",
+        "link": "https://arstechnica.com/ai/2026/11/whats-going-on-with-the-riemann-hypothesis/",
+        "why": "Potential breakthrough in math using AI assistance"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-24T11:01:46.348732+00:00",
     "items": [
       {
