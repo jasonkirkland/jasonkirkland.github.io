@@ -192,10 +192,42 @@
       <div><label>Smoothness (° per segment)</label><input id="angStep" type="number" value="2" min="0.25" max="15" step="0.25"></div>
     </div>
     <div class="hint">Gap ≥ 1 mm keeps the turns from fusing. Smaller ° = smoother curve, bigger file.</div>
+    <div class="row">
+      <div><label>Material (for flattening)</label>
+        <select id="mat">
+          <option value="2">PLA (~2%)</option>
+          <option value="3.5" selected>PETG (~3.5%)</option>
+          <option value="3">ABS / ASA (~3%)</option>
+          <option value="6">Nylon / PA (~6%)</option>
+          <option value="20">TPU 95A (~20%)</option>
+          <option value="30">TPU 85A (~30%)</option>
+        </select></div>
+      <div style="flex:0 0 110px"><label>Safe strain %</label><input id="matStrain" type="number" value="3.5" min="0.1" step="0.1"></div>
+    </div>
+    <div class="hint">How far the plastic can bend and still spring back flat. Rough values. Over the limit, it buckles, creases or stays curved.</div>
   </fieldset>
 
   <fieldset>
-    <legend>5 · Export</legend>
+    <legend>5 · Relief notches (optional)</legend>
+    <label class="chk stripehead"><input id="nOn" type="checkbox">Cut relief notches</label>
+    <div id="nBox" class="stripebox">
+      <div class="hint" style="margin-top:0">Slots cut across the face so the flanges don't buckle when the belt is laid flat. Needs a constant profile (a straight extrusion).</div>
+      <label>Cut into</label>
+      <select id="nSide"><option value="out" selected>Outside face (squeezed when flattened)</option><option value="in">Inside face (stretched when flattened)</option></select>
+      <div class="row">
+        <div><label>Depth (mm, blank = auto)</label><input id="nDepth" type="number" placeholder="auto" min="0" step="0.1"></div>
+        <div><label>Spacing (mm)</label><input id="nSpace" type="number" value="5" min="1" step="0.5"></div>
+      </div>
+      <label class="chk"><input id="nAuto" type="checkbox" checked>Auto width: gaps close exactly when laid flat</label>
+      <div class="row">
+        <div><label>Fixed width (mm)</label><input id="nWidth" type="number" value="1" min="0.2" step="0.1"></div>
+        <div><label>Extra gap (mm)</label><input id="nExtra" type="number" value="0.2" min="0" step="0.05"></div>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>6 · Export</legend>
     <div id="dl">
       <button id="dlAll" disabled>Download STL</button>
       <div id="dlParts"></div>
@@ -329,6 +361,8 @@ function updateModeUI(){
   $('lenModeBox').classList.toggle('hidden', isSVG && svgMode === 'cross');
   $('hsBox').classList.toggle('off', !$('hsOn').checked);
   $('vsBox').classList.toggle('off', !$('vsOn').checked);
+  $('nBox').classList.toggle('off', !$('nOn').checked);
+  $('nWidth').disabled = $('nAuto').checked;
   const sp = parts.find(p=>p.type==='svg');
   $('svgUnitInfo').textContent = sp ? (sp.unitScale ? sp.svgInfo + ' (setting above ignored).' : 'No physical size in the file — using the setting above.') : '';
 }
@@ -378,10 +412,15 @@ function toBeltFrame(){
   const order = [0,1,2].sort((a,b)=>ext[b]-ext[a]);
   // An extruded profile has every vertex on one of its two end faces along the extrusion axis.
   // That axis is the belt length, however short the slice is.
+  // Judge this on the main body (biggest part), so extra stripe/pin parts don't confuse it.
+  const pb = parts.map(p => bbox([p.pos]));
+  const vol = b => (b.mx[0]-b.mn[0])*(b.mx[1]-b.mn[1])*(b.mx[2]-b.mn[2]);
+  const mainIdx = pb.reduce((best,b,i) => vol(b) > vol(pb[best]) ? i : best, 0);
+  const main = parts[mainIdx], mb = pb[mainIdx];
   const prism = [0,1,2].filter(k => {
-    const tol = Math.max(1e-4, ext[k]*1e-4);
-    for (const p of parts) for (let i=k;i<p.pos.length;i+=3){ const v=p.pos[i]; if (Math.abs(v-mn[k])>tol && Math.abs(v-mx[k])>tol) return false; }
-    return ext[k] > 0;
+    const e = mb.mx[k]-mb.mn[k], tol = Math.max(1e-4, e*1e-4);
+    for (let i=k;i<main.pos.length;i+=3){ const v=main.pos[i]; if (Math.abs(v-mb.mn[k])>tol && Math.abs(v-mb.mx[k])>tol) return false; }
+    return e > 0;
   });
   let la;
   if ($('lenAxis').value !== 'auto') la = +$('lenAxis').value;
@@ -649,6 +688,105 @@ function makeStripes(bodies, L, H){
   return res;
 }
 
+// ---------------------------------------------------------------- cross-section, strain & relief notches
+function pushOriented(out, A, B, C, n){
+  const ux=B[0]-A[0],uy=B[1]-A[1],uz=B[2]-A[2], vx=C[0]-A[0],vy=C[1]-A[1],vz=C[2]-A[2];
+  const cx=uy*vz-uz*vy, cy=uz*vx-ux*vz, cz=ux*vy-uy*vx;
+  if (cx*cx+cy*cy+cz*cz < 1e-20) return;
+  if (cx*n[0]+cy*n[1]+cz*n[2] >= 0) out.push(...A,...B,...C); else out.push(...A,...C,...B);
+}
+
+// If the mesh is a straight extrusion along u (every vertex on u0 or u1), return its end face
+// as a flat list of CCW 2D triangles [v,w] (3 points per triangle). Otherwise null.
+function prismCap(tris, u0, u1){
+  const tol = Math.max(1e-4, (u1-u0)*1e-5);
+  for (let i=0;i<tris.length;i+=3){ const u=tris[i]; if (Math.abs(u-u0)>tol && Math.abs(u-u1)>tol) return null; }
+  const cap = [];
+  for (let o=0;o<tris.length;o+=9){
+    if (Math.abs(tris[o]-u0)>tol || Math.abs(tris[o+3]-u0)>tol || Math.abs(tris[o+6]-u0)>tol) continue;
+    if (triNormal(tris,o)[0] >= 0) continue;
+    cap.push([tris[o+1],tris[o+2]], [tris[o+7],tris[o+8]], [tris[o+4],tris[o+5]]);   // reversed -> CCW in (v,w)
+  }
+  return cap.length ? cap : null;
+}
+
+// Area centroid (v) and v-extent of a 2D triangle list = neutral axis for bending.
+function sectionStats(cap){
+  let A=0, cv=0, vmin=Infinity, vmax=-Infinity;
+  for (let i=0;i<cap.length;i+=3){
+    const a=cap[i], b=cap[i+1], c=cap[i+2];
+    const ar = ((b[0]-a[0])*(c[1]-a[1]) - (c[0]-a[0])*(b[1]-a[1]))/2;
+    A += ar; cv += ar*(a[0]+b[0]+c[0])/3;
+    for (const p of [a,b,c]){ if(p[0]<vmin)vmin=p[0]; if(p[0]>vmax)vmax=p[0]; }
+  }
+  return A > 0 ? { area:A, vc:cv/A, vmin, vmax } : null;
+}
+// Same from closed 3D meshes (for profiles that aren't straight extrusions).
+function volumeStats(arrs){
+  let V=0, cv=0, vmin=Infinity, vmax=-Infinity;
+  for (const a of arrs) for (let o=0;o<a.length;o+=9){
+    const vol = (a[o]*(a[o+4]*a[o+8]-a[o+5]*a[o+7]) - a[o+1]*(a[o+3]*a[o+8]-a[o+5]*a[o+6]) + a[o+2]*(a[o+3]*a[o+7]-a[o+4]*a[o+6]))/6;
+    V += vol; cv += vol*(a[o+1]+a[o+4]+a[o+7])/4;
+    for (const k of [1,4,7]){ if(a[o+k]<vmin)vmin=a[o+k]; if(a[o+k]>vmax)vmax=a[o+k]; }
+  }
+  return Math.abs(V) > 1e-9 ? { vc:cv/V, vmin, vmax } : null;
+}
+
+// Split a 2D section at v = vcut into the part kept everywhere (K) and the part removed inside notches (R).
+// Intersections are computed canonically so neighbouring triangles share the exact same new vertices.
+function splitSection(cap, vcut, keepAbove){
+  const K = [], R = [];
+  const cut = (A,B) => { if (A[0]>B[0] || (A[0]===B[0] && A[1]>B[1])){ const t=A;A=B;B=t; } const t=(vcut-A[0])/(B[0]-A[0]); return [vcut, A[1]+t*(B[1]-A[1])]; };
+  const fan = (poly, out) => { for (let i=1;i<poly.length-1;i++) out.push(poly[0], poly[i], poly[i+1]); };
+  for (let i=0;i<cap.length;i+=3){
+    const tri = [cap[i],cap[i+1],cap[i+2]], hi = [], lo = [];
+    for (let j=0;j<3;j++){
+      const A=tri[j], B=tri[(j+1)%3], da=A[0]-vcut, db=B[0]-vcut;
+      if (da>=0) hi.push(A);
+      if (da<=0) lo.push(A);
+      if ((da<0&&db>0)||(da>0&&db<0)){ const I=cut(A,B); hi.push(I); lo.push(I); }
+    }
+    if (hi.length>=3) fan(hi, keepAbove ? K : R);
+    if (lo.length>=3) fan(lo, keepAbove ? R : K);
+  }
+  const clean = arr => { const out=[]; for (let i=0;i<arr.length;i+=3){ const a=arr[i],b=arr[i+1],c=arr[i+2];
+    if (Math.abs((b[0]-a[0])*(c[1]-a[1]) - (c[0]-a[0])*(b[1]-a[1])) > 1e-10) out.push(a,b,c); } return out; };
+  return { K:clean(K), R:clean(R) };
+}
+
+// Directed boundary edges (CCW, so material is on the left) of a 2D triangle list.
+function boundaryEdges(cap){
+  const key = p => Math.round(p[0]*1e5)+','+Math.round(p[1]*1e5);
+  const m = new Map();
+  for (let i=0;i<cap.length;i+=3) for (let j=0;j<3;j++){
+    const A=cap[i+j], B=cap[i+(j+1)%3], ka=key(A), kb=key(B);
+    const rev = kb+'|'+ka;
+    if (m.has(rev)) m.delete(rev); else m.set(ka+'|'+kb, [A,B]);
+  }
+  return [...m.values()];
+}
+
+// Build a straight extrusion of section F = K ∪ R along u in [0,L], with R removed inside each notch [a,b].
+function notchedPrism(K, R, L, notches){
+  const out = [], full = K.concat(R);
+  const eF = boundaryEdges(full), eK = boundaryEdges(K);
+  const segs = []; let u = 0;
+  for (const [a,b] of notches){ if (a>u) segs.push([u,a,true]); segs.push([a,b,false]); u = b; }
+  if (u < L) segs.push([u,L,true]);
+  const capAt = (tris, uu, dir) => { for (let i=0;i<tris.length;i+=3) pushOriented(out, [uu,...tris[i]], [uu,...tris[i+1]], [uu,...tris[i+2]], [dir,0,0]); };
+  for (const [u0,u1,isFull] of segs){
+    for (const [p,q] of (isFull ? eF : eK)){
+      const n = [0, q[1]-p[1], -(q[0]-p[0])];
+      const A=[u0,...p], B=[u1,...p], C=[u1,...q], D=[u0,...q];
+      pushOriented(out, A,B,C, n); pushOriented(out, A,C,D, n);
+    }
+  }
+  capAt(segs[0][2] ? full : K, 0, -1);
+  capAt(segs[segs.length-1][2] ? full : K, L, 1);
+  for (const [a,b] of notches){ if (a > 0) capAt(R, a, 1); if (b < L) capAt(R, b, -1); }
+  return Float64Array.from(out);
+}
+
 // ---------------------------------------------------------------- main build
 function getBed(){
   const v = $('printer').value;
@@ -722,6 +860,68 @@ function build(){
   const r0 = rIn + vmax;
   const b = (T + gap) / (2*Math.PI);
   const sp = makeSpiral(r0, b, L);
+  const radiusAt = u => r0 + b*thetaAt(sp, u);     // spiral radius at the belt's centre line (v = 0)
+
+  // ---- cross-section of the belt body (exact when it's a straight extrusion)
+  const scaleCap = cap => cap.map(p => [p[0]*sv, p[1]*sw]);
+  const bodyCaps = frames.map(f => prismCap(f, 0, segLen));
+  const allPrism = bodyCaps.every(Boolean);
+  const caps = allPrism ? bodyCaps.map(scaleCap) : null;
+  let section = allPrism ? sectionStats(caps.flat()) : volumeStats(scaledBodies);
+  const warnExtra = [];
+
+  // ---- relief notches
+  let notchInfo = null, notchList = [];
+  if ($('nOn').checked){
+    if (!allPrism) warnExtra.push('Relief notches need a constant profile (a straight extrusion). This file has features along its length, so no notches were cut.');
+    else if (section){
+      const outer = $('nSide').value === 'out';
+      const autoDepth = 0.8 * (outer ? section.vc - vmin : vmax - section.vc);
+      const depth = $('nDepth').value === '' ? autoDepth : Math.max(0, +$('nDepth').value);
+      const vcut = outer ? vmin + depth : vmax - depth;
+      const splits = caps.map(c => splitSection(c, vcut, outer));
+      const kSec = sectionStats(splits.flatMap(s => s.K));
+      if (depth > 0 && kSec){
+        const p = Math.max(1, +$('nSpace').value || 5), extra = Math.max(0, +$('nExtra').value || 0);
+        const fixedW = Math.max(0.2, +$('nWidth').value || 1), auto = $('nAuto').checked;
+        const notches = []; let wMin = Infinity, wMax = 0;
+        for (let uc = p/2; uc < L - p/2 + 1e-6; uc += p){
+          let w;
+          if (!auto) w = fixedW;
+          else if (outer) w = p * (kSec.vc - vmin) / (radiusAt(uc) - vmin) + extra;   // outer face shortens by this much when flat
+          else w = Math.max(0.6, extra);                                              // inside gaps only open up
+          w = Math.min(Math.max(w, 0.3), 0.8*p);
+          const a = uc - w/2, bb2 = uc + w/2;
+          if (a <= 0.5 || bb2 >= L - 0.5) continue;
+          notches.push([a, bb2]); wMin = Math.min(wMin, w); wMax = Math.max(wMax, w);
+        }
+        if (notches.length){
+          frames.forEach((f, pi) => { straights[pi].tris = notchedPrism(splits[pi].K, splits[pi].R, L, notches); });
+          // horizontal stripes are straight extrusions too: notch them the same way so they don't bridge the slots
+          for (const st of straights) if (st.gen && st.name === 'horizontal stripes'){
+            const c = prismCap(st.tris, 0, L);
+            if (c){ const s2 = splitSection(c, vcut, outer); st.tris = notchedPrism(s2.K, s2.R, L, notches); }
+          }
+          section = kSec;   // flanges between notches are free; only the continuous part bends
+          notchList = notches;
+          notchInfo = { count:notches.length, depth, wMin, wMax, side: outer ? 'outside' : 'inside' };
+        }
+      }
+    }
+  }
+
+  // ---- flattening strain: fibre distance from the neutral axis ÷ radius of the neutral axis
+  let strain = null;
+  if (section){
+    const d = Math.max(section.vc - section.vmin, section.vmax - section.vc);
+    const limit = Math.max(0.05, +$('matStrain').value || 3) / 100;
+    const rnIn = r0 - section.vc, rnOut = radiusAt(L) - section.vc;
+    const rInMin = Math.max(rIn, d/limit - (vmax - section.vc));
+    const fits = Object.values(PRINTERS).map(pr => ({ name:pr.name,
+      ok: maxFitLength(rInMin + vmax, b, -vmin, Math.min(pr.x,pr.y)/2 - (+$('margin').value||0)) >= L }));
+    strain = { d, limit, inner: d/rnIn, outer: d/rnOut, rInMin, fits,
+               mat: $('mat').selectedOptions[0].textContent.replace(/\s*\(.*$/,'') };
+  }
 
   // slicing planes: finer near the centre (tight curve), coarser outside
   const ang = Math.max(0.25, +$('angStep').value || 2) * Math.PI/180;
@@ -731,6 +931,13 @@ function build(){
     s += Math.min(6, Math.max(0.15, r*ang));
     if (s >= L - 0.05) break;
     planes.push(s);
+  }
+  if (notchList.length){
+    // slice exactly on the notch walls, and keep other planes clear of them (avoids sliver faces)
+    const walls = notchList.flat();
+    const kept = planes.filter(pl => { let lo=0, hi=walls.length; while(lo<hi){ const m=(lo+hi)>>1; if (walls[m]<pl) lo=m+1; else hi=m; }
+      return !((lo<walls.length && walls[lo]-pl < 0.05) || (lo>0 && pl-walls[lo-1] < 0.05)); });
+    planes.length = 0; planes.push(...kept, ...walls); planes.sort((a,b)=>a-b);
   }
 
   const outParts = straights.map(p => {
@@ -750,6 +957,7 @@ function build(){
   result = {
     parts: outParts, L, T, H, vmin, gap, rIn, r0, b, fx, fy, fz, tiles, period, lenMode, axisInfo, tris,
     turns: thEnd/(2*Math.PI), outerR: r0 + b*thEnd - vmin, ms: performance.now()-t0,
+    strain, notchInfo, warnExtra,
   };
   refreshView();
 }
@@ -835,7 +1043,24 @@ function renderStats(){
   if (r.axisInfo) rows.push(['STL axes', r.axisInfo]);
   const gen = r.parts.filter(p=>p.gen).map(p=>p.name);
   if (gen.length) rows.push(['Stripes', gen.join(', ')]);
-  const warns = [];
+  if (r.notchInfo){
+    const n = r.notchInfo;
+    rows.push(['Relief notches', `${n.count} on ${n.side}, ${n.depth.toFixed(1)} mm deep, ` +
+      (Math.abs(n.wMax-n.wMin) < 0.01 ? `${n.wMin.toFixed(2)} mm wide` : `${n.wMin.toFixed(2)}–${n.wMax.toFixed(2)} mm wide`)]);
+  }
+  const s = r.strain;
+  if (s){
+    const pct = x => (x*100).toFixed(1) + '%';
+    const cls = x => x <= s.limit ? 'ok' : 'bad';
+    rows.push(['Flatten strain', `<span class="${cls(s.inner)}">${pct(s.inner)}</span> inner turn · <span class="${cls(s.outer)}">${pct(s.outer)}</span> outer turn<br>${s.mat} safe limit ≈ ${pct(s.limit)}`]);
+    if (s.inner > s.limit){
+      const fitTxt2 = s.fits.map(f => `${f.name.split(' ').pop()} ${f.ok ? '<span class="ok">✓</span>' : '<span class="bad">✗</span>'}`).join(' · ');
+      rows.push(['Min inner radius', `${s.rInMin.toFixed(0)} mm for ${s.mat} (fits at this length: ${fitTxt2})<br>` +
+        `<button class="secondary xbtn" style="margin-top:4px" data-use-rin="${Math.ceil(s.rInMin)}">Use ${Math.ceil(s.rInMin)} mm</button>`]);
+    }
+  }
+  const warns = [...(r.warnExtra || [])];
+  if (s && s.inner > s.limit) warns.push(`Flattening will over-strain ${s.mat}. Try a flexible filament, relief notches, a bigger inner radius, or put thin flanges on the inside.`);
   if (r.gap < 0.8) warns.push('Gap under 0.8 mm — turns may fuse together.');
   if (r.rIn < r.T*2) warns.push('Inner radius is very tight for this thickness.');
   if (r.H > 0 && r.T > 0 && r.H / r.T > 60) warns.push('Very tall & thin wall — consider a brim.');
@@ -913,6 +1138,11 @@ $('drop').ondragover = e => { e.preventDefault(); $('drop').classList.add('over'
 $('drop').ondragleave = () => $('drop').classList.remove('over');
 $('drop').ondrop = e => { e.preventDefault(); $('drop').classList.remove('over'); readFiles(e.dataTransfer.files, false); };
 $('demoBtn').onclick = loadDemo;
+$('mat').addEventListener('input', () => { $('matStrain').value = $('mat').value; });
+$('stats').onclick = e => {
+  const b = e.target.closest('[data-use-rin]'); if (!b) return;
+  $('rIn').value = b.dataset.useRin; schedule();
+};
 $('partsList').onclick = e => {
   const b = e.target.closest('[data-remove]'); if (!b) return;
   parts.splice(+b.dataset.remove, 1);
