@@ -208,7 +208,27 @@
   </fieldset>
 
   <fieldset>
-    <legend>5 · Relief notches (optional)</legend>
+    <legend>5 · Hinges (rigid materials)</legend>
+    <label class="chk stripehead"><input id="hOn" type="checkbox">Make it a hinged chain</label>
+    <div id="hBox" class="stripebox">
+      <div class="hint" style="margin-top:0">Rigid segments joined by print-in-place pin hinges. The pins print standing up, inside the belt's thickness near the inside face. The chain bends one way only: it unrolls from the spiral and locks when it's flat.<br><b>The inside face needs to be solid at every height</b>, because the hinges attach there. For a C profile, put the open side facing out.</div>
+      <div class="row">
+        <div><label>Segment length (mm)</label><input id="hSeg" type="number" value="12" min="4" step="0.5"></div>
+        <div><label>Clearance (mm)</label><input id="hClear" type="number" value="0.35" min="0.1" step="0.05"></div>
+      </div>
+      <div class="row">
+        <div><label>Knuckle Ø (blank = auto)</label><input id="hKnuckle" type="number" placeholder="auto" min="2" step="0.5"></div>
+        <div><label>Pin Ø (blank = auto)</label><input id="hPin" type="number" placeholder="auto" min="1" step="0.1"></div>
+      </div>
+      <div class="row">
+        <div><label>Knuckles per hinge (odd, blank = auto)</label><input id="hBands" type="number" placeholder="auto" min="3" step="2"></div>
+      </div>
+      <div class="hint">Clearance is the gap around each pin and between knuckles. Use 0.3–0.4 mm with 0.2 mm layers. Print a short test strip first to tune it for your printer.</div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>6 · Relief notches (optional)</legend>
     <label class="chk stripehead"><input id="nOn" type="checkbox">Cut relief notches</label>
     <div id="nBox" class="stripebox">
       <div class="hint" style="margin-top:0">Slots cut across the face so the flanges don't buckle when the belt is laid flat. Needs a constant profile (a straight extrusion).</div>
@@ -227,7 +247,7 @@
   </fieldset>
 
   <fieldset>
-    <legend>6 · Export</legend>
+    <legend>7 · Export</legend>
     <div id="dl">
       <button id="dlAll" disabled>Download STL</button>
       <div id="dlParts"></div>
@@ -362,6 +382,7 @@ function updateModeUI(){
   $('hsBox').classList.toggle('off', !$('hsOn').checked);
   $('vsBox').classList.toggle('off', !$('vsOn').checked);
   $('nBox').classList.toggle('off', !$('nOn').checked);
+  $('hBox').classList.toggle('off', !$('hOn').checked);
   $('nWidth').disabled = $('nAuto').checked;
   const sp = parts.find(p=>p.type==='svg');
   $('svgUnitInfo').textContent = sp ? (sp.unitScale ? sp.svgInfo + ' (setting above ignored).' : 'No physical size in the file — using the setting above.') : '';
@@ -664,26 +685,27 @@ function makeStripes(bodies, L, H){
   const sample = makeProfileSampler(bodies);
   if ($('hsOn').checked){
     const h = num('hsH'), top = num('hsTop'), count = Math.max(1, Math.round(num('hsCount'))), sp = num('hsSpace');
-    const out = [];
+    const out = [], allPolys = [];
     for (let i=0;i<count;i++){
       const w1 = Math.min(H, H - top - i*sp), w0 = Math.max(0, w1 - h);
-      for (const poly of stripePolys(sample, w0, w1, $('hsSide').value, num('hsRaise'), num('hsInlay'))) extrudeU(poly, 0, L, out);
+      for (const poly of stripePolys(sample, w0, w1, $('hsSide').value, num('hsRaise'), num('hsInlay'))){ extrudeU(poly, 0, L, out); allPolys.push(poly); }
     }
-    if (out.length) res.push({ gen:true, name:'horizontal stripes', color:$('hsColor').value, tris:Float64Array.from(out) });
+    if (out.length) res.push({ gen:true, name:'horizontal stripes', color:$('hsColor').value, tris:Float64Array.from(out), polys:allPolys, ranges:null });
   }
   if ($('vsOn').checked){
     const wd = num('vsW'), sp = num('vsSpace'), start = num('vsStart');
     const polys = stripePolys(sample, num('vsBotIn'), H - num('vsTopIn'), $('vsSide').value, num('vsRaise'), num('vsInlay'));
-    const out = [];
+    const out = [], ranges = [];
     if (wd > 0 && polys.length){
       let count = 0;
       for (let uc = start; uc + wd/2 <= L + 1e-6; uc += (sp > wd ? sp : Infinity)){
         const u0 = Math.max(0, uc - wd/2);
         for (const poly of polys) extrudeU(poly, u0, uc + wd/2, out);
+        ranges.push([u0, uc + wd/2]);
         if (++count > 5000) break;
       }
     }
-    if (out.length) res.push({ gen:true, name:'vertical pin stripes', color:$('vsColor').value, tris:Float64Array.from(out) });
+    if (out.length) res.push({ gen:true, name:'vertical pin stripes', color:$('vsColor').value, tris:Float64Array.from(out), polys, ranges });
   }
   return res;
 }
@@ -787,6 +809,122 @@ function notchedPrism(K, R, L, notches){
   return Float64Array.from(out);
 }
 
+// ---------------------------------------------------------------- hinged chain (print-in-place pin hinges)
+// Belt frame: u = along belt, v = thickness (+v = inside of spiral), w = height (Z).
+// Each joint has a vertical pin axis at (u_joint, a), just inside the inner face. Height is split into
+// an odd number of knuckle bands: even bands belong to the left segment (knuckle + pin), odd bands to the
+// right segment (ring around the pin). Segment ends almost touch when straight, so the chain stops at flat.
+let MF = null;   // manifold-3d module, loaded on demand
+let mfLoading = null;
+function loadManifold(){
+  if (!mfLoading) mfLoading = import('https://cdn.jsdelivr.net/npm/manifold-3d@3.5.5/manifold.js')
+    .then(m => m.default()).then(w => { w.setup(); MF = w; return w; });
+  return mfLoading;
+}
+
+function hingeSettings(H, bodyThick){
+  const opt = id => $(id).value === '' ? null : +$(id).value;
+  const cl = Math.max(0.1, opt('hClear') ?? 0.35);
+  const Rk = Math.max(1, (opt('hKnuckle') ?? Math.min(6, bodyThick - 0.4)) / 2);
+  let rp = (opt('hPin') ?? Math.max(1.8, Rk*0.9)) / 2;
+  rp = Math.min(rp, Rk - cl - 0.6);                      // keep a ring wall of >= 0.6 mm around the pin
+  const minSeg = 2*(Rk+cl) + 2;
+  const seg = Math.max(opt('hSeg') ?? 12, minSeg);
+  let nb = opt('hBands') ?? Math.round(H/5);
+  nb = Math.max(3, Math.round(nb)); if (nb % 2 === 0) nb++;
+  return { cl, zc:cl, Rk, rp, seg, minSeg, nb };
+}
+
+function soupFromManifold(m){
+  const mesh = m.getMesh(), np = mesh.numProp, vp = mesh.vertProperties, tv = mesh.triVerts;
+  const out = new Float64Array(tv.length*3);
+  for (let i=0;i<tv.length;i++){ const o=tv[i]*np; out[i*3]=vp[o]; out[i*3+1]=vp[o+1]; out[i*3+2]=vp[o+2]; }
+  return out;
+}
+
+// specs: [{name,color,gen,main, cs:CrossSection(v,w), ranges:null|[[u0,u1],...] (global u)}]
+function buildHinged(specs, L, H, hs, n, p, a, g0, joints){
+  const { Manifold } = MF;
+  const trash = [], T = m => (trash.push(m), m);
+  const PERM = [0,1,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,1];   // extrude (v,w,u) -> (u,v,w)
+  const segs = 48;
+  const prism = (cs, u0, u1) => T(T(T(Manifold.extrude(cs, u1-u0)).transform(PERM)).translate([u0,0,0]));
+  const cyl = (ua, r, w0, w1) => T(T(Manifold.cylinder(w1-w0, r, r, segs)).translate([ua, a, w0]));
+  const bandsOf = parity => { const out=[]; const bh=H/hs.nb; for (let i=parity;i<hs.nb;i+=2) out.push([i*bh, (i+1)*bh]); return out; };
+  const A = bandsOf(0), B = bandsOf(1);
+  const U = list => list.length ? T(Manifold.union(list)) : null;
+  const sub = (m, list) => { const u = U(list); return u ? T(m.subtract(u)) : m; };
+  const add = (m, list) => { const u = U(list); return u ? T(m.add(u)) : m; };
+  const { Rk, rp, cl, zc } = hs;
+
+  function segmentPart(spec, hasL, hasR, k){
+    const uLo = hasL ? g0 : 0, uHi = hasR ? p-g0 : p;
+    let m;
+    if (spec.ranges){
+      const pieces = [];
+      for (const [r0, r1] of spec.ranges){ const lo = Math.max(uLo, r0 - k*p), hi = Math.min(uHi, r1 - k*p); if (hi - lo > 0.05) pieces.push(prism(spec.cs, lo, hi)); }
+      if (!pieces.length) return null;
+      m = U(pieces);
+    } else m = prism(spec.cs, uLo, uHi);
+    if (spec.main){
+      if (hasR){   // knuckles + pin at the right joint
+        m = sub(m, B.map(([w0,w1]) => cyl(p, Rk+cl, w0, w1)));
+        m = add(m, [...A.map(([w0,w1]) => cyl(p, Rk, w0, w1)), cyl(p, rp, 0, H)]);
+      }
+      if (hasL){   // rings at the left joint
+        m = add(m, B.map(([w0,w1]) => cyl(0, Rk, w0, w1)));
+        m = sub(m, [...A.map(([w0,w1]) => cyl(0, Rk+cl, Math.max(-1, w0 - (w0>0?zc:1)), Math.min(H+1, w1 + (w1<H?zc:1)))), cyl(0, rp+cl, -1, H+1)]);
+      }
+    } else {
+      const cut = [];
+      if (hasR) cut.push(cyl(p, Rk+cl, -1, H+1));
+      if (hasL) cut.push(cyl(0, Rk+cl, -1, H+1));
+      m = sub(m, cut);
+    }
+    return m.isEmpty() ? null : soupFromManifold(m);
+  }
+
+  const outs = specs.map(() => []);
+  const cache = new Map();
+  for (let k=0;k<n;k++){
+    const hasL = k > 0, hasR = k < n-1;
+    const J = joints[k], J2 = joints[k+1];
+    const ex = (J2[0]-J[0])/p, ey = (J2[1]-J[1])/p, nx = -ey, ny = ex;   // segment direction, inward normal
+    specs.forEach((spec, si) => {
+      let local;
+      if (spec.ranges) local = segmentPart(spec, hasL, hasR, k);
+      else { const key = si+':'+hasL+hasR; if (!cache.has(key)) cache.set(key, segmentPart(spec, hasL, hasR, k)); local = cache.get(key); }
+      if (!local) return;
+      const w = new Float32Array(local.length);
+      for (let i=0;i<local.length;i+=3){ const u=local[i], dv=local[i+1]-a; w[i]=J[0]+u*ex+dv*nx; w[i+1]=J[1]+u*ey+dv*ny; w[i+2]=local[i+2]; }
+      outs[si].push(w);
+    });
+    trash.splice(0).forEach(o => { try{ o.delete(); }catch{} });   // free wasm memory as we go (cached soups are plain arrays)
+  }
+  const mainSi = specs.findIndex(s2 => s2.main);
+  buildHinged.last = { mid: cache.get(mainSi+':truetrue'), p, a, H, hs };   // for self-checks
+  return specs.map((spec, si) => {
+    const total = outs[si].reduce((s,a)=>s+a.length, 0), tris = new Float32Array(total); let o = 0;
+    for (const a of outs[si]){ tris.set(a, o); o += a.length; }
+    return { name:spec.name, color:spec.color, gen:spec.gen, tris };
+  }).filter(p => p.tris.length);
+}
+
+// Joint positions along the hinge-axis spiral so every segment chord is exactly p long.
+function chainJoints(ra0, b, p, n){
+  const P = th => { const r = ra0 + b*th; return [r*Math.cos(th), r*Math.sin(th)]; };
+  const J = [P(0)]; let th = 0;
+  for (let k=0;k<n;k++){
+    const r = ra0 + b*th; let lo = th, hi = th + Math.min(3, 4*p/r);
+    for (let it=0; it<60; it++){ const mid=(lo+hi)/2, q=P(mid); if (Math.hypot(q[0]-J[k][0], q[1]-J[k][1]) < p) lo = mid; else hi = mid; }
+    th = (lo+hi)/2; const q = P(th);
+    // snap to exactly p from the previous joint along the same direction
+    const dx=q[0]-J[k][0], dy=q[1]-J[k][1], d=Math.hypot(dx,dy);
+    J.push([J[k][0]+dx/d*p, J[k][1]+dy/d*p]);
+  }
+  return { J, thEnd: th };
+}
+
 // ---------------------------------------------------------------- main build
 function getBed(){
   const v = $('printer').value;
@@ -858,9 +996,6 @@ function build(){
   const gap = Math.max(0, +$('gap').value || 0);
   const rIn = Math.max(0.5, +$('rIn').value || 20);
   const r0 = rIn + vmax;
-  const b = (T + gap) / (2*Math.PI);
-  const sp = makeSpiral(r0, b, L);
-  const radiusAt = u => r0 + b*thetaAt(sp, u);     // spiral radius at the belt's centre line (v = 0)
 
   // ---- cross-section of the belt body (exact when it's a straight extrusion)
   const scaleCap = cap => cap.map(p => [p[0]*sv, p[1]*sw]);
@@ -870,9 +1005,37 @@ function build(){
   let section = allPrism ? sectionStats(caps.flat()) : volumeStats(scaledBodies);
   const warnExtra = [];
 
+  // ---- hinged chain setup
+  let hinge = null;
+  if ($('hOn').checked){
+    if (!allPrism) warnExtra.push('Hinges need a constant profile (a straight extrusion). This file has features along its length, so it was bent as one piece instead.');
+    else if (!MF){ $('status').textContent = 'Loading hinge engine…'; loadManifold().then(schedule, e => { $('status').innerHTML = '<span class="bad">Could not load the hinge engine (needs internet).</span>'; }); return 'pending'; }
+    else {
+      const secs = caps.map(c => sectionStats(c));
+      const mainIdx = secs.reduce((bi, s2, i) => (s2 && (!secs[bi] || s2.area > secs[bi].area)) ? i : bi, 0);
+      const ms = secs[mainIdx];
+      const hs = hingeSettings(H, ms.vmax - ms.vmin);
+      let n = Math.max(1, Math.round(L / hs.seg)); if (L/n < hs.minSeg) n = Math.max(1, Math.floor(L / hs.minSeg));
+      const pSeg = L / n;
+      const a = ms.vmax - hs.Rk - 0.02;                    // pin axis: knuckle sits just inside the inner face
+      const ra0 = r0 - a;                                  // hinge-axis radius at the start of the spiral
+      const sag = pSeg*pSeg / (8*ra0);                     // straight segments cut inside the curve by this much
+      hinge = { hs, n, p:pSeg, a, ra0, sag, mainIdx, bodyVmin: ms.vmin, bodyVmax: ms.vmax };
+      // the inside face must be solid at every height, or knuckles float
+      const sample = makeProfileSampler(caps.map(c => { const t=[]; for (const q of c) t.push(0,q[0],q[1]); return Float64Array.from(t); }).map((x,i)=>x));
+      let weak = 0, steps = 24;
+      for (let i=0;i<=steps;i++){ const w = H*(0.02 + 0.96*i/steps); if (!(sample(w,+1) >= ms.vmax - hs.Rk)) weak++; }
+      if (weak) warnExtra.push('The inside face is not solid all the way up, so some knuckles may not be attached. Tick "Flip which face is on the outside" so the solid back faces inward.');
+    }
+  }
+  const b = (T + gap + (hinge ? hinge.sag : 0)) / (2*Math.PI);
+  const sp = makeSpiral(r0, b, L);
+  const radiusAt = u => r0 + b*thetaAt(sp, u);     // spiral radius at the belt's centre line (v = 0)
+
   // ---- relief notches
   let notchInfo = null, notchList = [];
-  if ($('nOn').checked){
+  if ($('nOn').checked && hinge) warnExtra.push('Relief notches are ignored in hinge mode (the hinges do that job).');
+  if ($('nOn').checked && !hinge){
     if (!allPrism) warnExtra.push('Relief notches need a constant profile (a straight extrusion). This file has features along its length, so no notches were cut.');
     else if (section){
       const outer = $('nSide').value === 'out';
@@ -912,7 +1075,7 @@ function build(){
 
   // ---- flattening strain: fibre distance from the neutral axis ÷ radius of the neutral axis
   let strain = null;
-  if (section){
+  if (section && !hinge){
     const d = Math.max(section.vc - section.vmin, section.vmax - section.vc);
     const limit = Math.max(0.05, +$('matStrain').value || 3) / 100;
     const rnIn = r0 - section.vc, rnOut = radiusAt(L) - section.vc;
@@ -923,6 +1086,30 @@ function build(){
                mat: $('mat').selectedOptions[0].textContent.replace(/\s*\(.*$/,'') };
   }
 
+  let outParts, hingeInfo = null, chainThEnd = null;
+  if (hinge){
+    const { hs, n, p:pSeg, a, ra0 } = hinge;
+    const { J, thEnd: th } = chainJoints(ra0, b, pSeg, n);
+    chainThEnd = th;
+    const raEnd = ra0 + b*th, aMin = pSeg / raEnd, aMax = pSeg / ra0;
+    const target = Math.max(hs.cl, 0.3);
+    const g0 = Math.max(0.05, (target - (hs.Rk + hs.cl)*aMin) / 2);
+    const toCS = tris => new MF.CrossSection(Array.from({length: tris.length/3}, (_,i) => [tris[i*3], tris[i*3+1], tris[i*3+2]]), 'Positive');
+    const specs = [], csList = [];
+    frames.forEach((f, pi) => { const cs = toCS(caps[pi]); csList.push(cs);
+      specs.push({ name:parts[pi].name, color:parts[pi].color, gen:false, main: pi === hinge.mainIdx, cs, ranges:null }); });
+    for (const st of straights.slice(frames.length)){
+      if (!st.polys || !st.polys.length) continue;
+      const cs = new MF.CrossSection(st.polys, 'Positive'); csList.push(cs);
+      specs.push({ name:st.name, color:st.color, gen:true, main:false, cs, ranges: st.ranges });
+    }
+    try { outParts = buildHinged(specs, L, H, hs, n, pSeg, a, g0, J); }
+    finally { csList.forEach(c => { try{ c.delete(); }catch{} }); }
+    hingeInfo = { n, p:pSeg, knuckle: 2*hs.Rk, pin: 2*hs.rp, cl: hs.cl, bands: hs.nb, flatGap: 2*g0,
+                  angleMax: aMax*180/Math.PI, angleMin: aMin*180/Math.PI };
+    if (hingeInfo.pin < 1.5) warnExtra.push(`The pin is only Ø${hingeInfo.pin.toFixed(1)} mm because the belt is thin, so the hinges will be fragile. A belt at least 5 mm thick (or a bigger knuckle Ø) gives sturdier hinges.`);
+    if (aMax > 0.6) warnExtra.push(`Hinges turn up to ${hingeInfo.angleMax.toFixed(0)}° at the centre. Shorter segments or a bigger inner radius will move more smoothly.`);
+  } else {
   // slicing planes: finer near the centre (tight curve), coarser outside
   const ang = Math.max(0.25, +$('angStep').value || 2) * Math.PI/180;
   const planes = []; let s = 0;
@@ -940,11 +1127,12 @@ function build(){
     planes.length = 0; planes.push(...kept, ...walls); planes.sort((a,b)=>a-b);
   }
 
-  const outParts = straights.map(p => {
+  outParts = straights.map(p => {
     const bent = bend(slabCut(p.tris, planes), sp);
     if (signedVolume(bent) < 0) flipWinding(bent);
     return { name:p.name, color:p.color, gen:!!p.gen, tris:bent };
   });
+  }
 
   // centre footprint on origin, sit on z=0
   const bb = bbox(outParts.map(p=>p.tris));
@@ -952,12 +1140,12 @@ function build(){
   for (const p of outParts) for (let i=0;i<p.tris.length;i+=3){ p.tris[i]-=cx; p.tris[i+1]-=cy; p.tris[i+2]-=cz; }
   const fx = bb.mx[0]-bb.mn[0], fy = bb.mx[1]-bb.mn[1], fz = bb.mx[2]-bb.mn[2];
 
-  const thEnd = thetaAt(sp, L);
+  const thEnd = chainThEnd ?? thetaAt(sp, L);
   const tris = outParts.reduce((n,p)=>n+p.tris.length/9, 0);
   result = {
     parts: outParts, L, T, H, vmin, gap, rIn, r0, b, fx, fy, fz, tiles, period, lenMode, axisInfo, tris,
     turns: thEnd/(2*Math.PI), outerR: r0 + b*thEnd - vmin, ms: performance.now()-t0,
-    strain, notchInfo, warnExtra,
+    strain, notchInfo, warnExtra, hingeInfo,
   };
   refreshView();
 }
@@ -1048,6 +1236,12 @@ function renderStats(){
     rows.push(['Relief notches', `${n.count} on ${n.side}, ${n.depth.toFixed(1)} mm deep, ` +
       (Math.abs(n.wMax-n.wMin) < 0.01 ? `${n.wMin.toFixed(2)} mm wide` : `${n.wMin.toFixed(2)}–${n.wMax.toFixed(2)} mm wide`)]);
   }
+  if (r.hingeInfo){
+    const h = r.hingeInfo;
+    rows.push(['Hinged chain', `${h.n} segments × ${h.p.toFixed(2)} mm<br>knuckle Ø${h.knuckle.toFixed(1)} · pin Ø${h.pin.toFixed(1)} · ${h.bands} knuckles · clearance ${h.cl} mm`]);
+    rows.push(['Hinge angle', `${h.angleMax.toFixed(1)}° (centre) → ${h.angleMin.toFixed(1)}° (outside) · gap when flat ${h.flatGap.toFixed(2)} mm`]);
+    rows.push(['Flatten strain', '<span class="ok">none, the segments stay rigid</span>']);
+  }
   const s = r.strain;
   if (s){
     const pct = x => (x*100).toFixed(1) + '%';
@@ -1126,7 +1320,7 @@ function schedule(){
   clearTimeout(timer);
   $('status').textContent = 'Building…';
   timer = setTimeout(()=>{
-    try{ build(); fitCamera(); $('status').textContent = result ? 'Ready' : 'Ready'; }
+    try{ if (build() === 'pending') return; fitCamera(); $('status').textContent = result ? 'Ready' : 'Ready'; }
     catch(e){ console.error(e); $('status').innerHTML = `<span class="bad">${escapeHTML(e.message)}</span>`; }
   }, 250);
 }
@@ -1154,7 +1348,7 @@ document.querySelectorAll('#side input, #side select').forEach(el => {
   el.addEventListener('input', () => { updateModeUI(); schedule(); });
 });
 drawBed();
-window.__spiral = { get result(){ return result; }, loadDemo };
+window.__spiral = { get result(){ return result; }, loadDemo, get MF(){ return MF; }, get hingeLast(){ return buildHinged.last; } };
 </script>
 </body>
 </html>
