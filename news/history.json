@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-25T21:01:25.434284+00:00",
+    "items": [
+      {
+        "title": "FCC Authorizes SpaceX to Deploy One Million Satellites",
+        "link": "https://arstechnica.com/space/2026/11/the-fcc-has-authorized-spacex-to-deploy-1-million-satellites/",
+        "why": "50-fold increase in orbiting satellites, massive regulatory shift"
+      },
+      {
+        "title": "1Password Breach Leaks Customer Names and Emails",
+        "link": "https://www.theverge.com/tech/1042409/1password-data-breach-leak",
+        "why": "Major security firm breached, exposing customer data"
+      },
+      {
+        "title": "State AGs Move to Block Character.AI Chat History Sale",
+        "link": "https://www.engadget.com/2328630/state-ags-are-trying-to-stop-characterai-from-auctioning-off-users-chat-histories/",
+        "why": "AI privacy crisis involving children chat data auction"
+      },
+      {
+        "title": "Ladybird Browser Launches First Downloadable Alpha",
+        "link": "https://arstechnica.com/gadgets/2026/11/ladybirds-new-alpha-shows-theres-life-beyond-chromium/",
+        "why": "Independent browser engine challenges Chromium dominance"
+      },
+      {
+        "title": "Italy and Switzerland Warn of AI-Driven Cyberattacks",
+        "link": "https://www.bleepingcomputer.com/news/security/italy-and-switzerland-warn-of-autonomous-ai-driven-cyberattacks/",
+        "why": "Government agencies flag autonomous AI hacking threats"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-25T11:01:47.767354+00:00",
     "items": [
       {
