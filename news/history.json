@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-25T11:01:47.767354+00:00",
+    "items": [
+      {
+        "title": "Hackers Breach CIA Open-Source Intelligence Analysis System",
+        "link": "https://www.bleepingcomputer.com/news/security/hackers-reportedly-breached-cia-intelligence-analysis-system/",
+        "why": "Foreign hackers breached CIA intelligence analysis system"
+      },
+      {
+        "title": "Tidal Bans All AI-Generated Music, Deleting 27M Tracks",
+        "link": "https://www.theguardian.com/music/2026/nov/25/tidal-streaming-service-bans-ai-generated-music",
+        "why": "Streaming platform purges 27M AI tracks, sets industry precedent"
+      },
+      {
+        "title": "Meta Employees Raise Alarms Over AI Content Moderation Push",
+        "link": "https://www.theguardian.com/technology/2026/nov/25/meta-insiders-concerned-push-to-ai-content-moderation",
+        "why": "Meta staff warn AI moderation errors scale beyond human oversight"
+      },
+      {
+        "title": "FinCEN Discloses Cybersecurity Incident at Treasury Bureau",
+        "link": "https://www.theverge.com/policy/1041957/fincen-treasury-cybersecurity-incident",
+        "why": "US financial crimes bureau discloses active cybersecurity incident"
+      },
+      {
+        "title": "Congress Scrambles to Reauthorize Expiring Warrantless Surveillance Law",
+        "link": "https://www.theverge.com/policy/1041568/fisa-ndaa-blue-wave",
+        "why": "Key FISA warrantless wiretapping authority faces imminent expiration"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-24T21:01:20.090901+00:00",
     "items": [
       {
@@ -146,66 +176,6 @@
         "title": "Hackers Exploit GL.iNet Cloud Flaw to Infect Routers and KVM Devices",
         "link": "https://www.bleepingcomputer.com/news/security/hackers-exploit-glinet-cloud-flaw-to-infect-routers-kvm-devices/",
         "why": "Active exploitation of router cloud management vulnerability"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-22T11:00:52.060371+00:00",
-    "items": [
-      {
-        "title": "Claude AI Helps Mathematician Prove Riemann Hypothesis",
-        "link": "https://www.theguardian.com/technology/2026/nov/21/anthropic-riemann-hypothesis-solved-claude-ai",
-        "why": "Landmark AI-assisted proof of major unsolved math problem"
-      },
-      {
-        "title": "FBI Investigates Hack of National Criminal Justice Database",
-        "link": "https://www.securityweek.com/fbi-investigating-apparent-hack-of-its-key-national-criminal-justice-database-ap-source-says/",
-        "why": "Major breach of critical US law enforcement infrastructure"
-      },
-      {
-        "title": "OpenRouter Drops Three Providers After Prompt Theft Discovery",
-        "link": "https://thehackernews.com/2026/11/openrouter-drops-3-providers-after.html",
-        "why": "AI inference providers compromised for months, data stolen"
-      },
-      {
-        "title": "550 Google Employees Petition Against AI in Schools",
-        "link": "https://www.npr.org/2026/11/21/nx-s1-6048599/google-employees-protest-ai-in-schools-policy",
-        "why": "Rare internal revolt at Google over AI policy"
-      },
-      {
-        "title": "Microsoft Entra Connect Health Flaw Exploited in Data Breach",
-        "link": "https://www.bleepingcomputer.com/news/security/microsoft-entra-connect-health-flaw-exploited-to-steal-tenant-data/",
-        "why": "Identity service vulnerability exposed enterprise tenant data"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-21T21:01:45.309800+00:00",
-    "items": [
-      {
-        "title": "Mathematician Proves Riemann Hypothesis Using Claude AI",
-        "link": "https://www.theguardian.com/technology/2026/nov/21/anthropic-riemann-hypothesis-solved-claude-ai",
-        "why": "Landmark AI-assisted math proof independently verified by two groups"
-      },
-      {
-        "title": "FBI and USDA Hit by Hacks Targeting Federal Databases",
-        "link": "https://www.theverge.com/tech/1039543/fbi-usda-hacked",
-        "why": "Major breach of federal agencies and criminal justice database"
-      },
-      {
-        "title": "UN Talks on Autonomous Weapons Rules Collapse",
-        "link": "https://www.theguardian.com/technology/2026/nov/21/international-talks-control-ai-autonomous-weapons-collapse",
-        "why": "Failed AI weapons regulation raises global security concerns"
-      },
-      {
-        "title": "Microsoft Entra Connect Health Flaw Exploited in Data Breach",
-        "link": "https://www.bleepingcomputer.com/news/security/microsoft-entra-connect-health-flaw-exploited-to-steal-tenant-data/",
-        "why": "Enterprise identity infrastructure breached, tenant data stolen"
-      },
-      {
-        "title": "CoreWeave Exposes Risky Economics of AI Data Center Boom",
-        "link": "https://www.theguardian.com/business/2026/nov/21/debt-laden-cloud-computing-company-coreweave-ai-boom",
-        "why": "Debt-laden AI cloud provider signals potential bubble risks"
       }
     ]
   }
