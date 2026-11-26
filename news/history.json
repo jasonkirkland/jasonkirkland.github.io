@@ -1,5 +1,38 @@
 [
   {
+    "timestamp": "2026-11-26T21:01:09.672714+00:00",
+    "items": [
+      {
+        "title": "FCC Approves SpaceX to Deploy 1 Million Satellites for Space Data Centers",
+        "link": "https://www.pbs.org/newshour/nation/fcc-says-spacex-can-deploy-1-million-satellites-for-data-centers-in-space-scientists-are-skeptical",
+        "why": "Unprecedented regulatory approval with massive industry implications"
+      },
+      {
+        "title": "NVIDIA Reportedly Halts AI Chip Shipments to Southeast Asia",
+        "link": "https://www.engadget.com/2329200/nvidia-reportedly-halts-chip-shipments-to-southeast-asia/",
+        "why": "Major AI supply chain disruption with geopolitical fallout",
+        "sources": [
+          "Engadget - Technology News & Expert Reviews"
+        ]
+      },
+      {
+        "title": "1Password Discloses Breach, Says User Vaults Remain Safe",
+        "link": "https://www.engadget.com/2329013/1password-hacked-but-users-vaults-are-safe/",
+        "why": "Security incident at major password manager vendor"
+      },
+      {
+        "title": "Google Will Require Android Developers to Share Home Addresses Publicly",
+        "link": "https://www.theverge.com/tech/1043228/android-play-store-google-developer-address-eu",
+        "why": "New Play Store policy raises privacy concerns for developers"
+      },
+      {
+        "title": "ThreatsDay: 10M NGINX Servers at Risk, 250+ Rogue Extensions Found",
+        "link": "https://thehackernews.com/2026/11/threatsday-250-rogue-extensions-10m.html",
+        "why": "Critical security threats across web infrastructure and browsers"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-26T11:01:36.603146+00:00",
     "items": [
       {
@@ -176,36 +209,6 @@
         "title": "Russia May Launch Nuclear Weapon Into Orbit Next Month",
         "link": "https://arstechnica.com/space/2026/11/russia-may-launch-a-nuclear-armed-satellite-far-sooner-than-we-thought/",
         "why": "Space nuclear weapon could destroy thousands of satellites"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-23T11:01:36.687255+00:00",
-    "items": [
-      {
-        "title": "Meta Muse AI Agents Shop Walmart for Black Friday Deals",
-        "link": "https://www.theverge.com/ai-artificial-intelligence/1039874/walmart-agent-gateway-meta-muse-black-friday",
-        "why": "Major AI agent milestone \u2014 autonomous shopping at scale"
-      },
-      {
-        "title": "CISA Flags Critical Cisco Expressway RCE Flaw as Actively Exploited",
-        "link": "https://www.bleepingcomputer.com/news/security/cisa-flags-critical-cisco-expressway-rce-flaw-as-actively-exploited/",
-        "why": "Critical security flaw actively exploited, federal alert issued"
-      },
-      {
-        "title": "CERT-In Warns AI-Powered Cyberattacks Hit Indian Bank Payments",
-        "link": "https://thehackernews.com/2026/11/ai-assisted-cyberattacks-trigger.html",
-        "why": "AI-assisted attacks triggering unauthorized bank payments"
-      },
-      {
-        "title": "Nvidia Bets $500M on Inception to Reshape AI Text Generation",
-        "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxPbGtaSmlfdVBBbk84OFV3T2trakUyZHBld2VWNEI1UlBuSTBOb2lENzZzYnNJclhVeVIyTEtJNkVObHpmaTdyVm0wSk83SllDOE1sS0x3al9Db1p1Zl9IOGtjVVg4c2ttN3NHaThMVTQxSVJMUU15c3d0Y2ZqUC1OOW9uUG40M1VjbS1mZUJhQ3lxUWpJdW83a3FwNjdFUGc?oc=5",
-        "why": "Massive Nvidia investment targeting AI model innovation"
-      },
-      {
-        "title": "Anthropic IPO Sparks Debate Over AI Wealth and Bubble Risks",
-        "link": "https://www.theguardian.com/commentisfree/2026/nov/23/anthropic-ipo-tech-elite-stock-bubble",
-        "why": "Major AI company goes public, market implications significant"
       }
     ]
   }
