@@ -1,5 +1,35 @@
 [
   {
+    "timestamp": "2026-11-27T21:00:55.334339+00:00",
+    "items": [
+      {
+        "title": "OpenAI Countersues Apple Over Alleged Trade Secret Theft",
+        "link": "https://www.engadget.com/2329747/openai-countersues-apple-and-accuses-it-of-stealing-trade-secrets/",
+        "why": "Two tech giants in escalating legal war over IP"
+      },
+      {
+        "title": "Restricted NVIDIA Chips Found in Chinese Data Center",
+        "link": "https://www.engadget.com/2329748/restricted-nvidia-chips-were-installed-at-a-chinese-data-center-linked-to-alice-huang/",
+        "why": "Export control violation escalates US-China tech tensions"
+      },
+      {
+        "title": "Hackers Infiltrated US Air Force Cloud Systems",
+        "link": "https://www.engadget.com/2329586/hackers-reportedly-infiltrated-the-air-force-cloud-systems/",
+        "why": "Major military cloud breach discovered during upgrades"
+      },
+      {
+        "title": "Unpatched Cacti Zero-Day With Public PoC Enables RCE",
+        "link": "https://www.bleepingcomputer.com/news/security/unpatched-cacti-zero-day-with-public-poc-gives-remote-code-execution/",
+        "why": "Active exploit publicly available, no patch exists yet"
+      },
+      {
+        "title": "Google Ordered to Halt Belgium Datacenter Construction",
+        "link": "https://www.theguardian.com/world/2026/nov/27/belgian-authorities-order-google-to-halt-datacentre-construction-over-lack-of-permits/",
+        "why": "Regulatory blockade threatens European cloud infrastructure expansion"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-27T11:01:23.332965+00:00",
     "items": [
       {
@@ -182,36 +212,6 @@
         "title": "AI-assisted proof of Riemann hypothesis appears solid",
         "link": "https://arstechnica.com/ai/2026/11/whats-going-on-with-the-riemann-hypothesis/",
         "why": "Potential breakthrough in math using AI assistance"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-24T11:01:46.348732+00:00",
-    "items": [
-      {
-        "title": "OpenAI Employee Charged in Recording Scandal Had Saudi Government Ties",
-        "link": "https://www.engadget.com/2326288/openai-employee-recorded-meetings-allegedly-affiliated-saudi-government/",
-        "why": "Corporate espionage at top AI lab with foreign government links"
-      },
-      {
-        "title": "Meta Launches Muse AI Shopping Agent in the UK",
-        "link": "https://www.theguardian.com/technology/2026/nov/24/meta-launches-muse-uk-ai-agent-do-christmas-shopping",
-        "why": "Major AI company deploys consumer agent for real-world tasks"
-      },
-      {
-        "title": "Microsoft Patches Azure API Management Flaw Exploited for Customer Secrets",
-        "link": "https://thehackernews.com/2026/11/microsoft-fixes-azure-api-management.html",
-        "why": "Critical cloud vulnerability actively exploited, secrets at risk"
-      },
-      {
-        "title": "Jensen Huang Returns as Nvidia CEO Amid White House Celebration",
-        "link": "https://www.theguardian.com/technology/2026/nov/23/nvidia-jensen-huang-return-ceo",
-        "why": "Leadership upheaval at world's most important AI chip company"
-      },
-      {
-        "title": "Amazon Bedrock Adds Anthropic Enterprise Safeguards via Trusted Access API",
-        "link": "https://aws.amazon.com/blogs/machine-learning/introducing-the-amazon-bedrock-trusted-access-api-with-anthropics-enterprise-frontier-safeguards-and-enterprise-data-controls/",
-        "why": "Amazon and Anthropic deepen enterprise AI security partnership"
       }
     ]
   }
