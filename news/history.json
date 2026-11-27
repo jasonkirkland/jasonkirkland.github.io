@@ -1,5 +1,38 @@
 [
   {
+    "timestamp": "2026-11-27T11:01:23.332965+00:00",
+    "items": [
+      {
+        "title": "SAP Confirms Cyberattack, Source Code Reportedly Compromised",
+        "link": "https://www.securityweek.com/sap-confirms-cyberattack-source-code-reportedly-compromised/",
+        "why": "Major enterprise software giant breached via GitHub tokens",
+        "sources": [
+          "SecurityWeek"
+        ]
+      },
+      {
+        "title": "Switzerland Confirms AI-Assisted Cyberattacks Hit Critical Infrastructure",
+        "link": "https://thehackernews.com/2026/11/switzerland-confirms-ai-assisted.html",
+        "why": "First confirmed AI-agent cyberattacks on critical infrastructure"
+      },
+      {
+        "title": "Google to Publish Android Developers' Addresses Publicly",
+        "link": "https://www.engadget.com/2329389/google-will-soon-share-android-developers-addresses-publicly/",
+        "why": "Major privacy policy shift affecting all Android developers"
+      },
+      {
+        "title": "Microsoft Issues Emergency Hotpatch for Windows Server Crashes",
+        "link": "https://www.bleepingcomputer.com/news/microsoft/new-out-of-band-oob-emergency-hotpatch-fixes-windows-server-2025-crashes/",
+        "why": "Urgent out-of-band fix for Server 2025 instability"
+      },
+      {
+        "title": "12-Year-Old Linux NFS Flaw Grants Attackers Root Privileges",
+        "link": "https://www.bleepingcomputer.com/news/security/new-nfs2root-linux-flaw-can-let-attackers-gain-root-privileges/",
+        "why": "Critical remote root escalation in Linux kernel NFS"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-26T21:01:09.672714+00:00",
     "items": [
       {
@@ -179,36 +212,6 @@
         "title": "Amazon Bedrock Adds Anthropic Enterprise Safeguards via Trusted Access API",
         "link": "https://aws.amazon.com/blogs/machine-learning/introducing-the-amazon-bedrock-trusted-access-api-with-anthropics-enterprise-frontier-safeguards-and-enterprise-data-controls/",
         "why": "Amazon and Anthropic deepen enterprise AI security partnership"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-23T21:01:22.773515+00:00",
-    "items": [
-      {
-        "title": "Jensen Huang Returns as Nvidia CEO After Near Exit",
-        "link": "https://www.theverge.com/tech/1040428/nvidia-jensen-huang-ceo-return",
-        "why": "Nvidia cofounder nearly stepped down this month"
-      },
-      {
-        "title": "Nvidia CEO Huang to Testify Publicly Before Senate",
-        "link": "https://www.engadget.com/2325655/nvidia-jensen-huang-will-testify-publlicly-before-senators-on-december-3/",
-        "why": "Congressional scrutiny of AI chip giant intensifies"
-      },
-      {
-        "title": "Microsoft Azure Flaw Exploited to Steal API Credentials",
-        "link": "https://www.bleepingcomputer.com/news/security/microsoft-azure-flaw-exploited-to-steal-customers-api-credentials/",
-        "why": "Active exploitation of cloud platform security vulnerability"
-      },
-      {
-        "title": "OpenRouter Drops AI Providers Over Leaked Secrets",
-        "link": "https://www.bleepingcomputer.com/news/security/openrouter-drops-ai-providers-over-leaked-prompts-and-secrets/",
-        "why": "AI routing platform cuts providers for data violations"
-      },
-      {
-        "title": "Russia May Launch Nuclear Weapon Into Orbit Next Month",
-        "link": "https://arstechnica.com/space/2026/11/russia-may-launch-a-nuclear-armed-satellite-far-sooner-than-we-thought/",
-        "why": "Space nuclear weapon could destroy thousands of satellites"
       }
     ]
   }
