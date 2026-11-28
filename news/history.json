@@ -1,5 +1,38 @@
 [
   {
+    "timestamp": "2026-11-28T11:01:01.275420+00:00",
+    "items": [
+      {
+        "title": "AI Labs Sitting on Bombshell Encryption-Breaking Revelations",
+        "link": "https://www.theguardian.com/technology/2026/nov/28/ai-artificial-intelligence-encryption-global-chaos",
+        "why": "AI may have cracked encryption maths threatening global security"
+      },
+      {
+        "title": "Hackers Breached 24 Check Point Management Servers",
+        "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxNU2VlblhQamZ0Vm5WSkN5b044Sk16VlI0dk9IbzJFSWlpRmlGVjV4Q2ZLRDdfNGRUVTE4WlRKWGFQamozVUk0b1Bka1RVd3U4Z0s0bTc5RWZrN2NhTGdPWlVzeWhLbDBqaWlzZFViMEJBanZ5a1lkQkpXdWxyRkw1d2tSbzZYSkNrTFZsWXdZSE81NWVXTTdGM2xmWS1yOVN1?oc=5",
+        "why": "Major security infrastructure breach affecting enterprise firewalls",
+        "sources": [
+          "\"hacker news ai\" - Google News"
+        ]
+      },
+      {
+        "title": "LA School District Blocks Google AI Search Features",
+        "link": "https://www.engadget.com/2329851/la-school-district-blocks-google-ai-search-features/",
+        "why": "Major institution rejects Google mandatory AI search bundle"
+      },
+      {
+        "title": "Switzerland Warns of CyberStrikeAI Open-Source Hacking Tool",
+        "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxQTVpmUy1pNE1yaVVmR2N6OXNJcS1FcUtIc0V6OFBDcU1YRDRGUDJrSVZEQXEyeGZSQXM3eTVqRXp0QU92VDBtME43eFhpaWxfVjZqQnJQUjUySUs1OGl6QWVjZFJjdmxrY0h2MXBKeS12LUNQM1FEelpuVzVYeDhTTFpVWnhlX1Zsb05heGpJakFwb3RqMWZPeEVqTTJ6VTNSWldZY2NTcFQ5eklpNVNfMC1Jd1RpZw?oc=5",
+        "why": "Government warns of AI-powered offensive hacking tool availability"
+      },
+      {
+        "title": "Meta Muse AI Bots Disrupt UK Restaurant Booking Systems",
+        "link": "https://www.theguardian.com/business/2026/nov/28/ai-bots-wreak-havoc-uk-restaurant-bookings-meta-muse",
+        "why": "Meta AI assistant causing real-world business disruption at scale"
+      }
+    ]
+  },
+  {
     "timestamp": "2026-11-27T21:00:55.334339+00:00",
     "items": [
       {
@@ -182,36 +215,6 @@
         "title": "Congress Scrambles to Reauthorize Expiring Warrantless Surveillance Law",
         "link": "https://www.theverge.com/policy/1041568/fisa-ndaa-blue-wave",
         "why": "Key FISA warrantless wiretapping authority faces imminent expiration"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-11-24T21:01:20.090901+00:00",
-    "items": [
-      {
-        "title": "Nvidia CEO Jensen Huang denies Trump rehired him in all-hands",
-        "link": "https://www.theverge.com/tech/1041571/jensen-huang-all-hands-nvidia-apology",
-        "why": "Top AI chip CEO addresses political controversy with staff"
-      },
-      {
-        "title": "Australia passes online safety laws with multibillion-dollar tech fines",
-        "link": "https://www.pbs.org/newshour/world/australia-set-to-pass-online-safety-laws-with-multibillion-dollar-fines-for-tech-giants",
-        "why": "Major regulatory shift hitting Google Meta and others"
-      },
-      {
-        "title": "Linux SSH vulnerability lets attackers bypass server password protection",
-        "link": "https://www.howtogeek.com/linux-vulnerability-let-attackers-bypass-servers-password-protection/",
-        "why": "Critical security flaw affects hardened Linux servers"
-      },
-      {
-        "title": "Amazon delivery drone crashes into garage, triggers FAA probe",
-        "link": "https://arstechnica.com/gadgets/2026/11/faa-opens-probe-after-amazon-delivery-drone-clips-cable-crashes-into-garage/",
-        "why": "FAA investigation threatens Amazon Prime Air expansion"
-      },
-      {
-        "title": "AI-assisted proof of Riemann hypothesis appears solid",
-        "link": "https://arstechnica.com/ai/2026/11/whats-going-on-with-the-riemann-hypothesis/",
-        "why": "Potential breakthrough in math using AI assistance"
       }
     ]
   }
